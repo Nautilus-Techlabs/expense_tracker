@@ -1,6 +1,16 @@
-enum TransactionType { debit, credit }
+enum TransactionType { 
+  debit, credit; 
 
-enum PaymentMethod { upi, card, atm, imps, neft, rtgs, unknown }
+  static TransactionType fromString(String name) => 
+    TransactionType.values.firstWhere((e) => e.name == name, orElse: () => debit);
+}
+
+enum PaymentMethod { 
+  upi, card, atm, imps, neft, rtgs, unknown;
+
+  static PaymentMethod fromString(String name) => 
+    PaymentMethod.values.firstWhere((e) => e.name == name, orElse: () => unknown);
+}
 
 class Transaction {
   final double amount;

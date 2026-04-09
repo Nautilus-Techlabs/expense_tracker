@@ -1,0 +1,526 @@
+{
+  "version": "1.0",
+  "banks": [
+    {
+      "bankName": "HDFC Bank",
+      "senderIdentifiers": ["HDFCBK", "HDFC-BANK", "JD-HDFCBK", "HDFC"],
+      "templates": [
+
+        {
+          "name": "HDFC Atomic 1 (Spent First)",
+          "pattern": "(?:Spent|Txn|Txn of)\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:.*?Card\\s+(?:ending\\s+)?([\\dX*]+))?.*?at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card",
+          "priority": 1
+        },
+        {
+          "name": "HDFC Atomic 2 (Alert Style)",
+          "pattern": "(?:Card\\s+(?:ending\\s+)?([\\dX*]+))?.*?debited\\s+for\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "card",
+          "priority": 2
+        },
+        {
+          "name": "HDFC Atomic 3 (Amount First Spend)",
+          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+spent\\s+on\\s+(?:.*?Card\\s+(?:ending\\s+)?([\\dX*]+))?\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card",
+          "priority": 3
+        },
+        {
+          "name": "HDFC Atomic 4 (UPI Precision)",
+          "pattern": "(?:UPI|VPA).*?(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?).*?(?:from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+))?.*?(?:at|to)\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "upi",
+          "priority": 4
+        },
+        {
+          "name": "HDFC Atomic 5 (Simple Debit)",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited.*?(?:A/c\\s+([\\dX*]+))?.*?at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "unknown",
+          "priority": 5
+        },
+        {
+          "name": "HDFC Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:account|A/c|Card|XX|\\*\\*)?\\s*([\\dX*]+)?",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 25
+        }
+      ]
+    },
+    {
+      "bankName": "ICICI Bank",
+      "senderIdentifiers": ["ICICIB", "ICICI-BANK", "ICICIBANK", "ICICI"],
+      "templates": [
+        {
+          "name": "ICICI Card Txn",
+          "pattern": "(?:Transaction\\s+for|Txn\\s+of)\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:done\\s+)?on\\s+ICICI\\s+(?:Bank\\s+)?Card\\s+(?:xx)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "ICICI VPA Debit",
+          "pattern": "(?:your\\s+)?ICICI\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+debited\\s+for\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?VPA\\s+([^\\s\\.;]+)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "ICICI POS Debit",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\s+via\\s+|\\.\\s+|$|;).*?\\s+via\\s+POS",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "ICICI POS Debit Alt",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+)\\s+via\\s+POS\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "ICICI Debit Info Flex",
+          "pattern": "(?:A/c|Acct|Bank).*?([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?|with)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:Info:|at|to)\\s*(?:UPI/)?([^\\.\\s]+)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "ICICI General Info",
+          "pattern": "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:IMPS|NEFT)/([^/]+)/",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "ICICI Withdrawal",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+from\\s+(?:A/c|Acct)\\s+([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "atm"
+        },
+        {
+          "name": "ICICI Credit Flex",
+          "pattern": "(?:A/c|Acct|Bank).*?([\\dX*]+)\\s+credited\\s+(?:with|by|for)\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?Info:\\s*([^\\s\\.;]+))?",
+          "type": "credit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "ICICI Receive",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+received\\s+(?:via\\s+)?.*?(?:A/c|UPI|Ref No)[^\\d]*?([\\dX*]+)?",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "ICICI Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "SBI Bank",
+      "senderIdentifiers": ["SBI", "SBIBANK", "SBIPYG", "SBIINB", "SBIUPI", "ATMSBI", "SBI-ATM", "SBICRD"],
+      "templates": [
+        {
+          "name": "SBI Card Spent",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+(?:SBI\\s+)?(?:Credit\\s+)?Card\\s+(?:ending\\s+)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\.|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "SBI Debit IMPS",
+          "pattern": "(?:Rs\\.?|INR)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:withdrawn\\s+from|debited\\s+from)\\s+(?:a/c|Acct)\\s+([\\dX*]+).*?(?:IMPS|NEFT|NET|UPI)\\s*(?:/|:)\\s*([a-zA-Z0-9\\s]+)/(?:[A-Z0-9]{5,})?",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "SBI UPI Debit",
+          "pattern": "(?:UPI\\s+)?(?:has\\s+been\\s+)?debited\\s+with\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+(?:your\\s+)?A/C\\s+([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "upi"
+        },
+        {
+          "name": "SBI Flex Debit",
+          "pattern": "(?:a/c|Acct|A/c)\\s+\\*?([\\dX*]+).*?(?:debited|spent|withdrawn).*?(?:by|for|with|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown",
+          "priority": 15
+        },
+        {
+          "name": "SBI ATM Withdrawal",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+(?:from\\s+)?(?:Acct|a/c|\\s)\\s*([\\dX*]+)\\s+(?:via\\s+)?ATM",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "atm"
+        },
+        {
+          "name": "SBI Credit Flex",
+          "pattern": "(?:a/c|Acct|A/c)\\s+\\*?([\\dX*]+).*?credited\\s+(?:by|with|for|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+          "type": "credit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown",
+          "priority": 15
+        },
+        {
+          "name": "SBI Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "Axis Bank",
+      "senderIdentifiers": ["AXISBK", "AXIS-BANK", "AXISBANK", "AXIS"],
+      "templates": [
+        {
+          "name": "Axis Card Spent",
+          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\s+using\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "merchantGroup": 2,
+          "accountGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "Axis UPI Debit",
+          "pattern": "(?:Debit\\s+)?(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited\\s+from\\s+)?.*?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+).*?(?:UPI/|for\\s+)([^\\s\\.;]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "Axis General Debit",
+          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?(?:Axis\\s+Bank\\s+)?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Axis Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "Kotak Bank",
+      "senderIdentifiers": ["KOTAK", "KMCBK", "KOTAKB"],
+      "templates": [
+        {
+          "name": "Kotak Card Spent",
+          "pattern": "(?:Rs\\.?|INR)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+Kotak.*?(?:Card)\\s+([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "Kotak UPI Debit",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+)?debited\\s+from\\s+.*?A/c\\s+([\\dX*]+)\\s+to\\s+VPA\\s+([^\\.\\n\\s;]+?)(?:\\s+on|\\.|$|;)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "Kotak General Debit",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+)?debited\\s+from\\s+(?:your\\s+)?(?:Kotak\\s+)?A/c\\s+([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Kotak Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "PNB",
+      "senderIdentifiers": ["PNBSMS", "PNB"],
+      "templates": [
+        {
+          "name": "PNB UPI Db",
+          "pattern": "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+by\\s+UPI(?:.*?to\\s+([a-zA-Z\\s]+))?",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "PNB ATM",
+          "pattern": "Cash\\s+withdrawal\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+A/c\\s+([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "atm"
+        },
+        {
+          "name": "PNB Debit",
+          "pattern": "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown"
+        },
+        {
+          "name": "PNB Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "Bank of Baroda",
+      "senderIdentifiers": ["BOBTXN", "BOB"],
+      "templates": [
+        {
+          "name": "BOB Debit",
+          "pattern": "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?via\\s+UPI)?",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown"
+        },
+        {
+          "name": "BOB Credit",
+          "pattern": "A/c\\s+([\\dX*]+)\\s+credited\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)",
+          "type": "credit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown"
+        },
+        {
+          "name": "BOB Universal Safety-Net",
+          "pattern": "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "bankName": "Generic",
+      "senderIdentifiers": [],
+      "templates": [
+        {
+          "name": "Gen Debit Of",
+          "pattern": "Debit\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+from\\s+.*?(?:A/c|Acct|account|Card)?\\s*([Xx*\\d]{4,})",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Credit Of",
+          "pattern": "Credit\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+to\\s+.*?(?:A/c|Acct|account|Card)?\\s*([Xx*\\d]{4,})",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Withdrawal 1",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d{2})?)\\s+(?:withdrawn|debited)\\s+(?:from\\s+)?(?:A/c|Acct|account|A/c no\\.)?\\s*([Xx*\\d]{4,})(?:\\s+via\\s+ATM|\\s+at\\s+ATM)?",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "atm"
+        },
+        {
+          "name": "Gen Withdrawal 2",
+          "pattern": "Cash\\s+withdrawal\\s+(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d{2})?)\\s+from\\s+(?:A/c|Acct|account)\\s*([Xx*\\d]{4,})",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "atm"
+        },
+        {
+          "name": "Gen UPI Debit to Merchant",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?).*?debited.*?(?:A/c|Acct|account).*?([Xx*\\d]{4,}).*?(?:UPI|Ref|VPA|to)\\s*(?:/|:| at |-|-)? \\s*([a-zA-Z0-9_\\-\\s@]+)[.\\s;]",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "Gen UPI Debit Reverse",
+          "pattern": "(?:A/c|Acct|account).*?([Xx*\\d]{4,}).*?debited.*?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?).*?(?:UPI|VPA|IMPS|NEFT)(?:\\s*(?:/|:| at |-|-)\\s*([a-zA-Z0-9_\\-\\s@]+))?[.\\s;]",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "upi"
+        },
+        {
+          "name": "Gen Debit With Merchant Pre",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+debited.*?(?:A/c|Acct|account).*?([Xx*\\d]{4,}).*?(?:at|for|to)\\s+([a-zA-Z0-9_\\-\\s]+?)(?:\\s+on|\\.|$|;|\\s+via)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Card Spend 1",
+          "pattern": "(?:Spent|Txn\\s+of)\\s+(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:on|using|done\\s+on)\\s+.*?(?:Credit\\s+)?(?:Card)\\s*(?:ending|xx)?\\s*([Xx*\\d]{4,})\\s+at\\s+([^\\.\\n;]+?)[\\s.;]",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "Gen Card Spend 2",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?debited.*?Card.*?([Xx*\\d]{4,}).*?at\\s+([^\\.\\n;]+?)[\\s.;]",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card"
+        },
+        {
+          "name": "Gen Fallback Debit 1",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent)\\s+(?:from\\s+)?.*?(?:A/c|Acct|account)?\\s*([Xx*\\d]{4,})",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Fallback Debit 2",
+          "pattern": "(?:A/c|Acct|account).*?([Xx*\\d]{4,})\\s+(?:is\\s+)?(?:debited|withdrawn|spent).*?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?\\b)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Credit 1",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:credited|received|deposit).*?(?:A/c|Acct|account).*?([Xx*\\d]{4,})",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Credit 2",
+          "pattern": "(?:A/c|Acct|account).*?([Xx*\\d]{4,})\\s+(?:is\\s+)?(?:credited|received|deposit).*?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?\\b)",
+          "type": "credit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Credit 3",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:credited|received|deposit).*?(?:Card).*?([Xx*\\d]{4,})",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Info Merchant",
+          "pattern": "(?:A/c|Acct).*?([Xx*\\d]{4,}).*?debited\\s+(?:for\\s+)?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?).*?Info:\\s*(?:UPI/)?([^\\.\\n]+)",
+          "type": "debit",
+          "amountGroup": 2,
+          "accountGroup": 1,
+          "merchantGroup": 3,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen Towards Payment Alerts",
+          "pattern": "(?:Payment|Alert).*?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?).*?towards\\s+([^\\n]+?)(?:\\s+UMRN|\\s+ID:|\\s+Alert:|\\s+from|$)",
+          "type": "debit",
+          "amountGroup": 1,
+          "merchantGroup": 2,
+          "method": "unknown"
+        },
+        {
+          "name": "Gen For Colon Alerts",
+          "pattern": "(?:Payment|Alert).*?(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?).*?For:\\s+([^\\n]+?)(?:\\s+From|\\s+Via|$)",
+          "type": "debit",
+          "amountGroup": 1,
+          "merchantGroup": 2,
+          "method": "unknown"
+        }
+      ]
+    }
+  ]
+}

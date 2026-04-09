@@ -2,12 +2,15 @@ import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
+import '../data/sample_data.dart';
 import 'sms_parser.dart';
 
 class SmsService {
   static const String _lastSyncKey = 'last_sms_sync_timestamp';
   final SmsQuery _query = SmsQuery();
   final SmsParserEngine _parser = SmsParserEngine();
+
+  SmsService();
 
   /// Gets the last sync date from SharedPreferences
   Future<DateTime?> getLastSyncDate() async {
@@ -27,7 +30,10 @@ class SmsService {
     // 1. Check Permissions
     final status = await Permission.sms.request();
     if (!status.isGranted) {
-      throw Exception('SMS permission not granted');
+      // Fallback to sample data if permission is not given
+      return _parser.parseBatch(
+        sampleSms.map((s) => (body: s.body, sender: s.sender, date: s.date)).toList(),
+      );
     }
 
     // 2. Determine time window
@@ -72,10 +78,8 @@ class SmsService {
     if (filteredMessages.isEmpty) return [];
 
     // 5. Parse Messages
-    final rawTexts = filteredMessages.map((m) => m.body ?? '').toList();
     final transactions = _parser.parseBatch(
-      rawTexts,
-      fallbackDate: null, // Parser will extract date from SMS body if possible
+      filteredMessages.map((m) => (body: m.body ?? '', sender: m.address, date: m.date)).toList(),
     );
 
     // 6. Update Sync Date to the newest message processed
@@ -92,7 +96,7 @@ class SmsService {
   /// Quickly check how many new messages might be available
   Future<int> getRemainingCount() async {
     final status = await Permission.sms.status;
-    if (!status.isGranted) return 0;
+    if (!status.isGranted) return 0; // Return 0 to avoid nagging if no permission
 
     final lastSync = await getLastSyncDate();
     if (lastSync == null) return -1; // First time sync
