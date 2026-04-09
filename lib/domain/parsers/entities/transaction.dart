@@ -21,6 +21,11 @@ class Transaction {
   final String? account;
   final double? availableBalance;
   final String rawSms;
+  
+  // Metadata for debugging and confidence
+  final String bankName;
+  final String? templateName;
+  final bool isVerified;
 
   Transaction({
     required this.amount,
@@ -31,10 +36,13 @@ class Transaction {
     this.account,
     this.availableBalance,
     required this.rawSms,
+    required this.bankName,
+    this.templateName,
+    this.isVerified = true,
   });
 
   @override
   String toString() {
-    return 'Transaction(amount: $amount, type: $type, method: $method, merchant: "$merchant", date: $date, account: "$account", avlBal: $availableBalance)';
+    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, template: $templateName, verified: $isVerified, merchant: "$merchant", date: $date, account: "$account", avlBal: $availableBalance)';
   }
 }

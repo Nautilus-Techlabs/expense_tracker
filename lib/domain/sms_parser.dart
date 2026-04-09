@@ -1,4 +1,4 @@
-import '../models/transaction.dart';
+import 'parsers/entities/transaction.dart';
 import 'parsers/bank_factory.dart';
 
 class TransactionParser {
@@ -14,8 +14,15 @@ class TransactionParser {
 
 class SmsParserEngine {
   /// Try to parse a single SMS, providing sender for better accuracy.
-  Transaction? tryParse(String text, {String? sender, DateTime? fallbackDate}) =>
-      TransactionParser().parse(text, sender: sender, fallbackDate: fallbackDate);
+  Transaction? tryParse(
+    String text, {
+    String? sender,
+    DateTime? fallbackDate,
+  }) => TransactionParser().parse(
+    text,
+    sender: sender,
+    fallbackDate: fallbackDate,
+  );
 
   /// Parse a batch of messages.
   List<Transaction> parseBatch(

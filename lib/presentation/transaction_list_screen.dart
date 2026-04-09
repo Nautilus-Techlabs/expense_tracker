@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../domain/sms_service.dart';
-import '../models/transaction.dart';
+import '../domain/parsers/entities/transaction.dart';
 
 import 'package:intl/intl.dart';
 
@@ -304,18 +304,79 @@ class _TransactionCard extends StatelessWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         shape: const RoundedRectangleBorder(side: BorderSide.none),
         collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: color, size: 20),
+        leading: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            if (transaction.isVerified)
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 14,
+                  ),
+                ),
+              )
+            else
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning_rounded,
+                    color: Colors.amber,
+                    size: 14,
+                  ),
+                ),
+              ),
+          ],
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-          overflow: TextOverflow.ellipsis,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (!transaction.isVerified)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'UNSUPPORTED',
+                  style: TextStyle(
+                    color: Colors.amber,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
@@ -389,9 +450,12 @@ class _TransactionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _DetailRow(label: 'Bank', value: transaction.bankName),
                 _DetailRow(label: 'Account', value: transaction.account ?? '—'),
                 _DetailRow(label: 'Type', value: typeStr),
                 if (hasMethod) _DetailRow(label: 'Method', value: methodStr),
+                if (transaction.templateName != null)
+                  _DetailRow(label: 'Pattern', value: transaction.templateName!),
                 const SizedBox(height: 12),
                 Text(
                   'ORIGINAL MESSAGE',
