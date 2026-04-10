@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:expense_tracker/domain/sms_parser.dart';
-import 'package:expense_tracker/domain/parsers/bank_factory.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
 import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
 import 'package:expense_tracker/data/sample_data.dart';
 import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
@@ -163,6 +163,29 @@ void main() {
       expect(tx!.amount, 3500.0);
       expect(tx.account, contains('1234'));
       expect(tx.type, TransactionType.debit);
+      expect(tx.method, PaymentMethod.upi);
+    });
+
+    test('ICICI: IMPS Debit', () {
+      const sms =
+          'A/c XX1234 debited for Rs 3,000.00 on 02-Apr-25. IMPS/1234567890/Zomato/. Avl Bal INR 9,200.00.';
+      final tx = engine.tryParse(sms, sender: 'ICICIB');
+
+      expect(tx, isNotNull);
+      expect(tx!.amount, 3000.0);
+      expect(tx.method, PaymentMethod.imps);
+      expect(tx.merchant, contains('Zomato'));
+    });
+
+    test('SBI: IMPS Debit', () {
+      const sms =
+          'Rs 2,500.00 debited from a/c XX1234. IMPS:1234567890/Transfer/Ref. If not done by you, call 1800...';
+      final tx = engine.tryParse(sms, sender: 'SBIINB');
+
+      expect(tx, isNotNull);
+      expect(tx!.amount, 2500.0);
+      expect(tx.method, PaymentMethod.imps);
+      expect(tx.merchant, contains('Transfer'));
     });
   });
 

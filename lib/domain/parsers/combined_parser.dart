@@ -6,8 +6,9 @@ import 'entities/transaction.dart';
 class CombinedParser extends BankParser {
   final BankParser? primary;
   final BankParser fallback;
+  final String? sender;
 
-  CombinedParser(this.primary, this.fallback);
+  CombinedParser(this.primary, this.fallback, {this.sender});
 
   @override
   String getBankName() => primary?.getBankName() ?? fallback.getBankName();
@@ -32,9 +33,11 @@ class CombinedParser extends BankParser {
   }
 
   Transaction _markUnverified(Transaction tx) {
-    // If we have a primary parser, use its bank name instead of "Unsupported"
-    final name = primary?.getBankName() ?? 'Unsupported Bank';
-    
+    // If we have a primary parser, use its bank name. Otherwise, use "Unsupported Bank: [SENDER]"
+    final identifiedBankName = primary?.getBankName();
+    final name =
+        identifiedBankName ?? 'Bank${sender != null ? ": $sender" : ""}';
+
     return Transaction(
       amount: tx.amount,
       type: tx.type,
@@ -44,9 +47,11 @@ class CombinedParser extends BankParser {
       account: tx.account,
       availableBalance: tx.availableBalance,
       rawSms: tx.rawSms,
-      bankName: name, 
+      bankName: name,
       templateName: tx.templateName,
-      isVerified: false,
+      isVerified:
+          identifiedBankName !=
+          null, // Mark as verified if the bank was recognized
     );
   }
 }
@@ -68,11 +73,18 @@ class BankParserFactory {
   }
 
   static void _buildFrom(List<BankDefinition> definitions) {
-    final generic = definitions.where((d) => d.bankName == 'Generic').toList();
-    final specific = definitions.where((d) => d.bankName != 'Generic').toList();
+    final generic = definitions
+        .where((bankDefinition) => bankDefinition.bankName == 'Generic')
+        .toList();
+    final specific = definitions
+        .where((bankDefinition) => bankDefinition.bankName != 'Generic')
+        .toList();
 
     _parsers = specific
-        .map((d) => HierarchicalBankParser(d) as BankParser)
+        .map(
+          (bankDefinition) =>
+              HierarchicalBankParser(bankDefinition) as BankParser,
+        )
         .toList();
     _fallback = generic.isNotEmpty
         ? HierarchicalBankParser(generic.first)
@@ -88,7 +100,7 @@ class BankParserFactory {
         break;
       }
     }
-    return CombinedParser(specificParser, _fallback);
+    return CombinedParser(specificParser, _fallback, sender: sender);
   }
 }
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:expense_tracker/domain/parsers/bank_factory.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
 import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
 import 'package:expense_tracker/data/sample_data.dart';
 
@@ -8,7 +8,9 @@ void main(List<String> args) {
   // 1. Load the JSON configuration from the assets directory
   final configFile = File('assets/bank_configs.json');
   if (!configFile.existsSync()) {
-    print('Error: assets/bank_configs.json not found. Run this from the project root.');
+    print(
+      'Error: assets/bank_configs.json not found. Run this from the project root.',
+    );
     exit(1);
   }
 
@@ -33,7 +35,9 @@ void main(List<String> args) {
   print('\n' + '=' * 80);
   print('PARSER DEBUGGER REPORT');
   print('=' * 80);
-  print('${"SENDER".padRight(12)} | ${"CONF".padRight(4)} | ${"BANK".padRight(15)} | ${"AMT".padRight(10)} | ${"MERCHANT"}');
+  print(
+    '${"SENDER".padRight(12)} | ${"CONF".padRight(4)} | ${"BANK".padRight(15)} | ${"AMT".padRight(10)} | ${"MERCHANT"}',
+  );
   print('-' * 80);
 
   int total = 0;
@@ -48,22 +52,39 @@ void main(List<String> args) {
 
     if (tx == null) {
       failed++;
-      final senderSub = sample.sender.substring(0, sample.sender.length > 12 ? 12 : sample.sender.length);
-      final bodySub = sample.body.substring(0, sample.body.length > 30 ? 30 : sample.body.length);
-      print('${senderSub.padRight(12)} | ERR  | ${"FAILED".padRight(15)} | ${"0.0".padRight(10)} | $bodySub...');
+      final senderSub = sample.sender.substring(
+        0,
+        sample.sender.length > 12 ? 12 : sample.sender.length,
+      );
+      final bodySub = sample.body.substring(
+        0,
+        sample.body.length > 30 ? 30 : sample.body.length,
+      );
+      print(
+        '${senderSub.padRight(12)} | ERR  | ${"FAILED".padRight(15)} | ${"0.0".padRight(10)} | $bodySub...',
+      );
       continue;
     }
 
-    if (tx.isVerified) verified++;
-    else generic++;
+    if (tx.isVerified)
+      verified++;
+    else
+      generic++;
 
     final confStr = tx.isVerified ? '✅' : '⚠️';
-    final bankStr = tx.bankName.length > 15 ? tx.bankName.substring(0, 15) : tx.bankName;
+    final bankStr = tx.bankName.length > 15
+        ? tx.bankName.substring(0, 15)
+        : tx.bankName;
     final amtStr = tx.amount.toStringAsFixed(2);
     final merchStr = tx.merchant ?? 'Unknown';
 
-    final senderSub = sample.sender.substring(0, sample.sender.length > 12 ? 12 : sample.sender.length);
-    print('${senderSub.padRight(12)} |  $confStr  | ${bankStr.padRight(15)} | ${amtStr.padRight(10)} | $merchStr');
+    final senderSub = sample.sender.substring(
+      0,
+      sample.sender.length > 12 ? 12 : sample.sender.length,
+    );
+    print(
+      '${senderSub.padRight(12)} |  $confStr  | ${bankStr.padRight(15)} | ${amtStr.padRight(10)} | $merchStr',
+    );
   }
 
   print('=' * 80);
@@ -72,7 +93,9 @@ void main(List<String> args) {
   print('Verified (✅): $verified');
   print('Estimated (⚠️): $generic');
   print('Failed   (ERR): $failed');
-  print('Accuracy: ${((verified + generic) / total * 100).toStringAsFixed(1)}%');
+  print(
+    'Accuracy: ${((verified + generic) / total * 100).toStringAsFixed(1)}%',
+  );
   print('=' * 80 + '\n');
 }
 
@@ -85,7 +108,9 @@ void _debugSms(String sms, String sender) {
   if (tx == null) {
     print('STATUS: FAILED TO PARSE');
   } else {
-    print('STATUS:   ${tx.isVerified ? "VERIFIED ✅" : "ESTIMATED ⚠️ (Generic Fallback)"}');
+    print(
+      'STATUS:   ${tx.isVerified ? "VERIFIED ✅" : "ESTIMATED ⚠️ (Generic Fallback)"}',
+    );
     print('BANK:     ${tx.bankName}');
     print('TEMPLATE: ${tx.templateName ?? "None"}');
     print('AMOUNT:   ${tx.amount}');

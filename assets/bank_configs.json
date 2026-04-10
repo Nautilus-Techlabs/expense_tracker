@@ -5,30 +5,29 @@
       "bankName": "HDFC Bank",
       "senderIdentifiers": ["HDFCBK", "HDFC-BANK", "JD-HDFCBK", "HDFC"],
       "templates": [
-
         {
-          "name": "HDFC Atomic 1 (Spent First)",
-          "pattern": "(?:Spent|Txn|Txn of)\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:.*?Card\\s+(?:ending\\s+)?([\\dX*]+))?.*?at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
-          "type": "debit",
-          "amountGroup": 1,
-          "accountGroup": 2,
-          "merchantGroup": 3,
-          "method": "card",
-          "priority": 1
-        },
-        {
-          "name": "HDFC Atomic 2 (Alert Style)",
-          "pattern": "(?:Card\\s+(?:ending\\s+)?([\\dX*]+))?.*?debited\\s+for\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC Alert Style Debit",
+          "pattern": "(?:Card|A/c)\\s+(?:ending|XX)?\\s*([\\dX*]+).*?debited\\s+for\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
           "method": "card",
+          "priority": 1
+        },
+        {
+          "name": "HDFC UPI Debit Style 1",
+          "pattern": "UPI\\s+debit\\s+of\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s\\.;@]+)(?:@\\w+)?\\s+from\\s+(?:your\\s+)?(?:A/C|A/c)\\s+([\\dX*]+)",
+          "type": "debit",
+          "amountGroup": 1,
+          "merchantGroup": 2,
+          "accountGroup": 3,
+          "method": "upi",
           "priority": 2
         },
         {
-          "name": "HDFC Atomic 3 (Amount First Spend)",
-          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+spent\\s+on\\s+(?:.*?Card\\s+(?:ending\\s+)?([\\dX*]+))?\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC Card Spent Style 1",
+          "pattern": "(?:Spent|Txn\\s+of)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+HDFC\\s+Bank\\s+(?:Credit\\s+)?Card\\s+(?:ending\\s+)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
@@ -37,8 +36,8 @@
           "priority": 3
         },
         {
-          "name": "HDFC Atomic 4 (UPI Precision)",
-          "pattern": "(?:UPI|VPA).*?(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?).*?(?:from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+))?.*?(?:at|to)\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC UPI Debit Style 2",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+to\\s+([^\\s\\.;@]+)(?:@\\w+)?",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
@@ -47,21 +46,21 @@
           "priority": 4
         },
         {
-          "name": "HDFC Atomic 5 (Simple Debit)",
-          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited.*?(?:A/c\\s+([\\dX*]+))?.*?at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC General Debit",
+          "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+([\\dX*]+)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "merchantGroup": 3,
           "method": "unknown",
-          "priority": 5
+          "priority": 10
         },
         {
           "name": "HDFC Universal Safety-Net",
-          "pattern": "(?:debited|spent|credited|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:account|A/c|Card|XX|\\*\\*)?\\s*([\\dX*]+)?",
+          "pattern": "(?:debited|spent|credited|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:account|A/c|Card|XX|\\*\\*)?\\s*([\\dX*]+)?",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
+          "method": "unknown",
           "priority": 25
         }
       ]
@@ -77,16 +76,18 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 1
         },
         {
           "name": "ICICI VPA Debit",
-          "pattern": "(?:your\\s+)?ICICI\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+debited\\s+for\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?VPA\\s+([^\\s\\.;]+)",
+          "pattern": "(?:your\\s+)?ICICI\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+debited\\s+for\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?VPA\\s+([^\\s\\.;@]+)(?:@\\w+)?",
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 2
         },
         {
           "name": "ICICI POS Debit",
@@ -95,7 +96,8 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 3
         },
         {
           "name": "ICICI POS Debit Alt",
@@ -104,7 +106,8 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 4
         },
         {
           "name": "ICICI Debit Info Flex",
@@ -113,16 +116,18 @@
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "upi",
+          "priority": 5
         },
         {
           "name": "ICICI General Info",
-          "pattern": "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:IMPS|NEFT)/([^/]+)/",
+          "pattern": "(?:A/c|Acct)\\s+([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:IMPS|NEFT|Ref).*?/(?:[\\dA-Z]+)/([^/\\.\\s]+)",
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "imps",
+          "priority": 6
         },
         {
           "name": "ICICI Withdrawal",
@@ -130,7 +135,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "atm"
+          "method": "atm",
+          "priority": 7
         },
         {
           "name": "ICICI Credit Flex",
@@ -139,7 +145,8 @@
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 10
         },
         {
           "name": "ICICI Receive",
@@ -147,7 +154,8 @@
           "type": "credit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 11
         },
         {
           "name": "ICICI Universal Safety-Net",
@@ -155,7 +163,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
         }
       ]
     },
@@ -170,16 +179,18 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 1
         },
         {
           "name": "SBI Debit IMPS",
-          "pattern": "(?:Rs\\.?|INR)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:withdrawn\\s+from|debited\\s+from)\\s+(?:a/c|Acct)\\s+([\\dX*]+).*?(?:IMPS|NEFT|NET|UPI)\\s*(?:/|:)\\s*([a-zA-Z0-9\\s]+)/(?:[A-Z0-9]{5,})?",
+          "pattern": "(?:Rs\\.?|INR)?\\s*([0-9,]{2,}(?:\\.\\d+)?)\\s+(?:withdrawn\\s+from|debited\\s+from)\\s+(?:a/c|Acct)\\s+([\\dX*]+).*?(?:IMPS|NEFT|NET|UPI)\\s*(?:/|:)?\\s*(?:[a-zA-Z0-9]+)/([a-zA-Z0-9\\s]+)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "imps",
+          "priority": 1
         },
         {
           "name": "SBI UPI Debit",
@@ -187,7 +198,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "upi"
+          "method": "upi",
+          "priority": 3
         },
         {
           "name": "SBI Flex Debit",
@@ -204,7 +216,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "atm"
+          "method": "atm",
+          "priority": 7
         },
         {
           "name": "SBI Credit Flex",
@@ -216,12 +229,22 @@
           "priority": 15
         },
         {
+          "name": "SBI Credit Amount-First",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+(?:a/c|Acct|A/c)\\s+([\\dX*]+)",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown",
+          "priority": 14
+        },
+        {
           "name": "SBI Universal Safety-Net",
-          "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+          "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
         }
       ]
     },
@@ -231,21 +254,23 @@
       "templates": [
         {
           "name": "Axis Card Spent",
-          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\s+using\\s+|\\.|\\n|$|;)",
+          "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\s+using|\\.)\\s+(?:Axis\\s+Bank\\s+)?(?:Card|A/c)\\s+(?:ending|XX)?\\s*([\\dX*]+)",
           "type": "debit",
           "amountGroup": 1,
           "merchantGroup": 2,
           "accountGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 3
         },
         {
           "name": "Axis UPI Debit",
-          "pattern": "(?:Debit\\s+)?(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited\\s+from\\s+)?.*?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+).*?(?:UPI/|for\\s+)([^\\s\\.;]+)",
+          "pattern": "(?:Debit\\s+)?(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited\\s+from\\s+)?.*?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+).*?(?:UPI/|UPI Ref:\\s*|for\\s+)([^\\s\\.;]+)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 2
         },
         {
           "name": "Axis General Debit",
@@ -253,7 +278,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 10
         },
         {
           "name": "Axis Universal Safety-Net",
@@ -261,7 +287,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
         }
       ]
     },
@@ -276,16 +303,18 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 1
         },
         {
           "name": "Kotak UPI Debit",
-          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+)?debited\\s+from\\s+.*?A/c\\s+([\\dX*]+)\\s+to\\s+VPA\\s+([^\\.\\n\\s;]+?)(?:\\s+on|\\.|$|;)",
+          "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+)?debited\\s+from\\s+.*?A/c\\s+([\\dX*]+)\\s+to\\s+VPA\\s+([^\\.\\n\\s;@]+?)(?:@\\w+)?(?:\\s+on|\\.|$|;)",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 2
         },
         {
           "name": "Kotak General Debit",
@@ -293,7 +322,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 10
         },
         {
           "name": "Kotak Universal Safety-Net",
@@ -301,7 +331,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
         }
       ]
     },
@@ -316,7 +347,8 @@
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 1
         },
         {
           "name": "PNB ATM",
@@ -324,7 +356,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "atm"
+          "method": "atm",
+          "priority": 2
         },
         {
           "name": "PNB Debit",
@@ -332,7 +365,8 @@
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 10
         },
         {
           "name": "PNB Universal Safety-Net",
@@ -340,7 +374,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
         }
       ]
     },
@@ -354,7 +389,8 @@
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
-          "method": "unknown"
+          "method": "upi",
+          "priority": 10
         },
         {
           "name": "BOB Credit",
@@ -362,7 +398,8 @@
           "type": "credit",
           "amountGroup": 2,
           "accountGroup": 1,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 11
         },
         {
           "name": "BOB Universal Safety-Net",
@@ -370,7 +407,123 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "priority": 20
+          "method": "unknown",
+          "priority": 25
+        }
+      ]
+    },
+    {
+      "bankName": "HSBC Bank",
+      "senderIdentifiers": ["HSBC", "HSBCIN", "HSBC-BANK"],
+      "templates": [
+        {
+          "name": "HSBC Paid/Debited/Credited Pattern",
+          "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+is\\s+(paid|credited|debited)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "HSBC Debit Card Transaction",
+          "pattern": "for\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+on",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "card",
+          "priority": 2
+        },
+        {
+          "name": "HSBC Credit Card Used At",
+          "pattern": "used\\s+at\\s+([^\\s]+)\\s+for\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 2,
+          "merchantGroup": 1,
+          "method": "card",
+          "priority": 3
+        },
+        {
+          "name": "HSBC Merchant At Pattern",
+          "pattern": "at\\s+([^.]+?)\\s*\\.",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "card",
+          "priority": 4
+        },
+        {
+          "name": "HSBC Payment To Merchant",
+          "pattern": "to\\s+([^.]+?)\\s+on\\s+\\d",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 5
+        },
+        {
+          "name": "HSBC Credit From Merchant",
+          "pattern": "from\\s+([^.]+?)(?:\\s+on\\s+|\\s+with\\s+|$)",
+          "type": "credit",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 6
+        },
+        {
+          "name": "HSBC Account Number Pattern",
+          "pattern": "A\\/c\\s+\\d+-\\d+\\*+-(\\d+)",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "HSBC Debit Card Number",
+          "pattern": "Debit\\s+Card\\s+[X*]+(\\d+[xX]*)",
+          "type": "meta",
+          "accountGroup": 1,
+          "method": "card",
+          "priority": 8
+        },
+        {
+          "name": "HSBC Credit Card Last4",
+          "pattern": "credit\\s*card\\s+[xX*]+(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "method": "card",
+          "priority": 9
+        },
+        {
+          "name": "HSBC UTR Reference",
+          "pattern": "with\\s+UTR\\s+(\\w+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "HSBC Reference Number",
+          "pattern": "with\\s+ref\\s+(\\w+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 11
+        },
+        {
+          "name": "HSBC Available Balance",
+          "pattern": "(?:Your\\s+)?Avl\\s+Bal\\s+is\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 12
+        },
+        {
+          "name": "HSBC Available Balance Full",
+          "pattern": "available\\s+bal\\s+is\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "HSBC Universal Safety Net",
+          "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:account|A\\/c|card)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown",
+          "priority": 50
         }
       ]
     },
@@ -384,7 +537,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 1
         },
         {
           "name": "Gen Credit Of",
@@ -392,7 +546,8 @@
           "type": "credit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 2
         },
         {
           "name": "Gen Withdrawal 1",
@@ -400,7 +555,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "atm"
+          "method": "atm",
+          "priority": 3
         },
         {
           "name": "Gen Withdrawal 2",
@@ -408,7 +564,8 @@
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "atm"
+          "method": "atm",
+          "priority": 4
         },
         {
           "name": "Gen UPI Debit to Merchant",
@@ -417,7 +574,8 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 5
         },
         {
           "name": "Gen UPI Debit Reverse",
@@ -426,7 +584,8 @@
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "upi"
+          "method": "upi",
+          "priority": 6
         },
         {
           "name": "Gen Debit With Merchant Pre",
@@ -435,7 +594,8 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 7
         },
         {
           "name": "Gen Card Spend 1",
@@ -444,7 +604,8 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 8
         },
         {
           "name": "Gen Card Spend 2",
@@ -453,15 +614,17 @@
           "amountGroup": 1,
           "accountGroup": 2,
           "merchantGroup": 3,
-          "method": "card"
+          "method": "card",
+          "priority": 9
         },
         {
           "name": "Gen Fallback Debit 1",
-          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent)\\s+(?:from\\s+)?.*?(?:A/c|Acct|account)?\\s*([Xx*\\d]{4,})",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent)\\s+(?:from\\s+)?.*?(?:A/c|Acct|account)?\\s*([Xx*\\d]{4,})",
           "type": "debit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 20
         },
         {
           "name": "Gen Fallback Debit 2",
@@ -469,7 +632,8 @@
           "type": "debit",
           "amountGroup": 2,
           "accountGroup": 1,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 21
         },
         {
           "name": "Gen Credit 1",
@@ -477,7 +641,8 @@
           "type": "credit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 22
         },
         {
           "name": "Gen Credit 2",
@@ -485,7 +650,8 @@
           "type": "credit",
           "amountGroup": 2,
           "accountGroup": 1,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 23
         },
         {
           "name": "Gen Credit 3",
@@ -493,7 +659,8 @@
           "type": "credit",
           "amountGroup": 1,
           "accountGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 24
         },
         {
           "name": "Gen Info Merchant",
@@ -502,7 +669,8 @@
           "amountGroup": 2,
           "accountGroup": 1,
           "merchantGroup": 3,
-          "method": "unknown"
+          "method": "upi",
+          "priority": 30
         },
         {
           "name": "Gen Towards Payment Alerts",
@@ -510,7 +678,8 @@
           "type": "debit",
           "amountGroup": 1,
           "merchantGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 31
         },
         {
           "name": "Gen For Colon Alerts",
@@ -518,7 +687,8 @@
           "type": "debit",
           "amountGroup": 1,
           "merchantGroup": 2,
-          "method": "unknown"
+          "method": "unknown",
+          "priority": 32
         }
       ]
     }

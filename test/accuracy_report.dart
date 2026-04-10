@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:expense_tracker/domain/parsers/bank_factory.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
 import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
 import 'package:expense_tracker/data/sample_data.dart';
 import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
@@ -9,7 +9,9 @@ void main() {
   // 1. Load the JSON configuration from the assets directory
   final configFile = File('assets/bank_configs.json');
   if (!configFile.existsSync()) {
-    print('Error: assets/bank_configs.json not found. Run this from the project root.');
+    print(
+      'Error: assets/bank_configs.json not found. Run this from the project root.',
+    );
     exit(1);
   }
 

@@ -1,5 +1,5 @@
 import 'parsers/entities/transaction.dart';
-import 'parsers/bank_factory.dart';
+import 'parsers/combined_parser.dart';
 
 class TransactionParser {
   TransactionParser();

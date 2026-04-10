@@ -102,6 +102,31 @@ class HierarchicalBankParser extends BankParser {
     if (template.accountGroup != null) {
       account = match.group(template.accountGroup!);
     }
+    // Inside your _extract method in hierarchical_engine.dart
+
+    // 2. FALLBACK: If template failed, try a general search in the SMS body
+    if (account == null) {
+      final fallbackRegex = RegExp(
+        r'(?:A/c|Acct|ending|[\*X]{2,})[\s\.]*([X\*]*\d{4})',
+        caseSensitive: false,
+      );
+      final fallbackMatch = fallbackRegex.firstMatch(sms);
+      if (fallbackMatch != null) {
+        account = fallbackMatch.group(1);
+      }
+    }
+
+    // 3. CLEANUP: Standardize the display (e.g., remove 'XX' or '****')
+    if (account != null) {
+      // Keep only the last 4 digits for a clean UI
+      account = account.replaceAll(RegExp(r'[^0-9]'), '');
+      if (account.length > 4) {
+        account = account.substring(account.length - 4);
+      }
+    }
+    if (account != null) {
+      account = 'XX$account';
+    }
 
     // 4. Balance Extraction
     double? balance;
@@ -111,6 +136,7 @@ class HierarchicalBankParser extends BankParser {
         balance = double.tryParse(rawBalance.replaceAll(",", ""));
       }
     }
+    final extractedMethod = _extractPaymentMethod(sms);
     final extractedBalance = BalanceExtractor.extract(sms);
     final extractedDate = DateExtractor.extract(sms);
     return Transaction(
@@ -118,13 +144,23 @@ class HierarchicalBankParser extends BankParser {
       type: template.type,
       date: extractedDate ?? fallbackDate ?? DateTime.now(),
       merchant: merchant,
-      method: template.method,
+      method: extractedMethod,
       account: account,
       availableBalance: extractedBalance ?? balance,
       rawSms: sms,
       bankName: definition.bankName,
       templateName: template.name,
       isVerified: true, // Specific bank match is verified
+    );
+  }
+
+  PaymentMethod _extractPaymentMethod(String sms) {
+    final pattern = RegExp(r'(UPI|Card|ATM|NEFT|RTGS|IMPS)');
+    final match = pattern.firstMatch(sms)?.group(0);
+
+    return PaymentMethod.values.firstWhere(
+      (e) => e.name.toLowerCase() == match?.toLowerCase(),
+      orElse: () => PaymentMethod.unknown,
     );
   }
 }

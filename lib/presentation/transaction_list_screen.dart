@@ -288,8 +288,7 @@ class _TransactionCard extends StatelessWidget {
     final methodStr = hasMethod ? transaction.method.name.toUpperCase() : '';
     final typeStr = isDebit ? 'Debit' : 'Credit';
 
-    final title =
-        transaction.merchant ?? (hasMethod ? '$methodStr $typeStr' : typeStr);
+    final title = hasMethod ? '$methodStr $typeStr' : typeStr;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -355,8 +354,10 @@ class _TransactionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -454,8 +455,6 @@ class _TransactionCard extends StatelessWidget {
                 _DetailRow(label: 'Account', value: transaction.account ?? '—'),
                 _DetailRow(label: 'Type', value: typeStr),
                 if (hasMethod) _DetailRow(label: 'Method', value: methodStr),
-                if (transaction.templateName != null)
-                  _DetailRow(label: 'Pattern', value: transaction.templateName!),
                 const SizedBox(height: 12),
                 Text(
                   'ORIGINAL MESSAGE',
@@ -493,7 +492,9 @@ class _TransactionCard extends StatelessWidget {
       case PaymentMethod.atm:
         return Icons.account_balance_wallet_rounded;
       case PaymentMethod.imps:
+        return Icons.bolt_rounded;
       case PaymentMethod.neft:
+        return Icons.account_balance_rounded;
       case PaymentMethod.rtgs:
         return Icons.account_balance_rounded;
       default:

@@ -1,4 +1,4 @@
-import 'bank_factory.dart';
+import 'combined_parser.dart';
 import 'parser_config_service.dart';
 
 class FlutterParserInitializer {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:expense_tracker/logic/sms_parser.dart';
-import 'package:expense_tracker/logic/parsers/bank_factory.dart';
+import 'package:expense_tracker/logic/parsers/combined_parser.dart';
 import 'package:expense_tracker/logic/parsers/definitions/bank_definitions.dart';
 import 'package:expense_tracker/data/sample_data.dart';
 import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
