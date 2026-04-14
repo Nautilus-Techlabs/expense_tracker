@@ -3,65 +3,200 @@
   "banks": [
     {
       "bankName": "HDFC Bank",
-      "senderIdentifiers": ["HDFCBK", "HDFC-BANK", "JD-HDFCBK", "HDFC"],
+      "senderIdentifiers": ["HDFCBK", "HDFCBANK", "HDFC", "HDFCB"],
       "templates": [
         {
-          "name": "HDFC Alert Style Debit",
-          "pattern": "(?:Card|A/c)\\s+(?:ending|XX)?\\s*([\\dX*]+).*?debited\\s+for\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC Amount First Spent",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+HDFC\\s+Bank\\s+(?:Credit\\s+)?Card\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
           "type": "debit",
-          "amountGroup": 2,
-          "accountGroup": 1,
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "card",
+          "priority": 0
+        },
+        {
+          "name": "HDFC Amount First Debited",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "merchantGroup": 3,
+          "method": "bank",
+          "priority": 0
+        },
+        {
+          "name": "HDFC Amount First Received",
+          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+received\\s+in\\s+HDFC\\s+Bank\\s+A/c\\s+[Xx*]*(\\d+)",
+          "type": "credit",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "bank",
+          "priority": 0
+        },
+        {
+          "name": "HDFC Card Spent Pattern",
+          "pattern": "Spent\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+From\\s+HDFC\\s+Bank\\s+Card\\s+[Xx*]*(\\d+)\\s+At\\s+([^\\n]+?)\\s+On",
+          "type": "debit",
+          "amountGroup": 1,
+          "accountGroup": 2,
           "merchantGroup": 3,
           "method": "card",
           "priority": 1
         },
         {
-          "name": "HDFC UPI Debit Style 1",
-          "pattern": "UPI\\s+debit\\s+of\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s\\.;@]+)(?:@\\w+)?\\s+from\\s+(?:your\\s+)?(?:A/C|A/c)\\s+([\\dX*]+)",
+          "name": "HDFC Generic Debited",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited",
           "type": "debit",
           "amountGroup": 1,
-          "merchantGroup": 2,
-          "accountGroup": 3,
-          "method": "upi",
+          "method": "bank",
           "priority": 2
         },
         {
-          "name": "HDFC Card Spent Style 1",
-          "pattern": "(?:Spent|Txn\\s+of)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+HDFC\\s+Bank\\s+(?:Credit\\s+)?Card\\s+(?:ending\\s+)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+          "name": "HDFC Sent Money",
+          "pattern": "Sent\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+From\\s+HDFC",
           "type": "debit",
           "amountGroup": 1,
-          "accountGroup": 2,
-          "merchantGroup": 3,
-          "method": "card",
+          "method": "bank",
           "priority": 3
         },
         {
-          "name": "HDFC UPI Debit Style 2",
-          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+to\\s+([^\\s\\.;@]+)(?:@\\w+)?",
-          "type": "debit",
+          "name": "HDFC Credit Received",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited",
+          "type": "credit",
           "amountGroup": 1,
-          "accountGroup": 2,
-          "merchantGroup": 3,
-          "method": "upi",
+          "method": "bank",
           "priority": 4
         },
         {
-          "name": "HDFC General Debit",
-          "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+([\\dX*]+)",
-          "type": "debit",
+          "name": "HDFC Deposited",
+          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+deposited",
+          "type": "credit",
           "amountGroup": 1,
-          "accountGroup": 2,
-          "method": "unknown",
+          "method": "bank",
+          "priority": 5
+        },
+        {
+          "name": "HDFC ATM Withdrawal",
+          "pattern": "withdrawn.*?At\\s+([^\\n]+?)\\s+On",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "atm",
+          "priority": 6
+        },
+        {
+          "name": "HDFC UPI VPA Credit",
+          "pattern": "from\\s+VPA\\s*([^@\\s]+)@",
+          "type": "credit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 7
+        },
+        {
+          "name": "HDFC UPI VPA Debit",
+          "pattern": "at\\s+([^@\\s]+)@",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 8
+        },
+        {
+          "name": "HDFC Salary Credit",
+          "pattern": "SALARY[-\\s]*([A-Za-z0-9 &]+)",
+          "type": "credit",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 9
+        },
+        {
+          "name": "HDFC Info Merchant",
+          "pattern": "Info:\\s*([^/\\n]+)",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
           "priority": 10
         },
         {
-          "name": "HDFC Universal Safety-Net",
-          "pattern": "(?:debited|spent|credited|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:account|A/c|Card|XX|\\*\\*)?\\s*([\\dX*]+)?",
+          "name": "HDFC Towards Payment",
+          "pattern": "towards\\s+([^\\n]+?)(?:\\s+UMRN|\\s+ID:|$)",
           "type": "debit",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 11
+        },
+        {
+          "name": "HDFC For Colon Pattern",
+          "pattern": "For:\\s+([^\\n]+?)(?:\\s+From|\\s+Via|$)",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 12
+        },
+        {
+          "name": "HDFC Future Debit Merchant",
+          "pattern": "for\\s+([^\\n]+?)(?:\\s+ID:|\\s+Act:|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "HDFC Account Last4 Card",
+          "pattern": "Card\\s+x(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "method": "card",
+          "priority": 14
+        },
+        {
+          "name": "HDFC Block DC",
+          "pattern": "BLOCK\\s+DC\\s+(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 15
+        },
+        {
+          "name": "HDFC Account Generic",
+          "pattern": "HDFC\\s+Bank\\s+([X\\*]*\\d+)",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 16
+        },
+        {
+          "name": "HDFC Balance Avl",
+          "pattern": "(?:Avbl|Avl)\\s+bal:?\\s*(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 17
+        },
+        {
+          "name": "HDFC Balance Available",
+          "pattern": "(?:Available|Avbl)\\s+Balance:?\\s*(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 18
+        },
+        {
+          "name": "HDFC Balance Rs",
+          "pattern": "Bal:?\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 19
+        },
+        {
+          "name": "HDFC Reference",
+          "pattern": "(?:Ref|RefNo|Reference|UPI Ref)[:\\s]+([A-Za-z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 20
+        },
+        {
+          "name": "HDFC Universal Safety Net",
+          "pattern": "(?:debited|credited|spent|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Card|XX)?\\s*([\\dX*]+)?",
+          "type": "unknown",
           "amountGroup": 1,
           "accountGroup": 2,
           "method": "unknown",
-          "priority": 25
+          "priority": 50
         }
       ]
     },

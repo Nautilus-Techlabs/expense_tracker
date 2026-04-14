@@ -1,3 +1,4 @@
+import '../core/constants/app_constants.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,7 +63,14 @@ class SmsService {
 
       // Smart Filter: Filter for alphanumeric headers (like VM-HDFCBK)
       // instead of 10-digit mobile numbers.
-      final sender = msg.address ?? '';
+      final sender = (msg.address ?? '').toUpperCase();
+
+      // 🚫 EXCLUSION: Ignore common non-bank senders (PhonePe, Paytm, etc.)
+      if (AppConstants.ignoredSenders.any(
+        (ignored) => sender.contains(ignored),
+      )) {
+        return false;
+      }
 
       // Pattern 1: Contains a hyphen (very common for bank headers)
       if (sender.contains('-')) return true;
@@ -78,14 +86,9 @@ class SmsService {
         'SBI',
         'AXIS',
         'KOTAK',
-        'PAYTM',
-        'GPAY',
-        'AMEX',
         'BANK',
       ];
-      if (commonBankSubstrings.any(
-        (code) => sender.toUpperCase().contains(code),
-      ))
+      if (commonBankSubstrings.any((code) => sender.contains(code)))
         return true;
 
       return false;

@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
 
 /// A single template for an SMS transaction.
@@ -29,13 +30,7 @@ class SmSTemplate {
     this.accountGroup,
     this.balanceGroup,
     this.method = PaymentMethod.unknown,
-    this.exclusionKeywords = const [
-      "otp",
-      "code",
-      "password",
-      "will be",
-      "due on",
-    ],
+    this.exclusionKeywords = AppConstants.exclusionKeywords,
     this.priority = 100,
     this.dateGroup,
   });
@@ -52,7 +47,7 @@ class SmSTemplate {
       method: PaymentMethod.fromString(json['method'] as String? ?? 'unknown'),
       exclusionKeywords:
           (json['exclusionKeywords'] as List<dynamic>?)?.cast<String>() ??
-          const ["otp", "code", "password", "will be", "due on"],
+          AppConstants.exclusionKeywords,
       priority: json['priority'] as int? ?? 100,
       dateGroup: json['dateGroup'] as int?,
     );

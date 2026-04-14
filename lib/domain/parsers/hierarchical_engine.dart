@@ -1,3 +1,4 @@
+import '../../core/constants/app_constants.dart';
 import '../../core/utils/balance_extractor.dart';
 import '../../core/utils/date_extractor.dart';
 import 'base_parser.dart';
@@ -85,11 +86,9 @@ class HierarchicalBankParser extends BankParser {
         final lower = cleaned.toLowerCase();
 
         // 🚫 HARD BLOCK (very important)
-        if (lower.contains("ref") ||
-            lower.contains("txn") ||
-            lower.contains("no") ||
-            lower.contains("imps") ||
-            lower.contains("upi")) {
+        if (AppConstants.merchantHardBlockKeywords.any(
+          (k) => lower.contains(k),
+        )) {
           merchant = null; // ❌ reject garbage
         } else if (isValidMerchantName(cleaned)) {
           merchant = cleaned; // ✅ accept only clean
@@ -107,7 +106,7 @@ class HierarchicalBankParser extends BankParser {
     // 2. FALLBACK: If template failed, try a general search in the SMS body
     if (account == null) {
       final fallbackRegex = RegExp(
-        r'(?:A/c|Acct|ending|[\*X]{2,})[\s\.]*([X\*]*\d{4})',
+        AppConstants.accountFallbackPattern,
         caseSensitive: false,
       );
       final fallbackMatch = fallbackRegex.firstMatch(sms);
@@ -155,7 +154,7 @@ class HierarchicalBankParser extends BankParser {
   }
 
   PaymentMethod _extractPaymentMethod(String sms) {
-    final pattern = RegExp(r'(UPI|Card|ATM|NEFT|RTGS|IMPS)');
+    final pattern = RegExp(AppConstants.paymentMethodPattern);
     final match = pattern.firstMatch(sms)?.group(0);
 
     return PaymentMethod.values.firstWhere(

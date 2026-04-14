@@ -1,3 +1,4 @@
+import '../../core/constants/app_constants.dart';
 import 'entities/transaction.dart';
 
 abstract class BankParser {
@@ -17,30 +18,25 @@ abstract class BankParser {
   String cleanMerchantName(String name) {
     var cleaned = name.trim();
     // Remove "at", "to", "towards" if they are at the start
+    final prefixPattern = AppConstants.merchantCleanPrefixes.join('|');
     cleaned = cleaned.replaceFirst(
-      RegExp(
-        r"^(at|to|towards|from|for|info|vpa|on|by)\s+",
-        caseSensitive: false,
-      ),
+      RegExp("^($prefixPattern)\\s+", caseSensitive: false),
       "",
     );
 
-    // 🛡️ Precision Fix: Remove trailing connecting words like "on", "at", "via" 
+    // 🛡️ Precision Fix: Remove trailing connecting words like "on", "at", "via"
     // This fixes "AMAZON on" or "MEDPLUS on" issues.
     cleaned = cleaned.replaceFirst(
-      RegExp(
-        r"\s+(on|at|at\s+the|via|for|to)$",
-        caseSensitive: false,
-      ),
+      RegExp(r"\s+(on|at|at\s+the|via|for|to)$", caseSensitive: false),
       "",
     );
 
     // Remove common business suffixes
+    final suffixPattern = AppConstants.merchantCleanSuffixes
+        .map((s) => s.replaceAll(' ', '\\s+'))
+        .join('|');
     cleaned = cleaned.replaceFirst(
-      RegExp(
-        r"\s+(pvt\.?\s*ltd\.?|private\s+limited|ltd\.?|limited)$",
-        caseSensitive: false,
-      ),
+      RegExp("\\s+($suffixPattern)\$", caseSensitive: false),
       "",
     );
     // Remove digits and symbols at the end
@@ -52,46 +48,10 @@ abstract class BankParser {
   bool isValidMerchantName(String name) {
     if (name.isEmpty) return false;
     final l = name.toLowerCase();
-    final blacklist = [
-      "account",
-      "bank",
-      "savings",
-      "current",
-      "ending",
-      "a/c",
-      "card",
-      "rs",
-      "inr",
-      "your",
-      "any",
-      "queries",
-      "please",
-      "contact",
-      "support",
-      "available",
-      "balance",
-      "avl",
-      "bal",
-      "clear",
-      "new",
-      "total",
-      "dispute",
-      "dial",
-      "call",
-      "sms",
-      "no",
-      "is",
-      "dear",
-      "with",
-      "credited",
-      "debited",
-      "info",
-      "vpa",
-      "upi",
-      "txn",
-      "ref",
-    ];
-    if (blacklist.any((token) => l == token || l.startsWith("$token ")))
+
+    if (AppConstants.merchantBlacklist.any(
+      (token) => l == token || l.startsWith("$token "),
+    ))
       return false;
     if (RegExp(r"^\d+$").hasMatch(name)) return false; // Just digits
     if (name.length < 2) return false;
