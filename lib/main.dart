@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/parsers/flutter_parser_initializer.dart';
-import 'presentation/transaction_list_screen.dart';
 import 'presentation/transaction_controller.dart';
+import 'presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: ThemeMode.system,
-            home: const TransactionListScreen(),
+            home: const SplashScreen(),
           ),
         );
       },

@@ -1,17 +1,17 @@
 class BalanceExtractor {
   static final List<RegExp> _patterns = [
     RegExp(
-      r'(?:Available|Avl|Avail|Avbl)\s*(?:bal|balance|limit)?[:\s]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
+      r'(?:Available|Avl|Avail|Avbl|Bal|Balance)\s*(?:bal|balance|limit)?[:\s]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
       caseSensitive: false,
     ),
 
     RegExp(
-      r'Balance[:\s]*(?:Rs\.?|INR)?\s*([\d,]+(?:\.\d{2})?)',
+      r'Bal(?:ance)?[:\s]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
       caseSensitive: false,
     ),
 
     RegExp(
-      r'Avl[:\s]*(?:Rs\.?|INR)?\s*([\d,]+(?:\.\d{2})?)',
+      r'Avl[:\s]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
       caseSensitive: false,
     ),
   ];

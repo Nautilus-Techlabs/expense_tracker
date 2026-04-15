@@ -112,5 +112,5 @@ class AppConstants {
 
   /// Regex pattern for account number fallback extraction
   static const String accountFallbackPattern =
-      r'(?:A/c|Acct|ending|[\*X]{2,})[\s\.]*([X\*]*\d{4})';
+      r'(?:A/c\s*(?:no\.?)?\s*|Acct?\s*(?:No\.?)?\s*|Savings\s*No\s*|ending\s*|[\*X]{2,})[\s\.]*([X\*]*\d{4})';
 }

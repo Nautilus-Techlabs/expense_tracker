@@ -34,7 +34,7 @@ class ParserConfigService {
     final data = json.decode(jsonString) as Map<String, dynamic>;
     final banks = data['banks'] as List<dynamic>;
     return banks
-        .map((b) => BankDefinition.fromJson(b as Map<String, dynamic>))
+        .map((bank) => BankDefinition.fromJson(bank as Map<String, dynamic>))
         .toList();
   }
 }

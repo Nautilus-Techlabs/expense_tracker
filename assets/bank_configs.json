@@ -663,6 +663,1460 @@
       ]
     },
     {
+      "bankName": "AU Small Finance Bank",
+      "senderIdentifiers": ["AUBANK", "AUSFB", "AU-BANK"],
+      "templates": [
+        {
+          "name": "AU Credited Pattern",
+          "pattern": "Credited\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+to",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "AU Debited Pattern",
+          "pattern": "Debited\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+from",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "AU Spent Pattern",
+          "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+spent",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "card",
+          "priority": 3
+        },
+        {
+          "name": "AU Withdrawn Pattern",
+          "pattern": "withdrawn\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "atm",
+          "priority": 4
+        },
+        {
+          "name": "AU Spent At Merchant",
+          "pattern": "spent\\s+at\\s+(.+?)\\s+on",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "card",
+          "priority": 5
+        },
+        {
+          "name": "AU UPI DR/CR Merchant",
+          "pattern": "UPI\\/(?:DR|CR)\\/\\d+\\/([^\\/]+)\\/",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 6
+        },
+        {
+          "name": "AU UPI Ref Merchant",
+          "pattern": "Ref\\s+UPI\\/[^\\/]+\\/[^\\/]+\\/[^\\/]+\\s+([^\\(]+)\\(",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 7
+        },
+        {
+          "name": "AU UPI Parenthesis Merchant",
+          "pattern": "UPI\\/[^\\/]+\\/[^\\/]+\\/[^\\/]+\\s+[^\\(]*\\(([^\\)]+)\\)",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 8
+        },
+        {
+          "name": "AU ATM Fallback",
+          "pattern": "(ATM|withdrawn)",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "atm",
+          "priority": 9
+        },
+        {
+          "name": "AU To/From Merchant",
+          "pattern": "(?:to|from)\\s+([^\\.\\n]+?)(?:\\.|$)",
+          "type": "debit",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 10
+        },
+        {
+          "name": "AU Account Pattern",
+          "pattern": "(?:A\\/c|Card)\\s*[A-Za-z]*[Xx\\*]*(\\d+)",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 11
+        },
+        {
+          "name": "AU Balance Pattern",
+          "pattern": "Bal\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 12
+        },
+        {
+          "name": "AU Reference Pattern",
+          "pattern": "UPI\\/([^\\/]+\\/[^\\/]+\\/[^\\/]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "AU Universal Safety Net",
+          "pattern": "(?:credited|debited|spent|withdrawn).*?INR\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A\\/c|Card)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "unknown",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Airtel Payments Bank",
+      "senderIdentifiers": ["AIRBNK"],
+      "templates": [
+        {
+          "name": "Airtel Credit Pattern",
+          "pattern": "credited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "wallet",
+          "priority": 1
+        },
+        {
+          "name": "Airtel Debit Pattern",
+          "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited\\s+from",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "wallet",
+          "priority": 2
+        },
+        {
+          "name": "Airtel Debit With Pattern",
+          "pattern": "debited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "wallet",
+          "priority": 3
+        },
+        {
+          "name": "Airtel Generic Credit",
+          "pattern": "(?:credited|credit).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "wallet",
+          "priority": 4
+        },
+        {
+          "name": "Airtel Generic Debit",
+          "pattern": "(?:debited|debit).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "wallet",
+          "priority": 5
+        },
+        {
+          "name": "Airtel Transaction ID",
+          "pattern": "Txn\\s+ID[:\\s]+([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "Airtel Transaction ID Alt",
+          "pattern": "Transaction\\s+ID[:\\s]+([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "Airtel Balance Short",
+          "pattern": "Bal[:\\s]+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "Airtel Balance Full",
+          "pattern": "Balance[:\\s]+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 9
+        },
+        {
+          "name": "Airtel Merchant Fallback",
+          "pattern": "Airtel\\s+Payments\\s+Bank",
+          "type": "meta",
+          "merchantGroup": 0,
+          "method": "wallet",
+          "priority": 10
+        },
+        {
+          "name": "Airtel Universal Safety Net",
+          "pattern": "(?:credited|debited).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:a/c)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "wallet",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Bank of India",
+      "senderIdentifiers": [
+        "BOIIND",
+        "BOIBNK",
+        "BOI"
+      ],
+      "templates": [
+        {
+          "name": "BOI Debit/Credit Rs Pattern",
+          "pattern": "Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)\\s+(?:debited|credited)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "BOI Debit/Credit INR Pattern",
+          "pattern": "INR\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)\\s+(?:debited|credited)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "BOI Withdrawn Pattern",
+          "pattern": "withdrawn\\s+Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "atm",
+          "priority": 3
+        },
+        {
+          "name": "BOI Credited To Merchant",
+          "pattern": "credited\\s+to\\s+([^\\.\\n]+?)(?:\\s+via|\\s+Ref|\\s+on|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "BOI Debited From Merchant",
+          "pattern": "debited\\s+from\\s+([^\\.\\n]+?)(?:\\s+via|\\s+Ref|\\s+on|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 5
+        },
+        {
+          "name": "BOI Towards Merchant",
+          "pattern": "towards\\s+([^\\.\\n]+?)(?:\\s+via|\\s+Ref|\\s+on|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "BOI To Merchant",
+          "pattern": "to\\s+([^\\.\\n]+?)(?:\\s+via|\\s+Ref|\\s+on|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "BOI From Merchant",
+          "pattern": "from\\s+([^\\.\\n]+?)(?:\\s+via|\\s+Ref|\\s+on|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "BOI ATM Location",
+          "pattern": "(?:ATM|withdrawn)\\s+(?:at\\s+)?([^\\.\\n]+?)(?:\\s+on|\\s+Ref|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "atm",
+          "priority": 9
+        },
+        {
+          "name": "BOI Account Last4 Masked",
+          "pattern": "A/c\\s*(?:XX|X\\*+)?(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "BOI Account Ending",
+          "pattern": "(?:Account|A/c)\\s+ending\\s+(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 11
+        },
+        {
+          "name": "BOI Account Number",
+          "pattern": "A/c\\s+No\\.?\\s*(?:XX|X\\*+)?(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 12
+        },
+        {
+          "name": "BOI Reference Number",
+          "pattern": "Ref\\s+No\\.?\\s*(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "BOI Generic Reference",
+          "pattern": "Reference[:\\s]+(\\w+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 14
+        },
+        {
+          "name": "BOI Transaction ID",
+          "pattern": "Txn\\s*(?:ID|#)[:\\s]*(\\w+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 15
+        },
+        {
+          "name": "BOI UPI Reference",
+          "pattern": "UPI[:\\s]+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 16
+        },
+        {
+          "name": "BOI Balance Rs",
+          "pattern": "Bal[:\\s]+Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 17
+        },
+        {
+          "name": "BOI Available Balance",
+          "pattern": "Available\\s+Balance[:\\s]+Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 18
+        },
+        {
+          "name": "BOI Avl Balance",
+          "pattern": "Avl\\s+Bal[:\\s]+Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 19
+        },
+        {
+          "name": "BOI Universal Safety Net",
+          "pattern": "(?:debited|credited).*?Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?).*?(?:A/c\\s*(?:XX|X\\*+)?(\\d{4}))?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "bank",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Canara Bank",
+      "senderIdentifiers": [
+        "CANBNK",
+        "CANARA",
+        "CANBK"
+      ],
+      "templates": [
+        {
+          "name": "Canara UPI Paid Pattern",
+          "pattern": "Rs\\.?\\s*([\\d,]+(?:\\.\\d{2})?)\\s+paid",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 1
+        },
+        {
+          "name": "Canara Debit Pattern",
+          "pattern": "INR\\s+([\\d,]+(?:\\.\\d{2})?)\\s+has\\s+been\\s+DEBITED",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "Canara Credit Pattern",
+          "pattern": "INR\\s+([\\d,]+(?:\\.\\d{2})?)\\s+has\\s+been\\s+CREDITED",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "Canara Merchant UPI",
+          "pattern": "\\sto\\s+([^,]+?)(?:,\\s*UPI|\\.|-Canara)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "Canara Generic Debit Merchant",
+          "pattern": "DEBITED",
+          "type": "meta",
+          "merchantGroup": 0,
+          "method": "bank",
+          "priority": 5
+        },
+        {
+          "name": "Canara Account Pattern",
+          "pattern": "(?:account|A/C)\\s+(?:XX|X\\*+)?(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "Canara Balance Pattern",
+          "pattern": "(?:Total\\s+)?Avail\\.?bal\\s+INR\\s+([\\d,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "Canara UPI Reference",
+          "pattern": "UPI\\s+Ref\\s+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "Canara Generic Credit",
+          "pattern": "(?:credited|CREDITED).*?INR\\s*([\\d,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 9
+        },
+        {
+          "name": "Canara Generic Debit",
+          "pattern": "(?:debited|DEBITED).*?INR\\s*([\\d,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 10
+        },
+        {
+          "name": "Canara Universal Safety Net",
+          "pattern": "(?:paid|debited|credited).*?(?:Rs\\.?|INR)\\s*([\\d,]+(?:\\.\\d{1,2})?).*?(?:A/C\\s*(?:XX|X\\*+)?(\\d{3,4}))?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "bank",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "City Union Bank",
+      "senderIdentifiers": ["CUBANK", "CUBLTD", "CUB"],
+      "templates": [
+        {
+          "name": "CUB Debit Pattern",
+          "pattern": "debited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "priority": 1
+        },
+        {
+          "name": "CUB Credit Pattern",
+          "pattern": "credited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "priority": 2
+        },
+        {
+          "name": "CUB Credit INR Pattern",
+          "pattern": "credited\\s+with\\s+INR\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "priority": 3
+        },
+        {
+          "name": "CUB NEFT Merchant",
+          "pattern": "BY\\s+NEFT\\s+TRF:([^:]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "CUB UPI To Account",
+          "pattern": "credited\\s+to\\s+a/c\\s+no\\.\\s+([A-Z0-9]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 5
+        },
+        {
+          "name": "CUB UPI From Account",
+          "pattern": "debited\\s+from\\s+a/c\\s+no\\.\\s+([A-Z0-9]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "CUB Account Number Pattern",
+          "pattern": "Your\\s+a/c\\s+no\\.\\s+[X]*(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "CUB Savings Account Pattern",
+          "pattern": "Savings\\s+No\\s+[X]*(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "CUB Balance Pattern",
+          "pattern": "Avl\\s+Bal\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 9
+        },
+        {
+          "name": "CUB UPI Reference",
+          "pattern": "\\(UPI\\s+Ref\\s+no\\s+(\\d+)\\)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "CUB NEFT Reference",
+          "pattern": "NEFT[:/]\\s*([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 11
+        },
+        {
+          "name": "CUB Generic Credit",
+          "pattern": "is\\s+credited|credited\\s+to|credited\\s+with",
+          "type": "credit",
+          "priority": 12
+        },
+        {
+          "name": "CUB Generic Debit",
+          "pattern": "is\\s+debited|debited\\s+for|debited\\s+from",
+          "type": "debit",
+          "priority": 13
+        },
+        {
+          "name": "CUB Universal Safety Net",
+          "pattern": "(?:credited|debited).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:a/c)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "CRED",
+      "senderIdentifiers": ["CREDIN", "CRED"],
+      "templates": [
+        {
+          "name": "CRED Payment Amount",
+          "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "transfer",
+          "amountGroup": 1,
+          "method": "credit_card_payment",
+          "priority": 1
+        },
+        {
+          "name": "CRED Merchant Credit Card",
+          "pattern": "towards\\s+your\\s+(.+?)\\s+Credit\\s+Card",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "credit_card_payment",
+          "priority": 2
+        },
+        {
+          "name": "CRED Payment Success Pattern",
+          "pattern": "payment\\s+of\\s+Rs\\.?\\s*[0-9,]+(?:\\.\\d{2})?.*credited\\s+towards\\s+your",
+          "type": "transfer",
+          "method": "credit_card_payment",
+          "priority": 3
+        },
+        {
+          "name": "CRED Generic Payment",
+          "pattern": "payment\\s+of\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "transfer",
+          "amountGroup": 1,
+          "method": "credit_card_payment",
+          "priority": 4
+        },
+        {
+          "name": "CRED Merchant Fallback",
+          "pattern": "CRED",
+          "type": "meta",
+          "merchant": "CRED",
+          "method": "credit_card_payment",
+          "priority": 5
+        },
+        {
+          "name": "CRED Universal Safety Net",
+          "pattern": "(?:payment).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+          "type": "transfer",
+          "amountGroup": 1,
+          "method": "credit_card_payment",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Department of Post",
+      "senderIdentifiers": ["DOPBNK", "DOP"],
+      "templates": [
+        {
+          "name": "DOP Amount Pattern",
+          "pattern": "amount\\s+(?:Rs\\.?|INR)?\\s*([\\d,]+(?:\\.\\d{2})?)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "priority": 1
+        },
+        {
+          "name": "DOP Credit Keyword",
+          "pattern": "credit",
+          "type": "credit",
+          "priority": 2
+        },
+        {
+          "name": "DOP Debit Keyword",
+          "pattern": "debit",
+          "type": "debit",
+          "priority": 3
+        },
+        {
+          "name": "DOP Account Number",
+          "pattern": "Acc(?:ount)?\\s*(?:No\\.?)?\\s+(?:[X\\*]+)?(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "DOP Balance Pattern",
+          "pattern": "Bal(?:ance)?\\s*(?::)?\\s*(?:Rs\\.?|INR)?\\s*([\\d,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 5
+        },
+        {
+          "name": "DOP Reference Pattern",
+          "pattern": "\\[([A-Z0-9]+)\\]",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "DOP Account Keyword Check",
+          "pattern": "(account|a/c|dop)",
+          "type": "meta",
+          "priority": 7
+        },
+        {
+          "name": "DOP Credit Transaction Pattern",
+          "pattern": "(account|a/c|dop).*credit",
+          "type": "credit",
+          "priority": 8
+        },
+        {
+          "name": "DOP Debit Transaction Pattern",
+          "pattern": "(account|a/c|dop).*debit",
+          "type": "debit",
+          "priority": 9
+        },
+        {
+          "name": "DOP Universal Safety Net",
+          "pattern": "(?:credit|debit).*?(?:Rs\\.?|INR)?\\s*([\\d,]+(?:\\.\\d{1,2})?).*?(?:A/c|Account)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Dhanlaxmi Bank",
+      "senderIdentifiers": ["DHANBK", "DHANLAXMI", "DLXBNK"],
+      "templates": [
+        {
+          "name": "Dhanlaxmi INR Debit/Credit",
+          "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+is\\s+(?:debited|credited)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 1
+        },
+        {
+          "name": "Dhanlaxmi Debit For",
+          "pattern": "debited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 2
+        },
+        {
+          "name": "Dhanlaxmi Credit For",
+          "pattern": "credited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 3
+        },
+        {
+          "name": "Dhanlaxmi Account A/c Pattern",
+          "pattern": "A/c\\s+X+(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "Dhanlaxmi Account No Pattern",
+          "pattern": "a/c\\s+no\\.\\s*X+(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 5
+        },
+        {
+          "name": "Dhanlaxmi Balance",
+          "pattern": "Aval\\s+Bal\\s+is\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "Dhanlaxmi UPI Ref",
+          "pattern": "UPI\\s+Ref\\s+no\\s+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "Dhanlaxmi UPI TXN Ref",
+          "pattern": "UPI\\s+TXN:\\s*/(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "Dhanlaxmi Payment From",
+          "pattern": "Payment\\s+from\\s+([^/\\\"]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 9
+        },
+        {
+          "name": "Dhanlaxmi Payment On",
+          "pattern": "payment\\s+on\\s+(\\w+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 10
+        },
+        {
+          "name": "Dhanlaxmi UPI Fallback",
+          "pattern": "UPI\\s+TXN",
+          "type": "meta",
+          "merchantGroup": 0,
+          "method": "upi",
+          "priority": 11
+        },
+        {
+          "name": "Dhanlaxmi Universal Safety Net",
+          "pattern": "(?:credited|debited).*?(?:INR|Rs\\.?)*\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:a/c)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "upi",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Equitas Small Finance Bank",
+      "senderIdentifiers": ["EQUTAS", "EQUITA", "EQUITS"],
+      "templates": [
+        {
+          "name": "Equitas Debit/Credit INR",
+          "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|credited)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "Equitas Debit Merchant",
+          "pattern": "on\\s+\\d{2}-\\d{2}-\\d{2}\\s+to\\s+([^.]+?)(?:\\.\\s*Avl|\\.\\s*Not|\\.Not|\\.$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "Equitas Credit Merchant",
+          "pattern": "on\\s+\\d{2}-\\d{2}-\\d{2}\\s+from\\s+([^.]+?)(?:\\.\\s*Avl|\\.\\s*Not|\\.Not|\\.$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "Equitas Account Pattern",
+          "pattern": "(?:Equitas\\s+)?A/c\\s+([X\\d]+)",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 4
+        },
+        {
+          "name": "Equitas Balance",
+          "pattern": "Avl\\s+Bal\\s+is\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 5
+        },
+        {
+          "name": "Equitas Reference",
+          "pattern": "-?Ref[:\\s]*([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "Equitas UPI Fallback",
+          "pattern": "via\\s+UPI",
+          "type": "meta",
+          "merchantGroup": 0,
+          "method": "upi",
+          "priority": 7
+        },
+        {
+          "name": "Equitas Generic Credit",
+          "pattern": "credited.*?INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 8
+        },
+        {
+          "name": "Equitas Generic Debit",
+          "pattern": "debited.*?INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 9
+        },
+        {
+          "name": "Equitas Universal Safety Net",
+          "pattern": "(?:credited|debited|withdrawn|deposited).*?(?:INR)?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:a/c)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "method": "bank",
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Federal Bank",
+      "senderIdentifiers": ["FEDBNK", "FEDERAL", "FEDFIB", "FEDSCP", "FEDBK"],
+      "templates": [
+        {
+          "name": "Federal UPI Debit",
+          "pattern": "Rs\\s+([0-9,]+(?:\\.\\d{2})?)\\s+debited",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 1
+        },
+        {
+          "name": "Federal UPI Sent",
+          "pattern": "Rs\\s+([0-9,]+(?:\\.\\d{2})?)\\s+sent",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "upi",
+          "priority": 2
+        },
+        {
+          "name": "Federal Credit",
+          "pattern": "Rs\\s+([0-9,]+(?:\\.\\d{2})?)\\s+credited",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "Federal INR Spent Card",
+          "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+spent",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "card",
+          "priority": 4
+        },
+        {
+          "name": "Federal Received",
+          "pattern": "received\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 5
+        },
+        {
+          "name": "Federal Withdrawn",
+          "pattern": "withdrawn\\s+Rs\\s+([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "atm",
+          "priority": 6
+        },
+        {
+          "name": "Federal Rupee Symbol",
+          "pattern": "₹\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "method": "card",
+          "priority": 7
+        },
+        {
+          "name": "Federal UPI VPA Merchant",
+          "pattern": "to\\s+VPA\\s+([^\\s]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 8
+        },
+        {
+          "name": "Federal Generic To Merchant",
+          "pattern": "to\\s+([^\\.\\n]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 9
+        },
+        {
+          "name": "Federal From Merchant",
+          "pattern": "from\\s+([^\\.\\n]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "Federal Card Ending",
+          "pattern": "card\\s+(?:XX\\*\\*|ending\\s+with\\s+)(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "method": "card",
+          "priority": 11
+        },
+        {
+          "name": "Federal Reference Number",
+          "pattern": "Ref\\s*(?:No|No\\.)[:\\s]*([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 12
+        },
+        {
+          "name": "Federal IMPS Credit",
+          "pattern": "credited\\s+to\\s+your\\s+A/c.*via\\s+IMPS",
+          "type": "credit",
+          "method": "imps",
+          "priority": 13
+        },
+        {
+          "name": "Federal ATM Withdrawal",
+          "pattern": "ATM",
+          "type": "meta",
+          "merchantGroup": 0,
+          "method": "atm",
+          "priority": 14
+        },
+        {
+          "name": "Federal Universal Safety Net",
+          "pattern": "(?:credited|debited|sent|received|spent).*?(?:Rs|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|card)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "IDBI Bank",
+      "senderIdentifiers": ["IDBIBK", "IDBIBANK", "IDBI"],
+      "templates": [
+        {
+          "name": "IDBI Debit With",
+          "pattern": "debited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "IDBI Debit For",
+          "pattern": "debited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "IDBI Credit With",
+          "pattern": "credited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "IDBI Generic Debit",
+          "pattern": "(?:debited|debit).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 4
+        },
+        {
+          "name": "IDBI Generic Credit",
+          "pattern": "(?:credited|credit).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 5
+        },
+        {
+          "name": "IDBI Merchant Towards",
+          "pattern": "towards\\s+([^\\.\\n]+?)\\s+for",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "IDBI Merchant Credited Format",
+          "pattern": ";\\s*([^\\.\\n]+?)\\s+credited\\.",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "IDBI AutoPay Merchant",
+          "pattern": "towards\\s+([^\\.\\n]+?)\\s+for\\s+\\w*MANDATE",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "autopay",
+          "priority": 8
+        },
+        {
+          "name": "IDBI Account Number",
+          "pattern": "Acct\\s+(?:XX|X\\*+)?(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 9
+        },
+        {
+          "name": "IDBI Account Bank Format",
+          "pattern": "IDBI\\s+Bank\\s+Acct\\s+(?:XX|X\\*+)?(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "IDBI RRN Reference",
+          "pattern": "RRN\\s+([A-Za-z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 11
+        },
+        {
+          "name": "IDBI UPI Reference",
+          "pattern": "UPI:([A-Za-z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 12
+        },
+        {
+          "name": "IDBI Balance",
+          "pattern": "Bal\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "IDBI Universal Safety Net",
+          "pattern": "(?:credited|debited).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:Acct|A/c)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "IDFC First Bank",
+      "senderIdentifiers": ["IDFCBK", "IDFCFB", "IDFC"],
+      "templates": [
+        {
+          "name": "IDFC Foreign Currency Spent",
+          "pattern": "[A-Z]{3}\\s+([0-9,]+(?:\\.\\d{2})?)\\s+spent",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "card",
+          "priority": 1
+        },
+        {
+          "name": "IDFC Debit INR",
+          "pattern": "debited\\s+by\\s+INR\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "IDFC Debit Rs",
+          "pattern": "debited\\s+by\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "IDFC Credit INR",
+          "pattern": "credited\\s+by\\s+INR\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 4
+        },
+        {
+          "name": "IDFC Credit Rs",
+          "pattern": "credited\\s+by\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 5
+        },
+        {
+          "name": "IDFC Interest Credit",
+          "pattern": "interest\\s+of\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 6
+        },
+        {
+          "name": "IDFC Generic Debit",
+          "pattern": "(?:debit|debited|spent).*?(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "IDFC Generic Credit",
+          "pattern": "(?:credited|received|deposited).*?(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "priority": 8
+        },
+
+        {
+          "name": "IDFC UPI Merchant",
+          "pattern": "(?:to|from|at)\\s+([a-zA-Z0-9._-]+@[a-zA-Z0-9]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 9
+        },
+        {
+          "name": "IDFC IMPS Mobile",
+          "pattern": "mobile\\s+[X]*(\\d{3,4})",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "imps",
+          "priority": 10
+        },
+        {
+          "name": "IDFC ATM ID",
+          "pattern": "ATM\\s+([A-Z]{2}\\d+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "atm",
+          "priority": 11
+        },
+        {
+          "name": "IDFC Generic Merchant",
+          "pattern": "(?:to|at|for)\\s+([A-Z][A-Z0-9\\s&.-]+?)(?:\\s+on|\\s+New|\\.|,|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 12
+        },
+
+        {
+          "name": "IDFC Credit Card Last4",
+          "pattern": "Credit\\s+Card\\s+ending\\s+[X]*(\\d{4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 13
+        },
+        {
+          "name": "IDFC Account Number",
+          "pattern": "A/C\\s+[X]*(\\d{3,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 14
+        },
+
+        {
+          "name": "IDFC Balance New Bal",
+          "pattern": "New\\s+Bal\\s*:\\s*(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 15
+        },
+        {
+          "name": "IDFC Balance New Balance",
+          "pattern": "New\\s+balance\\s+is\\s+INR\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 16
+        },
+        {
+          "name": "IDFC Balance Updated",
+          "pattern": "Updated\\s+balance\\s+is\\s+INR\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 17
+        },
+
+        {
+          "name": "IDFC IMPS Reference",
+          "pattern": "IMPS\\s+Ref\\s+no\\s+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 18
+        },
+        {
+          "name": "IDFC UPI Reference",
+          "pattern": "UPI[:/]\\s*([0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 19
+        },
+        {
+          "name": "IDFC Transaction ID",
+          "pattern": "(?:txn|transaction)\\s*(?:id|ref|no)[:\\s]*([A-Z0-9]+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 20
+        },
+
+        {
+          "name": "IDFC Universal Safety Net",
+          "pattern": "(?:credited|debited|spent).*?(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/C|Acct)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "India Post Payments Bank",
+      "senderIdentifiers": ["IPBMSG"],
+      "templates": [
+        {
+          "name": "IPPB Debit Amount",
+          "pattern": "Debit\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "IPPB Generic Amount",
+          "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "unknown",
+          "amountGroup": 1,
+          "priority": 2
+        },
+        {
+          "name": "IPPB Credit Received",
+          "pattern": "received\\s+a\\s+payment",
+          "type": "credit",
+          "priority": 3
+        },
+        {
+          "name": "IPPB UPI Credit Info",
+          "pattern": "Info:\\s*UPI/credit",
+          "type": "credit",
+          "priority": 4
+        },
+
+        {
+          "name": "IPPB Merchant UPI To",
+          "pattern": "to\\s+([^\\s]+(?:@[^\\s]+)?)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 5
+        },
+        {
+          "name": "IPPB Merchant From",
+          "pattern": "from\\s+(.+?)\\s+thru",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "IPPB UPI Fallback",
+          "pattern": "for\\s+UPI",
+          "type": "meta",
+          "merchant": "UPI Payment",
+          "priority": 7
+        },
+
+        {
+          "name": "IPPB Account Number",
+          "pattern": "[Aa]/[Cc]\\s+X?(\\d+)",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 8
+        },
+
+        {
+          "name": "IPPB Balance",
+          "pattern": "Avl\\s+Bal\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "meta",
+          "balanceGroup": 1,
+          "priority": 9
+        },
+
+        {
+          "name": "IPPB Reference Ref",
+          "pattern": "Ref\\s+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "IPPB Reference Info",
+          "pattern": "Info:\\s*UPI/[^/]+/(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 11
+        },
+
+        {
+          "name": "IPPB Universal Safety Net",
+          "pattern": "(?:Debit|Credit|received).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/C)?\\s*([\\dX*]+)?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "bankName": "Indian Overseas Bank",
+      "senderIdentifiers": ["IOB", "IOBCHN"],
+      "templates": [
+        {
+          "name": "IOB Credit By",
+          "pattern": "credited\\s+by\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 1
+        },
+        {
+          "name": "IOB Debit By",
+          "pattern": "debited\\s+by\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 2
+        },
+        {
+          "name": "IOB Credit With",
+          "pattern": "credited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "credit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 3
+        },
+        {
+          "name": "IOB Debit For",
+          "pattern": "debited\\s+for\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+          "type": "debit",
+          "amountGroup": 1,
+          "method": "bank",
+          "priority": 4
+        },
+        {
+          "name": "IOB UPI Payer",
+          "pattern": "from\\s+([^(]+?)(?:\\(UPI|$)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "method": "upi",
+          "priority": 5
+        },
+        {
+          "name": "IOB Payer Remark",
+          "pattern": "Payer\\s+Remark\\s*-\\s*([^-]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 6
+        },
+        {
+          "name": "IOB Debit Merchant",
+          "pattern": "(?:to|for)\\s+([^,.-]+)",
+          "type": "meta",
+          "merchantGroup": 1,
+          "priority": 7
+        },
+        {
+          "name": "IOB Account Number",
+          "pattern": "a/c\\s+no\\.\\s+[X]*(\\d{2,4})",
+          "type": "meta",
+          "accountGroup": 1,
+          "priority": 8
+        },
+        {
+          "name": "IOB UPI Reference",
+          "pattern": "\\(UPI\\s+Ref\\s+no\\s+(\\d+)\\)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 9
+        },
+        {
+          "name": "IOB UPI Reference Alt",
+          "pattern": "UPI\\s+Ref\\s+no\\s+(\\d+)",
+          "type": "meta",
+          "referenceGroup": 1,
+          "priority": 10
+        },
+        {
+          "name": "IOB Universal Safety Net",
+          "pattern": "(?:credited|debited).*?Rs\\.?\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:a/c\\s+no\\.\\s+[X]*(\\d{2,4}))?",
+          "type": "unknown",
+          "amountGroup": 1,
+          "accountGroup": 2,
+          "priority": 50
+        }
+      ]
+    },
+    {
       "bankName": "Generic",
       "senderIdentifiers": [],
       "templates": [

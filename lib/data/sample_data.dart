@@ -48,6 +48,27 @@ final List<SampleSms> sampleSms = [
         'Your ICICI Bank A/c XX123 debited for INR 1,200.00 on 05-Feb-26; VPA swiggy@upi. Avl Bal: INR 8,500.00.',
     sender: 'ICICIB',
   ),
+
+  // --- NEW BANKS TEST DATA ---
+  SampleSms(
+    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
+    sender: 'CNRBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
+    sender: 'CANBNK',
+  ),
+  SampleSms(
+    body:
+        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
+    sender: 'CUBPNK',
+  ),
+  SampleSms(
+    body:
+        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
+    sender: 'CUBBNK',
+  ),
   SampleSms(
     body:
         'SBI: Rs1000.0 credited to A/c XX1234 on 05Feb26 by NEFT:REF NO 1234567890. Bal:Rs15000.0',
@@ -280,6 +301,38 @@ final List<SampleSms> sampleSms = [
     body: 'INR 5,600 credited 3456 05-Apr-26 21:00 Cash Dep. Bal 55,600.',
     sender: 'DIB-BK',
   ),
+
+  // --- NEW BANKS TEST DATA ---
+
+  // Canara Bank
+  SampleSms(
+    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
+    sender: 'CNRBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
+    sender: 'CANBNK',
+  ),
+
+  // City Union Bank (CUB)
+  SampleSms(
+    body:
+        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
+    sender: 'CUBPNK',
+  ),
+  SampleSms(
+    body:
+        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
+    sender: 'CUBBNK',
+  ),
+
+  // CRED
+  SampleSms(
+    body:
+        'Your payment of Rs. 15,000.00 was credited towards your HDFC Bank Credit Card ending in 1234.',
+    sender: 'CREDIN',
+  ),
   SampleSms(
     body: 'Rs.72,500 to Acct XX7890 UPI 06-Apr 12:20. Avl 1,72,500. Thank you.',
     sender: 'HDFCBK',
@@ -431,6 +484,74 @@ final List<SampleSms> sampleSms = [
   SampleSms(
     body: 'Rs.1,200 credited to A/c XX1111 via UPI on 20-02-26 Ref 22334455',
     sender: 'KOTAKB',
+  ),
+
+  // --- NEWLY ADDED BANKS ---
+  // Canara Bank
+  SampleSms(
+    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
+    sender: 'CNRBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
+    sender: 'CANBNK',
+  ),
+
+  // City Union Bank (CUB)
+  SampleSms(
+    body:
+        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
+    sender: 'CUBPNK',
+  ),
+  SampleSms(
+    body:
+        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
+    sender: 'CUBBNK',
+  ),
+
+  // Dhanlaxmi Bank
+  SampleSms(
+    body:
+        'INR 250.00 is debited from A/c X1234. Aval Bal is INR 4,500.00. UPI Ref no 123456789.',
+    sender: 'DLXBNK',
+  ),
+
+  // --- NEWLY ADDED BANKS ---
+  // Canara Bank
+  SampleSms(
+    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
+    sender: 'CNRBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
+    sender: 'CANBNK',
+  ),
+
+  // City Union Bank (CUB)
+  SampleSms(
+    body:
+        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
+    sender: 'CUBPNK',
+  ),
+  SampleSms(
+    body:
+        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
+    sender: 'CUBBNK',
+  ),
+
+  // Department of Post (DOP)
+  SampleSms(
+    body:
+        'Acc No. 1234 debited with amount Rs. 2,000.00. Bal: Rs. 15,800.00. [REF123456789].',
+    sender: 'DOPBNK',
+  ),
+
+  SampleSms(
+    body:
+        'SBI: Rs1000.0 credited to A/c XX1234 on 05Feb26 by NEFT:REF NO 1234567890. Bal:Rs15000.0',
+    sender: 'VM-SBIINB',
   ),
 
   SampleSms(
