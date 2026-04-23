@@ -516,7 +516,7 @@
     },
     {
       "bankName": "Bank of Baroda",
-      "senderIdentifiers": ["BOBTXN", "BOB"],
+      "senderIdentifiers": ["BOBTXN", "BOB", "BOBSMS"],
       "templates": [
         {
           "name": "BOB Debit",

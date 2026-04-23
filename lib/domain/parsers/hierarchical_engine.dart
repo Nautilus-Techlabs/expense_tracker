@@ -143,7 +143,7 @@ class HierarchicalBankParser extends BankParser {
       type: template.type,
       date: extractedDate ?? fallbackDate ?? DateTime.now(),
       merchant: merchant,
-      method: extractedMethod,
+      method: extractedMethod != PaymentMethod.unknown ? extractedMethod : template.method,
       account: account,
       availableBalance: extractedBalance ?? balance,
       rawSms: sms,
@@ -154,7 +154,7 @@ class HierarchicalBankParser extends BankParser {
   }
 
   PaymentMethod _extractPaymentMethod(String sms) {
-    final pattern = RegExp(AppConstants.paymentMethodPattern);
+    final pattern = RegExp(AppConstants.paymentMethodPattern, caseSensitive: false);
     final match = pattern.firstMatch(sms)?.group(0);
 
     return PaymentMethod.values.firstWhere(

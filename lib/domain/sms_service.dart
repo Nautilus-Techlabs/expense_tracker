@@ -46,10 +46,10 @@ class SmsService {
     final lastSync = forceAll ? null : await getLastSyncDate();
 
     // 3. Fetch messages
-    // Note: We limit to 500 messages to prevent hanging on massive inboxes
+    // Note: We limit to 5000 messages to prevent hanging on massive inboxes
     final List<SmsMessage> messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 500,
+      count: 5000,
     );
 
     if (messages.isEmpty) return [];

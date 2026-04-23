@@ -43,7 +43,7 @@ class TransactionController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final newTransactions = await _smsService.syncTransactions();
+      final newTransactions = await _smsService.syncTransactions(forceAll: true);
       
       // Merge unique transactions
       final existingSms = _allTransactions.map((t) => t.rawSms).toSet();
