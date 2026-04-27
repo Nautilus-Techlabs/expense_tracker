@@ -71,18 +71,24 @@ class _SplashScreenState extends State<SplashScreen>
 
     _iconScale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.15)
-            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.15,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
         weight: 60,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.15, end: 0.95)
-            .chain(CurveTween(curve: Curves.easeInOut)),
+        tween: Tween(
+          begin: 1.15,
+          end: 0.95,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 20,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 0.95, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.95,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
     ]).animate(_iconController);
@@ -114,15 +120,13 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _textController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
-      ),
-    );
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _textController,
+            curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _taglineOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -131,15 +135,13 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _taglineSlide = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _textController,
-        curve: const Interval(0.35, 0.75, curve: Curves.easeOutCubic),
-      ),
-    );
+    _taglineSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _textController,
+            curve: const Interval(0.35, 0.75, curve: Curves.easeOutCubic),
+          ),
+        );
 
     // ── Floating particles ──
     _particleController = AnimationController(
@@ -287,8 +289,9 @@ class _SplashScreenState extends State<SplashScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: AppTheme.primary
-                                        .withAlpha((_ringOpacity.value * 150).toInt()),
+                                    color: AppTheme.primary.withAlpha(
+                                      (_ringOpacity.value * 150).toInt(),
+                                    ),
                                     width: 2.5,
                                   ),
                                 ),
@@ -366,9 +369,7 @@ class _SplashScreenState extends State<SplashScreen>
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 3,
-                        color: isDark
-                            ? AppTheme.slate400
-                            : AppTheme.slate500,
+                        color: isDark ? AppTheme.slate400 : AppTheme.slate500,
                       ),
                     ),
                   ),
@@ -383,17 +384,23 @@ class _SplashScreenState extends State<SplashScreen>
 
   Widget _buildLogoIcon(bool isDark) {
     return Container(
-      width: 140.w,
-      height: 140.w,
-      alignment: Alignment.center,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32.w),
-        child: Image.asset(
-          'assets/images/logo.png',
-          width: 130.w,
-          height: 130.w,
-          fit: BoxFit.cover,
-        ),
+      width: 130.w,
+      height: 130.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFF0F172A), // Match logo background
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? AppTheme.primary : AppTheme.primaryDark).withAlpha(
+              60,
+            ),
+            blurRadius: 30,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
       ),
     );
   }
@@ -413,7 +420,8 @@ class _ParticlePainter extends CustomPainter {
 
     for (int i = 0; i < 20; i++) {
       final startX = random.nextDouble() * size.width;
-      final startY = size.height * 0.3 + random.nextDouble() * size.height * 0.5;
+      final startY =
+          size.height * 0.3 + random.nextDouble() * size.height * 0.5;
       final radius = 2.0 + random.nextDouble() * 3.0;
 
       // Each particle has a staggered start
@@ -427,8 +435,9 @@ class _ParticlePainter extends CustomPainter {
       final currentX = startX + sin(particleProgress * pi * 2) * 15;
       final opacity = (sin(particleProgress * pi) * 0.5).clamp(0.0, 1.0);
 
-      paint.color = (isDark ? AppTheme.primary : AppTheme.accent)
-          .withAlpha((opacity * 100).toInt());
+      paint.color = (isDark ? AppTheme.primary : AppTheme.accent).withAlpha(
+        (opacity * 100).toInt(),
+      );
 
       canvas.drawCircle(Offset(currentX, currentY), radius, paint);
     }

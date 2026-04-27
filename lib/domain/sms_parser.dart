@@ -1,4 +1,4 @@
-import 'parsers/entities/transaction.dart';
+import 'entities/transaction.dart';
 import 'parsers/combined_parser.dart';
 
 class TransactionParser {

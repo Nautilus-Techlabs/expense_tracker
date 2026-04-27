@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../../domain/parsers/entities/transaction.dart';
+import '../../domain/entities/transaction.dart';
 import '../../core/theme/app_theme.dart';
 
 class TransactionCard extends StatefulWidget {
@@ -107,7 +107,9 @@ class _TransactionCardState extends State<TransactionCard> {
                               'Bal: ₹${widget.transaction.availableBalance!.toStringAsFixed(0)}',
                               style: TextStyle(
                                 fontSize: 10.sp,
-                                color: theme.colorScheme.onSurface.withAlpha(102),
+                                color: theme.colorScheme.onSurface.withAlpha(
+                                  102,
+                                ),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -248,7 +250,9 @@ class _DetailRow extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 12.sp,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -257,7 +261,9 @@ class _DetailRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(204), // 0.8 * 255
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withAlpha(204), // 0.8 * 255
             ),
           ),
         ],

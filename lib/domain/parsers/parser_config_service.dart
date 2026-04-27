@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'entities/bank_definition.dart';
+import '../entities/bank_definition.dart';
 
 class ParserConfigService {
   static const _prefsKey = 'bank_configs_json';

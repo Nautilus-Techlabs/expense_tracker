@@ -29,6 +29,9 @@ class AppTheme {
         seedColor: primary,
         brightness: Brightness.light,
         surface: slate50,
+        onSurface: slate900,
+        primary: primary,
+        onPrimary: Colors.white,
       ),
       scaffoldBackgroundColor: slate100,
       appBarTheme: AppBarTheme(
@@ -47,7 +50,7 @@ class AppTheme {
         color: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(24.r),
           side: const BorderSide(color: slate200, width: 1),
         ),
       ),
@@ -57,7 +60,7 @@ class AppTheme {
         side: const BorderSide(color: slate200, width: 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        labelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
+        labelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: slate700),
       ),
       textTheme: TextTheme(
         headlineMedium: TextStyle(
@@ -80,6 +83,15 @@ class AppTheme {
           letterSpacing: 1.2,
         ),
       ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: TextStyle(color: slate900, fontSize: 14.sp),
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all(Colors.white),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          ),
+        ),
+      ),
     );
   }
 
@@ -91,7 +103,9 @@ class AppTheme {
         seedColor: primary,
         brightness: Brightness.dark,
         surface: slate800,
-        background: slate900,
+        onSurface: slate50,
+        primary: primary,
+        onPrimary: Colors.white,
       ),
       scaffoldBackgroundColor: slate900,
       appBarTheme: AppBarTheme(
@@ -110,7 +124,7 @@ class AppTheme {
         color: slate800,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(24.r),
           side: const BorderSide(color: slate700, width: 1),
         ),
       ),
@@ -120,7 +134,7 @@ class AppTheme {
         side: const BorderSide(color: slate700, width: 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        labelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: slate50),
+        labelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: slate100),
       ),
       textTheme: TextTheme(
         headlineMedium: TextStyle(
@@ -141,6 +155,15 @@ class AppTheme {
           fontWeight: FontWeight.w800,
           color: slate500,
           letterSpacing: 1.2,
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: TextStyle(color: slate50, fontSize: 14.sp),
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all(slate800),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          ),
         ),
       ),
     );

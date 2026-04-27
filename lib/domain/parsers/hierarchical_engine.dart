@@ -1,9 +1,9 @@
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/balance_extractor.dart';
 import '../../core/utils/date_extractor.dart';
+import '../entities/bank_definition.dart';
+import '../entities/transaction.dart';
 import 'base_parser.dart';
-import 'entities/bank_definition.dart';
-import 'entities/transaction.dart';
 
 /// A universal parser engine that uses data-driven BankDefinitions
 /// to parse SMS messages.
@@ -28,7 +28,7 @@ class HierarchicalBankParser extends BankParser {
     for (var template in sortedTemplates) {
       // 🚫 Skip meta templates for main transaction extraction
       if (template.type == TransactionType.meta) continue;
-      
+
       if (!template.matches(sms)) continue;
       final result = _extract(sms, template, fallbackDate);
       if (result == null) continue;
@@ -145,7 +145,9 @@ class HierarchicalBankParser extends BankParser {
       type: template.type,
       date: extractedDate ?? fallbackDate ?? DateTime.now(),
       merchant: merchant,
-      method: extractedMethod != PaymentMethod.unknown ? extractedMethod : template.method,
+      method: extractedMethod != PaymentMethod.unknown
+          ? extractedMethod
+          : template.method,
       account: account,
       availableBalance: extractedBalance ?? balance,
       rawSms: sms,
@@ -156,7 +158,10 @@ class HierarchicalBankParser extends BankParser {
   }
 
   PaymentMethod _extractPaymentMethod(String sms) {
-    final pattern = RegExp(AppConstants.paymentMethodPattern, caseSensitive: false);
+    final pattern = RegExp(
+      AppConstants.paymentMethodPattern,
+      caseSensitive: false,
+    );
     final match = pattern.firstMatch(sms)?.group(0);
 
     return PaymentMethod.values.firstWhere(

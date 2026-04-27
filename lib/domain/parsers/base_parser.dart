@@ -1,5 +1,5 @@
 import '../../core/constants/app_constants.dart';
-import 'entities/transaction.dart';
+import '../entities/transaction.dart';
 
 abstract class BankParser {
   /// Unique bank identifier

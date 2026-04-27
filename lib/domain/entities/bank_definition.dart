@@ -1,5 +1,5 @@
 import 'package:expense_tracker/core/constants/app_constants.dart';
-import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
+import 'package:expense_tracker/domain/entities/transaction.dart';
 
 /// A single template for an SMS transaction.
 class SmSTemplate {

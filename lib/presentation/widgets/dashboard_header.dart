@@ -27,7 +27,8 @@ class DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24.w, topPadding + 12.h, 24.w, 32.h),
@@ -58,17 +59,10 @@ class DashboardHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 28.w,
-                      height: 28.w,
-                      fit: BoxFit.cover,
-                    ),
+                  Icon(
+                    Icons.account_balance_wallet,
+                    color: Colors.white,
+                    size: 31.sp,
                   ),
                   UIHelpers.horizontalSpace(12),
                   Text(
@@ -84,13 +78,13 @@ class DashboardHeader extends StatelessWidget {
               ),
               Row(
                 children: [
-                   _HeaderAction(
-                    icon: Icons.sort_rounded, 
+                  _HeaderAction(
+                    icon: Icons.sort_rounded,
                     onTap: () => _showSortMenu(context),
                   ),
                   UIHelpers.horizontalSpace(12),
                   _HeaderAction(
-                    icon: Icons.sync_rounded, 
+                    icon: Icons.sync_rounded,
                     onTap: onSync,
                     isLoading: isLoading,
                   ),
@@ -146,34 +140,77 @@ class DashboardHeader extends StatelessWidget {
   }
 
   void _showSortMenu(BuildContext context) {
+    final theme = Theme.of(context);
     showMenu<TransactionSort>(
       context: context,
-      position: const RelativeRect.fromLTRB(100, 100, 0, 0),
+      position: RelativeRect.fromLTRB(
+        MediaQuery.of(context).size.width - 100,
+        100,
+        24,
+        0,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+      color: theme.colorScheme.surface,
+      elevation: 8,
       items: [
-        _buildSortItem(TransactionSort.dateDesc, 'Newest First', Icons.calendar_today_rounded),
-        _buildSortItem(TransactionSort.dateAsc, 'Oldest First', Icons.history_rounded),
-        _buildSortItem(TransactionSort.amountDesc, 'High to Low', Icons.trending_down_rounded),
-        _buildSortItem(TransactionSort.amountAsc, 'Low to High', Icons.trending_up_rounded),
+        _buildSortItem(
+          context,
+          TransactionSort.dateDesc,
+          'Newest First',
+          Icons.calendar_today_rounded,
+        ),
+        _buildSortItem(
+          context,
+          TransactionSort.dateAsc,
+          'Oldest First',
+          Icons.history_rounded,
+        ),
+        _buildSortItem(
+          context,
+          TransactionSort.amountDesc,
+          'High to Low',
+          Icons.trending_down_rounded,
+        ),
+        _buildSortItem(
+          context,
+          TransactionSort.amountAsc,
+          'Low to High',
+          Icons.trending_up_rounded,
+        ),
       ],
     ).then((value) {
       if (value != null) onSort(value);
     });
   }
 
-  PopupMenuItem<TransactionSort> _buildSortItem(TransactionSort value, String label, IconData icon) {
+  PopupMenuItem<TransactionSort> _buildSortItem(
+    BuildContext context,
+    TransactionSort value,
+    String label,
+    IconData icon,
+  ) {
     final isSelected = currentSort == value;
+    final theme = Theme.of(context);
+
     return PopupMenuItem(
       value: value,
       child: Row(
         children: [
-          Icon(icon, size: 18.sp, color: isSelected ? AppTheme.primary : AppTheme.slate500),
+          Icon(
+            icon,
+            size: 18.sp,
+            color: isSelected
+                ? AppTheme.primary
+                : theme.colorScheme.onSurface.withAlpha(128),
+          ),
           UIHelpers.horizontalSpace(12),
           Text(
             label,
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppTheme.primary : AppTheme.slate700,
+              color: isSelected
+                  ? AppTheme.primary
+                  : theme.colorScheme.onSurface,
             ),
           ),
         ],
@@ -196,10 +233,12 @@ class _HeaderAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isLoading ? null : () {
-        UIHelpers.lightImpact();
-        onTap();
-      },
+      onTap: isLoading
+          ? null
+          : () {
+              UIHelpers.lightImpact();
+              onTap();
+            },
       child: Container(
         padding: EdgeInsets.all(8.w),
         decoration: BoxDecoration(
@@ -207,13 +246,16 @@ class _HeaderAction extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: Colors.white.withAlpha(26)), // 0.1 * 255
         ),
-        child: isLoading 
-          ? SizedBox(
-              width: 20.sp,
-              height: 20.sp,
-              child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-            )
-          : Icon(icon, color: Colors.white, size: 20.sp),
+        child: isLoading
+            ? SizedBox(
+                width: 20.sp,
+                height: 20.sp,
+                child: const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Icon(icon, color: Colors.white, size: 20.sp),
       ),
     );
   }

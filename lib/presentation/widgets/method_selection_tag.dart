@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../core/theme/app_theme.dart';
+import '../../domain/entities/transaction.dart';
 import '../transaction_controller.dart';
-import '../../domain/parsers/entities/transaction.dart';
 
 class MethodSelectionTag extends StatelessWidget {
   final TransactionController controller;
@@ -25,7 +25,9 @@ class MethodSelectionTag extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w800,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
               letterSpacing: 1.2,
             ),
           ),
@@ -132,7 +134,9 @@ class _MethodPill extends StatelessWidget {
                 : (isDark ? AppTheme.slate800 : AppTheme.slate100),
             borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
-              color: isSelected ? color : AppTheme.slate200.withAlpha(128), // 0.5 * 255
+              color: isSelected
+                  ? color
+                  : AppTheme.slate200.withAlpha(128), // 0.5 * 255
               width: 1,
             ),
           ),

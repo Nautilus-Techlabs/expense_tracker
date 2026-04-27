@@ -1,35 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/parsers/flutter_parser_initializer.dart';
-import 'presentation/transaction_controller.dart';
 import 'presentation/splash_screen.dart';
+import 'presentation/transaction_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ CRITICAL: Initialize the Bank Parser Engine
+  // Without this, the app doesn't know how to read your bank SMS.
   await FlutterParserInitializer.initialize();
-  runApp(const MyApp());
+
+  // Set preferred orientations
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  runApp(const ExpenseTrackerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ExpenseTrackerApp extends StatelessWidget {
+  const ExpenseTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(393, 852), // iPhone 14/15 size
+      designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return ChangeNotifierProvider(
-          create: (_) => TransactionController(),
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => TransactionController()),
+          ],
           child: MaterialApp(
             title: 'Expense Tracker',
             debugShowCheckedModeBanner: false,
+
+            // Light Theme
             theme: AppTheme.light,
+
+            // Dark Theme
             darkTheme: AppTheme.dark,
+
+            // System Theme Mode
             themeMode: ThemeMode.system,
+
             home: const SplashScreen(),
           ),
         );

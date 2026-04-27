@@ -2,8 +2,8 @@ import '../core/constants/app_constants.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'parsers/entities/transaction.dart';
 import '../data/sample_data.dart';
+import 'entities/transaction.dart';
 import 'sms_parser.dart';
 
 class SmsService {
@@ -14,7 +14,6 @@ class SmsService {
 
   SmsService();
 
-  /// Gets the last sync date from SharedPreferences
   Future<DateTime?> getLastSyncDate() async {
     final prefs = await SharedPreferences.getInstance();
     final timestamp = prefs.getInt(_lastSyncKey);
@@ -23,76 +22,77 @@ class SmsService {
         : null;
   }
 
-  /// Updates the last sync date in SharedPreferences
   Future<void> updateLastSyncDate(DateTime date) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_lastSyncKey, date.millisecondsSinceEpoch);
   }
 
-  /// Main sync method: fetches, filters, and parses new messages
-  Future<List<Transaction>> syncTransactions({bool forceAll = false}) async {
+  Future<List<Transaction>> syncTransactions({
+    bool forceAll = false,
+    Function(String)? onDebug,
+  }) async {
     // 1. Check Permissions
     final status = await Permission.sms.request();
     if (!status.isGranted) {
-      // Fallback to sample data if permission is not given
-      return _parser.parseBatch(
-        sampleSms
-            .map((s) => (body: s.body, sender: s.sender, date: s.date))
-            .toList(),
-      );
+      onDebug?.call("Permission denied: ${status.name}");
+      return _parser
+          .parseBatch(
+            sampleSms
+                .map((s) => (body: s.body, sender: s.sender, date: s.date))
+                .toList(),
+          )
+          .map((t) => t.copyWith(isSample: true))
+          .toList();
     }
+
+    onDebug?.call("Permission granted. Querying SMS...");
 
     // 2. Determine time window
     final lastSync = forceAll ? null : await getLastSyncDate();
 
     // 3. Fetch messages
-    // Note: We limit to 5000 messages to prevent hanging on massive inboxes
     final List<SmsMessage> messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 5000,
     );
+
+    onDebug?.call("Found ${messages.length} total messages in inbox.");
 
     if (messages.isEmpty) return [];
 
-    // 4. Apply Smart Filtering (Non-mobile headers + Date)
+    // 4. Apply Filtering
+    int filteredOutCount = 0;
     final filteredMessages = messages.where((msg) {
-      // Filter by Date
       if (lastSync != null && msg.date != null) {
-        if (!msg.date!.isAfter(lastSync)) return false;
+        if (!msg.date!.isAfter(lastSync)) {
+          filteredOutCount++;
+          return false;
+        }
       }
 
-      // Smart Filter: Filter for alphanumeric headers (like VM-HDFCBK)
-      // instead of 10-digit mobile numbers.
       final sender = (msg.address ?? '').toUpperCase();
 
-      // 🚫 EXCLUSION: Ignore common non-bank senders (PhonePe, Paytm, etc.)
+      // Skip common non-bank noise
       if (AppConstants.ignoredSenders.any(
         (ignored) => sender.contains(ignored),
       )) {
+        filteredOutCount++;
         return false;
       }
 
-      // Pattern 1: Contains a hyphen (very common for bank headers)
-      if (sender.contains('-')) return true;
+      // Pattern 1: Alphanumeric headers (standard for banks)
+      if (sender.contains(RegExp(r'[A-Z]'))) return true;
 
-      // Pattern 2: Is not a standard 10-digit mobile number
+      // Pattern 2: Short codes (5-6 digits)
       final cleanNumeric = sender.replaceAll(RegExp(r'[^0-9]'), '');
-      if (cleanNumeric.length < 8 || cleanNumeric.length > 13) return true;
+      if (cleanNumeric.isNotEmpty && cleanNumeric.length <= 6) return true;
 
-      // Pattern 3: Common bank codes (Fallback)
-      final commonBankSubstrings = [
-        'HDFC',
-        'ICICI',
-        'SBI',
-        'AXIS',
-        'KOTAK',
-        'BANK',
-      ];
-      if (commonBankSubstrings.any((code) => sender.contains(code)))
-        return true;
-
+      filteredOutCount++;
       return false;
     }).toList();
+
+    onDebug?.call(
+      "Filtered out $filteredOutCount non-bank messages. Processing ${filteredMessages.length} potential bank SMS.",
+    );
 
     if (filteredMessages.isEmpty) return [];
 
@@ -103,11 +103,13 @@ class SmsService {
           .toList(),
     );
 
-    // 6. Monitor and log unsupported transactions
-    _logUnsupported(transactions);
+    onDebug?.call("Successfully parsed ${transactions.length} transactions.");
 
-    // 7. Update Sync Date to the newest message processed
-    if (filteredMessages.isNotEmpty) {
+    // 6. Log unsupported messages
+    _logUnsupported(filteredMessages, transactions);
+
+    // 7. Update last sync date
+    if (filteredMessages.isNotEmpty && !forceAll) {
       final newestDate = filteredMessages
           .map((m) => m.date ?? DateTime(2000))
           .reduce((a, b) => a.isAfter(b) ? a : b);
@@ -117,48 +119,19 @@ class SmsService {
     return transactions;
   }
 
-  /// Quickly check how many new messages might be available
-  Future<int> getRemainingCount() async {
-    final status = await Permission.sms.status;
-    if (!status.isGranted)
-      return 0; // Return 0 to avoid nagging if no permission
-
-    final lastSync = await getLastSyncDate();
-    if (lastSync == null) return -1; // First time sync
-
-    final messages = await _query.querySms(
-      kinds: [SmsQueryKind.inbox],
-      count: 100,
-    );
-    return messages.where((msg) {
-      return msg.date != null && msg.date!.isAfter(lastSync);
-    }).length;
-  }
-
-  /// Saves unverified raw SMS to persistent storage for later analysis
-  Future<void> _logUnsupported(List<Transaction> transactions) async {
-    final unverified = transactions.where((tx) => !tx.isVerified).toList();
-    if (unverified.isEmpty) return;
-
+  void _logUnsupported(List<SmsMessage> raw, List<Transaction> parsed) async {
+    final parsedRawSms = parsed.map((t) => t.rawSms).toSet();
+    final unsupported = raw
+        .where((m) => !parsedRawSms.contains(m.body))
+        .toList();
+    if (unsupported.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
     final logs = prefs.getStringList(_unsupportedLogsKey) ?? [];
-
-    bool updated = false;
-    for (var tx in unverified) {
-      if (!logs.contains(tx.rawSms)) {
-        logs.add(tx.rawSms);
-        updated = true;
-      }
+    for (var m in unsupported) {
+      final logEntry = "[${m.date}] ${m.address}: ${m.body}";
+      if (!logs.contains(logEntry)) logs.insert(0, logEntry);
     }
-
-    if (updated) {
-      await prefs.setStringList(_unsupportedLogsKey, logs);
-    }
-  }
-
-  /// Retrieves the list of raw SMS that couldn't be correctly verified
-  Future<List<String>> getUnsupportedLogs() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_unsupportedLogsKey) ?? [];
+    if (logs.length > 100) logs.removeRange(100, logs.length);
+    await prefs.setStringList(_unsupportedLogsKey, logs);
   }
 }

@@ -17,15 +17,6 @@ class TransactionListScreen extends StatefulWidget {
 
 class _TransactionListScreenState extends State<TransactionListScreen> {
   @override
-  void initState() {
-    super.initState();
-    // Auto-sync on startup
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TransactionController>().syncTransactions();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<TransactionController>(
@@ -37,7 +28,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                // 1. Dashboard Header (Scrolable)
+                // 1. Dashboard Header
                 SliverToBoxAdapter(
                   child: DashboardHeader(
                     balance: controller.balance,
@@ -50,7 +41,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   ),
                 ),
 
-                // 2. Filters (Fixed below header, but scrolls with list)
+                // 2. Filters
                 SliverToBoxAdapter(
                   child: ModernFilterBar(controller: controller),
                 ),
@@ -98,7 +89,6 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       );
     }
 
-    // Unified list scrolling with the rest of the slivers
     return SliverList.builder(
       key: const ValueKey('list'),
       itemCount: controller.transactions.length,

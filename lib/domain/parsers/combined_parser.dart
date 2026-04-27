@@ -1,7 +1,7 @@
+import '../entities/bank_definition.dart';
+import '../entities/transaction.dart';
 import 'base_parser.dart';
-import 'entities/bank_definition.dart';
 import 'hierarchical_engine.dart';
-import 'entities/transaction.dart';
 
 class CombinedParser extends BankParser {
   final BankParser? primary;
