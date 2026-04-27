@@ -161,7 +161,7 @@ class _SplashScreenState extends State<SplashScreen>
     _startAnimationSequence();
 
     // Navigate to home after splash
-    Timer(const Duration(milliseconds: 3200), _navigateToHome);
+    Timer(const Duration(milliseconds: 4500), _navigateToHome);
   }
 
   void _startAnimationSequence() async {
@@ -381,86 +381,18 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  /// Builds the custom logo icon — a gradient circle with a wallet/expense icon
   Widget _buildLogoIcon(bool isDark) {
     return Container(
-      width: 120.w,
-      height: 120.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0EA5E9), // Sky 500
-            Color(0xFF06B6D4), // Cyan 500
-            Color(0xFF10B981), // Emerald 500
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withAlpha(80),
-            blurRadius: 30,
-            spreadRadius: 5,
-          ),
-          BoxShadow(
-            color: AppTheme.accent.withAlpha(40),
-            blurRadius: 50,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: AnimatedBuilder(
-        animation: _shimmerController,
-        builder: (context, child) {
-          return ShaderMask(
-            shaderCallback: (bounds) {
-              return LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: const [
-                  Colors.white,
-                  Colors.white70,
-                  Colors.white,
-                ],
-                stops: [
-                  (_shimmerPosition.value - 0.3).clamp(0.0, 1.0),
-                  _shimmerPosition.value.clamp(0.0, 1.0),
-                  (_shimmerPosition.value + 0.3).clamp(0.0, 1.0),
-                ],
-              ).createShader(bounds);
-            },
-            blendMode: BlendMode.srcATop,
-            child: child,
-          );
-        },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Wallet body
-            Icon(
-              Icons.account_balance_wallet_rounded,
-              size: 52.sp,
-              color: Colors.white.withAlpha(230),
-            ),
-            // Small rupee sign overlay
-            Positioned(
-              bottom: 30.w,
-              right: 30.w,
-              child: Container(
-                padding: EdgeInsets.all(4.w),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(50),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.currency_rupee_rounded,
-                  size: 18.sp,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+      width: 140.w,
+      height: 140.w,
+      alignment: Alignment.center,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32.w),
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: 130.w,
+          height: 130.w,
+          fit: BoxFit.cover,
         ),
       ),
     );

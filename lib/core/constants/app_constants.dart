@@ -14,8 +14,6 @@ class AppConstants {
     "paytm",
     "gpay",
     "amazonpay",
-    "recharge",
-    "bill",
     "offers",
     "discount",
   ];

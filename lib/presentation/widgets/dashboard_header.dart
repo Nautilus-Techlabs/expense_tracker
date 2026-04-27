@@ -56,14 +56,31 @@ class DashboardHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Expense Tracker',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
-                ),
+              Row(
+                children: [
+                  Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 28.w,
+                      height: 28.w,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  UIHelpers.horizontalSpace(12),
+                  Text(
+                    'Expense Tracker',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
               ),
               Row(
                 children: [

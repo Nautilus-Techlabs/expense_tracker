@@ -6,637 +6,22 @@ class SampleSms {
   const SampleSms({required this.body, required this.sender, this.date});
 }
 
-final List<SampleSms> sampleSms = [
-  // ATMs / basic debit
+final List<SampleSms> sampleSms = [  // ── HDFC Bank ─────────────────────────────────────────────────────────────
   SampleSms(
-    body: 'Rs.5000 debited from your A/C 1234 on 05-02-26. Avl Bal: Rs.10000.',
-    sender: 'AD-HDFCBK',
-  ),
-  SampleSms(
-    body: 'INR 5000 withdrawn from A/C 1234 on 05-02-2026. Avl Bal: INR 10000.',
-    sender: 'VM-ICICIB',
-  ),
-  SampleSms(
-    body: 'Rs.2000 debited from A/C 1234. Avl Bal: Rs.9000.',
-    sender: 'AXISBK',
-  ),
-
-  // UPI‑bank‑SMS
-  SampleSms(
-    body:
-        'UPI has been debited with Rs.1000.00 from your A/C 1234 on 05-02-26. Avl Bal: Rs.9000.00.',
-    sender: 'SBIUPI',
-  ),
-  SampleSms(
-    body:
-        'UPI payment of INR 1549.00 has been debited from your A/C 1234 on 05-02-26.',
-    sender: 'KOTAKB',
-  ),
-  SampleSms(
-    body: 'UPI debit of Rs.99 to Swiggy from your A/C 1234 on 05-02-26.',
-    sender: 'HDFCBK',
-  ),
-
-  // Realistic Bank Specific Samples
-  SampleSms(
-    body:
-        'Alert: Your HDFC Bank Card ending 1234 has been debited for Rs. 5000.00 at AMAZON on 05-02-26. Avl Bal: Rs. 15000.00.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'Your ICICI Bank A/c XX123 debited for INR 1,200.00 on 05-Feb-26; VPA swiggy@upi. Avl Bal: INR 8,500.00.',
-    sender: 'ICICIB',
-  ),
-
-  // --- NEW BANKS TEST DATA ---
-  SampleSms(
-    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
-    sender: 'CNRBNK',
-  ),
-  SampleSms(
-    body:
-        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
-    sender: 'CANBNK',
-  ),
-  SampleSms(
-    body:
-        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
-    sender: 'CUBPNK',
-  ),
-  SampleSms(
-    body:
-        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
-    sender: 'CUBBNK',
-  ),
-  SampleSms(
-    body:
-        'SBI: Rs1000.0 credited to A/c XX1234 on 05Feb26 by NEFT:REF NO 1234567890. Bal:Rs15000.0',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'Axis Bank: Rs. 200.00 debited from A/c XX1234 on 05-02-26 14:20:05 for UPI-PAYTM-1234@paytm. Bal: Rs. 4500.00.',
-    sender: 'AXISBK',
-  ),
-
-  // --- NEW SAMPLES ADDED ---
-
-  // New Debit Samples
-  SampleSms(
-    body:
-        '248,759.00 is debited from A/c XXXX6791 for BillPay/Credit Card payment via Example Bank NetBanking. Call XXXXXXXX161XXX if txn not done by you.',
-    sender: 'BANK-BK',
-  ),
-  SampleSms(
-    body:
-        'INR 35,000.00 withdrawn from a/c 40XXXXXXXXX0019 on 08/AUG 10:55 for NET/NEFT/Anil Sharma/ABER000123. Clear Balance: INR 75,000.00.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'Rs.5000 debited from Acct ending 1234 on 15/04/26 at 09:30 via UPI/ABCXYZ. Avl Bal: Rs.25000. If not you, call 1800-11-XXXX.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'A/c XX4567 debited INR 12,500 on 06-Apr-26 14:20 IMPS/MerchantName/IFSC123. Balance: INR 87,500. Dispute? Dial XXX-XXXX.',
-    sender: 'ICICIB',
-  ),
-  SampleSms(
-    body:
-        'Debit of Rs.2,999 from ****6789 on 06/04/26 12:10 for NEFT/PAYTM/ABC123. New Bal: Rs.45,001. Contact 1800-XXX if unauthorized.',
-    sender: 'PAYTM',
-  ),
-  SampleSms(
-    body:
-        'Rs.15,000 withdrawn from Acct *2345 via ATM/PIN on 05-Apr-26 18:45. Balance Rs.1,20,000. Call support if dispute.',
-    sender: 'ATMSBI',
-  ),
-  SampleSms(
-    body:
-        'INR 8,750 debited A/c ending 8910 on 06-Apr 11:45 UPI/PhonePe/XXXX1234. Avl Bal INR 42,250. SMS STOP to block if fraud.',
-    sender: 'PHONEPE',
-  ),
-  SampleSms(
-    body:
-        '45,000 debited from XX3456 for Credit Card paymt on 04-Apr-26 via NetBanking. Bal: 1,55,000. Helpline: 1800-XXXXXXX.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'A/c ****1122 debited Rs.3,200 on 06/04 10:15 IMPS/RemitterName/IFSCABC. Balance Rs.67,800. Report issue at XXX161XXX.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'Rs.25,000 from Acct XX7890 on 06-Apr-26 12:00 NEFT/SENDER/ABCDEF. Clear Bal Rs.3,75,000. Call if not initiated by you.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        'Debit INR 1,150 A/c *5678 06-Apr 13:20 UPI/GPay/Merch123. Bal INR 28,850. Dispute? 1800-12-XXXX.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body:
-        '7,500 withdrawn ****9012 ATM 05-Apr-26 22:30. New Bal 92,500. Contact bank if unauthorized.',
-    sender: 'SBI-ATM',
-  ),
-  SampleSms(
-    body:
-        'Rs.18,999 debited XX1234 on 06/04/26 09:50 for Bill Payment/NetBanking. Avl: Rs.81,001. Helpline XXX-XXXXXXX.',
-    sender: 'BANK-SMS',
-  ),
-  SampleSms(
-    body:
-        'A/c ending 3456 INR 4,200 debited 06-Apr 15:10 IMPS/ABC/IFSC123. Bal 56,800. Call 1800-XXX for disputes.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        '32,000 from *7890 NEFT/RemitName on 04-Apr-26 17:45. Balance 2,68,000. SMS BLOCK if fraud.',
-    sender: 'KOTAKB',
-  ),
-  SampleSms(
-    body:
-        'Debit Rs.950 ****2345 UPI 06-Apr 11:30. Bal Rs.19,050. Report to XXX161XXX.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'INR 22,500 debited Acct XX4567 05-Apr-26 20:15 ATM. Avl Bal 1,77,500. Helpline 1800-XXXX.',
-    sender: 'ICICIB',
-  ),
-  SampleSms(
-    body:
-        'Rs.6,750 from 6789 on 06/04 14:00 Credit Card/NetBanking. New Bal 43,250. Call if not you.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        '1,200 debited *9012 IMPS 06-Apr-26 10:45. Bal 34,800. Dispute helpline XXX-XXXX.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'A/c XX1122 Rs.28,000 withdrawn 04-Apr 16:20 UPI. Balance 72,000. Contact support.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body:
-        'INR 9,999 debited ****5678 NEFT 06-Apr 12:55. Avl 51,001. 1800-11-XXXX if issue.',
-    sender: 'KOTAKB',
-  ),
-  SampleSms(
-    body: 'Rs.14,250 ATM *2345 05-Apr-26 19:10. Bal 85,750. Report fraud.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        'Debit 3,500 XX7890 UPI 06/04/26 13:40. New Bal 96,500. Helpline XXX161XXX.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        '47,000 from Acct *1234 NetBanking 06-Apr 11:00. Bal 2,53,000. Call 1800-XXXXXXX.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'Rs.5,600 debited 3456 IMPS 04-Apr-26 21:30. Avl 78,400. SMS STOP for block.',
-    sender: 'AXISBK',
-  ),
-
-  // New Credit Samples
-  SampleSms(
-    body:
-        '46,000.00 on 24-Jul-2025 & Acct XX791 credited. IMPS: XXX410XX. Call XX0026XX for dispute or SMS BLOCK 126 to XXX5676XXX.',
-    sender: 'BANK-BK',
-  ),
-  SampleSms(
-    body:
-        'Dear John Doe, Your account ending with 1234 has been credited with ₹5,000 on 25th December 2024. For any queries, please contact our customer support at 1800-123-4567. Thank you for banking with XYZ Bank.',
-    sender: 'XYZ-BANK',
-  ),
-  SampleSms(
-    body:
-        'Acct ****6789 credited Rs.10,000 on 06-Apr-26 12:05 IMPS/SenderName/IFSC123. New Bal: Rs.55,000.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'INR 25,500 credited to A/c XX4567 on 06/04/26 14:30 NEFT/ABC/ABCD0001. Avl Bal: INR 80,500.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        'Rs.15,000 credit *2345 UPI/Paytm on 05-Apr-26 10:20. Balance Rs.1,15,000. Thank you.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'A/c ending 8910 credited 42,750 on 06-Apr 11:15. Salary/IMPS. New Bal 87,750. Helpline 1800-XXXX.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        '3,200.00 credited XX3456 NEFT/Remitter 04-Apr-26 17:45. Bal 1,03,200. Queries? XXX-XXXXXXX.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        'INR 78,000 to ****1122 on 06/04 09:50 UPI. Avl Bal INR 1,78,000. Contact if needed.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body:
-        'Rs.22,500 credited Acct *7890 06-Apr-26 13:10 IMPS. Balance 2,22,500. Thank you for banking.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'Credit 1,150 XX1234 NEFT 05-Apr 20:30. New Bal 45,150. Helpline 1800-11-XXXX.',
-    sender: 'ICICIB',
-  ),
-  SampleSms(
-    body:
-        'A/c ****9012 Rs.7,500 credited 06-Apr 12:40 ATM Deposit. Bal Rs.60,000.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        '18,999 to *5678 on 04-Apr-26 15:20 UPI/GPay. Avl 68,999. Support XXX161XXX.',
-    sender: 'KOTAKB',
-  ),
-  SampleSms(
-    body: 'Rs.32,000 credit XX4567 IMPS 06/04/26 10:55. Balance 1,32,000.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body:
-        'INR 4,250 credited 7890 NEFT 06-Apr 14:15. New Bal 49,250. Queries call XXX-XXXX.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'Acct *2345 Rs.28,000 on 05-Apr-26 18:30 Salary Credit. Bal 78,000. Thank you.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body:
-        '9,999 credited ****6789 UPI 06-Apr 11:45. Avl 59,999. Helpline 1800-XXXXXXX.',
-    sender: 'ICICIB',
-  ),
-  SampleSms(
-    body: 'Rs.14,250 to XX1122 04-Apr 16:10. IMPS/Sender. Balance 64,250.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body:
-        'Credit 47,000 *9012 NEFT 06/04/26 13:25. New Bal 97,000. Contact support.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body: 'INR 5,600 credited 3456 05-Apr-26 21:00 Cash Dep. Bal 55,600.',
-    sender: 'DIB-BK',
-  ),
-
-  // --- NEW BANKS TEST DATA ---
-
-  // Canara Bank
-  SampleSms(
-    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
-    sender: 'CNRBNK',
-  ),
-  SampleSms(
-    body:
-        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
-    sender: 'CANBNK',
-  ),
-
-  // City Union Bank (CUB)
-  SampleSms(
-    body:
-        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
-    sender: 'CUBPNK',
-  ),
-  SampleSms(
-    body:
-        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
-    sender: 'CUBBNK',
-  ),
-
-  // CRED
-  SampleSms(
-    body:
-        'Your payment of Rs. 15,000.00 was credited towards your HDFC Bank Credit Card ending in 1234.',
-    sender: 'CREDIN',
-  ),
-  SampleSms(
-    body: 'Rs.72,500 to Acct XX7890 UPI 06-Apr 12:20. Avl 1,72,500. Thank you.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        '2,999 credited *1234 IMPS 04-Apr 10:40. Balance 52,999. Helpline XXX161XXX.',
-    sender: 'SBIBK',
-  ),
-  SampleSms(
-    body: 'A/c ****5678 Rs.85,000 on 06/04 15:05 NEFT. New Bal 1,35,000.',
-    sender: 'ICICIB',
-  ),
-  SampleSms(
-    body: '19,750 credit XX2345 05-Apr-26 19:50 Salary. Bal 69,750. 1800-XXXX.',
-    sender: 'DIB-BK',
-  ),
-  SampleSms(
-    body: 'Rs.36,000 to 4567 UPI 06-Apr 11:30. Avl 86,000. Queries? Call bank.',
-    sender: 'AXISBK',
-  ),
-  SampleSms(
-    body:
-        'INR 11,200 credited *8910 04-Apr-26 14:00. Balance 61,200. Thank you for banking.',
-    sender: 'HDFCBK',
-  ),
-
-  // Negative Samples
-  SampleSms(
-    body:
-        '123456 is your OTP for transaction of Rs. 1000.00 at AMAZON. Do not share.',
-    sender: 'HDFCBK',
-  ),
-  SampleSms(
-    body:
-        'Win Rs. 1 Crore! Play now at MegaLotto.com. This is a promotional message.',
-    sender: 'SPAM',
-  ),
-  SampleSms(
-    body:
-        'Rs.500.00 debited from a/c XXXXX6789 on 25-Oct-23 via UPI/Ref 329845612345. Avl bal Rs.10,234.56',
-    sender: 'SBIINB',
-  ),
-
-  SampleSms(
-    body:
-        'INR 1,250.00 is debited from your A/c XX1234 on 05-02-26 by POS txn at SWIGGY. Avl Bal: INR 5,678.00',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'A/c XX4321 debited by Rs 3,450 on 20-02-26 via UPI Ref No 22334455. If not you call 1800xxxx',
-    sender: 'ICICIB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.2,000 withdrawn from A/c XX5678 at ATM on 02-03-26. Avl bal: Rs.8,500',
-    sender: 'PNBSMS',
-  ),
-
-  SampleSms(
-    body:
-        'INR 899 spent on HDFC Bank Credit Card ending 1234 at FLIPKART INTERNET on 18-Mar-26',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.6,000 debited from your A/c no. XXXXX2222 on 21-03-26 via NEFT. Avl bal: Rs.45,000',
-    sender: 'AXISBK',
-  ),
-
-  SampleSms(
-    body:
-        'Txn of Rs 450 done on ICICI Card xx7890 at ZOMATO on 22-Mar-26. Avl limit Rs 50,000',
-    sender: 'ICICIB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs 5,500 debited from A/c XX5555 via IMPS on 14-03-26 Ref No 77665544. Avl Bal Rs 23,000',
-    sender: 'KOTAKB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.320.00 debited from A/c XX6666 on 15-03-26 at DMART POS. Avl Bal Rs.9,200',
-    sender: 'YESBNK',
-  ),
-
-  SampleSms(
-    body: 'INR 1,150 spent using your Card at AMAZON PAY INDIA on 16-Mar-26',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'Rs 4,000 debited from your account XX7777 on 17-03-26 via IMPS Ref 77665544. Not you? Call bank',
-    sender: 'SBMSMS',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.2,300 spent on SBI Credit Card ending 7890 at BIG BAZAAR on 18-Mar-26',
-    sender: 'SBICRD',
-  ),
-
-  SampleSms(
-    body:
-        'Rs 850 debited from A/c XX8888 on 19-03-26 via UPI. UPI Ref No 99887766',
-    sender: 'AXISBK',
-  ),
-
-  SampleSms(
-    body: 'Cash withdrawal Rs.1,750 from A/c XX9999 on 20-03-26 ATM ID S1234',
-    sender: 'PNBSMS',
-  ),
-
-  SampleSms(
-    body: 'Rs.600 debited from your A/c XX1212 at MEDPLUS on 21-03-26 via POS',
-    sender: 'ICICIB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.10,000 credited to your A/c XX1234 on 05-02-26 via NEFT. Avl bal Rs.50,000',
-    sender: 'SBIINB',
-  ),
-
-  SampleSms(
-    body:
-        'INR 5,000 credited to A/c XX5678 by IMPS Ref No 123456789 on 06-02-26',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body: 'Rs.2,500 received in your account XX4321 via UPI Ref No 99887766',
-    sender: 'ICICIB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs 15,000 credited to your A/c XX6789 via RTGS on 11-02-26. Avl Bal Rs 1,20,000',
-    sender: 'AXISBK',
-  ),
-
-  SampleSms(
-    body: 'Rs.1,200 credited to A/c XX1111 via UPI on 20-02-26 Ref 22334455',
-    sender: 'KOTAKB',
-  ),
-
-  // --- NEWLY ADDED BANKS ---
-  // Canara Bank
-  SampleSms(
-    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
-    sender: 'CNRBNK',
-  ),
-  SampleSms(
-    body:
-        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
-    sender: 'CANBNK',
-  ),
-
-  // City Union Bank (CUB)
-  SampleSms(
-    body:
-        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
-    sender: 'CUBPNK',
-  ),
-  SampleSms(
-    body:
-        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
-    sender: 'CUBBNK',
-  ),
-
-  // Dhanlaxmi Bank
-  SampleSms(
-    body:
-        'INR 250.00 is debited from A/c X1234. Aval Bal is INR 4,500.00. UPI Ref no 123456789.',
-    sender: 'DLXBNK',
-  ),
-
-  // --- NEWLY ADDED BANKS ---
-  // Canara Bank
-  SampleSms(
-    body: 'Rs. 500.00 paid to MerchantName, UPI Ref 123456789012.',
-    sender: 'CNRBNK',
-  ),
-  SampleSms(
-    body:
-        'INR 1,250.50 has been DEBITED from your A/C XX1234. Avail.bal INR 15,400.00.',
-    sender: 'CANBNK',
-  ),
-
-  // City Union Bank (CUB)
-  SampleSms(
-    body:
-        'Your a/c no. X1234 debited for Rs. 1,000.00. Avl Bal 45,000.00. (UPI Ref no 123456789).',
-    sender: 'CUBPNK',
-  ),
-  SampleSms(
-    body:
-        'Savings No X4321 credited with INR 2,500.00 BY NEFT TRF:REMITTER NAME.',
-    sender: 'CUBBNK',
-  ),
-
-  // Department of Post (DOP)
-  SampleSms(
-    body:
-        'Acc No. 1234 debited with amount Rs. 2,000.00. Bal: Rs. 15,800.00. [REF123456789].',
-    sender: 'DOPBNK',
-  ),
-
-  SampleSms(
-    body:
-        'SBI: Rs1000.0 credited to A/c XX1234 on 05Feb26 by NEFT:REF NO 1234567890. Bal:Rs15000.0',
-    sender: 'VM-SBIINB',
-  ),
-
-  SampleSms(
-    body:
-        'INR 3,000 credited in your account XX2222 via IMPS. Avl Bal INR 15,000',
-    sender: 'YESBNK',
-  ),
-
-  SampleSms(
-    body:
-        'Rs 7,500 credited to A/c XX3333 on 25-03-26 via NEFT Ref No 88997766',
-    sender: 'PNBSMS',
-  ),
-
-  SampleSms(
-    body: 'Rs.950 received via UPI in A/c XX4444 Ref No 77665544',
-    sender: 'ICICIB',
-  ),
-
-  SampleSms(
-    body: 'INR 12,000 credited to A/c XX5555 via RTGS. Avl Bal INR 2,00,000',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body: 'Rs 2,000 credited to your account XX6666 via IMPS Ref No 44556677',
-    sender: 'SBMSMS',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.500 debited from A/c XX4545 on 22-03-26 via UPI/Ref 99887766. Avl bal Rs 5,000',
-    sender: 'AXISBK',
-  ),
-
-  SampleSms(
-    body: 'INR 1,000 credited to your account XX5656 via IMPS Ref No 11223344',
-    sender: 'KOTAKB',
-  ),
-
-  SampleSms(
-    body: 'Rs.2,750 spent on your Credit Card at AMAZON on 23-Mar-26',
-    sender: 'HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.9,000 credited to A/c XX6767 via NEFT on 24-03-26 Ref No 66778899',
-    sender: 'SBIINB',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.650 debited from A/c XX7878 via POS at RELIANCE SMART on 25-03-26',
-    sender: 'ICICIB',
-  ),
-
-  // ── HDFC Bank ─────────────────────────────────────────────────────────────
-  SampleSms(
     body:
-        'Rs.5,000.00 debited from A/c **1234 on 01-Apr-25. Avbl Bal: Rs.12,350.00. Call 18002586161 for dispute.',
+        'INR 2,500.00 debited from HDFC Bank A/c XX1234 on 01-Apr-25. UPI/PhonePe. Avl Bal INR 15,240.00. Not you? Call 18002676161.',
     sender: 'VM-HDFCBK',
   ),
 
   SampleSms(
     body:
-        'Rs.850.00 debited from A/c **1234 on 02-Apr-25. Avbl Bal: Rs.11,500.00. Call 18002586161 for dispute.',
+        'INR 1,200.00 debited from HDFC Bank A/c XX1234 on 02-Apr-25. UPI/GooglePay. Avl Bal INR 14,040.00.',
     sender: 'VM-HDFCBK',
   ),
 
   SampleSms(
     body:
-        'Rs.25,000.00 credited to A/c **1234 on 01-Apr-25. Avbl Bal: Rs.36,500.00.',
-    sender: 'VM-HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'Rs.1,200.00 credited to A/c **1234 on 03-Apr-25. Avbl Bal: Rs.37,700.00.',
-    sender: 'VM-HDFCBK',
-  ),
-
-  SampleSms(
-    body:
-        'INR 499.00 spent on HDFC Bank Credit Card **5678 at AMAZON INDIA on 02-Apr-2025. Available Limit: INR 45,001.00.',
+        'INR 30,000.00 credited to HDFC Bank A/c XX1234 on 01-Apr-25. Salary. Avl Bal INR 45,240.00.',
     sender: 'VM-HDFCBK',
   ),
 
@@ -764,7 +149,7 @@ final List<SampleSms> sampleSms = [
     sender: 'VM-KOTAKB',
   ),
 
-  // ── IndusInd Bank ─────────────────────────────────────────────────────────
+  // ── IndusInd Bank (Old) ─────────────────────────────────────────────────────
   SampleSms(
     body:
         'INR 4,500.00 has been debited from your IndusInd Bank A/c ending 1234 on 01-Apr-25. Avl Bal: INR 22,100.00.',
@@ -854,4 +239,638 @@ final List<SampleSms> sampleSms = [
         'Rs.40,000.00 credited to HSBC A/c XX1234 on 02-Apr-25. Avl Bal Rs.71,250.00.',
     sender: 'VM-HSBCIN',
   ),
+
+  // --- INDUSIND BANK ---
+  SampleSms(
+    body:
+        'Debited INR 1,500.00 from your IndusInd Bank A/c ending 1234 on 15-May-26. Avl Bal: INR 45,600.00.',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'INR 25,000.00 has been credited to your IndusInd Bank A/c ending 1234 on 16-May-26. Avl Bal: INR 70,600.00.',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body: 'purchase of Rs. 1,250.00 at AMAZON using IndusInd Bank Card.',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'Avl BAL of INR 68,350.00 after debit of INR 2,250.00 in account XX1234.',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'INR 500.00 has been debited from your IndusInd Bank A/c ending 1234 for UPI. Avl Bal: INR 67,850.00.',
+    sender: 'INDUSB',
+  ),
+
+  // --- JK BANK ---
+  SampleSms(
+    body:
+        'A/c XX1234 debited by INR 3,500.00 on 12-Apr-26 towards Electricity Bill. Available Bal is INR 21,500.00.',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body: 'A/c XX1234 credited by INR 15,000.00 via NEFT from EMPLOYER.',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body: 'transferred INR 4,200.00 to A/C XX5678. Avl Bal Rs. 17,300.00.',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body:
+        'A/c XX1234 debited by INR 800.00 on 14-Apr-26 at POS. Available Bal is INR 16,500.00.',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body:
+        'credited INR 5,000.00 to A/C XX1234 via IMPS. Avl Bal Rs. 21,500.00.',
+    sender: 'JKBANK',
+  ),
+
+  // --- JIOPAY ---
+  SampleSms(
+    body:
+        'Recharge successful to Jio Number: 9876543210. Rs. 749.00. Transaction ID: 1122334455.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body:
+        'payment successful to Zomato. Rs. 350.00. Transaction ID: 5566778899.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body: 'bill payment successful. Rs. 1,250.00. Transaction ID: 9988776655.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body:
+        'Recharge successful to Jio Number: 8765432109. Rs. 199.00. Transaction ID: 2233445566.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body:
+        'payment successful to Swiggy. Rs. 420.00. Transaction ID: 3344556677.',
+    sender: 'JIOPAY',
+  ),
+
+  // --- JIO PAYMENTS BANK ---
+  SampleSms(
+    body:
+        'Rs. 850.00 debited with JPB A/c x1234 to Merchant. UPI/DR/112233445566.',
+    sender: 'JIOPBS',
+  ),
+  SampleSms(
+    body: 'Rs. 12,000.00 credited with JPB A/c x1234. Avl Bal: Rs. 15,450.00.',
+    sender: 'JIOPBS',
+  ),
+  SampleSms(
+    body: 'Sent from x1234 to Ramesh. Rs. 1,500.00. Avl Bal: Rs. 13,950.00.',
+    sender: 'JIOPBS',
+  ),
+  SampleSms(
+    body: 'Rs. 320.00 debited with JPB A/c x1234 to Uber. UPI/DR/998877665544.',
+    sender: 'JIOPBS',
+  ),
+  SampleSms(
+    body:
+        'Rs. 2,000.00 credited with JPB A/c x1234 via IMPS. Avl Bal: Rs. 15,630.00.',
+    sender: 'JIOPBS',
+  ),
+
+  // --- AMAZON PAY ---
+  SampleSms(
+    body:
+        'Rs. 500.00 added to your Amazon Pay balance. Transaction ID: AMZ123456.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body:
+        'Paid Rs. 1,200.00 using Amazon Pay balance at BigBazaar. Txn ID: AMZ987654.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Cashback of Rs. 50.00 credited to your Amazon Pay balance.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Rs. 350.00 paid for mobile recharge using Amazon Pay balance.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Refund of Rs. 899.00 credited to your Amazon Pay balance.',
+    sender: 'AMZPAY',
+  ),
+
+  // --- KARNATAKA BANK ---
+  SampleSms(
+    body:
+        'Dear Customer, your A/c XX1234 is debited with Rs. 2,500.00 on 20-May-26. Avl Bal: Rs. 34,500.00.',
+    sender: 'KARBK',
+  ),
+  SampleSms(
+    body:
+        'Dear Customer, your A/c XX1234 is credited with Rs. 18,000.00 on 21-May-26 via NEFT. Avl Bal: Rs. 52,500.00.',
+    sender: 'KARBK',
+  ),
+  SampleSms(
+    body:
+        'Rs. 850.00 debited from A/c XX1234 for UPI payment. Avl Bal: Rs. 51,650.00.',
+    sender: 'KARBK',
+  ),
+  SampleSms(
+    body:
+        'Cash withdrawal of Rs. 5,000.00 from A/c XX1234 at ATM. Avl Bal: Rs. 46,650.00.',
+    sender: 'KARBK',
+  ),
+  SampleSms(
+    body:
+        'credited Rs. 2,000.00 to A/c XX1234 via IMPS. Avl Bal: Rs. 48,650.00.',
+    sender: 'KARBK',
+  ),
+
+  // --- KERALA GRAMIN BANK ---
+  SampleSms(
+    body:
+        'Your A/C XX1234 has been debited by Rs. 1,000.00 on 10-Jun-26. Avl Bal: Rs. 12,500.00.',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body:
+        'Your A/C XX1234 has been credited by Rs. 5,000.00 on 11-Jun-26. Avl Bal: Rs. 17,500.00.',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body: 'Rs. 350.00 debited from A/C XX1234 via UPI. Avl Bal: Rs. 17,150.00.',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body:
+        'Rs. 8,000.00 credited to A/C XX1234 via NEFT. Avl Bal: Rs. 25,150.00.',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body:
+        'withdrawn Rs. 2,000.00 from A/C XX1234 at ATM. Avl Bal: Rs. 23,150.00.',
+    sender: 'KGBANK',
+  ),
+
+  // --- SARASWAT CO-OPERATIVE BANK ---
+  SampleSms(
+    body:
+        'A/c XX1234 debited for Rs. 4,500.00 on 01-Jul-26. Avl Bal: Rs. 45,000.00.',
+    sender: 'SRSWTB',
+  ),
+  SampleSms(
+    body:
+        'A/c XX1234 credited for Rs. 20,000.00 on 02-Jul-26. Avl Bal: Rs. 65,000.00.',
+    sender: 'SRSWTB',
+  ),
+  SampleSms(
+    body:
+        'Rs. 1,200.00 debited from A/c XX1234 for POS txn. Avl Bal: Rs. 63,800.00.',
+    sender: 'SRSWTB',
+  ),
+  SampleSms(
+    body:
+        'Rs. 3,500.00 credited to A/c XX1234 via IMPS. Avl Bal: Rs. 67,300.00.',
+    sender: 'SRSWTB',
+  ),
+  SampleSms(
+    body: 'Rs. 500.00 debited from A/c XX1234 via UPI. Avl Bal: Rs. 66,800.00.',
+    sender: 'SRSWTB',
+  ),
+
+  // --- SOUTH INDIAN BANK ---
+  SampleSms(
+    body:
+        'Rs. 2,800.00 debited from your A/c XX1234 on 15-Aug-26. Avl Bal: Rs. 28,500.00.',
+    sender: 'SIBNK',
+  ),
+  SampleSms(
+    body:
+        'Rs. 15,000.00 credited to your A/c XX1234 on 16-Aug-26 via NEFT. Avl Bal: Rs. 43,500.00.',
+    sender: 'SIBNK',
+  ),
+  SampleSms(
+    body:
+        'UPI txn of Rs. 650.00 debited from A/c XX1234. Avl Bal: Rs. 42,850.00.',
+    sender: 'SIBNK',
+  ),
+  SampleSms(
+    body: 'IMPS credit of Rs. 4,000.00 to A/c XX1234. Avl Bal: Rs. 46,850.00.',
+    sender: 'SIBNK',
+  ),
+  SampleSms(
+    body:
+        'ATM withdrawal of Rs. 3,000.00 from A/c XX1234. Avl Bal: Rs. 43,850.00.',
+    sender: 'SIBNK',
+  ),
+
+  // --- STANDARD CHARTERED BANK ---
+  SampleSms(
+    body:
+        'INR 5,500.00 debited from your A/c XX1234 on 05-Sep-26. Avl Bal: INR 1,55,000.00.',
+    sender: 'STANCB',
+  ),
+  SampleSms(
+    body:
+        'INR 85,000.00 credited to your A/c XX1234 on 06-Sep-26. Avl Bal: INR 2,40,000.00.',
+    sender: 'STANCB',
+  ),
+  SampleSms(
+    body:
+        'spent INR 2,500.00 on your Credit Card XX9999. Avl limit: INR 1,47,500.00.',
+    sender: 'STANCB',
+  ),
+  SampleSms(
+    body:
+        'INR 1,200.00 debited from A/c XX1234 via UPI. Avl Bal: INR 2,38,800.00.',
+    sender: 'STANCB',
+  ),
+  SampleSms(
+    body:
+        'INR 12,000.00 credited to A/c XX1234 via NEFT. Avl Bal: INR 2,50,800.00.',
+    sender: 'STANCB',
+  ),
+
+  // --- UCO BANK ---
+  SampleSms(
+    body:
+        'A/c XX1234 is debited with Rs. 1,500.00 on 10-Oct-26. Available Balance Rs. 18,500.00.',
+    sender: 'UCOBNK',
+  ),
+  SampleSms(
+    body:
+        'A/c XX1234 is credited with Rs. 10,000.00 on 11-Oct-26. Available Balance Rs. 28,500.00.',
+    sender: 'UCOBNK',
+  ),
+  SampleSms(
+    body:
+        'Rs. 450.00 debited from A/c XX1234 via UPI. Available Balance Rs. 28,050.00.',
+    sender: 'UCOBNK',
+  ),
+  SampleSms(
+    body:
+        'Rs. 5,000.00 credited to A/c XX1234 via IMPS. Available Balance Rs. 33,050.00.',
+    sender: 'UCOBNK',
+  ),
+  SampleSms(
+    body:
+        'ATM withdrawal of Rs. 2,000.00 from A/c XX1234. Available Balance Rs. 31,050.00.',
+    sender: 'UCOBNK',
+  ),
+
+  // --- UNION BANK OF INDIA ---
+  SampleSms(
+    body:
+        'Rs. 3,200.00 debited from your A/c XX1234 on 20-Nov-26. Avl Bal: Rs. 42,500.00.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(
+    body:
+        'Rs. 25,000.00 credited to your A/c XX1234 on 21-Nov-26 via NEFT. Avl Bal: Rs. 67,500.00.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(
+    body:
+        'UPI payment of Rs. 850.00 debited from A/c XX1234. Avl Bal: Rs. 66,650.00.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(
+    body: 'IMPS credit of Rs. 8,000.00 to A/c XX1234. Avl Bal: Rs. 74,650.00.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(
+    body:
+        'Cash withdrawal of Rs. 4,000.00 from A/c XX1234 at ATM. Avl Bal: Rs. 70,650.00.',
+    sender: 'UNIONB',
+  ),
+
+  // --- YES BANK ---
+  SampleSms(
+    body:
+        'INR 4,500.00 debited from your YES BANK A/c XX1234 on 05-Dec-26. Avl Bal: INR 55,000.00.',
+    sender: 'YESBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 35,000.00 credited to your YES BANK A/c XX1234 on 06-Dec-26. Avl Bal: INR 90,000.00.',
+    sender: 'YESBNK',
+  ),
+  SampleSms(
+    body:
+        'spent INR 1,500.00 on your YES BANK Credit Card XX8888. Avl limit: INR 73,500.00.',
+    sender: 'YESBNK',
+  ),
+  SampleSms(
+    body: 'INR 650.00 debited from A/c XX1234 via UPI. Avl Bal: INR 89,350.00.',
+    sender: 'YESBNK',
+  ),
+  SampleSms(
+    body:
+        'INR 15,000.00 credited to A/c XX1234 via NEFT. Avl Bal: INR 1,04,350.00.',
+    sender: 'YESBNK',
+  ),
+
+  // =========================
+  // INDUSIND BANK
+  // =========================
+  SampleSms(
+    body:
+        'Rs.2,450.00 debited from A/c XX4512 on 24-04-26 towards BIG BAZAAR. Avl Bal: Rs.56,781.90',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'Your IndusInd Credit Card xx7821 used for INR 9,999.00 at AMAZON PAY INDIA on 24/04/26 18:14. Avl Limit: INR 1,20,001.00',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'UPI txn of Rs.1,250.00 from A/c **4512 to priya@okhdfcbank successful. Ref: 611492784221',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'Cash withdrawal of Rs.10,000 from ATM using Debit Card xx4512 at MUMBAI. Avl Bal Rs.46,781.90',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'Salary of INR 75,000.00 credited to A/c XX4512 via NEFT from INFOSOFT PVT LTD.',
+    sender: 'INDUSB',
+  ),
+  SampleSms(
+    body:
+        'OTP 662191 for online transaction of Rs.4,800 on your IndusInd card. Valid 5 mins.',
+    sender: 'INDUSB',
+  ),
+
+  // =========================
+  // JK BANK
+  // =========================
+  SampleSms(
+    body:
+        'A/c XX8831 debited by Rs.3,200.00 on 24APR26 at RELIANCE SMART. Bal: Rs.18,220.50',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body:
+        'Credit of INR 48,500.00 in A/c **8831 by SALARY transfer. Available Balance Rs.66,720.50',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body:
+        'UPI transfer of Rs.850 to amit@ybl from A/c XX8831. UTR 611482938211',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body: 'ATM WDL Rs.5,000 from A/c **8831 at Srinagar ATM. Bal Rs.13,220.50',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body: 'Txn declined on card xx8831 due to daily withdrawal limit exceeded.',
+    sender: 'JKBANK',
+  ),
+  SampleSms(
+    body: 'OTP for J&K Bank txn is 104228. Do not share.',
+    sender: 'JKBANK',
+  ),
+
+  // =========================
+  // JIOPAY
+  // =========================
+  SampleSms(
+    body:
+        'Rs.399.00 paid via JioPay to MYJIO RECHARGE. Txn ID: JP611492001. Wallet Bal Rs.1,220.00',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body: 'Money added Rs.2,000.00 to JioPay wallet using UPI. Ref 1182011',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body:
+        'Payment of Rs.799 to AJIO successful via JioPay QR. Merchant: AJIO STORE',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body: 'Refund of Rs.399 initiated to JioPay Wallet. Will reflect in 2 hrs.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body: 'OTP 928441 for JioPay login. Valid 10 min.',
+    sender: 'JIOPAY',
+  ),
+  SampleSms(
+    body: 'Txn failed for Rs.1,250 at Merchant due to network timeout.',
+    sender: 'JIOPAY',
+  ),
+
+  // =========================
+  // JIO PAYMENTS BANK
+  // =========================
+  SampleSms(
+    body:
+        'Rs.1,000.00 credited to Jio Payments Bank A/c XX9912 via IMPS. Bal: Rs.5,600.00',
+    sender: 'JIOPBK',
+  ),
+  SampleSms(
+    body: 'UPI payment Rs.250 to tea@oksbi from A/c **9912 successful.',
+    sender: 'JIOPBK',
+  ),
+  SampleSms(
+    body: 'Cashback of Rs.50 received in Jio Payments Bank account.',
+    sender: 'JIOPBK',
+  ),
+  SampleSms(
+    body: 'Debit alert: Rs.799 towards recharge from A/c XX9912. Bal Rs.4,801',
+    sender: 'JIOPBK',
+  ),
+  SampleSms(
+    body: 'OTP 229911 for transaction authentication.',
+    sender: 'JIOPBK',
+  ),
+  SampleSms(
+    body:
+        'Low balance alert: Available balance in your Jio PB account is Rs.95 only.',
+    sender: 'JIOPBK',
+  ),
+
+  // =========================
+  // AMAZON PAY
+  // =========================
+  SampleSms(
+    body:
+        'Amazon Pay: Rs.1,499 paid to ZOMATO using balance. Order Ref APY6112991',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Refund of Rs.799 processed to Amazon Pay balance.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Wallet load successful: Rs.2,000 added via UPI.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Payment failed for Rs.350 at Merchant QR. Please retry.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'OTP 442211 for Amazon Pay txn. Valid 15 min.',
+    sender: 'AMZPAY',
+  ),
+  SampleSms(
+    body: 'Cashback Rs.25 credited to your Amazon Pay balance.',
+    sender: 'AMZPAY',
+  ),
+
+  // =========================
+  // KARNATAKA BANK
+  // =========================
+  SampleSms(
+    body:
+        'Rs.3,450 debited from A/c XX7711 at POS D-MART BENGALURU. Avl Bal Rs.22,111',
+    sender: 'KTKBANK',
+  ),
+  SampleSms(
+    body: 'Salary credit INR 55,000 in A/c **7711 by NEFT.',
+    sender: 'KTKBANK',
+  ),
+  SampleSms(
+    body: 'UPI payment Rs.980 to shop@upi successful. Ref 61129111',
+    sender: 'KTKBANK',
+  ),
+  SampleSms(
+    body: 'ATM withdrawal Rs.2,000 from A/c XX7711. Bal Rs.20,111',
+    sender: 'KTKBANK',
+  ),
+  SampleSms(body: 'OTP 118822 for txn verification.', sender: 'KTKBANK'),
+  SampleSms(body: 'Cheque no 881221 cleared for Rs.12,500.', sender: 'KTKBANK'),
+
+  // =========================
+  // KERALA GRAMIN BANK
+  // =========================
+  SampleSms(
+    body: 'A/c XX2234 debited Rs.750.00 via UPI. Ref 61199822',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body: 'Deposit of Rs.5,000 in A/c **2234. Avl Bal Rs.12,340',
+    sender: 'KGBANK',
+  ),
+  SampleSms(
+    body: 'Interest of Rs.42.11 credited to A/c XX2234',
+    sender: 'KGBANK',
+  ),
+  SampleSms(body: 'ATM WDL Rs.1,000 from card ending 2234', sender: 'KGBANK'),
+  SampleSms(body: 'OTP 331122 for secure banking.', sender: 'KGBANK'),
+  SampleSms(
+    body: 'Low balance: Your balance is below Rs.500',
+    sender: 'KGBANK',
+  ),
+
+  // =========================
+  // SARASWAT CO-OPERATIVE BANK
+  // =========================
+  SampleSms(
+    body: 'Rs.1,850 DR from A/c XX9122 towards utility payment. Bal Rs.18,400',
+    sender: 'SARASW',
+  ),
+  SampleSms(body: 'Salary credit Rs.38,000 in A/c **9122', sender: 'SARASW'),
+  SampleSms(body: 'Cheque no 229911 passed for Rs.9,500', sender: 'SARASW'),
+  SampleSms(
+    body: 'UPI txn Rs.400 to vendor@oksbi successful.',
+    sender: 'SARASW',
+  ),
+  SampleSms(body: 'OTP 991122 for card txn.', sender: 'SARASW'),
+  SampleSms(body: 'Txn failed due to technical issue.', sender: 'SARASW'),
+
+  // =========================
+  // SOUTH INDIAN BANK
+  // =========================
+  SampleSms(
+    body: 'Rs.2,999 debited from A/c XX6621 at AMAZON.IN. Bal Rs.11,220',
+    sender: 'SIBANK',
+  ),
+  SampleSms(body: 'Cash deposit Rs.8,000 in A/c **6621.', sender: 'SIBANK'),
+  SampleSms(
+    body: 'UPI payment Rs.250 successful. Ref 61122331',
+    sender: 'SIBANK',
+  ),
+  SampleSms(body: 'Interest Rs.65.21 credited.', sender: 'SIBANK'),
+  SampleSms(body: 'OTP 229988 for transaction.', sender: 'SIBANK'),
+  SampleSms(body: 'Low balance alert.', sender: 'SIBANK'),
+
+  // =========================
+  // STANDARD CHARTERED BANK
+  // =========================
+  SampleSms(
+    body:
+        'INR 12,500 spent on SCB Credit Card xx5511 at TAJ HOTELS. Avl Limit INR 2,10,000',
+    sender: 'SCBANK',
+  ),
+  SampleSms(body: 'Salary credit INR 1,25,000 to A/c XX5511', sender: 'SCBANK'),
+  SampleSms(
+    body: 'International txn USD 250 at NETFLIX USA approved.',
+    sender: 'SCBANK',
+  ),
+  SampleSms(body: 'OTP 778811 for secure txn.', sender: 'SCBANK'),
+  SampleSms(body: 'Refund INR 1,250 to card xx5511.', sender: 'SCBANK'),
+  SampleSms(
+    body: 'Fraud alert: unusual transaction detected.',
+    sender: 'SCBANK',
+  ),
+
+  // =========================
+  // UCO BANK
+  // =========================
+  SampleSms(
+    body: 'A/c XX1144 debited by Rs.450.00 at POS MEDICAL STORE',
+    sender: 'UCOBNK',
+  ),
+  SampleSms(body: 'Salary Rs.22,000 credited in A/c **1144', sender: 'UCOBNK'),
+  SampleSms(body: 'UPI txn Rs.199 to recharge@upi', sender: 'UCOBNK'),
+  SampleSms(body: 'ATM withdrawal Rs.1,500', sender: 'UCOBNK'),
+  SampleSms(body: 'OTP 221144', sender: 'UCOBNK'),
+  SampleSms(body: 'Interest Rs.21 credited', sender: 'UCOBNK'),
+
+  // =========================
+  // UNION BANK OF INDIA
+  // =========================
+  SampleSms(
+    body:
+        'Cash withdrawal of Rs.4,000.00 from A/c XX1234 at ATM. Avl Bal: Rs.70,650.00.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(
+    body: 'UPI transfer Rs.880 to kirana@oksbi successful.',
+    sender: 'UNIONB',
+  ),
+  SampleSms(body: 'Salary credit Rs.52,000 in A/c **1234', sender: 'UNIONB'),
+  SampleSms(body: 'Loan EMI Rs.6,200 deducted.', sender: 'UNIONB'),
+  SampleSms(body: 'OTP 992211 for verification.', sender: 'UNIONB'),
+  SampleSms(body: 'Cheque cleared for Rs.11,000', sender: 'UNIONB'),
+
+  // =========================
+  // YES BANK
+  // =========================
+  SampleSms(
+    body:
+        'INR 1,250 spent on YES BANK Card xx4411 @UPI_MERCHANT 24APR26 10:22. Avl Lmt INR 98,750',
+    sender: 'YESBNK',
+  ),
+  SampleSms(
+    body: 'UPI txn Rs.500 to food@paytm successful. Ref 61100221',
+    sender: 'YESBNK',
+  ),
+  SampleSms(body: 'Salary credit Rs.65,000 in A/c **4411', sender: 'YESBNK'),
+  SampleSms(body: 'Refund INR 799 to Card xx4411', sender: 'YESBNK'),
+  SampleSms(body: 'OTP 118899 for secure purchase.', sender: 'YESBNK'),
+  SampleSms(body: 'Low balance alert: Avl Bal Rs.99.50', sender: 'YESBNK'),
 ];

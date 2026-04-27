@@ -1,8 +1,8 @@
 enum TransactionType { 
-  debit, credit; 
+  debit, credit, meta, unknown; 
 
   static TransactionType fromString(String name) => 
-    TransactionType.values.firstWhere((e) => e.name == name, orElse: () => debit);
+    TransactionType.values.firstWhere((e) => e.name == name, orElse: () => unknown);
 }
 
 enum PaymentMethod { 

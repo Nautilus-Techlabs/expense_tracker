@@ -33,6 +33,8 @@ void main() {
   int hierVerified = 0;
   int totalTransactions = 0;
 
+  final failedSamples = <String>[];
+
   for (var sample in sampleSms) {
     if (sample.sender == 'SPAM') continue;
     if (sample.body.toLowerCase().contains('otp') ||
@@ -48,6 +50,8 @@ void main() {
       hierSuccess++;
       if (resH.merchant != null) hierMerchants++;
       if (resH.isVerified) hierVerified++;
+    } else {
+      failedSamples.add('[${sample.sender}] ${sample.body}');
     }
   }
 
@@ -63,4 +67,14 @@ void main() {
     'Merchant Extraction: ${hm.toStringAsFixed(1)}% ($hierMerchants/$hierSuccess)',
   );
   print('----------------------------------');
+
+  if (failedSamples.isNotEmpty) {
+    print('\nFAILED SAMPLES:');
+    for (var failed in failedSamples.take(20)) {
+      print(failed);
+    }
+    if (failedSamples.length > 20) {
+      print('... and ${failedSamples.length - 20} more.');
+    }
+  }
 }

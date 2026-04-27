@@ -26,6 +26,9 @@ class HierarchicalBankParser extends BankParser {
       ..sort((a, b) => a.priority.compareTo(b.priority));
 
     for (var template in sortedTemplates) {
+      // 🚫 Skip meta templates for main transaction extraction
+      if (template.type == TransactionType.meta) continue;
+      
       if (!template.matches(sms)) continue;
       final result = _extract(sms, template, fallbackDate);
       if (result == null) continue;
@@ -101,7 +104,6 @@ class HierarchicalBankParser extends BankParser {
     if (template.accountGroup != null) {
       account = match.group(template.accountGroup!);
     }
-    // Inside your _extract method in hierarchical_engine.dart
 
     // 2. FALLBACK: If template failed, try a general search in the SMS body
     if (account == null) {
