@@ -912,33 +912,51 @@
                                                 "BUPGBX"
                                             ],
                       "templates":  [
-                                        {
-                                            "name":  "BOB Debit",
-                                            "pattern":  "A/c\\s+([\\dX*]+)\\s+debited\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?via\\s+UPI)?",
-                                            "type":  "debit",
-                                            "amountGroup":  2,
-                                            "accountGroup":  1,
-                                            "method":  "upi",
-                                            "priority":  10
-                                        },
-                                        {
-                                            "name":  "BOB Credit",
-                                            "pattern":  "A/c\\s+([\\dX*]+)\\s+credited\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)",
-                                            "type":  "credit",
-                                            "amountGroup":  2,
-                                            "accountGroup":  1,
-                                            "method":  "unknown",
-                                            "priority":  11
-                                        },
-                                        {
-                                            "name":  "BOB Universal Safety-Net",
-                                            "pattern":  "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
-                                            "type":  "debit",
-                                            "amountGroup":  1,
-                                            "accountGroup":  2,
-                                            "method":  "unknown",
-                                            "priority":  25
-                                        }
+                        {
+                          "name": "BOB ATM Withdrawal",
+                          "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+from\\s+(?:A/c|a/c)\\s+[\\.\\*X]*(\\d+)\\s+at\\s+ATM",
+                          "type": "debit",
+                          "amountGroup": 1,
+                          "accountGroup": 2,
+                          "method": "atm",
+                          "priority": 1
+                        },
+                        {
+                          "name": "BOB Dr. and Cr. Transfer",
+                          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+Dr\\.?\\s+from\\s+(?:A/c|a/c)\\s+[Xx\\.\\*]*(\\d+)(?:\\s+and\\s+Cr\\.?\\s+to\\s+([^\\s]+))?",
+                          "type": "debit",
+                          "amountGroup": 1,
+                          "accountGroup": 2,
+                          "merchantGroup": 3,
+                          "method": "upi",
+                          "priority": 2
+                        },
+                        {
+                          "name": "BOB Debited and Trf No",
+                          "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:a/c|A/c)\\s+[Xx\\.\\*]*(\\d+)",
+                          "type": "debit",
+                          "amountGroup": 1,
+                          "accountGroup": 2,
+                          "method": "bank",
+                          "priority": 3
+                        },
+                        {
+                          "name": "BOB Typo Credit",
+                          "pattern": "credited\\s+with\\s*([0-9,]+(?:\\.\\d+)?)\\s*(?:ra\\.|rs\\.?|inr)?",
+                          "type": "credit",
+                          "amountGroup": 1,
+                          "method": "unknown",
+                          "priority": 4
+                        },
+                        {
+                          "name": "BOB Universal Safety-Net",
+                          "pattern": "(?:debited|spent|credited|withdrawn|received|Dr\\.?|Cr\\.?).*?(?:Rs\\.?|INR|₹|ra\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX\\.\\*]*\\d+)",
+                          "type": "unknown",
+                          "amountGroup": 1,
+                          "accountGroup": 2,
+                          "method": "unknown",
+                          "priority": 25
+                        }
                                     ]
                   },
                   {

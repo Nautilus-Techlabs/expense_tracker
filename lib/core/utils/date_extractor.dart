@@ -1,6 +1,9 @@
 class DateExtractor {
   static final List<RegExp> _patterns = [
-    // 05-02-2026 / 05-02-26 / 05/02/26 / 05/02
+    // 2025-06-08 (YYYY-MM-DD)
+    RegExp(r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b'),
+
+    // 05-Feb-2026 / 05-Feb-26 / 05/02/26 / 05/02
     RegExp(r'\b(\d{1,2})[-/](\d{1,2})(?:[-/](\d{2,4}))?\b'),
 
     // 05-Feb-26 / 05-Feb-2026
@@ -15,27 +18,9 @@ class DateExtractor {
       caseSensitive: false,
     ),
 
-    // 05 Feb / 05 feb / 05 April / 05 april
+    // 05 Feb / 05 April (No Year)
     RegExp(
       r'\b(\d{1,2})[\s-](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\b',
-      caseSensitive: false,
-    ),
-
-    // 05Feb26 / 01Apr25
-    RegExp(
-      r'\b(\d{1,2})(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\d{2,4})\b',
-      caseSensitive: false,
-    ),
-
-    // 25th December 2024
-    RegExp(
-      r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{2,4})\b',
-      caseSensitive: false,
-    ),
-
-    // 08/AUG
-    RegExp(
-      r'\b(\d{1,2})[/-](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b',
       caseSensitive: false,
     ),
   ];
@@ -56,9 +41,17 @@ class DateExtractor {
 
   static DateTime _parseMatch(RegExpMatch match) {
     final now = DateTime.now();
+    final g1 = match.group(1)!;
+    
+    if (g1.length == 4) {
+      // YYYY-MM-DD format
+      final year = int.parse(g1);
+      final month = int.parse(match.group(2)!);
+      final day = int.parse(match.group(3)!);
+      return DateTime(year, month, day);
+    }
 
-    final day = int.parse(match.group(1)!);
-
+    final day = int.parse(g1);
     String? monthRaw;
     String? yearRaw;
 
@@ -76,7 +69,7 @@ class DateExtractor {
       year = int.parse(yearRaw);
       if (year < 100) year += 2000;
     } else {
-      year = now.year; // fallback if year missing
+      year = now.year;
     }
 
     return DateTime(year, month, day);
@@ -84,26 +77,15 @@ class DateExtractor {
 
   static int _parseMonth(String? input) {
     if (input == null) return 1;
-
-    if (int.tryParse(input) != null) {
-      return int.parse(input);
-    }
+    final parsed = int.tryParse(input);
+    if (parsed != null) return parsed;
 
     const months = {
-      'jan': 1,
-      'feb': 2,
-      'mar': 3,
-      'apr': 4,
-      'may': 5,
-      'jun': 6,
-      'jul': 7,
-      'aug': 8,
-      'sep': 9,
-      'oct': 10,
-      'nov': 11,
-      'dec': 12,
+      'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+      'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
     };
 
-    return months[input.substring(0, 3).toLowerCase()] ?? 1;
+    final lower = input.substring(0, 3).toLowerCase();
+    return months[lower] ?? 1;
   }
 }
