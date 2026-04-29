@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import '../transaction_controller.dart';
+import '../providers/transaction_notifier.dart';
+import '../providers/transaction_state.dart';
 import 'bank_selector_bar.dart';
 import 'method_selection_tag.dart';
 
 class ModernFilterBar extends StatelessWidget {
+  final TransactionState state;
   final TransactionController controller;
 
-  const ModernFilterBar({super.key, required this.controller});
+  const ModernFilterBar({
+    super.key,
+    required this.state,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +20,8 @@ class ModernFilterBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        BankSelectorBar(controller: controller),
-        MethodSelectionTag(controller: controller),
+        BankSelectorBar(state: state, controller: controller),
+        MethodSelectionTag(state: state, controller: controller),
       ],
     );
   }

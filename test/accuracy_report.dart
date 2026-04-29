@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:expense_tracker/domain/entities/bank_definition.dart';
 import 'package:expense_tracker/domain/parsers/combined_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
 import 'package:expense_tracker/data/sample_data.dart';
-import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
 
 void main() {
   // 1. Load the JSON configuration from the assets directory

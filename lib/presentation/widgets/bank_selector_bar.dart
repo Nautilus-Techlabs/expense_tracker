@@ -1,18 +1,24 @@
+import 'package:expense_tracker/presentation/providers/transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../core/theme/app_theme.dart';
-import '../transaction_controller.dart';
+import '../providers/transaction_notifier.dart';
 
 class BankSelectorBar extends StatelessWidget {
+  final TransactionState state;
   final TransactionController controller;
 
-  const BankSelectorBar({super.key, required this.controller});
+  const BankSelectorBar({
+    super.key,
+    required this.state,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final banks = controller.getAvailableBanks();
-    final hasUnsupported = controller.hasUnsupportedTransactions();
+    final banks = state.getAvailableBanks();
+    final hasUnsupported = state.hasUnsupportedTransactions();
 
     if (banks.isEmpty && !hasUnsupported) return const SizedBox.shrink();
 
@@ -42,7 +48,7 @@ class BankSelectorBar extends StatelessWidget {
             children: [
               _BankCard(
                 label: 'All',
-                isSelected: controller.selectedBank == null,
+                isSelected: state.selectedBank == null,
                 onTap: () => controller.setBankFilter(null),
                 icon: Icons.apps_rounded,
                 color: AppTheme.primary,
@@ -50,7 +56,7 @@ class BankSelectorBar extends StatelessWidget {
               ...banks.map(
                 (bank) => _BankCard(
                   label: bank,
-                  isSelected: controller.selectedBank == bank,
+                  isSelected: state.selectedBank == bank,
                   onTap: () => controller.setBankFilter(bank),
                   letter: bank.substring(0, 1).toUpperCase(),
                   color: _getBankColor(bank),
@@ -59,7 +65,7 @@ class BankSelectorBar extends StatelessWidget {
               if (hasUnsupported)
                 _BankCard(
                   label: 'Unknown',
-                  isSelected: controller.selectedBank == 'unsupported',
+                  isSelected: state.selectedBank == 'unsupported',
                   onTap: () => controller.setBankFilter('unsupported'),
                   icon: Icons.help_outline_rounded,
                   color: AppTheme.slate500,

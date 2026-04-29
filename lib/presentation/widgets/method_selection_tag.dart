@@ -3,16 +3,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/transaction.dart';
-import '../transaction_controller.dart';
+import '../providers/transaction_notifier.dart';
+import '../providers/transaction_state.dart';
 
 class MethodSelectionTag extends StatelessWidget {
+  final TransactionState state;
   final TransactionController controller;
 
-  const MethodSelectionTag({super.key, required this.controller});
+  const MethodSelectionTag({
+    super.key,
+    required this.state,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final methods = controller.getAvailableMethods();
+    final methods = state.getAvailableMethods();
     if (methods.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -42,7 +48,7 @@ class MethodSelectionTag extends StatelessWidget {
             children: [
               _MethodPill(
                 label: 'All',
-                isSelected: controller.selectedMethod == null,
+                isSelected: state.selectedMethod == null,
                 onTap: () => controller.setMethodFilter(null),
                 icon: Icons.all_inbox_rounded,
                 color: AppTheme.primary,
@@ -50,7 +56,7 @@ class MethodSelectionTag extends StatelessWidget {
               ...methods.map(
                 (method) => _MethodPill(
                   label: method.name.toUpperCase(),
-                  isSelected: controller.selectedMethod == method,
+                  isSelected: state.selectedMethod == method,
                   onTap: () => controller.setMethodFilter(method),
                   icon: _getIcon(method),
                   color: _getMethodColor(method),

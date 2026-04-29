@@ -32,9 +32,9 @@ class SmsService {
     Function(String)? onDebug,
   }) async {
     // 1. Check Permissions
-    final status = await Permission.sms.request();
+    final status = await Permission.sms.status;
     if (!status.isGranted) {
-      onDebug?.call("Permission denied: ${status.name}");
+      onDebug?.call("Permission not granted: ${status.name}");
       return _parser
           .parseBatch(
             sampleSms

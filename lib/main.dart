@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/parsers/flutter_parser_initializer.dart';
-import 'presentation/splash_screen.dart';
-import 'presentation/transaction_controller.dart';
+import 'presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +19,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const ExpenseTrackerApp());
+  runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }
 
 class ExpenseTrackerApp extends StatelessWidget {
@@ -33,25 +32,20 @@ class ExpenseTrackerApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => TransactionController()),
-          ],
-          child: MaterialApp(
-            title: 'Expense Tracker',
-            debugShowCheckedModeBanner: false,
+        return MaterialApp(
+          title: 'Expense Tracker',
+          debugShowCheckedModeBanner: false,
 
-            // Light Theme
-            theme: AppTheme.light,
+          // Light Theme
+          theme: AppTheme.light,
 
-            // Dark Theme
-            darkTheme: AppTheme.dark,
+          // Dark Theme
+          darkTheme: AppTheme.dark,
 
-            // System Theme Mode
-            themeMode: ThemeMode.system,
+          // System Theme Mode
+          themeMode: ThemeMode.system,
 
-            home: const SplashScreen(),
-          ),
+          home: const SplashScreen(),
         );
       },
     );
