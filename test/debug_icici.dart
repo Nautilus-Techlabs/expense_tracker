@@ -1,8 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:expense_tracker/domain/sms_parser.dart';
-import 'package:expense_tracker/domain/parsers/combined_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
 
 void main() {
   final configFile = File('assets/bank_configs.json');
@@ -29,17 +26,17 @@ void main() {
     // Try to find where it fails
     final part1 = r'(?:A/c|Acct)\s+([\dX*]+)';
     print(
-      'Part 1 (${part1}): ${RegExp(part1, caseSensitive: false).hasMatch(sms)}',
+      'Part 1 ($part1): ${RegExp(part1, caseSensitive: false).hasMatch(sms)}',
     );
 
     final part2 = r'debited\s+(?:for|by|INR|Rs\.?)\s*([0-9,]+(?:\.\d+)?)';
     print(
-      'Part 2 (${part2}): ${RegExp(part2, caseSensitive: false).hasMatch(sms)}',
+      'Part 2 ($part2): ${RegExp(part2, caseSensitive: false).hasMatch(sms)}',
     );
 
     final part3 = r'.*?(?:IMPS|NEFT|Ref).*?/(?:[\dA-Z]+)/([^/.\s]+)';
     print(
-      'Part 3 (${part3}): ${RegExp(part3, caseSensitive: false).hasMatch(sms)}',
+      'Part 3 ($part3): ${RegExp(part3, caseSensitive: false).hasMatch(sms)}',
     );
   } else {
     print('Match: SUCCESS');

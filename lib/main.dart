@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/parsers/flutter_parser_initializer.dart';
-import 'presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,8 @@ class ExpenseTrackerApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
+          routerConfig: AppRouter.router,
           title: 'Expense Tracker',
           debugShowCheckedModeBanner: false,
 
@@ -44,8 +46,6 @@ class ExpenseTrackerApp extends StatelessWidget {
 
           // System Theme Mode
           themeMode: ThemeMode.system,
-
-          home: const SplashScreen(),
         );
       },
     );

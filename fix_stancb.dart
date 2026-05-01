@@ -55,7 +55,7 @@ void main() {
   
   if (modified) {
     final encoder = JsonEncoder.withIndent('  ');
-    configFile.writeAsStringSync(encoder.convert(data) + '\n');
+    configFile.writeAsStringSync('${encoder.convert(data)}\n');
     print('Successfully updated Standard Chartered Bank config');
   } else {
     print('No changes made to Standard Chartered Bank config');

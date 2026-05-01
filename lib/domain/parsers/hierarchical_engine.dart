@@ -45,7 +45,7 @@ class HierarchicalBankParser extends BankParser {
   int _calculateScore(Transaction tx, SmSTemplate template) {
     int score = 0;
 
-    if (tx.amount != null) score += 50; // mandatory
+    score += 50; // mandatory
     if (tx.merchant != null) score += 20;
     if (tx.account != null) score += 15;
     if (tx.availableBalance != null) score += 10;

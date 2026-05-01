@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:expense_tracker/domain/sms_parser.dart';
-import 'package:expense_tracker/domain/parsers/combined_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
+
 import 'package:expense_tracker/data/sample_data.dart';
-import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
+import 'package:expense_tracker/domain/entities/bank_definition.dart';
+import 'package:expense_tracker/domain/entities/transaction.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
+import 'package:expense_tracker/domain/sms_parser.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   setUpAll(() {

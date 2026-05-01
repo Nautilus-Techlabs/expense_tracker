@@ -1,9 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:expense_tracker/logic/sms_parser.dart';
-import 'package:expense_tracker/logic/parsers/combined_parser.dart';
-import 'package:expense_tracker/logic/parsers/definitions/bank_definitions.dart';
 import 'package:expense_tracker/data/sample_data.dart';
-import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
+import 'package:expense_tracker/domain/entities/bank_definition.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
+import 'package:expense_tracker/domain/sms_parser.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   setUpAll(() {
@@ -69,12 +68,13 @@ void main() {
         sender: sample.sender,
         fallbackDate: DateTime.now(),
       );
-      if (tx == null)
+      if (tx == null) {
         ignoredNegative++;
-      else
+      } else {
         print(
           '🚨 WRONGLY PARSED (False Positive): [${sample.sender}] ${sample.body}',
         );
+      }
     }
 
     double accuracy = (parsedGood / totalGood) * 100;

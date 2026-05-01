@@ -1,15 +1,24 @@
-enum TransactionType { 
-  debit, credit, meta, unknown; 
+enum TransactionType {
+  debit,
+  credit,
+  meta,
+  unknown;
 
-  static TransactionType fromString(String name) => 
-    TransactionType.values.firstWhere((e) => e.name == name, orElse: () => unknown);
+  static TransactionType fromString(String name) => TransactionType.values
+      .firstWhere((e) => e.name == name, orElse: () => unknown);
 }
 
-enum PaymentMethod { 
-  upi, card, atm, imps, neft, rtgs, unknown;
+enum PaymentMethod {
+  upi,
+  card,
+  atm,
+  imps,
+  neft,
+  rtgs,
+  unknown;
 
-  static PaymentMethod fromString(String name) => 
-    PaymentMethod.values.firstWhere((e) => e.name == name, orElse: () => unknown);
+  static PaymentMethod fromString(String name) => PaymentMethod.values
+      .firstWhere((e) => e.name == name, orElse: () => unknown);
 }
 
 class Transaction {
@@ -21,12 +30,12 @@ class Transaction {
   final String? account;
   final double? availableBalance;
   final String rawSms;
-  
+
   // Metadata for debugging and confidence
   final String bankName;
   final String? templateName;
   final bool isVerified;
-  
+
   // New: Persistence & Sample flags
   final bool isSample;
 
@@ -70,8 +79,8 @@ class Transaction {
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       method: PaymentMethod.fromString(map['method']),
       account: map['account'],
-      availableBalance: map['availableBalance'] != null 
-          ? (map['availableBalance'] as num).toDouble() 
+      availableBalance: map['availableBalance'] != null
+          ? (map['availableBalance'] as num).toDouble()
           : null,
       rawSms: map['rawSms'],
       bankName: map['bankName'],

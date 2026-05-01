@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:expense_tracker/domain/sms_parser.dart';
+
+import 'package:expense_tracker/domain/entities/bank_definition.dart';
 import 'package:expense_tracker/domain/parsers/combined_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
+import 'package:expense_tracker/domain/sms_parser.dart';
 
 void main() {
   final configFile = File('assets/bank_configs.json');

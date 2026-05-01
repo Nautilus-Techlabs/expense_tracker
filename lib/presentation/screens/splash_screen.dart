@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:expense_tracker/presentation/screens/transaction_list_screen.dart';
-import 'package:expense_tracker/presentation/screens/onboarding_screen.dart';
-import 'package:expense_tracker/core/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:expense_tracker/core/theme/app_theme.dart';
+import 'package:expense_tracker/presentation/providers/transaction_notifier.dart';
+import 'package:expense_tracker/core/constants/app_router.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   // Controllers
   late AnimationController _ringController;
@@ -196,33 +198,26 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToHome() async {
     if (!mounted) return;
 
+    // Check permissions
     final status = await Permission.sms.status;
     final bool isGranted = status.isGranted;
 
+    if (isGranted) {
+      // Ensure data is loaded (it should have started in transactionProvider's build)
+      // We wait for isLoading to become false
+      bool isLoading = ref.read(transactionProvider).isLoading;
+      if (isLoading) {
+        // Wait until it's not loading anymore (or timeout after 5 more seconds)
+        int retries = 0;
+        while (mounted && ref.read(transactionProvider).isLoading && retries < 50) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          retries++;
+        }
+      }
+    }
+
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 700),
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return isGranted
-                ? const TransactionListScreen()
-                : const OnboardingScreen();
-          },
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            final fade = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeIn,
-            );
-            final scale = Tween<double>(begin: 0.95, end: 1.0).animate(
-              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-            );
-            return FadeTransition(
-              opacity: fade,
-              child: ScaleTransition(scale: scale, child: child),
-            );
-          },
-        ),
-      );
+      context.go(isGranted ? AppRouter.transactions : AppRouter.onboarding);
     }
   }
 

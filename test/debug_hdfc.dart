@@ -1,6 +1,3 @@
-import 'package:expense_tracker/domain/parsers/hdfc_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/transaction.dart';
-
 void main() {
   final parser = HDFCBankParser();
   const hdfcSms =

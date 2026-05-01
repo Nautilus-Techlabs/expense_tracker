@@ -1,7 +1,9 @@
-import '../core/constants/app_constants.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/constants/app_constants.dart';
+import '../data/local/app_database.dart';
 import '../data/sample_data.dart';
 import 'entities/transaction.dart';
 import 'sms_parser.dart';
@@ -30,6 +32,7 @@ class SmsService {
   Future<List<Transaction>> syncTransactions({
     bool forceAll = false,
     Function(String)? onDebug,
+    AppDatabase? db,
   }) async {
     // 1. Check Permissions
     final status = await Permission.sms.status;
@@ -106,7 +109,7 @@ class SmsService {
     onDebug?.call("Successfully parsed ${transactions.length} transactions.");
 
     // 6. Log unsupported messages
-    _logUnsupported(filteredMessages, transactions);
+    _logUnsupported(filteredMessages, transactions, db);
 
     // 7. Update last sync date
     if (filteredMessages.isNotEmpty && !forceAll) {
@@ -119,19 +122,25 @@ class SmsService {
     return transactions;
   }
 
-  void _logUnsupported(List<SmsMessage> raw, List<Transaction> parsed) async {
+  void _logUnsupported(
+    List<SmsMessage> raw,
+    List<Transaction> parsed,
+    AppDatabase? db,
+  ) async {
     final parsedRawSms = parsed.map((t) => t.rawSms).toSet();
     final unsupported = raw
         .where((m) => !parsedRawSms.contains(m.body))
         .toList();
-    if (unsupported.isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    final logs = prefs.getStringList(_unsupportedLogsKey) ?? [];
-    for (var m in unsupported) {
-      final logEntry = "[${m.date}] ${m.address}: ${m.body}";
-      if (!logs.contains(logEntry)) logs.insert(0, logEntry);
-    }
-    if (logs.length > 100) logs.removeRange(100, logs.length);
-    await prefs.setStringList(_unsupportedLogsKey, logs);
+    if (unsupported.isEmpty || db == null) return;
+
+    final companions = unsupported.map((m) {
+      return SmsLogsCompanion.insert(
+        timestamp: m.date ?? DateTime.now(),
+        sender: m.address ?? 'Unknown',
+        body: m.body ?? '',
+      );
+    }).toList();
+
+    await db.insertSmsLogs(companions);
   }
 }

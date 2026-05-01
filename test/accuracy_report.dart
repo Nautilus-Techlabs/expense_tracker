@@ -37,8 +37,9 @@ void main() {
   for (var sample in sampleSms) {
     if (sample.sender == 'SPAM') continue;
     if (sample.body.toLowerCase().contains('otp') ||
-        sample.body.toLowerCase().contains('code'))
+        sample.body.toLowerCase().contains('code')) {
       continue;
+    }
 
     totalTransactions++;
 
@@ -61,7 +62,7 @@ void main() {
   print('\n[HIERARCHICAL PARSER PERFORMANCE]');
   print('Active Coverage: $hierSuccess / $totalTransactions identified.');
   print('Accuracy Score: ${hp.toStringAsFixed(1)}%');
-  print('Verified Matches: ${hierVerified} (${hv.toStringAsFixed(1)}%)');
+  print('Verified Matches: $hierVerified (${hv.toStringAsFixed(1)}%)');
   print(
     'Merchant Extraction: ${hm.toStringAsFixed(1)}% ($hierMerchants/$hierSuccess)',
   );

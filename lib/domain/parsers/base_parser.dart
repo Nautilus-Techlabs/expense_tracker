@@ -51,14 +51,16 @@ abstract class BankParser {
 
     if (AppConstants.merchantBlacklist.any(
       (token) => l == token || l.startsWith("$token "),
-    ))
+    )) {
       return false;
+    }
     if (RegExp(r"^\d+$").hasMatch(name)) return false; // Just digits
     if (name.length < 2) return false;
 
     // Avoid capturing fragmented account info as merchant
-    if (l.contains("account") || l.contains("a/c") || l.contains("ending"))
+    if (l.contains("account") || l.contains("a/c") || l.contains("ending")) {
       return false;
+    }
     // ❌ Reject date-like strings
     if (RegExp(r'\b\d{2}[-/][A-Za-z]{3}[-/]\d{2,4}\b').hasMatch(name)) {
       return false;

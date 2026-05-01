@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+import '../../core/constants/app_router.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
-import '../../core/theme/app_theme.dart';
 
 class TransactionCard extends StatefulWidget {
   final Transaction transaction;
@@ -15,8 +18,6 @@ class TransactionCard extends StatefulWidget {
 }
 
 class _TransactionCardState extends State<TransactionCard> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     final isDebit = widget.transaction.type == TransactionType.debit;
@@ -31,18 +32,15 @@ class _TransactionCardState extends State<TransactionCard> {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: _isExpanded
-              ? AppTheme.primary.withAlpha(77) // 0.3 * 255
-              : theme.dividerColor.withAlpha(13), // 0.05 * 255
-          width: _isExpanded ? 1.5 : 1,
+          color: theme.dividerColor.withAlpha(13), // 0.05 * 255
+          width: 1,
         ),
         boxShadow: [
-          if (_isExpanded)
-            BoxShadow(
-              color: AppTheme.primary.withAlpha(13), // 0.05 * 255
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Material(
@@ -51,7 +49,10 @@ class _TransactionCardState extends State<TransactionCard> {
           borderRadius: BorderRadius.circular(24.r),
           onTap: () {
             UIHelpers.lightImpact();
-            setState(() => _isExpanded = !_isExpanded);
+            context.push(
+              AppRouter.transactionDetail,
+              extra: widget.transaction,
+            );
           },
           child: Padding(
             padding: EdgeInsets.all(16.w),
@@ -118,7 +119,6 @@ class _TransactionCardState extends State<TransactionCard> {
                     ),
                   ],
                 ),
-                if (_isExpanded) _buildDetails(theme),
               ],
             ),
           ),
@@ -128,37 +128,40 @@ class _TransactionCardState extends State<TransactionCard> {
   }
 
   Widget _buildLeadingIcon(Color color, IconData icon) {
-    return Stack(
-      children: [
-        Container(
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: color.withAlpha(26), // 0.1 * 255
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Icon(icon, color: color, size: 22.sp),
-        ),
-        Positioned(
-          right: -2,
-          bottom: -2,
-          child: Container(
-            padding: EdgeInsets.all(2.w),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+    return Hero(
+      tag: 'transaction_${widget.transaction.rawSms}',
+      child: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: color.withAlpha(26), // 0.1 * 255
+              borderRadius: BorderRadius.circular(16.r),
             ),
-            child: Icon(
-              widget.transaction.isVerified
-                  ? Icons.verified_rounded
-                  : Icons.warning_amber_rounded,
-              color: widget.transaction.isVerified
-                  ? Colors.green
-                  : Colors.amber,
-              size: 14.sp,
+            child: Icon(icon, color: color, size: 22.sp),
+          ),
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.transaction.isVerified
+                    ? Icons.verified_rounded
+                    : Icons.warning_amber_rounded,
+                color: widget.transaction.isVerified
+                    ? Colors.green
+                    : Colors.amber,
+                size: 14.sp,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -169,49 +172,6 @@ class _TransactionCardState extends State<TransactionCard> {
 
     if (method == PaymentMethod.unknown) return typeStr;
     return '${method.name.toUpperCase()} $typeStr';
-  }
-
-  Widget _buildDetails(ThemeData theme) {
-    return Padding(
-      padding: EdgeInsets.only(top: 16.h),
-      child: Column(
-        children: [
-          Divider(color: theme.dividerColor.withAlpha(13)), // 0.05 * 255
-          UIHelpers.verticalSpace(12),
-          _DetailRow(label: 'Bank Name', value: widget.transaction.bankName),
-          _DetailRow(
-            label: 'Account Num',
-            value: widget.transaction.account ?? '—',
-          ),
-          _DetailRow(
-            label: 'Payment Method',
-            value: widget.transaction.method.name.toUpperCase(),
-          ),
-          UIHelpers.verticalSpace(16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text('RAW MESSAGE', style: theme.textTheme.labelSmall),
-          ),
-          UIHelpers.verticalSpace(8),
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onSurface.withAlpha(8), // 0.03 * 255
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Text(
-              widget.transaction.rawSms,
-              style: TextStyle(
-                fontSize: 11.sp,
-                color: theme.colorScheme.onSurface.withAlpha(153), // 0.6 * 255
-                height: 1.5,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   IconData _getIcon(PaymentMethod method) {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:expense_tracker/domain/parsers/flutter_parser_initializer.dart';
 import 'package:expense_tracker/domain/sms_parser.dart';
 
@@ -16,11 +14,11 @@ void main() async {
   ];
 
   print("Testing Bank of Baroda Parsing...");
-  
+
   for (int i = 0; i < bobMessages.length; i++) {
     print("\n--- Message ${i + 1} ---");
     print("Raw: ${bobMessages[i]}");
-    
+
     final tx = parser.parseSingle(
       body: bobMessages[i],
       sender: "BOBSMS",

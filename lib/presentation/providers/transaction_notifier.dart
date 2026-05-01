@@ -1,6 +1,7 @@
-import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../data/local/app_database.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/sms_service.dart';
 import 'transaction_state.dart';
@@ -11,33 +12,46 @@ final transactionProvider =
     });
 
 class TransactionController extends Notifier<TransactionState> {
-  static const String _storageKey = 'persisted_transactions_v2';
   final SmsService _smsService = SmsService();
 
   @override
   TransactionState build() {
-    // Initial state
-    // We can't do async work here directly, but we can trigger it
     Future.microtask(() => _init());
-    return TransactionState();
+    return TransactionState(isLoading: true);
   }
 
   Future<void> _init() async {
-    await loadFromStorage();
-    await syncTransactions(isStartup: true);
+    try {
+      await loadFromStorage();
+      await syncTransactions(isStartup: true);
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
   }
-
-  // Notifier state is accessed via 'state'
 
   Future<void> loadFromStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonStr = prefs.getString(_storageKey);
-      if (jsonStr != null) {
-        final List<dynamic> decoded = json.decode(jsonStr);
-        final List<Transaction> allTransactions = decoded
-            .map((m) => Transaction.fromMap(m))
-            .toList();
+      final db = ref.read(databaseProvider);
+      final entries = await db.getAllTransactions();
+
+      if (entries.isNotEmpty) {
+        final List<Transaction> allTransactions = entries.map((e) {
+          return Transaction(
+            amount: e.amount,
+            type: e.type,
+            merchant: e.merchant,
+            date: e.date,
+            method: e.method,
+            account: e.account,
+            availableBalance: e.availableBalance,
+            rawSms: e.rawSms,
+            bankName: e.bankName,
+            templateName: e.templateName,
+            isVerified: e.isVerified,
+            isSample: e.isSample,
+          );
+        }).toList();
+
         state = state.copyWith(
           allTransactions: allTransactions,
           isShowingSampleData: false,
@@ -48,27 +62,47 @@ class TransactionController extends Notifier<TransactionState> {
     }
   }
 
-  Future<void> _saveToStorage() async {
+  Future<void> _saveToStorage(List<Transaction> transactions) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final realTransactions = state.allTransactions
-          .where((t) => !t.isSample)
-          .toList();
-      final jsonStr = json.encode(
-        realTransactions.map((t) => t.toMap()).toList(),
-      );
-      await prefs.setString(_storageKey, jsonStr);
+      final db = ref.read(databaseProvider);
+      final realTransactions = transactions.where((t) => !t.isSample).toList();
+
+      if (realTransactions.isEmpty) return;
+
+      final companions = realTransactions.map((t) {
+        return TransactionsCompanion.insert(
+          amount: t.amount,
+          type: t.type,
+          merchant: Value(t.merchant),
+          date: t.date,
+          method: t.method,
+          account: Value(t.account),
+          availableBalance: Value(t.availableBalance),
+          rawSms: t.rawSms,
+          bankName: t.bankName,
+          templateName: Value(t.templateName),
+          isVerified: Value(t.isVerified),
+          isSample: Value(t.isSample),
+        );
+      }).toList();
+
+      await db.insertTransactions(companions);
     } catch (e) {
       state = state.copyWith(debugInfo: "${state.debugInfo}Save Error: $e\n");
     }
   }
 
   Future<void> syncTransactions({bool isStartup = false}) async {
-    if (state.isLoading) return;
+    if (!isStartup && state.isLoading) return;
 
+    if (!isStartup) {
+      state = state.copyWith(
+        isLoading: true,
+        errorMessage: () => null,
+      );
+    }
+    
     state = state.copyWith(
-      isLoading: true,
-      errorMessage: () => null,
       debugInfo:
           "${state.debugInfo}Sync started (${isStartup ? 'Startup' : 'Manual'})...\n",
     );
@@ -76,6 +110,7 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       final fetched = await _smsService.syncTransactions(
         forceAll: !isStartup,
+        db: ref.read(databaseProvider),
         onDebug: (msg) {
           state = state.copyWith(debugInfo: "${state.debugInfo}$msg\n");
         },
@@ -84,26 +119,13 @@ class TransactionController extends Notifier<TransactionState> {
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
 
       if (hasRealDataInResult) {
-        final existingSms = state.allTransactions
-            .where((t) => !t.isSample)
-            .map((t) => t.rawSms)
-            .toSet();
-        final List<Transaction> merged = state.allTransactions
-            .where((t) => !t.isSample)
-            .toList();
+        // Save new transactions to DB
+        await _saveToStorage(fetched);
 
-        for (var tx in fetched) {
-          if (!tx.isSample && !existingSms.contains(tx.rawSms)) {
-            merged.add(tx);
-          }
-        }
+        // Reload all transactions from DB to get the merged state
+        await loadFromStorage();
 
-        state = state.copyWith(
-          allTransactions: merged,
-          isShowingSampleData: false,
-          isLoading: false,
-        );
-        await _saveToStorage();
+        state = state.copyWith(isLoading: false);
       } else {
         if (state.allTransactions.isNotEmpty &&
             state.allTransactions.any((t) => !t.isSample)) {
@@ -137,5 +159,35 @@ class TransactionController extends Notifier<TransactionState> {
 
   void setMethodFilter(PaymentMethod? method) {
     state = state.copyWith(selectedMethod: () => method);
+  }
+
+  Future<void> verifyTransaction({
+    required String rawSms,
+    required PaymentMethod method,
+    required String account,
+    required String bankName,
+  }) async {
+    try {
+      final db = ref.read(databaseProvider);
+      
+      // 1. Update the transaction in DB
+      await db.updateTransaction(
+        TransactionsCompanion(
+          rawSms: Value(rawSms),
+          method: Value(method),
+          account: Value(account),
+          bankName: Value(bankName),
+          isVerified: const Value(true),
+        ),
+      );
+
+      // 2. Remove from SmsLogs if exists (user mentioned double entry prevention)
+      await db.deleteSmsLogByBody(rawSms);
+
+      // 3. Refresh state
+      await loadFromStorage();
+    } catch (e) {
+      state = state.copyWith(errorMessage: () => "Verification failed: $e");
+    }
   }
 }

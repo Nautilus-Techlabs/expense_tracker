@@ -775,6 +775,7 @@
                                                 "KOTAK",
                                                 "KMCBK",
                                                 "KOTAKB",
+                                                "KOTAKD",
                                                 "KMBANK",
                                                 "KBANKT",
                                                 "KOTAKP",
@@ -809,6 +810,16 @@
                                             "accountGroup":  2,
                                             "method":  "unknown",
                                             "priority":  10
+                                        },
+                                        {
+                                            "name":  "Kotak Sent Money UPI",
+                                            "pattern":  "/(?:Sent|Received)\\s+Rs\\.?([\\d,]+(?:\\.\\d{1,2})?)\\s+(?:from|to)\\s+\\S+\\s+AC\\s+(\\w+)\\s+(?:from|to)\\s+([\\w.\\-@]+@[\\w.]+)\\s+on\\s+(\\d{2}-\\d{2}-\\d{2,4})\\.?\\s+UPI\\s+Ref\\s+(\\d+)/i\n",
+                                            "type":  "debit",
+                                            "amountGroup":  1,
+                                            "accountGroup":  2,
+                                            "merchantGroup":  3,
+                                            "method":  "upi",
+                                            "priority":  1
                                         },
                                         {
                                             "name":  "Kotak Universal Safety-Net",

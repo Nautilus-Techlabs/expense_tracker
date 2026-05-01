@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:expense_tracker/domain/parsers/combined_parser.dart';
-import 'package:expense_tracker/domain/parsers/entities/bank_definition.dart';
+
 import 'package:expense_tracker/data/sample_data.dart';
+import 'package:expense_tracker/domain/entities/bank_definition.dart';
+import 'package:expense_tracker/domain/parsers/combined_parser.dart';
 
 void main(List<String> args) {
   // 1. Load the JSON configuration from the assets directory
@@ -32,7 +33,7 @@ void main(List<String> args) {
   }
 
   // 4. Run on sample data
-  print('\n' + '=' * 80);
+  print('\n${'=' * 80}');
   print('PARSER DEBUGGER REPORT');
   print('=' * 80);
   print(
@@ -66,10 +67,11 @@ void main(List<String> args) {
       continue;
     }
 
-    if (tx.isVerified)
+    if (tx.isVerified) {
       verified++;
-    else
+    } else {
       generic++;
+    }
 
     final confStr = tx.isVerified ? '✅' : '⚠️';
     final bankStr = tx.bankName.length > 15
