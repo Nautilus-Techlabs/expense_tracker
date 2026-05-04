@@ -88,10 +88,16 @@ class TransactionListScreen extends ConsumerWidget {
     }
 
     return SliverList.builder(
-      key: const ValueKey('list'),
+      key: ValueKey(
+        'list_${state.selectedBank}_${state.selectedMethod}_${state.currentSort}_${state.isShowingSampleData}',
+      ),
       itemCount: state.transactions.length,
       itemBuilder: (context, index) {
-        return TransactionCard(transaction: state.transactions[index]);
+        final transaction = state.transactions[index];
+        return TransactionCard(
+          key: ValueKey(transaction.rawSms),
+          transaction: transaction,
+        );
       },
     );
   }

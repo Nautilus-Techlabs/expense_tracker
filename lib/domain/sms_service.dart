@@ -31,16 +31,41 @@ class SmsService {
 
   Future<List<Transaction>> syncTransactions({
     bool forceAll = false,
+    bool forceSampleData = false,
     Function(String)? onDebug,
     AppDatabase? db,
   }) async {
+    if (forceSampleData) {
+      onDebug?.call("Forcing sample data for testing...");
+      final filteredSamples = sampleSms.where((s) {
+        final body = s.body.toLowerCase();
+        return !AppConstants.exclusionKeywords
+            .any((k) => body.contains(k.toLowerCase()));
+      }).toList();
+
+      return _parser
+          .parseBatch(
+            filteredSamples
+                .map((s) => (body: s.body, sender: s.sender, date: s.date))
+                .toList(),
+          )
+          .map((t) => t.copyWith(isSample: true))
+          .toList();
+    }
+
     // 1. Check Permissions
     final status = await Permission.sms.status;
     if (!status.isGranted) {
       onDebug?.call("Permission not granted: ${status.name}");
+      final filteredSamples = sampleSms.where((s) {
+        final body = s.body.toLowerCase();
+        return !AppConstants.exclusionKeywords
+            .any((k) => body.contains(k.toLowerCase()));
+      }).toList();
+
       return _parser
           .parseBatch(
-            sampleSms
+            filteredSamples
                 .map((s) => (body: s.body, sender: s.sender, date: s.date))
                 .toList(),
           )
@@ -70,6 +95,15 @@ class SmsService {
           filteredOutCount++;
           return false;
         }
+      }
+
+      final body = (msg.body ?? '').toLowerCase();
+      // Skip non-transactional messages or failed transactions
+      if (AppConstants.exclusionKeywords.any(
+        (keyword) => body.contains(keyword.toLowerCase()),
+      )) {
+        filteredOutCount++;
+        return false;
       }
 
       final sender = (msg.address ?? '').toUpperCase();

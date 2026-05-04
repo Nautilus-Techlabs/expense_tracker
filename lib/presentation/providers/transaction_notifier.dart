@@ -96,12 +96,9 @@ class TransactionController extends Notifier<TransactionState> {
     if (!isStartup && state.isLoading) return;
 
     if (!isStartup) {
-      state = state.copyWith(
-        isLoading: true,
-        errorMessage: () => null,
-      );
+      state = state.copyWith(isLoading: true, errorMessage: () => null);
     }
-    
+
     state = state.copyWith(
       debugInfo:
           "${state.debugInfo}Sync started (${isStartup ? 'Startup' : 'Manual'})...\n",
@@ -169,7 +166,7 @@ class TransactionController extends Notifier<TransactionState> {
   }) async {
     try {
       final db = ref.read(databaseProvider);
-      
+
       // 1. Update the transaction in DB
       await db.updateTransaction(
         TransactionsCompanion(

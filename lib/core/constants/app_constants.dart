@@ -1,4 +1,40 @@
 class AppConstants {
+  static const bool debugUseSampleData = true;
+
+  static const List<String> debitKeywords = [
+    'debited',
+    'spent',
+    'withdrawn',
+    'paid',
+    'transfer',
+    'txn',
+    'purchase',
+    'payment',
+    'dr',
+    'wdl',
+    'deducted',
+    'sent',
+    'using',
+    'done'
+  ];
+
+  static const List<String> creditKeywords = [
+    'credited',
+    'received',
+    'refund',
+    'deposited',
+    'added',
+    'cr',
+    'inbound',
+    'deposit',
+    'cashback'
+  ];
+
+  static String get debitKeywordsRegex =>
+      '(?:${debitKeywords.join('|')})';
+  static String get creditKeywordsRegex =>
+      '(?:${creditKeywords.join('|')})';
+
   /// Words that indicate an SMS is not a transaction (OTP, Password, etc.)
   /// We include non-bank payment apps here to prevent them from being parsed
   /// as banks when they are just the medium.
@@ -16,6 +52,11 @@ class AppConstants {
     "amazonpay",
     "offers",
     "discount",
+    "failed",
+    "declined",
+    "unsuccessful",
+    "insufficient funds",
+    "rejected",
   ];
 
   /// Common senders that should be ignored entirely as they are not banks
