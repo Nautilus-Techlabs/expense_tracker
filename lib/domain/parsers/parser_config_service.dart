@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/utils/app_logger.dart';
 import '../entities/bank_definition.dart';
 
 class ParserConfigService {
@@ -14,11 +15,13 @@ class ParserConfigService {
       final prefs = await SharedPreferences.getInstance();
       final storedJson = prefs.getString(_prefsKey);
       if (storedJson != null) {
+        AppLogger.d("Loading bank definitions from local storage...");
         return _parseJson(storedJson);
       }
-    } catch (_) {
-      // fall through to asset
+    } catch (e) {
+      AppLogger.w("Failed to load definitions from storage: $e. Falling back to assets.");
     }
+    AppLogger.d("Loading bank definitions from assets...");
     final assetJson = await rootBundle.loadString(_assetPath);
     return _parseJson(assetJson);
   }
@@ -26,8 +29,13 @@ class ParserConfigService {
   /// Saves new JSON definitions to local storage for future use.
   /// Call this when you receive updated config (e.g., from a server).
   static Future<void> updateDefinitions(String jsonString) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, jsonString);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefsKey, jsonString);
+      AppLogger.i("Bank definitions updated in local storage.");
+    } catch (e) {
+      AppLogger.e("Failed to update bank definitions: $e");
+    }
   }
 
   static List<BankDefinition> _parseJson(String jsonString) {

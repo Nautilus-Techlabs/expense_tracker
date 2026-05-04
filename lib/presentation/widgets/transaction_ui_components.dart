@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
@@ -11,6 +13,7 @@ class TransactionIcon extends StatelessWidget {
   final double? size;
   final bool isVerified;
   final bool showStatus;
+  final String? bankName;
 
   const TransactionIcon({
     super.key,
@@ -19,6 +22,7 @@ class TransactionIcon extends StatelessWidget {
     this.size,
     this.isVerified = true,
     this.showStatus = false,
+    this.bankName,
   });
 
   @override
@@ -26,13 +30,24 @@ class TransactionIcon extends StatelessWidget {
     final iconSize = size ?? 22.sp;
     final iconData = getIconData(method);
 
+    final logoPath = bankName != null ? AppConstants.getBankLogo(bankName!) : '';
+
     Widget iconWidget = Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(logoPath.isNotEmpty ? 8.w : 12.w),
       decoration: BoxDecoration(
-        color: color.withAlpha(26),
+        color: logoPath.isNotEmpty ? Colors.white : color.withAlpha(26),
         borderRadius: BorderRadius.circular(16.r),
+        boxShadow: logoPath.isNotEmpty ? [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ] : null,
       ),
-      child: Icon(iconData, color: color, size: iconSize),
+      child: logoPath.isNotEmpty
+          ? SvgPicture.asset(logoPath, width: iconSize + 8.w, height: iconSize + 8.w, fit: BoxFit.contain)
+          : Icon(iconData, color: color, size: iconSize),
     );
 
     if (!showStatus) return iconWidget;
@@ -203,23 +218,32 @@ class BankCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Colors.white.withAlpha(51) // 0.2 * 255
-                      : color.withAlpha(26), // 0.1 * 255
+                      : (AppConstants.getBankLogo(label).isNotEmpty ? Colors.white : color.withAlpha(26)),
                   shape: BoxShape.circle,
                 ),
-                child: letter != null
-                    ? Text(
-                        letter!,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : color,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16.sp,
+                child: AppConstants.getBankLogo(label).isNotEmpty && !isSelected
+                    ? ClipOval(
+                        child: SvgPicture.asset(
+                          AppConstants.getBankLogo(label),
+                          width: 24.sp,
+                          height: 24.sp,
+                          fit: BoxFit.contain,
                         ),
                       )
-                    : Icon(
-                        icon,
-                        color: isSelected ? Colors.white : color,
-                        size: 20.sp,
-                      ),
+                    : (letter != null
+                        ? Text(
+                            letter!,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : color,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16.sp,
+                            ),
+                          )
+                        : Icon(
+                            icon,
+                            color: isSelected ? Colors.white : color,
+                            size: 20.sp,
+                          )),
               ),
               UIHelpers.verticalSpace(8),
               Padding(

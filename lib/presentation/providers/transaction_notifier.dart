@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/utils/app_logger.dart';
 import '../../data/local/app_database.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/sms_service.dart';
@@ -58,7 +59,8 @@ class TransactionController extends Notifier<TransactionState> {
           isShowingSampleData: false,
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      AppLogger.e("Failed to load transactions from storage", e, stack);
       state = state.copyWith(debugInfo: "${state.debugInfo}Load Error: $e\n");
     }
   }
@@ -88,7 +90,8 @@ class TransactionController extends Notifier<TransactionState> {
       }).toList();
 
       await db.insertTransactions(companions);
-    } catch (e) {
+    } catch (e, stack) {
+      AppLogger.e("Failed to save transactions to storage", e, stack);
       state = state.copyWith(debugInfo: "${state.debugInfo}Save Error: $e\n");
     }
   }
@@ -100,6 +103,7 @@ class TransactionController extends Notifier<TransactionState> {
       state = state.copyWith(isLoading: true, errorMessage: () => null);
     }
 
+    AppLogger.i("SMS Sync started (${isStartup ? 'Startup' : 'Manual'})");
     state = state.copyWith(
       debugInfo:
           "${state.debugInfo}Sync started (${isStartup ? 'Startup' : 'Manual'})...\n",
@@ -109,9 +113,6 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: !isStartup,
         db: ref.read(databaseProvider),
-        onDebug: (msg) {
-          state = state.copyWith(debugInfo: "${state.debugInfo}$msg\n");
-        },
         forceSampleData: true,
       );
 
@@ -139,7 +140,8 @@ class TransactionController extends Notifier<TransactionState> {
           state = state.copyWith(isLoading: false);
         }
       }
-    } catch (e) {
+    } catch (e, stack) {
+      AppLogger.e("SMS Sync exception", e, stack);
       state = state.copyWith(
         isLoading: false,
         errorMessage: () => "Sync failed: ${e.toString()}",
@@ -185,8 +187,33 @@ class TransactionController extends Notifier<TransactionState> {
 
       // 3. Refresh state
       await loadFromStorage();
-    } catch (e) {
+    } catch (e, stack) {
+      AppLogger.e("Transaction verification failed", e, stack);
       state = state.copyWith(errorMessage: () => "Verification failed: $e");
+    }
+  }
+
+  Future<void> updateTransactionDetails({
+    required int id,
+    required double amount,
+    required PaymentMethod method,
+    required bool isVerified,
+  }) async {
+    try {
+      final db = ref.read(databaseProvider);
+
+      await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          amount: Value(amount),
+          method: Value(method),
+          isVerified: Value(isVerified),
+        ),
+      );
+
+      await loadFromStorage();
+    } catch (e, stack) {
+      AppLogger.e("Transaction update failed", e, stack);
+      state = state.copyWith(errorMessage: () => "Update failed: $e");
     }
   }
 }

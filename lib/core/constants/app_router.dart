@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/transaction.dart';
+import '../../presentation/screens/bank_detail_transactions_screen.dart';
 import '../../presentation/screens/detailed_transaction.dart';
 import '../../presentation/screens/main_screen.dart';
 import '../../presentation/screens/onboarding_screen.dart';
@@ -12,6 +13,7 @@ class AppRouter {
   static const String onboarding = '/onboarding';
   static const String transactions = '/transactions';
   static const String transactionDetail = '/transaction-detail';
+  static const String bankTransactions = '/bank-transactions';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -42,6 +44,13 @@ class AppRouter {
           return Scaffold(
             body: Center(child: Text('Invalid transaction data')),
           );
+        },
+      ),
+      GoRoute(
+        path: bankTransactions,
+        builder: (context, state) {
+          final bankName = state.extra as String;
+          return BankDetailTransactionsScreen(bankName: bankName);
         },
       ),
     ],

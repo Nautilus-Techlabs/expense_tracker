@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../providers/navigation_provider.dart';
+import 'bank_accounts_screen.dart';
 import 'dashboard_screen.dart';
 import 'transaction_list_screen.dart';
 
@@ -14,6 +15,7 @@ class MainScreen extends ConsumerWidget {
   final List<Widget> _screens = const [
     DashboardScreen(),
     TransactionListScreen(),
+    BankAccountsScreen(),
   ];
 
   @override
@@ -86,6 +88,13 @@ class MainScreen extends ConsumerWidget {
                   isSelected: selectedIndex == 1,
                   onTap: () =>
                       ref.read(navigationIndexProvider.notifier).state = 1,
+                ),
+                _NavBarItem(
+                  icon: Icons.account_balance_wallet_outlined,
+                  activeIcon: Icons.account_balance_wallet_rounded,
+                  isSelected: selectedIndex == 2,
+                  onTap: () =>
+                      ref.read(navigationIndexProvider.notifier).state = 2,
                 ),
               ],
             ),

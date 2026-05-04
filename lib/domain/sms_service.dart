@@ -3,6 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants/app_constants.dart';
+import '../core/utils/app_logger.dart';
 import '../data/local/app_database.dart';
 import '../data/sample_data.dart';
 import 'entities/transaction.dart';
@@ -35,7 +36,7 @@ class SmsService {
     AppDatabase? db,
   }) async {
     if (forceSampleData) {
-      onDebug?.call("Forcing sample data for testing...");
+      AppLogger.i("Forcing sample data for testing...");
       final filteredSamples = sampleSms.where((s) {
         final body = s.body.toLowerCase();
         return !AppConstants.exclusionKeywords.any(
@@ -56,7 +57,7 @@ class SmsService {
     // 1. Check Permissions
     final status = await Permission.sms.status;
     if (!status.isGranted) {
-      onDebug?.call("Permission not granted: ${status.name}");
+      AppLogger.w("Permission not granted: ${status.name}");
       final filteredSamples = sampleSms.where((s) {
         final body = s.body.toLowerCase();
         return !AppConstants.exclusionKeywords.any(
@@ -74,7 +75,7 @@ class SmsService {
           .toList();
     }
 
-    onDebug?.call("Permission granted. Querying SMS...");
+    AppLogger.i("Permission granted. Querying SMS...");
 
     // 2. Determine time window
     final lastSync = forceAll ? null : await getLastSyncDate();
@@ -84,7 +85,7 @@ class SmsService {
       kinds: [SmsQueryKind.inbox],
     );
 
-    onDebug?.call("Found ${messages.length} total messages in inbox.");
+    AppLogger.d("Found ${messages.length} total messages in inbox.");
 
     if (messages.isEmpty) return [];
 
@@ -128,7 +129,7 @@ class SmsService {
       return false;
     }).toList();
 
-    onDebug?.call(
+    AppLogger.d(
       "Filtered out $filteredOutCount non-bank messages. Processing ${filteredMessages.length} potential bank SMS.",
     );
 
@@ -141,7 +142,7 @@ class SmsService {
           .toList(),
     );
 
-    onDebug?.call("Successfully parsed ${transactions.length} transactions.");
+    AppLogger.i("Successfully parsed ${transactions.length} transactions.");
 
     // 6. Log unsupported messages
     _logUnsupported(filteredMessages, transactions, db);
