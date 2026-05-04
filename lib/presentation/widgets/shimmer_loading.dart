@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 
 class ShimmerLoading extends StatelessWidget {
@@ -9,8 +11,12 @@ class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
-    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+    final baseColor = isDark
+        ? AppTheme.surfaceElevatedDark
+        : AppTheme.borderLight;
+    final highlightColor = isDark
+        ? AppTheme.borderDark
+        : AppTheme.surfaceSecondaryLight;
 
     return Column(
       children: List.generate(

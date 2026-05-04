@@ -49,6 +49,7 @@ class TransactionController extends Notifier<TransactionState> {
             templateName: e.templateName,
             isVerified: e.isVerified,
             isSample: e.isSample,
+            id: e.id,
           );
         }).toList();
 
@@ -111,6 +112,7 @@ class TransactionController extends Notifier<TransactionState> {
         onDebug: (msg) {
           state = state.copyWith(debugInfo: "${state.debugInfo}$msg\n");
         },
+        forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);

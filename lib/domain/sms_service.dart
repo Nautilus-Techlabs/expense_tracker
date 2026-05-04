@@ -10,7 +10,6 @@ import 'sms_parser.dart';
 
 class SmsService {
   static const String _lastSyncKey = 'last_sms_sync_timestamp';
-  static const String _unsupportedLogsKey = 'unsupported_sms_logs';
   final SmsQuery _query = SmsQuery();
   final SmsParserEngine _parser = SmsParserEngine();
 
@@ -39,8 +38,9 @@ class SmsService {
       onDebug?.call("Forcing sample data for testing...");
       final filteredSamples = sampleSms.where((s) {
         final body = s.body.toLowerCase();
-        return !AppConstants.exclusionKeywords
-            .any((k) => body.contains(k.toLowerCase()));
+        return !AppConstants.exclusionKeywords.any(
+          (k) => body.contains(k.toLowerCase()),
+        );
       }).toList();
 
       return _parser
@@ -59,8 +59,9 @@ class SmsService {
       onDebug?.call("Permission not granted: ${status.name}");
       final filteredSamples = sampleSms.where((s) {
         final body = s.body.toLowerCase();
-        return !AppConstants.exclusionKeywords
-            .any((k) => body.contains(k.toLowerCase()));
+        return !AppConstants.exclusionKeywords.any(
+          (k) => body.contains(k.toLowerCase()),
+        );
       }).toList();
 
       return _parser

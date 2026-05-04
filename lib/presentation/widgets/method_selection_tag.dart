@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../core/utils/ui_helpers.dart';
+
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
+import 'transaction_ui_components.dart';
 
 class MethodSelectionTag extends StatelessWidget {
   final TransactionState state;
@@ -31,9 +33,7 @@ class MethodSelectionTag extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w800,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
+              color: AppTheme.getNeutralColor(context),
               letterSpacing: 1.2,
             ),
           ),
@@ -51,15 +51,15 @@ class MethodSelectionTag extends StatelessWidget {
                 isSelected: state.selectedMethod == null,
                 onTap: () => controller.setMethodFilter(null),
                 icon: Icons.all_inbox_rounded,
-                color: AppTheme.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               ...methods.map(
                 (method) => _MethodPill(
                   label: method.name.toUpperCase(),
                   isSelected: state.selectedMethod == method,
                   onTap: () => controller.setMethodFilter(method),
-                  icon: _getIcon(method),
-                  color: _getMethodColor(method),
+                  icon: TransactionIcon.getIconData(method),
+                  color: _getMethodColor(context, method),
                 ),
               ),
             ],
@@ -69,39 +69,8 @@ class MethodSelectionTag extends StatelessWidget {
     );
   }
 
-  Color _getMethodColor(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.upi:
-        return const Color(0xFF10B981); // Emerald
-      case PaymentMethod.card:
-        return const Color(0xFF6366F1); // Indigo
-      case PaymentMethod.atm:
-        return const Color(0xFFF59E0B); // Amber
-      case PaymentMethod.imps:
-      case PaymentMethod.neft:
-      case PaymentMethod.rtgs:
-        return const Color(0xFFEC4899); // Pink
-      default:
-        return AppTheme.primary;
-    }
-  }
-
-  IconData _getIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.upi:
-        return Icons.qr_code_2_rounded;
-      case PaymentMethod.card:
-        return Icons.credit_card_rounded;
-      case PaymentMethod.atm:
-        return Icons.account_balance_wallet_rounded;
-      case PaymentMethod.imps:
-        return Icons.bolt_rounded;
-      case PaymentMethod.neft:
-      case PaymentMethod.rtgs:
-        return Icons.account_balance_rounded;
-      default:
-        return Icons.receipt_long_rounded;
-    }
+  Color _getMethodColor(BuildContext context, PaymentMethod method) {
+    return Theme.of(context).colorScheme.primary;
   }
 }
 
@@ -122,8 +91,6 @@ class _MethodPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Padding(
       padding: EdgeInsets.only(right: 12.w),
       child: GestureDetector(
@@ -137,12 +104,10 @@ class _MethodPill extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? color
-                : (isDark ? AppTheme.slate800 : AppTheme.slate100),
+                : AppTheme.getSurfaceSecondaryColor(context),
             borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
-              color: isSelected
-                  ? color
-                  : AppTheme.slate200.withAlpha(128), // 0.5 * 255
+              color: isSelected ? color : AppTheme.getBorderColor(context),
               width: 1,
             ),
           ),
@@ -158,7 +123,7 @@ class _MethodPill extends StatelessWidget {
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : (isDark ? AppTheme.slate300 : AppTheme.slate700),
+                      : Theme.of(context).textTheme.bodySmall?.color,
                 ),
               ),
             ],

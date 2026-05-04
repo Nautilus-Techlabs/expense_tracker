@@ -26,13 +26,13 @@ class EmptyStateView extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(32.w),
               decoration: BoxDecoration(
-                color: (isError ? AppTheme.rose : AppTheme.primary).withAlpha(13), // 0.05 * 255
+                color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(13),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 isError ? Icons.error_outline_rounded : Icons.account_balance_wallet_outlined,
                 size: 64.sp,
-                color: (isError ? AppTheme.rose : AppTheme.primary).withAlpha(128), // 0.5 * 255
+                color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(128),
               ),
             ),
             UIHelpers.verticalSpace(24),
@@ -50,7 +50,7 @@ class EmptyStateView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(128), // 0.5 * 255
+                color: AppTheme.getNeutralColor(context),
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
@@ -64,7 +64,7 @@ class EmptyStateView extends StatelessWidget {
                   onRetry();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(

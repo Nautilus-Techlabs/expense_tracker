@@ -22,6 +22,7 @@ enum PaymentMethod {
 }
 
 class Transaction {
+  final int? id;
   final double amount;
   final TransactionType type;
   final String? merchant;
@@ -52,10 +53,12 @@ class Transaction {
     this.templateName,
     this.isVerified = true,
     this.isSample = false,
+    this.id,
   });
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'amount': amount,
       'type': type.name,
       'merchant': merchant,
@@ -73,6 +76,7 @@ class Transaction {
 
   factory Transaction.fromMap(Map<String, dynamic> map) {
     return Transaction(
+      id: map['id'],
       amount: (map['amount'] as num).toDouble(),
       type: TransactionType.fromString(map['type']),
       merchant: map['merchant'],
@@ -90,8 +94,9 @@ class Transaction {
     );
   }
 
-  Transaction copyWith({bool? isSample}) {
+  Transaction copyWith({bool? isSample, int? id}) {
     return Transaction(
+      id: id ?? this.id,
       amount: amount,
       type: type,
       merchant: merchant,

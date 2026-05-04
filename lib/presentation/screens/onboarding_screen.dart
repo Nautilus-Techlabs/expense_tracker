@@ -1,10 +1,9 @@
+import 'package:expense_tracker/core/constants/app_router.dart';
+import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:expense_tracker/core/theme/app_theme.dart';
-import 'package:expense_tracker/core/constants/app_router.dart';
-import 'dart:math' as math;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -23,21 +22,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       description:
           "Take control of your spending with automated tracking and smart insights.",
       icon: Icons.account_balance_wallet_rounded,
-      color: AppTheme.primary,
+      color: AppTheme.primaryLight,
     ),
     OnboardingData(
       title: "Smart SMS Sync",
       description:
           "We securely analyze your bank SMS to automatically categorize your expenses without any manual entry.",
       icon: Icons.auto_graph_rounded,
-      color: AppTheme.accent,
+      color: AppTheme.primaryLight,
     ),
     OnboardingData(
       title: "Privacy First",
       description:
           "Your data stays on your device. We only read transaction SMS to help you track your budget.",
       icon: Icons.security_rounded,
-      color: AppTheme.rose,
+      color: AppTheme.neutralLight,
     ),
   ];
 
@@ -75,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("SMS permission is required to continue."),
-            backgroundColor: AppTheme.rose,
+            backgroundColor: AppTheme.expenseLight,
           ),
         );
       }
@@ -97,19 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: isDark
-                    ? [
-                        _pages[_currentPage].color.withAlpha(40),
-                        AppTheme.slate900,
-                      ]
-                    : [
-                        _pages[_currentPage].color.withAlpha(20),
-                        AppTheme.slate50,
-                      ],
-              ),
+              color: isDark ? AppTheme.bgDark : AppTheme.bgLight,
             ),
           ),
 
@@ -146,10 +133,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: _currentPage == index ? 24.w : 8.w,
                           decoration: BoxDecoration(
                             color: _currentPage == index
-                                ? _pages[_currentPage].color
+                                ? (isDark
+                                      ? AppTheme.primaryDark
+                                      : AppTheme.primaryLight)
                                 : (isDark
-                                      ? AppTheme.slate700
-                                      : AppTheme.slate300),
+                                      ? AppTheme.surfaceElevatedDark
+                                      : AppTheme.borderLight),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -169,7 +158,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 curve: Curves.easeInOut,
                               ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _pages[_currentPage].color,
+                          backgroundColor: isDark
+                              ? AppTheme.primaryDark
+                              : AppTheme.primaryLight,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16.r),
@@ -199,9 +190,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Text(
                           "Skip",
                           style: TextStyle(
-                            color: isDark
-                                ? AppTheme.slate400
-                                : AppTheme.slate500,
+                            color: AppTheme.getNeutralColor(context),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -273,7 +262,7 @@ class _OnboardingPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 28.sp,
               fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppTheme.slate900,
+              color: Theme.of(context).textTheme.headlineMedium?.color,
               letterSpacing: -1,
             ),
           ),
@@ -283,7 +272,7 @@ class _OnboardingPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16.sp,
-              color: isDark ? AppTheme.slate400 : AppTheme.slate600,
+              color: AppTheme.getNeutralColor(context),
               height: 1.5,
             ),
           ),

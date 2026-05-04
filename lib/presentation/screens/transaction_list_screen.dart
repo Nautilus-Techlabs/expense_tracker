@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
-import '../widgets/dashboard_header.dart';
 import '../widgets/modern_filter_chips.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/empty_state_view.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/utils/ui_helpers.dart';
 
 class TransactionListScreen extends ConsumerWidget {
   const TransactionListScreen({super.key});
@@ -16,37 +17,63 @@ class TransactionListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: controller.syncTransactions,
-        displacement: MediaQuery.of(context).padding.top + 40,
-        color: Theme.of(context).colorScheme.primary,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // 1. Dashboard Header
-            SliverToBoxAdapter(
-              child: DashboardHeader(
-                balance: state.balance,
-                income: state.totalCredit,
-                spends: state.totalDebit,
-                onSync: controller.syncTransactions,
-                onSort: controller.setSort,
-                currentSort: state.currentSort,
-                isLoading: state.isLoading,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // 1. Redesigned Header
+            Container(
+              padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 8.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Transactions',
+                        style: TextStyle(
+                          fontSize: 28.sp,
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).textTheme.titleLarge?.color,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      _HeaderAction(
+                        icon: Icons.sync_rounded,
+                        onTap: controller.syncTransactions,
+                        isLoading: state.isLoading,
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                  UIHelpers.verticalSpace(8),
+                  Text(
+                    '${state.transactions.length} transactions found',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppTheme.getNeutralColor(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            // 2. Filters
-            SliverToBoxAdapter(
-              child: ModernFilterBar(state: state, controller: controller),
-            ),
+            // 2. Filters (Stays sticky below header)
+            ModernFilterBar(state: state, controller: controller),
 
-            // 3. Main Content Area
-            SliverPadding(
-              padding: EdgeInsets.only(top: 8.h, bottom: 40.h),
-              sliver: _buildSliverContent(state, controller),
+            // 3. Transactions List
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: controller.syncTransactions,
+                color: Theme.of(context).colorScheme.primary,
+                child: _buildListContent(state, controller),
+              ),
             ),
           ],
         ),
@@ -54,51 +81,81 @@ class TransactionListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSliverContent(
+  Widget _buildListContent(
     TransactionState state,
     TransactionController controller,
   ) {
     if (state.isLoading && state.transactions.isEmpty) {
-      return const SliverFillRemaining(
-        hasScrollBody: false,
-        child: ShimmerLoading(key: ValueKey('loading')),
-      );
+      return const ShimmerLoading();
     }
 
     if (state.errorMessage != null && state.transactions.isEmpty) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyStateView(
-          key: const ValueKey('error'),
-          isError: true,
-          message: state.errorMessage!,
-          onRetry: controller.syncTransactions,
-        ),
+      return EmptyStateView(
+        isError: true,
+        message: state.errorMessage!,
+        onRetry: controller.syncTransactions,
       );
     }
 
     if (state.transactions.isEmpty) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyStateView(
-          key: const ValueKey('empty'),
-          onRetry: controller.syncTransactions,
-        ),
-      );
+      return EmptyStateView(onRetry: controller.syncTransactions);
     }
 
-    return SliverList.builder(
-      key: ValueKey(
-        'list_${state.selectedBank}_${state.selectedMethod}_${state.currentSort}_${state.isShowingSampleData}',
-      ),
+    return ListView.builder(
+      padding: EdgeInsets.only(top: 8.h, bottom: 100.h),
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       itemCount: state.transactions.length,
       itemBuilder: (context, index) {
         final transaction = state.transactions[index];
         return TransactionCard(
-          key: ValueKey(transaction.rawSms),
+          key: ValueKey('list_${transaction.id ?? transaction.rawSms}'),
           transaction: transaction,
+          heroTag: 'hero_list_${transaction.id ?? transaction.rawSms}',
         );
       },
+    );
+  }
+}
+
+class _HeaderAction extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isLoading;
+  final bool isDark;
+
+  const _HeaderAction({
+    required this.icon,
+    required this.onTap,
+    this.isLoading = false,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: Container(
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          color: isDark ? AppTheme.surfaceElevatedDark : AppTheme.surfaceSecondaryLight,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: AppTheme.getBorderColor(context)),
+        ),
+        child: isLoading
+            ? SizedBox(
+                width: 20.sp,
+                height: 20.sp,
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20.sp,
+              ),
+      ),
     );
   }
 }

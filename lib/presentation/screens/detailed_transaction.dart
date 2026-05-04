@@ -7,11 +7,17 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import '../widgets/transaction_ui_components.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final Transaction transaction;
+  final String? heroTag;
 
-  const DetailedTransactionScreen({super.key, required this.transaction});
+  const DetailedTransactionScreen({
+    super.key,
+    required this.transaction,
+    this.heroTag,
+  });
 
   @override
   ConsumerState<DetailedTransactionScreen> createState() =>
@@ -33,9 +39,7 @@ class _DetailedTransactionScreenState
     _accountController = TextEditingController(
       text: widget.transaction.account ?? '',
     );
-    _bankController = TextEditingController(
-      text: widget.transaction.bankName,
-    );
+    _bankController = TextEditingController(text: widget.transaction.bankName);
   }
 
   @override
@@ -52,11 +56,11 @@ class _DetailedTransactionScreenState
       );
       return;
     }
-    
+
     if (_bankController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a bank name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a bank name')));
       return;
     }
 
@@ -73,7 +77,7 @@ class _DetailedTransactionScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Transaction verified successfully!'),
-          backgroundColor: AppTheme.emerald,
+          backgroundColor: AppTheme.incomeLight,
         ),
       );
       context.pop();
@@ -97,13 +101,11 @@ class _DetailedTransactionScreenState
         }
       }
     }
-
-    final isDebit = widget.transaction.type == TransactionType.debit;
-    final color = isDebit ? AppTheme.rose : AppTheme.emerald;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -114,122 +116,24 @@ class _DetailedTransactionScreenState
         title: Text(
           'Transaction Details',
           style: TextStyle(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: 18.sp,
-            color: isDark ? AppTheme.slate50 : AppTheme.slate900,
+            color: Theme.of(context).textTheme.titleLarge?.color,
           ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             children: [
               // ── Amount Header Card ──
-              Hero(
-                tag: 'transaction_${widget.transaction.rawSms}',
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 40.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [color.withAlpha(40), color.withAlpha(15)],
-                    ),
-                    borderRadius: BorderRadius.circular(32.r),
-                    border: Border.all(color: color.withAlpha(60), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withAlpha(20),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(32.r),
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20.w),
-                              decoration: BoxDecoration(
-                                color: color.withAlpha(40),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: color.withAlpha(30),
-                                    blurRadius: 15,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                _getIcon(widget.transaction.method),
-                                color: color,
-                                size: 36.sp,
-                              ),
-                            ),
-                            SizedBox(height: 24.h),
-                            Text(
-                              isDebit ? "Total Spent" : "Total Received",
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? AppTheme.slate400
-                                    : AppTheme.slate500,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                            SizedBox(height: 12.h),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '₹',
-                                    style: TextStyle(
-                                      fontSize: 24.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: color.withAlpha(180),
-                                    ),
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    widget.transaction.amount.toStringAsFixed(
-                                      2,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 42.sp,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark
-                                          ? AppTheme.slate50
-                                          : AppTheme.slate900,
-                                      letterSpacing: -1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 32.h),
+              if (widget.heroTag != null)
+                Hero(tag: widget.heroTag!, child: _buildAmountCard(isDark))
+              else
+                _buildAmountCard(isDark),
+              SizedBox(height: 20.h),
 
               // ── Manual Verification Form (Only if Unverified) ──
               if (!widget.transaction.isVerified) ...[
@@ -237,11 +141,11 @@ class _DetailedTransactionScreenState
                   width: double.infinity,
                   padding: EdgeInsets.all(24.w),
                   decoration: BoxDecoration(
-                    color: isDark ? AppTheme.slate800 : Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(28.r),
                     border: Border.all(
-                      color: AppTheme.rose.withAlpha(100),
-                      width: 2,
+                      color: AppTheme.getExpenseColor(context).withAlpha(80),
+                      width: 1.5,
                     ),
                   ),
                   child: Column(
@@ -251,47 +155,33 @@ class _DetailedTransactionScreenState
                         children: [
                           Icon(
                             Icons.edit_note_rounded,
-                            color: AppTheme.rose,
+                            color: AppTheme.getExpenseColor(context),
                             size: 24.sp,
                           ),
                           SizedBox(width: 12.w),
                           Text(
-                            'Complete Transaction Info',
+                            'Complete Info',
                             style: TextStyle(
                               fontSize: 16.sp,
-                              fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? AppTheme.slate50
-                                  : AppTheme.slate900,
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.color,
                             ),
                           ),
                         ],
                       ),
                       SizedBox(height: 20.h),
-                      Text(
-                        'Payment Method',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.slate500,
-                        ),
-                      ),
+                      _buildInputLabel('Payment Method'),
                       SizedBox(height: 8.h),
                       DropdownButtonFormField<PaymentMethod>(
-                        value: _selectedMethod,
-                        dropdownColor: isDark
-                            ? AppTheme.slate800
-                            : Colors.white,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: isDark
-                              ? AppTheme.slate900
-                              : AppTheme.slate50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        initialValue: _selectedMethod,
+                        dropdownColor: Theme.of(context).cardColor,
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.w600,
                         ),
+                        decoration: _inputDecoration(isDark),
                         items: PaymentMethod.values
                             .where((e) => e != PaymentMethod.unknown)
                             .map(
@@ -302,22 +192,15 @@ class _DetailedTransactionScreenState
                             )
                             .toList(),
                         onChanged: (val) {
-                          if (val != null)
+                          if (val != null) {
                             setState(() => _selectedMethod = val);
+                          }
                         },
                       ),
                       SizedBox(height: 20.h),
-                      Text(
-                        'Account Number',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.slate500,
-                        ),
-                      ),
+                      _buildInputLabel('Account Number'),
                       SizedBox(height: 8.h),
 
-                      // ── Quick Select Accounts ──
                       if (existingAccounts.isNotEmpty) ...[
                         Wrap(
                           spacing: 8.w,
@@ -336,24 +219,25 @@ class _DetailedTransactionScreenState
                                   });
                                 }
                               },
-                              selectedColor: AppTheme.rose.withAlpha(40),
+                              selectedColor: AppTheme.getExpenseColor(
+                                context,
+                              ).withAlpha(40),
                               labelStyle: TextStyle(
-                                fontSize: 12.sp,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.bold,
                                 color: isSelected
-                                    ? AppTheme.rose
-                                    : (isDark
-                                          ? AppTheme.slate300
-                                          : AppTheme.slate700),
+                                    ? AppTheme.getExpenseColor(context)
+                                    : Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.color,
                               ),
-                              backgroundColor: isDark
-                                  ? AppTheme.slate900
-                                  : AppTheme.slate100,
+                              backgroundColor:
+                                  AppTheme.getSurfaceSecondaryColor(context),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
+                                borderRadius: BorderRadius.circular(10.r),
                                 side: BorderSide(
                                   color: isSelected
-                                      ? AppTheme.rose
+                                      ? AppTheme.getExpenseColor(context)
                                       : Colors.transparent,
                                 ),
                               ),
@@ -365,50 +249,35 @@ class _DetailedTransactionScreenState
 
                       TextFormField(
                         controller: _accountController,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                          hintText: 'e.g. X1234',
-                          filled: true,
-                          fillColor: isDark
-                              ? AppTheme.slate900
-                              : AppTheme.slate50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.w600,
                         ),
+                        decoration: _inputDecoration(
+                          isDark,
+                        ).copyWith(hintText: 'e.g. X1234'),
                       ),
                       SizedBox(height: 20.h),
-                      Text(
-                        'Bank Name',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.slate500,
-                        ),
-                      ),
+                      _buildInputLabel('Bank Name'),
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _bankController,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                          hintText: 'e.g. HDFC Bank',
-                          filled: true,
-                          fillColor: isDark ? AppTheme.slate900 : AppTheme.slate50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.w600,
                         ),
+                        decoration: _inputDecoration(
+                          isDark,
+                        ).copyWith(hintText: 'e.g. HDFC Bank'),
                       ),
                       SizedBox(height: 24.h),
                       SizedBox(
                         width: double.infinity,
-                        height: 56.h,
+                        height: 54.h,
                         child: ElevatedButton(
                           onPressed: _handleVerify,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.rose,
+                            backgroundColor: AppTheme.getExpenseColor(context),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16.r),
@@ -430,84 +299,51 @@ class _DetailedTransactionScreenState
                 SizedBox(height: 32.h),
               ],
 
-              // ── Main Details Card ──
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(24.w),
-                decoration: BoxDecoration(
-                  color: isDark ? AppTheme.slate800 : Colors.white,
-                  borderRadius: BorderRadius.circular(28.r),
-                  border: Border.all(
-                    color: isDark ? AppTheme.slate700 : AppTheme.slate200,
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(isDark ? 30 : 10),
-                      blurRadius: 30,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildDetailItem(
-                      context,
-                      'Status',
-                      widget.transaction.isVerified ? 'Verified' : 'Unverified',
-                      widget.transaction.isVerified
-                          ? Icons.verified_rounded
-                          : Icons.warning_amber_rounded,
-                      widget.transaction.isVerified
-                          ? AppTheme.emerald
-                          : Colors.amber,
-                    ),
-                    _divider(isDark),
-                    _buildDetailItem(
-                      context,
-                      'Bank Name',
-                      widget.transaction.bankName,
-                      Icons.account_balance_rounded,
-                      AppTheme.primary,
-                    ),
-                    _divider(isDark),
-                    _buildDetailItem(
-                      context,
-                      'Account Number',
-                      widget.transaction.account ?? 'N/A',
-                      Icons.tag_rounded,
-                      AppTheme.primary,
-                    ),
-                    _divider(isDark),
-                    _buildDetailItem(
-                      context,
-                      'Payment Method',
-                      widget.transaction.method.name.toUpperCase(),
-                      Icons.payment_rounded,
-                      AppTheme.primary,
-                    ),
-                    _divider(isDark),
-                    _buildDetailItem(
-                      context,
-                      'Date & Time',
-                      DateFormat(
-                        'dd MMM yyyy, hh:mm a',
-                      ).format(widget.transaction.date),
-                      Icons.calendar_today_rounded,
-                      AppTheme.primary,
-                    ),
-                    if (widget.transaction.availableBalance != null) ...[
-                      _divider(isDark),
-                      _buildDetailItem(
-                        context,
-                        'Available Balance',
-                        '₹${widget.transaction.availableBalance!.toStringAsFixed(2)}',
-                        Icons.account_balance_wallet_rounded,
-                        AppTheme.emerald,
-                      ),
-                    ],
-                  ],
-                ),
+              // ── Detail Cards (Individual Pattern) ──
+              _buildModernDetailCard(
+                context,
+                'STATUS',
+                widget.transaction.isVerified ? 'Verified' : 'Unverified',
+                widget.transaction.isVerified
+                    ? Icons.check_rounded
+                    : Icons.warning_rounded,
+                widget.transaction.isVerified
+                    ? AppTheme.getIncomeColor(context)
+                    : AppTheme.getNeutralColor(context),
+              ),
+              SizedBox(height: 12.h),
+              _buildModernDetailCard(
+                context,
+                'BANK NAME',
+                widget.transaction.bankName,
+                Icons.store_rounded,
+                AppTheme.getNeutralColor(context),
+              ),
+              SizedBox(height: 12.h),
+              _buildModernDetailCard(
+                context,
+                'ACCOUNT NUMBER',
+                widget.transaction.account ?? 'N/A',
+                Icons.tag_rounded,
+                Theme.of(context).colorScheme.primary,
+              ),
+              SizedBox(height: 12.h),
+              _buildModernDetailCard(
+                context,
+                'PAYMENT METHOD',
+                widget.transaction.method.name.toUpperCase(),
+                Icons.credit_card_rounded,
+                Theme.of(context).colorScheme.primary,
+              ),
+              SizedBox(height: 12.h),
+              _buildModernDetailCard(
+                context,
+                'DATE & TIME',
+                DateFormat(
+                  'dd MMM yyyy, hh:mm a',
+                ).format(widget.transaction.date),
+                Icons.calendar_today_rounded,
+                AppTheme.getNeutralColor(context),
               ),
 
               SizedBox(height: 32.h),
@@ -525,17 +361,18 @@ class _DetailedTransactionScreenState
                       children: [
                         Icon(
                           Icons.message_rounded,
-                          size: 16.sp,
-                          color: AppTheme.slate500,
+                          size: 14.sp,
+                          color: AppTheme.getNeutralColor(context),
                         ),
                         SizedBox(width: 8.w),
                         Text(
                           'RAW SMS MESSAGE',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
-                            color: AppTheme.slate500,
+                            letterSpacing: 1.2,
+
+                            color: AppTheme.getNeutralColor(context),
                           ),
                         ),
                       ],
@@ -546,11 +383,11 @@ class _DetailedTransactionScreenState
                     padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppTheme.slate800.withAlpha(150)
-                          : AppTheme.slate100,
+                          ? AppTheme.surfaceElevatedDark
+                          : AppTheme.surfaceSecondaryLight,
                       borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(
-                        color: isDark ? AppTheme.slate700 : AppTheme.slate200,
+                        color: AppTheme.getBorderColor(context),
                       ),
                     ),
                     child: Text(
@@ -558,7 +395,7 @@ class _DetailedTransactionScreenState
                       style: TextStyle(
                         fontSize: 13.sp,
                         height: 1.6,
-                        color: isDark ? AppTheme.slate300 : AppTheme.slate700,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                         fontStyle: FontStyle.italic,
                         fontFamily: 'monospace',
                       ),
@@ -566,7 +403,6 @@ class _DetailedTransactionScreenState
                   ),
                 ],
               ),
-              SizedBox(height: 40.h),
             ],
           ),
         ),
@@ -574,25 +410,31 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildDetailItem(
+  Widget _buildModernDetailCard(
     BuildContext context,
     String label,
     String value,
     IconData icon,
-    Color iconColor,
+    Color accentColor,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 14.h),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppTheme.getBorderColor(context), width: 1),
+      ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10.w),
+            padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: iconColor.withAlpha(20),
-              borderRadius: BorderRadius.circular(12.r),
+              color: accentColor.withAlpha(isDark ? 35 : 15),
+              shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 20.sp, color: iconColor),
+            child: Icon(icon, size: 20.sp, color: accentColor),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -602,18 +444,19 @@ class _DetailedTransactionScreenState
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    color: AppTheme.slate500,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 11.sp,
+                    color: AppTheme.getNeutralColor(context),
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 4.h),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? AppTheme.slate50 : AppTheme.slate900,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
                 ),
               ],
@@ -624,28 +467,127 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _divider(bool isDark) => Divider(
-    height: 1,
-    color: isDark
-        ? AppTheme.slate700.withAlpha(100)
-        : AppTheme.slate200.withAlpha(150),
-  );
-
-  IconData _getIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.upi:
-        return Icons.qr_code_2_rounded;
-      case PaymentMethod.card:
-        return Icons.credit_card_rounded;
-      case PaymentMethod.atm:
-        return Icons.account_balance_wallet_rounded;
-      case PaymentMethod.imps:
-        return Icons.bolt_rounded;
-      case PaymentMethod.neft:
-      case PaymentMethod.rtgs:
-        return Icons.account_balance_rounded;
-      default:
-        return Icons.receipt_long_rounded;
-    }
+  Widget _buildInputLabel(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12.sp,
+        fontWeight: FontWeight.w600,
+        color: AppTheme.getNeutralColor(context),
+      ),
+    );
   }
+
+  InputDecoration _inputDecoration(bool isDark) {
+    return InputDecoration(
+      filled: true,
+      fillColor: AppTheme.getSurfaceSecondaryColor(context),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        borderSide: BorderSide.none,
+      ),
+      hintStyle: TextStyle(
+        color: AppTheme.getNeutralColor(context),
+        fontSize: 14.sp,
+      ),
+    );
+  }
+
+  Widget _buildAmountCard(bool isDark) {
+    final isDebit = widget.transaction.type == TransactionType.debit;
+    final semanticColor = isDebit
+        ? AppTheme.getExpenseColor(context)
+        : AppTheme.getIncomeColor(context);
+    final semanticBg = isDebit
+        ? AppTheme.getExpenseBgColor(context)
+        : AppTheme.getIncomeBgColor(context);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 24.h),
+      decoration: BoxDecoration(
+        color: semanticBg,
+        borderRadius: BorderRadius.circular(28.r),
+        border: Border.all(
+          color: semanticColor.withAlpha(isDark ? 150 : 80),
+          width: 2.w,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28.r),
+        child: Material(
+          type: MaterialType.transparency,
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(18.w),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withAlpha(40)
+                        : Colors.white.withAlpha(150),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: semanticColor.withAlpha(50),
+                      width: 1,
+                    ),
+                  ),
+                  child: TransactionIcon(
+                    method: widget.transaction.method,
+                    color: semanticColor,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Text(
+                  isDebit ? "Total Spent" : "Total Received",
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: semanticColor.withAlpha(isDark ? 255 : 200),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '₹',
+                        style: TextStyle(
+                          fontSize: 28.sp,
+                          fontWeight: FontWeight.w700,
+                          color: semanticColor,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      TransactionAmountText(
+                        amount: widget.transaction.amount,
+                        type: widget.transaction.type,
+                        showSign: false,
+                        style: TextStyle(
+                          fontSize: 52.sp,
+                          fontWeight: FontWeight.w900,
+                          color: semanticColor,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 }

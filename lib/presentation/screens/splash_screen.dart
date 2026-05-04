@@ -240,22 +240,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.0, 0.5, 1.0],
-            colors: isDark
-                ? [
-                    const Color(0xFF0A1628),
-                    const Color(0xFF0F172A),
-                    const Color(0xFF0A1628),
-                  ]
-                : [
-                    const Color(0xFFF0F9FF),
-                    const Color(0xFFE0F2FE),
-                    const Color(0xFFF0F9FF),
-                  ],
-          ),
+          color: isDark ? AppTheme.bgDark : AppTheme.bgLight,
         ),
         child: Stack(
           children: [
@@ -297,7 +282,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: AppTheme.primary.withAlpha(
+                                    color: (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
                                       (_ringOpacity.value * 150).toInt(),
                                     ),
                                     width: 2.5,
@@ -352,7 +337,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         fontSize: 30.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
-                        color: isDark ? AppTheme.slate50 : AppTheme.slate900,
+                        color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimaryLight,
                       ),
                     ),
                   ),
@@ -377,7 +362,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 3,
-                        color: isDark ? AppTheme.slate400 : AppTheme.slate500,
+                        color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight,
                       ),
                     ),
                   ),
@@ -396,10 +381,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       height: 130.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFF0F172A), // Match logo background
+        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight, // Match logo background
         boxShadow: [
           BoxShadow(
-            color: (isDark ? AppTheme.primary : AppTheme.primaryDark).withAlpha(
+            color: (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
               60,
             ),
             blurRadius: 30,
@@ -443,7 +428,7 @@ class _ParticlePainter extends CustomPainter {
       final currentX = startX + sin(particleProgress * pi * 2) * 15;
       final opacity = (sin(particleProgress * pi) * 0.5).clamp(0.0, 1.0);
 
-      paint.color = (isDark ? AppTheme.primary : AppTheme.accent).withAlpha(
+      paint.color = (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
         (opacity * 100).toInt(),
       );
 

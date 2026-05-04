@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../providers/transaction_state.dart';
@@ -32,22 +33,14 @@ class DashboardHeader extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24.w, topPadding + 12.h, 24.w, 32.h),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.primary, AppTheme.primaryDark],
-        ),
+        color: Theme.of(context).brightness == Brightness.light
+            ? AppTheme.primaryLight
+            : AppTheme.bgDark,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40.r),
           bottomRight: Radius.circular(40.r),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withAlpha(77), // 0.3 * 255
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        boxShadow: [],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +58,7 @@ class DashboardHeader extends StatelessWidget {
                   ),
                   UIHelpers.horizontalSpace(12),
                   Text(
-                    'Expense Tracker',
+                    'Expense Lite',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22.sp,
@@ -119,7 +112,7 @@ class DashboardHeader extends StatelessWidget {
                   label: 'Income',
                   amount: income,
                   icon: Icons.south_west_rounded,
-                  color: AppTheme.emerald,
+                  color: AppTheme.getIncomeColor(context),
                 ),
               ),
               UIHelpers.horizontalSpace(16),
@@ -128,7 +121,7 @@ class DashboardHeader extends StatelessWidget {
                   label: 'Expenses',
                   amount: spends,
                   icon: Icons.north_east_rounded,
-                  color: AppTheme.rose,
+                  color: AppTheme.getExpenseColor(context),
                 ),
               ),
             ],
@@ -189,7 +182,6 @@ class DashboardHeader extends StatelessWidget {
     IconData icon,
   ) {
     final isSelected = currentSort == value;
-    final theme = Theme.of(context);
 
     return PopupMenuItem(
       value: value,
@@ -199,8 +191,8 @@ class DashboardHeader extends StatelessWidget {
             icon,
             size: 18.sp,
             color: isSelected
-                ? AppTheme.primary
-                : theme.colorScheme.onSurface.withAlpha(128),
+                ? Theme.of(context).colorScheme.primary
+                : AppTheme.getNeutralColor(context),
           ),
           UIHelpers.horizontalSpace(12),
           Text(
@@ -208,8 +200,8 @@ class DashboardHeader extends StatelessWidget {
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected
-                  ? AppTheme.primary
-                  : theme.colorScheme.onSurface,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
         ],

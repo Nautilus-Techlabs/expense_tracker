@@ -7,11 +7,19 @@ import '../../core/constants/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
+import '../widgets/transaction_ui_components.dart';
 
 class TransactionCard extends StatefulWidget {
   final Transaction transaction;
+  final String? heroTag;
+  final String? source;
 
-  const TransactionCard({super.key, required this.transaction});
+  const TransactionCard({
+    super.key,
+    required this.transaction,
+    this.heroTag,
+    this.source,
+  });
 
   @override
   State<TransactionCard> createState() => _TransactionCardState();
@@ -21,8 +29,9 @@ class _TransactionCardState extends State<TransactionCard> {
   @override
   Widget build(BuildContext context) {
     final isDebit = widget.transaction.type == TransactionType.debit;
-    final color = isDebit ? AppTheme.rose : AppTheme.emerald;
-    final icon = _getIcon(widget.transaction.method);
+    final color = isDebit
+        ? AppTheme.getExpenseColor(context)
+        : AppTheme.getIncomeColor(context);
     final theme = Theme.of(context);
 
     return AnimatedContainer(
@@ -31,10 +40,7 @@ class _TransactionCardState extends State<TransactionCard> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: theme.dividerColor.withAlpha(13), // 0.05 * 255
-          width: 1,
-        ),
+        border: Border.all(color: AppTheme.getBorderColor(context), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(10),
@@ -51,7 +57,10 @@ class _TransactionCardState extends State<TransactionCard> {
             UIHelpers.lightImpact();
             context.push(
               AppRouter.transactionDetail,
-              extra: widget.transaction,
+              extra: {
+                'transaction': widget.transaction,
+                'heroTag': widget.heroTag,
+              },
             );
           },
           child: Padding(
@@ -60,7 +69,7 @@ class _TransactionCardState extends State<TransactionCard> {
               children: [
                 Row(
                   children: [
-                    _buildLeadingIcon(color, icon),
+                    _buildLeadingIcon(color),
                     UIHelpers.horizontalSpace(16),
                     Expanded(
                       child: Column(
@@ -81,8 +90,7 @@ class _TransactionCardState extends State<TransactionCard> {
                               'dd MMM, yyyy',
                             ).format(widget.transaction.date),
                             style: TextStyle(
-                              color: theme.textTheme.bodyMedium?.color
-                                  ?.withAlpha(128), // 0.5 * 255
+                              color: AppTheme.getNeutralColor(context),
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -93,10 +101,10 @@ class _TransactionCardState extends State<TransactionCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          '${isDebit ? "-" : "+"}₹${widget.transaction.amount.toStringAsFixed(0)}',
+                        TransactionAmountText(
+                          amount: widget.transaction.amount,
+                          type: widget.transaction.type,
                           style: TextStyle(
-                            color: color,
                             fontWeight: FontWeight.w800,
                             fontSize: 16.sp,
                           ),
@@ -108,9 +116,7 @@ class _TransactionCardState extends State<TransactionCard> {
                               'Bal: ₹${widget.transaction.availableBalance!.toStringAsFixed(0)}',
                               style: TextStyle(
                                 fontSize: 10.sp,
-                                color: theme.colorScheme.onSurface.withAlpha(
-                                  102,
-                                ),
+                                color: AppTheme.getNeutralColor(context),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -127,41 +133,19 @@ class _TransactionCardState extends State<TransactionCard> {
     );
   }
 
-  Widget _buildLeadingIcon(Color color, IconData icon) {
+  Widget _buildLeadingIcon(Color color) {
+    final iconWidget = TransactionIcon(
+      method: widget.transaction.method,
+      color: color,
+      isVerified: widget.transaction.isVerified,
+      showStatus: true,
+    );
+
+    if (widget.heroTag == null) return iconWidget;
+
     return Hero(
-      tag: 'transaction_${widget.transaction.rawSms}',
-      child: Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: color.withAlpha(26), // 0.1 * 255
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            child: Icon(icon, color: color, size: 22.sp),
-          ),
-          Positioned(
-            right: -2,
-            bottom: -2,
-            child: Container(
-              padding: EdgeInsets.all(2.w),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                widget.transaction.isVerified
-                    ? Icons.verified_rounded
-                    : Icons.warning_amber_rounded,
-                color: widget.transaction.isVerified
-                    ? Colors.green
-                    : Colors.amber,
-                size: 14.sp,
-              ),
-            ),
-          ),
-        ],
-      ),
+      tag: widget.heroTag!,
+      child: iconWidget,
     );
   }
 
@@ -172,62 +156,5 @@ class _TransactionCardState extends State<TransactionCard> {
 
     if (method == PaymentMethod.unknown) return typeStr;
     return '${method.name.toUpperCase()} $typeStr';
-  }
-
-  IconData _getIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.upi:
-        return Icons.qr_code_2_rounded;
-      case PaymentMethod.card:
-        return Icons.credit_card_rounded;
-      case PaymentMethod.atm:
-        return Icons.account_balance_wallet_rounded;
-      case PaymentMethod.imps:
-        return Icons.bolt_rounded;
-      case PaymentMethod.neft:
-      case PaymentMethod.rtgs:
-        return Icons.account_balance_rounded;
-      default:
-        return Icons.receipt_long_rounded;
-    }
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withAlpha(102), // 0.4 * 255
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withAlpha(204), // 0.8 * 255
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

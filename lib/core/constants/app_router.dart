@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../presentation/screens/splash_screen.dart';
-import '../../presentation/screens/onboarding_screen.dart';
-import '../../presentation/screens/transaction_list_screen.dart';
-import '../../presentation/screens/detailed_transaction.dart';
+
 import '../../domain/entities/transaction.dart';
+import '../../presentation/screens/detailed_transaction.dart';
+import '../../presentation/screens/main_screen.dart';
+import '../../presentation/screens/onboarding_screen.dart';
+import '../../presentation/screens/splash_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -14,23 +16,32 @@ class AppRouter {
   static final router = GoRouter(
     initialLocation: splash,
     routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
+      GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
       GoRoute(
         path: onboarding,
         builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: transactions,
-        builder: (context, state) => const TransactionListScreen(),
+        builder: (context, state) => const MainScreen(),
       ),
       GoRoute(
         path: transactionDetail,
         builder: (context, state) {
-          final transaction = state.extra as Transaction;
-          return DetailedTransactionScreen(transaction: transaction);
+          final extra = state.extra;
+          if (extra is Transaction) {
+            return DetailedTransactionScreen(transaction: extra);
+          }
+          if (extra is Map) {
+            return DetailedTransactionScreen(
+              transaction: extra['transaction'] as Transaction,
+              heroTag: extra['heroTag'] as String?,
+            );
+          }
+          // Fallback if extra is null or invalid
+          return Scaffold(
+            body: Center(child: Text('Invalid transaction data')),
+          );
         },
       ),
     ],
