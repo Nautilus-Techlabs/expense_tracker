@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -51,7 +52,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         child: Text(
           'No existing accounts found. Add manually below.',
           style: TextStyle(
-            color: Colors.white24,
+            color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
             fontSize: 12.sp,
             fontStyle: FontStyle.italic,
           ),
@@ -84,17 +85,21 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 }
               });
             },
-            selectedColor: colorScheme.primary.withOpacity(0.2),
-            backgroundColor: Colors.white.withOpacity(0.05),
+            selectedColor: colorScheme.primary.withValues(alpha: 0.12),
+            backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
             labelStyle: TextStyle(
-              color: isSelected ? colorScheme.primary : Colors.white60,
+              color: isSelected
+                  ? colorScheme.primary
+                  : Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 12.sp,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r),
               side: BorderSide(
-                color: isSelected ? colorScheme.primary : Colors.white12,
+                color: isSelected
+                    ? colorScheme.primary
+                    : AppTheme.getBorderColor(context),
               ),
             ),
           );
@@ -112,12 +117,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               });
             }
           },
-          selectedColor: colorScheme.primary.withOpacity(0.2),
-          backgroundColor: Colors.white.withOpacity(0.05),
+          selectedColor: colorScheme.primary.withValues(alpha: 0.12),
+          backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
           labelStyle: TextStyle(
             color: _selectedAccountKey == null
                 ? colorScheme.primary
-                : Colors.white60,
+                : Theme.of(context).textTheme.bodyMedium?.color,
             fontSize: 12.sp,
             fontWeight: _selectedAccountKey == null
                 ? FontWeight.bold
@@ -128,7 +133,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             side: BorderSide(
               color: _selectedAccountKey == null
                   ? colorScheme.primary
-                  : Colors.white12,
+                  : AppTheme.getBorderColor(context),
             ),
           ),
         ),
@@ -153,13 +158,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: Theme.of(context).colorScheme.primary,
-              onPrimary: Colors.black,
-              surface: const Color(0xFF1A1C1E),
-              onSurface: Colors.white,
+              onPrimary: isDark ? Colors.black : Colors.white,
+              surface: isDark ? const Color(0xFF1A1C1E) : Colors.white,
+              onSurface: isDark ? Colors.white : Colors.black,
             ),
           ),
           child: child!,
@@ -222,9 +228,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           .then((_) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Transaction added successfully!'),
-                  backgroundColor: Color(0xFF4DFF88),
+                SnackBar(
+                  content: const Text('Transaction added successfully!'),
+                  backgroundColor: AppTheme.getIncomeColor(context),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -237,18 +243,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0E11),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: false,
         title: Text(
           'Add Transaction',
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.5,
+            color: colorScheme.onSurface,
           ),
         ),
         leading: IconButton(
@@ -283,7 +291,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               _buildInputLabel('Merchant / Payee', Icons.storefront_rounded),
               TextFormField(
                 controller: _merchantController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: _inputDecoration('Enter merchant name'),
               ),
               SizedBox(height: 20.h),
@@ -291,7 +299,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               _buildInputLabel('Bank Name', Icons.account_balance_rounded),
               TextFormField(
                 controller: _bankNameController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: _inputDecoration('e.g. HDFC Bank, SBI'),
                 onChanged: (_) => setState(() => _selectedAccountKey = null),
               ),
@@ -308,9 +316,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           Icons.payments_rounded,
                         ),
                         DropdownButtonFormField<PaymentMethod>(
-                          initialValue: _selectedMethod,
-                          dropdownColor: const Color(0xFF1A1C1E),
-                          style: const TextStyle(color: Colors.white),
+                          value: _selectedMethod,
+                          dropdownColor: Theme.of(context).cardColor,
+                          style: TextStyle(color: colorScheme.onSurface),
                           decoration: _inputDecoration(''),
                           items: PaymentMethod.values.map((m) {
                             return DropdownMenuItem(
@@ -337,7 +345,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           controller: _accountController,
                           keyboardType: TextInputType.number,
                           maxLength: 4,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: colorScheme.onSurface),
                           decoration: _inputDecoration(
                             '8237',
                           ).copyWith(counterText: ""),
@@ -363,10 +371,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           vertical: 14.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: AppTheme.getSurfaceSecondaryColor(context),
                           borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
+                            color: AppTheme.getBorderColor(context),
                           ),
                         ),
                         child: Row(
@@ -379,7 +387,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                             SizedBox(width: 8.w),
                             Text(
                               DateFormat('dd MMM, yyyy').format(_selectedDate),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: colorScheme.onSurface),
                             ),
                           ],
                         ),
@@ -396,10 +404,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           vertical: 14.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: AppTheme.getSurfaceSecondaryColor(context),
                           borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
+                            color: AppTheme.getBorderColor(context),
                           ),
                         ),
                         child: Row(
@@ -412,7 +420,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                             SizedBox(width: 8.w),
                             Text(
                               DateFormat('hh:mm a').format(_selectedDate),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: colorScheme.onSurface),
                             ),
                           ],
                         ),
@@ -427,7 +435,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: _inputDecoration('Add a note...'),
               ),
               SizedBox(height: 40.h),
@@ -440,7 +448,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.primary,
-                    foregroundColor: Colors.black,
+                    foregroundColor: colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.r),
                     ),
@@ -468,16 +476,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.1),
+        color: colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
           Text(
             'Amount',
             style: TextStyle(
-              color: colorScheme.primary.withOpacity(0.7),
+              color: colorScheme.primary.withValues(alpha: 0.7),
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -505,13 +513,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   ),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colorScheme.onSurface,
                     fontSize: 40.sp,
                     fontWeight: FontWeight.bold,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: '0.00',
-                    hintStyle: TextStyle(color: Colors.white24),
+                    hintStyle: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.24),
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -536,7 +546,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           label: 'Expense',
           icon: Icons.arrow_outward_rounded,
           isSelected: _selectedType == TransactionType.debit,
-          color: const Color(0xFFFF4D4D),
+          color: AppTheme.getExpenseColor(context),
           onTap: () => setState(() => _selectedType = TransactionType.debit),
         ),
         SizedBox(width: 12.w),
@@ -544,7 +554,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           label: 'Income',
           icon: Icons.south_west_rounded,
           isSelected: _selectedType == TransactionType.credit,
-          color: const Color(0xFF4DFF88),
+          color: AppTheme.getIncomeColor(context),
           onTap: () => setState(() => _selectedType = TransactionType.credit),
         ),
       ],
@@ -552,16 +562,21 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Widget _buildInputLabel(String label, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
       child: Row(
         children: [
-          Icon(icon, size: 14.sp, color: Colors.white54),
+          Icon(
+            icon,
+            size: 14.sp,
+            color: colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
           SizedBox(width: 6.w),
           Text(
             label,
             style: TextStyle(
-              color: Colors.white70,
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -572,23 +587,26 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   InputDecoration _inputDecoration(String hint) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white24),
+      hintStyle: TextStyle(
+        color: colorScheme.onSurface.withValues(alpha: 0.24),
+      ),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.05),
+      fillColor: AppTheme.getSurfaceSecondaryColor(context),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
         borderSide: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          color: colorScheme.primary.withValues(alpha: 0.5),
         ),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
@@ -622,13 +640,13 @@ class _TypeButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 14.h),
           decoration: BoxDecoration(
             color: isSelected
-                ? color.withOpacity(0.15)
-                : Colors.white.withOpacity(0.05),
+                ? color.withValues(alpha: 0.1)
+                : AppTheme.getSurfaceSecondaryColor(context),
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSelected
-                  ? color.withOpacity(0.5)
-                  : Colors.white.withOpacity(0.1),
+                  ? color.withValues(alpha: 0.4)
+                  : AppTheme.getBorderColor(context),
             ),
           ),
           child: Row(
@@ -637,13 +655,17 @@ class _TypeButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 18.sp,
-                color: isSelected ? color : Colors.white38,
+                color: isSelected
+                    ? color
+                    : Theme.of(context).textTheme.bodySmall?.color,
               ),
               SizedBox(width: 8.w),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white38,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 14.sp,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),

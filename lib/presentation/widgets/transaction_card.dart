@@ -107,11 +107,11 @@ class _TransactionCardState extends State<TransactionCard> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: theme.colorScheme.primary
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4.r),
                                     border: Border.all(
                                       color: theme.colorScheme.primary
-                                          .withOpacity(0.2),
+                                          .withValues(alpha: 0.2),
                                     ),
                                   ),
                                   child: Text(

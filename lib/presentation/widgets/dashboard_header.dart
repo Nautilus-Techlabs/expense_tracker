@@ -37,7 +37,7 @@ class DashboardHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: Theme.of(context).brightness == Brightness.light
-              ? [AppTheme.primaryLight, AppTheme.primaryLight.withAlpha(230)]
+              ? [AppTheme.primaryLight, AppTheme.primaryLight.withValues(alpha: 230 / 255)]
               : [AppTheme.surfaceDark, AppTheme.bgDark],
         ),
         borderRadius: BorderRadius.only(
@@ -46,7 +46,7 @@ class DashboardHeader extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(20),
+            color: Colors.black.withValues(alpha: 20 / 255),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -98,7 +98,7 @@ class DashboardHeader extends StatelessWidget {
           Text(
             'Total Balance',
             style: TextStyle(
-              color: Colors.white.withAlpha(204),
+              color: Colors.white.withValues(alpha: 204 / 255),
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
@@ -243,9 +243,9 @@ class _HeaderAction extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(8.w),
         decoration: BoxDecoration(
-          color: Colors.white.withAlpha(31), // 0.12 * 255
+          color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.white.withAlpha(26)), // 0.1 * 255
+          border: Border.all(color: Colors.white.withValues(alpha: 26 / 255)), // 0.1 * 255
         ),
         child: isLoading
             ? SizedBox(
@@ -280,16 +280,16 @@ class _SummaryIndicator extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(31), // 0.12 * 255
+        color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.white.withAlpha(26)), // 0.1 * 255
+        border: Border.all(color: Colors.white.withValues(alpha: 26 / 255)), // 0.1 * 255
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(6.w),
             decoration: BoxDecoration(
-              color: color.withAlpha(51), // 0.2 * 255
+              color: color.withValues(alpha: 51 / 255), // 0.2 * 255
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 14.sp),
@@ -301,7 +301,7 @@ class _SummaryIndicator extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withAlpha(179), // 0.7 * 255
+                  color: Colors.white.withValues(alpha: 179 / 255), // 0.7 * 255
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                 ),
