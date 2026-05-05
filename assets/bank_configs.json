@@ -540,49 +540,58 @@
             ],
             "templates": [
                 {
-                    "name": "BOB ATM Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:withdrawn|spent|debited)\\s+from\\s+(?:A/c|a/c)\\s+[\\.\\*X]*(\\d+)\\s+at\\s+ATM",
+                    "name": "BOB Account Debited via Method",
+                    "pattern": "Your\\s+BOB\\s+A/c\\s+([Xx*\\d]+)\\s+debited\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+(\\d{2}-[a-zA-Z]{3}-\\d{2})\\s+via\\s+([^\\.\\n]+)",
                     "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "method": "atm",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "merchantGroup": 4,
+                    "method": "bank",
                     "priority": 1
                 },
                 {
-                    "name": "BOB Dr. and Cr. Transfer",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+Dr\\.?\\s+from\\s+(?:A/c|a/c)\\s+[Xx\\.\\*]*(\\d+)(?:\\s+and\\s+Cr\\.?\\s+to\\s+([^\\s]+))?",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "merchantGroup": 3,
-                    "method": "upi",
+                    "name": "BOB Account Credited Date",
+                    "pattern": "Your\\s+BOB\\s+A/c\\s+([Xx*\\d]+)\\s+credited\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+(\\d{2}-[a-zA-Z]{3}-\\d{2})",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "BOB Debited and Trf No",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent|paid)\\s+from\\s+(?:a/c|A/c)\\s+[Xx\\.\\*]*(\\d+)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
+                    "name": "BOB Home Loan Account Credited",
+                    "pattern": "Your\\s+BOB\\s+Home\\s+Loan\\s+account\\s+([Xx*\\d]+)\\s+has\\s+been\\s+credited\\s+with\\s+([^\\.]+)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "merchantGroup": 2,
                     "method": "bank",
                     "priority": 3
                 },
                 {
-                    "name": "BOB Typo Credit",
-                    "pattern": "credited\\s+with\\s*([0-9,]+(?:\\.\\d+)?)\\s*(?:ra\\.|rs\\.?|inr)?",
+                    "name": "BOB Salary Credit",
+                    "pattern": "Your\\s+BOB\\s+A/c\\s+([Xx*\\d]+)\\s+credited\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?on\\s+(\\d{2}-[a-zA-Z]{3}-\\d{2})\\.\\s*(Salary)",
                     "type": "credit",
-                    "amountGroup": 1,
-                    "method": "unknown",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "merchantGroup": 4,
+                    "method": "bank",
                     "priority": 4
                 },
                 {
+                    "name": "BOB Balance Info",
+                    "pattern": "(?:Avl|Available)\\s+Bal\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 10
+                },
+                {
                     "name": "BOB Universal Safety-Net",
-                    "pattern": "(?:debited|spent|credited|withdrawn|received|Dr\\.?|Cr\\.?).*?(?:Rs\\.?|INR|₹|ra\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX\\.\\*]*\\d+)",
+                    "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "unknown",
-                    "priority": 25
+                    "priority": 50
                 }
             ]
         },
@@ -1736,24 +1745,61 @@
             ],
             "templates": [
                 {
-                    "name": "HSBC A/c Info Debit",
-                    "pattern": "HSBC\\s+A/c\\s+[Xx*]*(\\d{4,})\\s+debited\\s+by\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?Info:\\s+([^\\n.]+?))?(?:\\.|Bal|$)",
+                    "name": "HSBC Amount-First Debit",
+                    "pattern": "(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HSBC\\s+A/c\\s+([Xx*\\d]+).*?at\\s+([^\\n.]+?)(?:\\.\\s|Avl|$)",
                     "type": "debit",
-                    "amountGroup": 2,
-                    "accountGroup": 1,
+                    "amountGroup": 1,
+                    "accountGroup": 2,
                     "merchantGroup": 3,
-                    "method": "unknown",
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "HSBC A/c Info Debit",
+                    "pattern": "HSBC\\s+A/c\\s+([Xx*\\d]+)\\s+debited\\s+by\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?Info:\\s+([^\\n.]+?))?(?:\\.\\s|Bal|$)",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "HSBC Card USD Spent",
-                    "pattern": "(?:Alert:\\s+)?(?:USD|GBP|EUR|AED)\\s+([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+HSBC\\s+Card\\s+ending\\s+(\\d{4,})(?:\\s+on\\s+.*?\\s+at\\s+([^\\n.]+?))?(?:\\.|$)",
+                    "name": "HSBC Credit of Amount",
+                    "pattern": "Credit\\s+of\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+HSBC\\s+A/c\\s+([Xx*\\d]+).*?(?:Ref:\\s+([^\\.\\n]+))?",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "bank",
+                    "priority": 3
+                },
+                {
+                    "name": "HSBC Credit Card USD Spent",
+                    "pattern": "(?:Alert:\\s+)?(?:USD|GBP|EUR|AED)\\s+([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+HSBC\\s+Card\\s+ending\\s+([Xx*\\d]+).*?at\\s+([^\\n.]+?)(?:\\.\\s|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "merchantGroup": 3,
                     "method": "card",
-                    "priority": 1
+                    "priority": 4
+                },
+                {
+                    "name": "HSBC Credit Card Payment Received",
+                    "pattern": "Your\\s+HSBC\\s+Credit\\s+Card\\s+payment\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+received",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "card",
+                    "priority": 5
+                },
+                {
+                    "name": "HSBC Amount Credited To",
+                    "pattern": "(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+HSBC\\s+A/c\\s+([Xx*\\d]+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 6
                 },
                 {
                     "name": "HSBC Paid/Debited Pattern",
@@ -3645,8 +3691,8 @@
             ],
             "templates": [
                 {
-                    "name": "SBI Card Spent",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+(?:SBI\\s+)?(?:Credit\\s+)?Card\\s+(?:ending\\s+)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\.|$|;)",
+                    "name": "SBI Card Spent Alert",
+                    "pattern": "\\*\\*Alert: You've spent (?:INR|Rs[:.]?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+your\\s+SBI\\s+card\\s+([\\dX*]+)\\s+at\\s+([^\\n]+?)\\s+on",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3655,77 +3701,158 @@
                     "priority": 1
                 },
                 {
-                    "name": "SBI Debit IMPS",
-                    "pattern": "(?:Rs\\.?|INR)?\\s*([0-9,]{2,}(?:\\.\\d+)?)\\s+(?:withdrawn\\s+from|debited\\s+from)\\s+(?:a/c|Acct)\\s+([\\dX*]+).*?(?:IMPS|NEFT|NET|UPI)\\s*(?:/|:)?\\s*(?:[a-zA-Z0-9]+)/([a-zA-Z0-9\\s]+)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "merchantGroup": 3,
-                    "method": "imps",
-                    "priority": 1
-                },
-                {
-                    "name": "SBI Account-Action-Amount",
-                    "pattern": "Your\\s+account\\s+No:\\s+([Xx*\\d]+)\\s+is\\s+(debited|withdrawn|credited)\\s+with\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
+                    "name": "SBI Account Debit Action Prefix",
+                    "pattern": "(?:Dear\\s+SBI\\s+User,|Dear\\s+Customer,)?\\s*(?:your\\s+)?(?:A/c|Account|a/c)\\s+([Xx*\\d-]+?)\\s*(?:is\\s+)?(debited|withdrawn)\\s+(?:by|with|for)?\\s*(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "debit",
                     "accountGroup": 1,
                     "amountGroup": 3,
                     "method": "bank",
+                    "priority": 2
+                },
+                {
+                    "name": "SBI Account Credit Action Prefix",
+                    "pattern": "(?:Dear\\s+SBI\\s+User,|Dear\\s+Customer,)?\\s*(?:your\\s+)?(?:A/c|Account|a/c)\\s+([Xx*\\d-]+?)\\s*(?:is\\s+)?(credited)\\s+(?:by|with|for)?\\s*(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 3,
+                    "method": "bank",
+                    "priority": 2
+                },
+                {
+                    "name": "SBI Account No Debited",
+                    "pattern": "Your\\s+account\\s+No:\\s+([Xx*\\d]+)\\s+is\\s+(debited|withdrawn)\\s+with\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 3,
+                    "method": "bank",
+                    "priority": 3
+                },
+                {
+                    "name": "SBI Account No Credited",
+                    "pattern": "Your\\s+account\\s+No:\\s+([Xx*\\d]+)\\s+is\\s+(credited)\\s+with\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 3,
+                    "method": "bank",
+                    "priority": 3
+                },
+                {
+                    "name": "SBI Account Credited via IMPS/NEFT",
+                    "pattern": "(?:Dear\\s+SBI\\s+User,)?\\s*(?:A/c|Account)\\s+([Xx*\\d]+)\\s+credited\\s+with\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?).*?via\\s+(IMPS|NEFT|UPI)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 4
+                },
+                {
+                    "name": "SBI Amount Debited from Account",
+                    "pattern": "(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:A/c|Account)\\s+([Xx*\\d]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
                     "priority": 5
                 },
                 {
-                    "name": "SBI UPI Debit",
-                    "pattern": "(?:UPI\\s+)?(?:has\\s+been\\s+)?(?:debited|spent|paid)\\s+(?:with|by|for)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+(?:your\\s+)?A/C\\s+([\\dX*]+)",
+                    "name": "SBI UPI Debited from Account",
+                    "pattern": "UPI-.*?-(?:INR|Rs[:.]?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:A/c|Account)\\s+([Xx*\\d]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "upi",
-                    "priority": 3
+                    "priority": 6
                 },
                 {
-                    "name": "SBI ATM Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:withdrawn|debited)\\s+(?:from\\s+)?(?:Acct|a/c|\\s)\\s*([\\dX*]+)\\s+(?:via\\s+)?ATM",
+                    "name": "SBI SI Executed Successfully",
+                    "pattern": "SI\\d+\\s+executed\\s+successfully.*?for\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "debit",
                     "amountGroup": 1,
-                    "accountGroup": 2,
-                    "method": "atm",
+                    "method": "bank",
                     "priority": 7
                 },
                 {
-                    "name": "SBI Flex Debit",
-                    "pattern": "(?:a/c|Acct|A/c|Ac)\\s+\\*?([\\dX*]+).*?(?:debited|spent|withdrawn).*?(?:by|for|with|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
-                    "type": "debit",
-                    "amountGroup": 2,
-                    "accountGroup": 1,
-                    "method": "unknown",
-                    "priority": 15
-                },
-                {
-                    "name": "SBI Credit Flex",
-                    "pattern": "(?:a/c|Acct|A/c|Ac)\\s+\\*?([\\dX*]+).*?credited\\s+(?:by|with|for|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
-                    "type": "credit",
-                    "amountGroup": 2,
-                    "accountGroup": 1,
-                    "method": "unknown",
-                    "priority": 15
-                },
-                {
-                    "name": "SBI Credit Amount-First",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+(?:a/c|Acct|A/c)\\s+([\\dX*]+)",
+                    "name": "SBI IT Refund Credited",
+                    "pattern": "IT\\s+Refund\\s+amount\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?has\\s+been\\s+credited\\s+to\\s+your\\s+account\\s+([Xx*\\d]+)",
                     "type": "credit",
                     "amountGroup": 1,
                     "accountGroup": 2,
-                    "method": "unknown",
-                    "priority": 14
+                    "method": "bank",
+                    "priority": 8
+                },
+                {
+                    "name": "SBI IMPS Success Alert",
+                    "pattern": "IMPS\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+in\\s+account\\s+number\\s+([Xx*\\d]+)\\s+is\\s+success",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "imps",
+                    "priority": 9
+                },
+                {
+                    "name": "SBI Cheque Cleared/Paid",
+                    "pattern": "Cheque\\s+for\\s+(?:INR|Rs[:.]?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+in\\s+(?:A/c|Account)\\s+([Xx*\\d]+)\\s+is\\s+(cleared|paid)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 9
+                },
+                {
+                    "name": "SBI Withdrawn from Account at ATM",
+                    "pattern": "(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+from\\s+(?:A/c|Account)\\s+([Xx*\\d]+).*?at\\s+([^\\n]+?)(?:\\.|$)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "atm",
+                    "priority": 10
+                },
+                {
+                    "name": "SBI Card Spent Direct",
+                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+(?:SBI\\s+)?(?:Credit\\s+)?Card\\s+(?:ending\\s+)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\.|$|;)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "card",
+                    "priority": 11
+                },
+                {
+                    "name": "SBI Account Number Credited INR",
+                    "pattern": "(?:A/C|A/c)\\s+([Xx*\\d]+)\\s+Credited\\s+(?:INR|Rs[:.]?|₹)\\s*([0-9,]+(?:\\.\\d+)?).*?from\\s+([^\\n]+?)(?:\\.\\s+Avl|$)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "bank",
+                    "priority": 12
+                },
+                {
+                    "name": "SBI ATM Withdrawal Generic",
+                    "pattern": "(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+at\\s+([^\\n]+?)\\s+from\\s+(?:A/c|Account)\\s*([Xx*\\d]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "accountGroup": 3,
+                    "method": "atm",
+                    "priority": 13
+                },
+                {
+                    "name": "SBI Balance Extraction",
+                    "pattern": "(?:Available\\s+Balance|Avl\\s+Bal|Bal|balance\\s+is):?\\s*(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 20
                 },
                 {
                     "name": "SBI Universal Safety-Net",
-                    "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
-                    "type": "debit",
+                    "pattern": "(?:debited|spent|credited|withdrawn|received|debited\\s+by|credited\\s+by).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+                    "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "unknown",
-                    "priority": 25
+                    "priority": 50
                 }
             ]
         },
