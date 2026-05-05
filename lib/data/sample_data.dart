@@ -1639,11 +1639,6 @@ final List<SampleSms> sampleSms = [
   ),
   SampleSms(
     body:
-        'Your Cash Deposit of Rs.13220.00 is credited to A/c No **20333 on 13-03-2024 12:41:25, srl no 6.Union Bank of India.',
-    sender: 'AD-UNIONB',
-  ),
-  SampleSms(
-    body:
         'A/c *1715 Debited for Rs:2821.00 on 19-10-2025 17:45:07 by Mob Bk ref no 344825400922 Avl Bal Rs:2164.78.If not you, Call 1800222243 -Union Bank of India',
     sender: 'JM-UNIONB-S',
   ),

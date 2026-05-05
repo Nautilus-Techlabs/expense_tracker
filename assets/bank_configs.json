@@ -1421,13 +1421,13 @@
             ],
             "templates": [
                 {
-                    "name": "Federal Cash Wdl ATM",
-                    "pattern": "(?:Cash\\s+Wdl|Cash\\s+withdrawal)\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "name": "Federal Card Payment Success",
+                    "pattern": "(?:payment|Payment)\\s+of\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+for\\s+([^.\\n;]+?)(?:\\s+via|\\s+on|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
-                    "accountGroup": 2,
-                    "method": "atm",
-                    "priority": 3
+                    "merchantGroup": 2,
+                    "method": "card",
+                    "priority": 1
                 },
                 {
                     "name": "Federal UPI Payment Success",
@@ -1439,144 +1439,92 @@
                     "priority": 2
                 },
                 {
-                    "name": "Federal Credit Alert",
-                    "pattern": "(?:Credit\\s+alert|Credit\\s+Alert)[:\\s]+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:in|to)\\s+(?:Federal\\s+Bank\\s+)?A/c\\s+[Xx*]*(\\d{4,})",
-                    "type": "credit",
+                    "name": "Federal UPI Sent From Account",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+sent\\s+from\\s+your\\s+(?:Account|A/c)\\s+[Xx*]*(\\d{4,})\\s+Mode:\\s*UPI.*?To:\\s*([^.\\n]+?)(?:\\s+Date|$)",
+                    "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
-                    "method": "unknown",
-                    "priority": 1
-                },
-                {
-                    "name": "Federal INR Debited",
-                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|spent|paid|withdrawn)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 0
-                },
-                {
-                    "name": "Federal INR Credited",
-                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|received|deposited)",
-                    "type": "credit",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 0
-                },
-                {
-                    "name": "Federal UPI Debit",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|spent|paid)",
-                    "type": "debit",
-                    "amountGroup": 1,
+                    "merchantGroup": 3,
                     "method": "upi",
-                    "priority": 1
-                },
-                {
-                    "name": "Federal UPI Sent",
-                    "pattern": "Rs\\s+([0-9,]+(?:\\.\\d{2})?)\\s+sent",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "upi",
-                    "priority": 2
-                },
-                {
-                    "name": "Federal Credit",
-                    "pattern": "Rs\\s+([0-9,]+(?:\\.\\d{2})?)\\s+credited",
-                    "type": "credit",
-                    "amountGroup": 1,
-                    "method": "bank",
                     "priority": 3
                 },
                 {
-                    "name": "Federal INR Spent Card",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+spent",
+                    "name": "Federal Sent To Beneficiary",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+sent\\s+from\\s+your\\s+(?:Account|A/c)\\s+[Xx*]*(\\d{4,})\\s+Sent\\s+to\\s+your\\s+beneficiary",
                     "type": "debit",
                     "amountGroup": 1,
-                    "method": "card",
+                    "accountGroup": 2,
+                    "method": "bank",
                     "priority": 4
                 },
                 {
-                    "name": "Federal Received",
-                    "pattern": "received\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "credit",
+                    "name": "Federal Cash Withdrawal ATM",
+                    "pattern": "Cash\\s+Wdl\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "type": "debit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "atm",
+                    "priority": 4
+                },
+                {
+                    "name": "Federal Amount First Debit",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:Federal\\s+Bank\\s+)?(?:A/c|Account)\\s+[Xx*]*(\\d{4,})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
                     "priority": 5
                 },
                 {
-                    "name": "Federal Withdrawn",
-                    "pattern": "withdrawn\\s+Rs\\s+([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "debit",
+                    "name": "Federal Amount First Credit",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+(?:Federal\\s+Bank\\s+)?(?:A/c|Account)\\s+[Xx*]*(\\d{4,})",
+                    "type": "credit",
                     "amountGroup": 1,
-                    "method": "atm",
+                    "accountGroup": 2,
+                    "method": "bank",
                     "priority": 6
                 },
                 {
-                    "name": "Federal Rupee Symbol",
-                    "pattern": "₹\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "unknown",
+                    "name": "Federal Dear Customer Credit",
+                    "pattern": "Dear\\s+Customer,\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+your\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "type": "credit",
                     "amountGroup": 1,
-                    "method": "card",
+                    "accountGroup": 2,
+                    "method": "bank",
                     "priority": 7
                 },
                 {
-                    "name": "Federal UPI VPA Merchant",
-                    "pattern": "to\\s+VPA\\s+([^\\s]+)",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "method": "upi",
+                    "name": "Federal Dear Customer Debit",
+                    "pattern": "Dear\\s+Customer,\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+your\\s+A/c\\s+[Xx*]*(\\d{4,})\\s+towards\\s+([^.\\n]+?)(?:\\s+in|$)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "bank",
                     "priority": 8
                 },
                 {
-                    "name": "Federal Generic To Merchant",
-                    "pattern": "to\\s+([^\\.\\n]+)",
-                    "type": "meta",
-                    "merchantGroup": 1,
+                    "name": "Federal Card ECOM Transaction",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+by\\s+ECOM\\s+Txn\\s+using\\s+your\\s+card\\s+[Xx*]*(\\d{4,})\\s+at\\s+([^.\\n]+?)(?:\\s+on|$)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "card",
                     "priority": 9
                 },
                 {
-                    "name": "Federal From Merchant",
-                    "pattern": "from\\s+([^\\.\\n]+)",
+                    "name": "Federal Account Balance",
+                    "pattern": "BAL\\s*-\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "meta",
-                    "merchantGroup": 1,
+                    "balanceGroup": 1,
                     "priority": 10
                 },
                 {
-                    "name": "Federal Card Ending",
-                    "pattern": "card\\s+(?:XX\\*\\*|ending\\s+with\\s+)(\\d{4})",
-                    "type": "meta",
-                    "accountGroup": 1,
-                    "method": "card",
-                    "priority": 11
-                },
-                {
-                    "name": "Federal Reference Number",
-                    "pattern": "Ref\\s*(?:No|No\\.)[:\\s]*([A-Z0-9]+)",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 12
-                },
-                {
-                    "name": "Federal IMPS Credit",
-                    "pattern": "credited\\s+to\\s+your\\s+A/c.*via\\s+IMPS",
-                    "type": "credit",
-                    "method": "imps",
-                    "priority": 13
-                },
-                {
-                    "name": "Federal ATM Withdrawal",
-                    "pattern": "ATM",
-                    "type": "meta",
-                    "merchantGroup": 0,
-                    "method": "atm",
-                    "priority": 14
-                },
-                {
                     "name": "Federal Universal Safety Net",
-                    "pattern": "(?:credited|debited|sent|received|spent).*?(?:Rs|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|card)?\\s*([\\dX*]+)?",
+                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer).*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
                     "type": "unknown",
                     "amountGroup": 1,
-                    "accountGroup": 2,
                     "priority": 50
                 }
             ]
@@ -1960,38 +1908,37 @@
             ],
             "templates": [
                 {
-                    "name": "ICICI Card Txn",
-                    "pattern": "(?:Transaction\\s+for|Txn\\s+of)\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:done\\s+)?on\\s+ICICI\\s+(?:Bank\\s+)?Card\\s+(?:xx)?([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "merchantGroup": 3,
-                    "method": "card",
-                    "priority": 1
-                },
-                {
-                    "name": "ICICI VPA Debit",
-                    "pattern": "(?:your\\s+)?ICICI\\s+Bank\\s+A/c\\s+([\\dX*]+)\\s+debited\\s+for\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?VPA\\s+([^\\s\\.;@]+)(?:@\\w+)?",
+                    "name": "ICICI Bank Acct Debited For",
+                    "pattern": "ICICI\\s+Bank\\s+Acct\\s+([\\dX*]+)\\s+debited\\s+for\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?Info:\\s*([^\\.\\n;]+)",
                     "type": "debit",
                     "amountGroup": 2,
                     "accountGroup": 1,
                     "merchantGroup": 3,
-                    "method": "upi",
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "ICICI Transaction Done On",
+                    "pattern": "transaction\\s+of\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+done\\s+on\\s+ICICI\\s+Bank\\s+Account.*?Info:\\s*([^\\.\\n;]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "ICICI POS Debit",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+)\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\s+via\\s+|\\.\\s+|$|;).*?\\s+via\\s+POS",
+                    "name": "ICICI Dear Customer Debit Info",
+                    "pattern": "Dear\\s+Customer,\\s*(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+ICICI\\s+Bank\\s+A/C\\s+([\\dX*]+).*?Info:\\s*([^\\.\\n;]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "merchantGroup": 3,
-                    "method": "card",
+                    "method": "bank",
                     "priority": 3
                 },
                 {
-                    "name": "ICICI POS Debit Alt",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?A/c\\s+([\\dX*]+)\\s+via\\s+POS\\s+at\\s+([^\\.\\n;]+?)(?=\\s+on\\s+|\\.|\\n|$|;)",
+                    "name": "ICICI Credit Card Debit Compact",
+                    "pattern": "(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+on\\s+Credit\\s+Card\\s+([\\dX*]+).*?Info:\\s*([^\\.\\n;]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -2000,61 +1947,94 @@
                     "priority": 4
                 },
                 {
-                    "name": "ICICI Debit Info Flex",
-                    "pattern": "(?:A/c|Acct|Bank).*?([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?|with)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:Info:|at|to)\\s*(?:UPI/)?([^\\.\\s]+)",
+                    "name": "ICICI Dear Customer Account Debited",
+                    "pattern": "Dear\\s+Customer,\\s*your\\s+Account\\s+([\\dX*]+)\\s+has\\s+been\\s+debited\\s+with\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?Info:\\s*([^\\.\\n;]+)",
                     "type": "debit",
                     "amountGroup": 2,
                     "accountGroup": 1,
                     "merchantGroup": 3,
-                    "method": "upi",
+                    "method": "bank",
                     "priority": 5
                 },
                 {
-                    "name": "ICICI General Info",
-                    "pattern": "(?:A/c|Acct)\\s+([\\dX*]+)\\s+debited\\s+(?:for|by|INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?).*?(?:IMPS|NEFT|Ref).*?/(?:[\\dA-Z]+)/([^/\\.\\s]+)",
-                    "type": "debit",
+                    "name": "ICICI Bank Account Credited With",
+                    "pattern": "ICICI\\s+Bank\\s+Account\\s+([\\dX*]+)\\s+has\\s+been\\s+credited\\s+with\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?Info:\\s*([^\\.\\n;]+)",
+                    "type": "credit",
                     "amountGroup": 2,
                     "accountGroup": 1,
                     "merchantGroup": 3,
-                    "method": "imps",
+                    "method": "bank",
                     "priority": 6
                 },
                 {
-                    "name": "ICICI Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:withdrawn|debited)\\s+from\\s+(?:A/c|Acct)\\s+([\\dX*]+)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "method": "atm",
-                    "priority": 7
-                },
-                {
-                    "name": "ICICI Credit Flex",
-                    "pattern": "(?:A/c|Acct|Bank).*?([\\dX*]+)\\s+credited\\s+(?:with|by|for)\\s+(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)(?:.*?Info:\\s*([^\\s\\.;]+))?",
+                    "name": "ICICI Bank Account Credited Dt",
+                    "pattern": "ICICI\\s+BANK\\s+A/c\\s+([\\dX*]+)\\s+credited\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+Dt\\s+(\\d{2}-\\d{2}-\\d{2})",
                     "type": "credit",
                     "amountGroup": 2,
                     "accountGroup": 1,
-                    "merchantGroup": 3,
-                    "method": "unknown",
-                    "priority": 10
+                    "method": "bank",
+                    "priority": 7
                 },
                 {
-                    "name": "ICICI Receive",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+received\\s+(?:via\\s+)?.*?(?:A/c|UPI|Ref No)[^\\d]*?([\\dX*]+)?",
+                    "name": "ICICI Beneficiary Credited Success",
+                    "pattern": "transaction\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+ICICI\\s+Bank\\s+was\\s+successfully\\s+credited\\s+to\\s+the\\s+beneficiary\\s+([^\\n]+?)\\s+account\\s+[\\dX*]*(\\d{4})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "accountGroup": 3,
+                    "method": "bank",
+                    "priority": 8
+                },
+                {
+                    "name": "ICICI Simple Credit Amount First",
+                    "pattern": "(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+Credited\\s+to\\s+a/c\\s+([/\\dX*]+)",
                     "type": "credit",
                     "amountGroup": 1,
                     "accountGroup": 2,
-                    "method": "unknown",
+                    "method": "bank",
+                    "priority": 9
+                },
+                {
+                    "name": "ICICI Refund To Credit Card",
+                    "pattern": "([^\\n]+?)\\s+refund\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited\\s+to\\s+ICICI\\s+Bank\\s+Credit\\s+Card",
+                    "type": "credit",
+                    "amountGroup": 2,
+                    "merchantGroup": 1,
+                    "method": "card",
+                    "priority": 10
+                },
+                {
+                    "name": "ICICI Credit Card Payment Received",
+                    "pattern": "Payment\\s+of\\s+(?:Rs[:.]?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+has\\s+been\\s+received\\s+on\\s+your\\s+ICICI\\s+Bank\\s+Credit\\s+Card",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "card",
                     "priority": 11
                 },
                 {
+                    "name": "ICICI Account Credited with IMPS",
+                    "pattern": "ICICI\\s+Bank\\s+Acct\\s+([\\dX*]+)\\s+credited\\s+with\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?IMPS",
+                    "type": "credit",
+                    "amountGroup": 2,
+                    "accountGroup": 1,
+                    "method": "imps",
+                    "priority": 12
+                },
+                {
+                    "name": "ICICI Available Balance Info",
+                    "pattern": "The\\s+Available\\s+Balance\\s+is\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 15
+                },
+                {
                     "name": "ICICI Universal Safety-Net",
-                    "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
-                    "type": "debit",
+                    "pattern": "(?:debited|spent|credited|withdrawn|received|credited\\s+with|debited\\s+for).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+                    "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "unknown",
-                    "priority": 25
+                    "priority": 50
                 }
             ]
         },
@@ -3685,6 +3665,15 @@
                     "priority": 1
                 },
                 {
+                    "name": "SBI Account-Action-Amount",
+                    "pattern": "Your\\s+account\\s+No:\\s+([Xx*\\d]+)\\s+is\\s+(debited|withdrawn|credited)\\s+with\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 3,
+                    "method": "bank",
+                    "priority": 5
+                },
+                {
                     "name": "SBI UPI Debit",
                     "pattern": "(?:UPI\\s+)?(?:has\\s+been\\s+)?(?:debited|spent|paid)\\s+(?:with|by|for)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+(?:your\\s+)?A/C\\s+([\\dX*]+)",
                     "type": "debit",
@@ -3704,7 +3693,7 @@
                 },
                 {
                     "name": "SBI Flex Debit",
-                    "pattern": "(?:a/c|Acct|A/c)\\s+\\*?([\\dX*]+).*?(?:debited|spent|withdrawn).*?(?:by|for|with|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "pattern": "(?:a/c|Acct|A/c|Ac)\\s+\\*?([\\dX*]+).*?(?:debited|spent|withdrawn).*?(?:by|for|with|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "debit",
                     "amountGroup": 2,
                     "accountGroup": 1,
@@ -3713,7 +3702,7 @@
                 },
                 {
                     "name": "SBI Credit Flex",
-                    "pattern": "(?:a/c|Acct|A/c)\\s+\\*?([\\dX*]+).*?credited\\s+(?:by|with|for|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "pattern": "(?:a/c|Acct|A/c|Ac)\\s+\\*?([\\dX*]+).*?credited\\s+(?:by|with|for|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "credit",
                     "amountGroup": 2,
                     "accountGroup": 1,
@@ -4209,74 +4198,93 @@
             "templates": [
                 {
                     "name": "Union Bank Amount First Debit",
-                    "pattern": "(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|withdrawn|paid|spent|deducted|transfer)",
+                    "pattern": "(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:debited|withdrawn|paid|spent|deducted|transfer|withdrawal|cleared)\\s*(?:from|to|on|for)?\\s*(?:your\\s+)?(?:A/c|Acc|A/C|A/c No)?\\s*([\\*X]*\\d{4,6})?",
                     "type": "debit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
                     "priority": 1
                 },
                 {
                     "name": "Union Bank Amount First Credit",
-                    "pattern": "(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|deposited|received)",
+                    "pattern": "(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:credited|deposited|received|credit|cleared)\\s*(?:to|in|into|for)?\\s*(?:your\\s+)?(?:A/c|Acc|A/C|A/c No)?\\s*([\\*X]*\\d{4,6})?",
                     "type": "credit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "Union Bank UPI Transfer",
-                    "pattern": "UPI\\s+transfer\\s+(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:to|sent to)\\s+([^.\\n]+)",
+                    "name": "Union Bank Cash Withdrawal",
+                    "pattern": "Cash\\s+withdrawal\\s+of\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)\\s+from\\s+(?:A/c|Acc|A/C|A/c No)\\s*[\\*X]*(\\d{4,6})",
                     "type": "debit",
                     "amountGroup": 1,
-                    "merchantGroup": 2,
-                    "method": "upi",
+                    "accountGroup": 2,
+                    "method": "atm",
                     "priority": 3
                 },
                 {
-                    "name": "Union Bank Amount Rs",
-                    "pattern": "Rs[:.]?\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "unknown",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 50
-                },
-                {
-                    "name": "Union Bank Amount INR",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "unknown",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 50
-                },
-                {
-                    "name": "Union Bank Debit",
-                    "pattern": "(?:[Dd]ebited|[Ww]ithdrawn|[Ww]ithdrawal|[Pp]aid|[Ss]pent|[Pp]ayment|[Dd]educted|[Tt]ransfer).*?(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 13
-                },
-                {
-                    "name": "Union Bank Credit",
-                    "pattern": "(?:[Cc]redited|[Cc]redit|[Rr]eceived|[Dd]eposited).*?(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "name": "Union Bank Salary Credit",
+                    "pattern": "Salary\\s+credit\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)\\s+in\\s+(?:A/c|Acc|A/C|A/c No)\\s*[\\*X]*(\\d{4,6})",
                     "type": "credit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
-                    "priority": 14
+                    "priority": 4
                 },
                 {
-                    "name": "Union Bank Merchant UPI",
-                    "pattern": "UPI[/:]?\\s*([^,.\\s]+)",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "priority": 15
+                    "name": "Union Bank Generic Account-Amount Debit",
+                    "pattern": "(?:A/c|Acc|A/C|A/c No)?\\s*[\\*X\\d]*?(\\d{4,6})\\s+(?:is\\s+)?(?:Debited|debited|Withdrawn|cleared).*?(?:for|with)\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)(?:\\s+by|\\.|$)",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 5
                 },
                 {
-                    "name": "Union Bank Merchant VPA",
-                    "pattern": "VPA\\s+([^@\\s]+)",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "priority": 16
+                    "name": "Union Bank Generic Account-Amount Credit",
+                    "pattern": "(?:A/c|Acc|A/C|A/c No)?\\s*[\\*X\\d]*?(\\d{4,6})\\s+(?:is\\s+)?(?:Credited|credited|Deposited|cleared).*?(?:for|with)\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)(?:\\s+by|\\.|$)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 6
+                },
+                {
+                    "name": "Union Bank Keyword First Debit",
+                    "pattern": "(?:debited|withdrawn|cleared|paid|spent|deducted).*?(?:for|of|with)?\\s*(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+).*?(?:A/c|Acc|A/C|A/c No)?\\s*[\\*X]*(\\d{4,6})?",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 7
+                },
+                {
+                    "name": "Union Bank Keyword First Credit",
+                    "pattern": "(?:credited|received|deposited|credit|cleared).*?(?:for|of|with|in)?\\s*(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+).*?(?:A/c|Acc|A/C|A/c No)?\\s*[\\*X]*(\\d{4,6})?",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 8
+                },
+                {
+                    "name": "Union Bank Debit With Method",
+                    "pattern": "(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+).*?by\\s+([^.\\n;]+?)(?:\\s+Avl|$)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "unknown",
+                    "priority": 10
+                },
+                {
+                    "name": "Union Bank Credit With Method",
+                    "pattern": "(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+).*?by\\s+([^.\\n;]+?)(?:\\s+Avl|$)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "unknown",
+                    "priority": 11
                 },
                 {
                     "name": "Union Bank Merchant To",
@@ -4286,85 +4294,22 @@
                     "priority": 17
                 },
                 {
-                    "name": "Union Bank Merchant From",
-                    "pattern": "from\\s+([^.\\n]+?)(?:\\s+on|\\s+Avl|$)",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "priority": 18
-                },
-                {
-                    "name": "Union Bank ATM Location",
-                    "pattern": "at\\s+([^.\\s]+(?:\\s+[^.\\s]+)*)(?:\\s+on|\\s+Avl|$)",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "priority": 19
-                },
-                {
-                    "name": "Union Bank Reference Ref No",
-                    "pattern": "ref\\s+no\\s+([\\w]+)",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 10
-                },
-                {
-                    "name": "Union Bank Reference Ref",
-                    "pattern": "ref[:#]?\\s*([\\w]+)",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 11
-                },
-                {
-                    "name": "Union Bank Reference Generic",
-                    "pattern": "(?:reference|txn)[:#]?\\s*([\\w]+)",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 12
-                },
-                {
                     "name": "Union Bank Account",
-                    "pattern": "A/[Cc]\\s*[*X](\\d{4})",
+                    "pattern": "(?:A/[Cc]|Acc|Account|A/c No)\\s*[*X]*\\s*(\\d{4,6})",
                     "type": "meta",
                     "accountGroup": 1,
                     "priority": 13
                 },
                 {
-                    "name": "Union Bank Account Generic",
-                    "pattern": "(?:Account|Acc)\\s*[*X](\\d{4})",
-                    "type": "meta",
-                    "accountGroup": 1,
-                    "priority": 14
-                },
-                {
-                    "name": "Union Bank Account Plain",
-                    "pattern": "A/[Cc]\\s+(\\d{4})",
-                    "type": "meta",
-                    "accountGroup": 1,
-                    "priority": 15
-                },
-                {
                     "name": "Union Bank Balance Avl",
-                    "pattern": "Avl\\s+Bal\\s+Rs[:.]?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "Av[lI]\\s+Bal\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 16
                 },
                 {
-                    "name": "Union Bank Balance Available",
-                    "pattern": "Available\\s+Balance[:.]?\\s*Rs[:.]?\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "meta",
-                    "balanceGroup": 1,
-                    "priority": 17
-                },
-                {
-                    "name": "Union Bank Balance Generic",
-                    "pattern": "(?:Balance|Bal)[:.]?\\s*Rs[:.]?\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "meta",
-                    "balanceGroup": 1,
-                    "priority": 18
-                },
-                {
                     "name": "Union Bank Universal Safety Net",
-                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent).*?(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer).*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "priority": 50
