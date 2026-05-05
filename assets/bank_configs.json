@@ -3701,6 +3701,12 @@
             ],
             "templates": [
                 {
+                    "name": "SBI UPI Mandate Exclusion",
+                    "pattern": "(?:Your\\s+)?UPI-Mandate.*?successfully\\s+(?:created|cancelled|Revoked)",
+                    "type": "meta",
+                    "priority": 0
+                },
+                {
                     "name": "SBI Card Spent Alert",
                     "pattern": "\\*\\*Alert: You've spent (?:INR|Rs[:.]?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+your\\s+SBI\\s+card\\s+([\\dX*]+)\\s+at\\s+([^\\n]+?)\\s+on",
                     "type": "debit",

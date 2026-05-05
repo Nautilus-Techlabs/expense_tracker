@@ -5,13 +5,13 @@ import 'package:intl/intl.dart';
 
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
-import '../widgets/transaction_ui_components.dart';
 
 class AddTransactionScreen extends ConsumerStatefulWidget {
   const AddTransactionScreen({super.key});
 
   @override
-  ConsumerState<AddTransactionScreen> createState() => _AddTransactionScreenState();
+  ConsumerState<AddTransactionScreen> createState() =>
+      _AddTransactionScreenState();
 }
 
 class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
@@ -75,7 +75,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 if (selected) {
                   _selectedAccountKey = key;
                   _bankNameController.text = acc.bank;
-                  // Remove 'XX' prefix if present for editing, 
+                  // Remove 'XX' prefix if present for editing,
                   // but keep it if it's the standard format.
                   // Actually, the user should see what's in the DB.
                   _accountController.text = acc.account.replaceAll('XX', '');
@@ -115,14 +115,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           selectedColor: colorScheme.primary.withOpacity(0.2),
           backgroundColor: Colors.white.withOpacity(0.05),
           labelStyle: TextStyle(
-            color: _selectedAccountKey == null ? colorScheme.primary : Colors.white60,
+            color: _selectedAccountKey == null
+                ? colorScheme.primary
+                : Colors.white60,
             fontSize: 12.sp,
-            fontWeight: _selectedAccountKey == null ? FontWeight.bold : FontWeight.normal,
+            fontWeight: _selectedAccountKey == null
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
             side: BorderSide(
-              color: _selectedAccountKey == null ? colorScheme.primary : Colors.white12,
+              color: _selectedAccountKey == null
+                  ? colorScheme.primary
+                  : Colors.white12,
             ),
           ),
         ),
@@ -150,11 +156,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: Theme.of(context).colorScheme.primary,
-                  onPrimary: Colors.black,
-                  surface: const Color(0xFF1A1C1E),
-                  onSurface: Colors.white,
-                ),
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Colors.black,
+              surface: const Color(0xFF1A1C1E),
+              onSurface: Colors.white,
+            ),
           ),
           child: child!,
         );
@@ -193,16 +199,27 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      ref.read(transactionProvider.notifier).addManualTransaction(
+      ref
+          .read(transactionProvider.notifier)
+          .addManualTransaction(
             amount: double.parse(_amountController.text),
             type: _selectedType,
             date: _selectedDate,
             method: _selectedMethod,
-            bankName: _bankNameController.text.isEmpty ? null : _bankNameController.text,
-            merchant: _merchantController.text.isEmpty ? null : _merchantController.text,
-            account: _accountController.text.isEmpty ? null : _accountController.text,
-            description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-          ).then((_) {
+            bankName: _bankNameController.text.isEmpty
+                ? null
+                : _bankNameController.text,
+            merchant: _merchantController.text.isEmpty
+                ? null
+                : _merchantController.text,
+            account: _accountController.text.isEmpty
+                ? null
+                : _accountController.text,
+            description: _descriptionController.text.isEmpty
+                ? null
+                : _descriptionController.text,
+          )
+          .then((_) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -255,7 +272,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               SizedBox(height: 24.h),
 
               // Account Selection
-              _buildInputLabel('Select Account', Icons.account_balance_wallet_rounded),
+              _buildInputLabel(
+                'Select Account',
+                Icons.account_balance_wallet_rounded,
+              ),
               _buildAccountChips(),
               SizedBox(height: 24.h),
 
@@ -283,7 +303,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('Payment Method', Icons.payments_rounded),
+                        _buildInputLabel(
+                          'Payment Method',
+                          Icons.payments_rounded,
+                        ),
                         DropdownButtonFormField<PaymentMethod>(
                           initialValue: _selectedMethod,
                           dropdownColor: const Color(0xFF1A1C1E),
@@ -295,7 +318,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                               child: Text(m.name.toUpperCase()),
                             );
                           }).toList(),
-                          onChanged: (val) => setState(() => _selectedMethod = val!),
+                          onChanged: (val) =>
+                              setState(() => _selectedMethod = val!),
                         ),
                       ],
                     ),
@@ -305,14 +329,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('Account (Last 4)', Icons.credit_card_rounded),
+                        _buildInputLabel(
+                          'Account (Last 4)',
+                          Icons.credit_card_rounded,
+                        ),
                         TextFormField(
                           controller: _accountController,
                           keyboardType: TextInputType.number,
                           maxLength: 4,
                           style: const TextStyle(color: Colors.white),
-                          decoration: _inputDecoration('8237').copyWith(counterText: ""),
-                          onChanged: (_) => setState(() => _selectedAccountKey = null),
+                          decoration: _inputDecoration(
+                            '8237',
+                          ).copyWith(counterText: ""),
+                          onChanged: (_) =>
+                              setState(() => _selectedAccountKey = null),
                         ),
                       ],
                     ),
@@ -328,15 +358,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     child: InkWell(
                       onTap: () => _selectDate(context),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.1),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.calendar_month_rounded, size: 18.sp, color: colorScheme.primary),
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              size: 18.sp,
+                              color: colorScheme.primary,
+                            ),
                             SizedBox(width: 8.w),
                             Text(
                               DateFormat('dd MMM, yyyy').format(_selectedDate),
@@ -352,15 +391,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     child: InkWell(
                       onTap: () => _selectTime(context),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.1),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.access_time_rounded, size: 18.sp, color: colorScheme.primary),
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 18.sp,
+                              color: colorScheme.primary,
+                            ),
                             SizedBox(width: 8.w),
                             Text(
                               DateFormat('hh:mm a').format(_selectedDate),
@@ -452,7 +500,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               IntrinsicWidth(
                 child: TextFormField(
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -537,7 +587,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+        ),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
     );
@@ -569,10 +621,14 @@ class _TypeButton extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.symmetric(vertical: 14.h),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.15) : Colors.white.withOpacity(0.05),
+            color: isSelected
+                ? color.withOpacity(0.15)
+                : Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: isSelected ? color.withOpacity(0.5) : Colors.white.withOpacity(0.1),
+              color: isSelected
+                  ? color.withOpacity(0.5)
+                  : Colors.white.withOpacity(0.1),
             ),
           ),
           child: Row(
