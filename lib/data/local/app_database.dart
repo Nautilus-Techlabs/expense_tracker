@@ -1,9 +1,11 @@
 import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 import '../../domain/entities/transaction.dart';
 
 part 'app_database.g.dart';
@@ -23,6 +25,7 @@ class Transactions extends Table {
   TextColumn get templateName => text().nullable()();
   BoolColumn get isVerified => boolean().withDefault(const Constant(true))();
   BoolColumn get isSample => boolean().withDefault(const Constant(false))();
+  TextColumn get description => text().nullable()();
 }
 
 @DataClassName('SmsLogEntry')
@@ -38,14 +41,24 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(transactions, transactions.description);
+      }
+    },
+  );
 
   // Helpers
-  Future<List<TransactionEntry>> getAllTransactions() => select(transactions).get();
+  Future<List<TransactionEntry>> getAllTransactions() =>
+      select(transactions).get();
 
   Future<void> insertTransactions(List<TransactionsCompanion> entries) async {
     await batch((batch) {
-      batch.insertAll(transactions, entries, mode: InsertMode.insertOrReplace);
+      batch.insertAll(transactions, entries, mode: InsertMode.insertOrIgnore);
     });
   }
 
@@ -58,9 +71,9 @@ class AppDatabase extends _$AppDatabase {
   Future<List<SmsLogEntry>> getAllSmsLogs() => select(smsLogs).get();
 
   Future<void> updateTransaction(TransactionsCompanion companion) {
-    return (update(transactions)
-          ..where((t) => t.rawSms.equals(companion.rawSms.value)))
-        .write(companion);
+    return (update(
+      transactions,
+    )..where((t) => t.rawSms.equals(companion.rawSms.value))).write(companion);
   }
 
   Future<void> deleteSmsLogByBody(String body) {

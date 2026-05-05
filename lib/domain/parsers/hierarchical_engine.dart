@@ -142,10 +142,33 @@ class HierarchicalBankParser extends BankParser {
     final extractedMethod = _extractPaymentMethod(sms);
     final extractedBalance = BalanceExtractor.extract(sms);
     final extractedDate = DateExtractor.extract(sms);
+    DateTime finalDate = fallbackDate ?? DateTime.now();
+
+    if (extractedDate != null) {
+      // If DateExtractor found a date but its time is 00:00:00,
+      // try to preserve the time from the SMS metadata (fallbackDate).
+      if (extractedDate.hour == 0 &&
+          extractedDate.minute == 0 &&
+          extractedDate.second == 0) {
+        finalDate = DateTime(
+          extractedDate.year,
+          extractedDate.month,
+          extractedDate.day,
+          finalDate.hour,
+          finalDate.minute,
+          finalDate.second,
+          finalDate.millisecond,
+        );
+      } else {
+        // DateExtractor found a specific time in the SMS, use it!
+        finalDate = extractedDate;
+      }
+    }
+
     return Transaction(
       amount: amount,
       type: template.type,
-      date: extractedDate ?? fallbackDate ?? DateTime.now(),
+      date: finalDate,
       merchant: merchant,
       method: extractedMethod != PaymentMethod.unknown
           ? extractedMethod

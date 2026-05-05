@@ -41,17 +41,50 @@ class DateExtractor {
   ];
 
   static DateTime? extract(String sms) {
+    DateTime? extractedDate;
+    
+    // 1. Try to find a date
     for (final pattern in _patterns) {
       final match = pattern.firstMatch(sms);
       if (match != null) {
         try {
-          return _parseMatch(match);
+          extractedDate = _parseMatch(match);
+          break;
         } catch (_) {
           continue;
         }
       }
     }
-    return null;
+
+    if (extractedDate == null) return null;
+
+    // 2. Try to find a time (e.g., 14:30:05 or 02:30 PM)
+    final timePattern = RegExp(
+      r'\b(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?\b',
+      caseSensitive: false,
+    );
+    final timeMatch = timePattern.firstMatch(sms);
+
+    if (timeMatch != null) {
+      int hour = int.parse(timeMatch.group(1)!);
+      final minute = int.parse(timeMatch.group(2)!);
+      final second = int.tryParse(timeMatch.group(3) ?? '0') ?? 0;
+      final amPm = timeMatch.group(4)?.toUpperCase();
+
+      if (amPm == 'PM' && hour < 12) hour += 12;
+      if (amPm == 'AM' && hour == 12) hour = 0;
+
+      return DateTime(
+        extractedDate.year,
+        extractedDate.month,
+        extractedDate.day,
+        hour,
+        minute,
+        second,
+      );
+    }
+
+    return extractedDate;
   }
 
   static DateTime _parseMatch(RegExpMatch match) {

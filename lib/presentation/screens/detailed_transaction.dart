@@ -30,6 +30,7 @@ class _DetailedTransactionScreenState
   late TextEditingController _accountController;
   late TextEditingController _bankController;
   late TextEditingController _amountController;
+  late TextEditingController _descriptionController;
   late bool _isVerified;
   bool _isEditing = false;
 
@@ -46,6 +47,9 @@ class _DetailedTransactionScreenState
     _amountController = TextEditingController(
       text: widget.transaction.amount.toStringAsFixed(2),
     );
+    _descriptionController = TextEditingController(
+      text: widget.transaction.description ?? '',
+    );
     _isVerified = widget.transaction.isVerified;
   }
 
@@ -54,6 +58,7 @@ class _DetailedTransactionScreenState
     _accountController.dispose();
     _bankController.dispose();
     _amountController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -79,6 +84,9 @@ class _DetailedTransactionScreenState
           method: _selectedMethod,
           account: _accountController.text.trim(),
           bankName: _bankController.text.trim(),
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
         );
 
     if (mounted) {
@@ -115,6 +123,9 @@ class _DetailedTransactionScreenState
           amount: amount,
           method: _selectedMethod,
           isVerified: _isVerified,
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
         );
 
     if (mounted) {
@@ -132,7 +143,6 @@ class _DetailedTransactionScreenState
   Widget build(BuildContext context) {
     final transactions = ref.watch(transactionProvider).allTransactions;
 
-    // Get unique combinations of account and bank
     final seen = <String>{};
     final existingAccounts = <({String account, String bank})>[];
 
@@ -192,14 +202,12 @@ class _DetailedTransactionScreenState
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             children: [
-              // ── Amount Header Card ──
               if (widget.heroTag != null)
                 Hero(tag: widget.heroTag!, child: _buildAmountCard(isDark))
               else
                 _buildAmountCard(isDark),
               SizedBox(height: 20.h),
 
-              // ── Manual Verification Form (Only if Unverified) ──
               if (!widget.transaction.isVerified) ...[
                 Container(
                   width: double.infinity,
@@ -264,14 +272,14 @@ class _DetailedTransactionScreenState
                       SizedBox(height: 20.h),
                       _buildInputLabel('Account Number'),
                       SizedBox(height: 8.h),
-
                       if (existingAccounts.isNotEmpty) ...[
                         Wrap(
                           spacing: 8.w,
                           runSpacing: 8.h,
                           children: existingAccounts.map((acc) {
                             final isSelected =
-                                _accountController.text == acc.account && _bankController.text == acc.bank;
+                                _accountController.text == acc.account &&
+                                _bankController.text == acc.bank;
                             return ChoiceChip(
                               label: Text('${acc.account} (${acc.bank})'),
                               selected: isSelected,
@@ -310,7 +318,6 @@ class _DetailedTransactionScreenState
                         ),
                         SizedBox(height: 12.h),
                       ],
-
                       TextFormField(
                         controller: _accountController,
                         style: TextStyle(
@@ -333,6 +340,20 @@ class _DetailedTransactionScreenState
                         decoration: _inputDecoration(
                           isDark,
                         ).copyWith(hintText: 'e.g. HDFC Bank'),
+                      ),
+                      SizedBox(height: 20.h),
+                      _buildInputLabel('Description (Optional)'),
+                      SizedBox(height: 8.h),
+                      TextFormField(
+                        controller: _descriptionController,
+                        maxLines: 2,
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: _inputDecoration(
+                          isDark,
+                        ).copyWith(hintText: 'Add a brief note...'),
                       ),
                       SizedBox(height: 24.h),
                       SizedBox(
@@ -363,7 +384,6 @@ class _DetailedTransactionScreenState
                 SizedBox(height: 32.h),
               ],
 
-              // ── Detail Cards ──
               _buildModernDetailCard(
                 context,
                 'STATUS',
@@ -415,10 +435,22 @@ class _DetailedTransactionScreenState
                 Icons.calendar_today_rounded,
                 AppTheme.getNeutralColor(context),
               ),
+              SizedBox(height: 12.h),
+              _isEditing
+                  ? _buildEditableDescriptionCard(isDark)
+                  : widget.transaction.description != null &&
+                        widget.transaction.description!.isNotEmpty
+                  ? _buildModernDetailCard(
+                      context,
+                      'DESCRIPTION',
+                      widget.transaction.description!,
+                      Icons.description_rounded,
+                      AppTheme.getNeutralColor(context),
+                    )
+                  : const SizedBox.shrink(),
 
               SizedBox(height: 32.h),
 
-              // ── Raw Message Section ──
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -437,11 +469,11 @@ class _DetailedTransactionScreenState
                         SizedBox(width: 8.w),
                         Text(
                           'RAW SMS MESSAGE',
+
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.2,
-
                             color: AppTheme.getNeutralColor(context),
                           ),
                         ),
@@ -533,7 +565,7 @@ class _DetailedTransactionScreenState
               ],
             ),
           ),
-          ?trailing,
+          if (trailing != null) trailing,
         ],
       ),
     );
@@ -586,6 +618,47 @@ class _DetailedTransactionScreenState
                 setState(() => _selectedMethod = val);
               }
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableDescriptionCard(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withAlpha(100),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'DESCRIPTION',
+            style: TextStyle(
+              fontSize: 11.sp,
+              color: AppTheme.getNeutralColor(context),
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          TextFormField(
+            controller: _descriptionController,
+            maxLines: 2,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: _inputDecoration(
+              isDark,
+            ).copyWith(hintText: 'Add a note...'),
           ),
         ],
       ),

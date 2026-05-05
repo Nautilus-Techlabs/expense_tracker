@@ -19,8 +19,8 @@ class DashboardScreen extends ConsumerWidget {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
 
-    // Limit to latest 10 transactions
-    final latestTransactions = state.transactions.take(10).toList();
+    // Use global unfiltered transactions for dashboard
+    final latestTransactions = state.latestTransactions;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -34,9 +34,9 @@ class DashboardScreen extends ConsumerWidget {
             SliverPersistentHeader(
               pinned: true,
               delegate: DashboardHeaderDelegate(
-                balance: state.balance,
-                income: state.totalCredit,
-                spends: state.totalDebit,
+                balance: state.globalBalance,
+                income: state.totalGlobalCredit,
+                spends: state.totalGlobalDebit,
                 onSync: controller.syncTransactions,
                 onSort: controller.setSort,
                 currentSort: state.currentSort,
@@ -60,12 +60,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
 
             // 3. Latest 10 Transactions
-            if (state.isLoading && state.transactions.isEmpty)
+            if (state.isLoading && state.allTransactions.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
                 child: ShimmerLoading(),
               )
-            else if (state.transactions.isEmpty)
+            else if (state.allTransactions.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: EmptyStateView(onRetry: controller.syncTransactions),

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 void main() {
   final sms = "Rs.1 debited by ECOM Txn using your card XX0787 at WWW OLACABS COM on 14JUN2019 15:56:42.BAL-Rs. 1877.12.Call 18004251199, if not done by you-Federal Bank";

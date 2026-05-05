@@ -1,4 +1,3 @@
-import 'dart:io';
 
 void main() {
   final sms = "INR 100.00 sent from your Account XXXXXXXX5721 Mode: UPI ö To: paytmqr281005050101pl59klibw 7ux@paytm Date: September 21, 2022 Not done by you? Call 080-47485490-Federal Bank";

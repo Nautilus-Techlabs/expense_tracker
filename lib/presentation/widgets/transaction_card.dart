@@ -150,6 +150,10 @@ class _TransactionCardState extends State<TransactionCard> {
   }
 
   String _getTitle() {
+    if (widget.transaction.description != null &&
+        widget.transaction.description!.isNotEmpty) {
+      return widget.transaction.description!;
+    }
     final method = widget.transaction.method;
     final isDebit = widget.transaction.type == TransactionType.debit;
     final typeStr = isDebit ? 'Debit' : 'Credit';

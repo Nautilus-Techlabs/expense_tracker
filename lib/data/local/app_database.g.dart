@@ -153,6 +153,17 @@ class $TransactionsTable extends Transactions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -168,6 +179,7 @@ class $TransactionsTable extends Transactions
     templateName,
     isVerified,
     isSample,
+    description,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -258,6 +270,15 @@ class $TransactionsTable extends Transactions
         isSample.isAcceptableOrUnknown(data['is_sample']!, _isSampleMeta),
       );
     }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -323,6 +344,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.bool,
         data['${effectivePrefix}is_sample'],
       )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
     );
   }
 
@@ -352,6 +377,7 @@ class TransactionEntry extends DataClass
   final String? templateName;
   final bool isVerified;
   final bool isSample;
+  final String? description;
   const TransactionEntry({
     required this.id,
     required this.amount,
@@ -366,6 +392,7 @@ class TransactionEntry extends DataClass
     this.templateName,
     required this.isVerified,
     required this.isSample,
+    this.description,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -399,6 +426,9 @@ class TransactionEntry extends DataClass
     }
     map['is_verified'] = Variable<bool>(isVerified);
     map['is_sample'] = Variable<bool>(isSample);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
     return map;
   }
 
@@ -425,6 +455,9 @@ class TransactionEntry extends DataClass
           : Value(templateName),
       isVerified: Value(isVerified),
       isSample: Value(isSample),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
     );
   }
 
@@ -451,6 +484,7 @@ class TransactionEntry extends DataClass
       templateName: serializer.fromJson<String?>(json['templateName']),
       isVerified: serializer.fromJson<bool>(json['isVerified']),
       isSample: serializer.fromJson<bool>(json['isSample']),
+      description: serializer.fromJson<String?>(json['description']),
     );
   }
   @override
@@ -474,6 +508,7 @@ class TransactionEntry extends DataClass
       'templateName': serializer.toJson<String?>(templateName),
       'isVerified': serializer.toJson<bool>(isVerified),
       'isSample': serializer.toJson<bool>(isSample),
+      'description': serializer.toJson<String?>(description),
     };
   }
 
@@ -491,6 +526,7 @@ class TransactionEntry extends DataClass
     Value<String?> templateName = const Value.absent(),
     bool? isVerified,
     bool? isSample,
+    Value<String?> description = const Value.absent(),
   }) => TransactionEntry(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -507,6 +543,7 @@ class TransactionEntry extends DataClass
     templateName: templateName.present ? templateName.value : this.templateName,
     isVerified: isVerified ?? this.isVerified,
     isSample: isSample ?? this.isSample,
+    description: description.present ? description.value : this.description,
   );
   TransactionEntry copyWithCompanion(TransactionsCompanion data) {
     return TransactionEntry(
@@ -529,6 +566,9 @@ class TransactionEntry extends DataClass
           ? data.isVerified.value
           : this.isVerified,
       isSample: data.isSample.present ? data.isSample.value : this.isSample,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
     );
   }
 
@@ -547,7 +587,8 @@ class TransactionEntry extends DataClass
           ..write('bankName: $bankName, ')
           ..write('templateName: $templateName, ')
           ..write('isVerified: $isVerified, ')
-          ..write('isSample: $isSample')
+          ..write('isSample: $isSample, ')
+          ..write('description: $description')
           ..write(')'))
         .toString();
   }
@@ -567,6 +608,7 @@ class TransactionEntry extends DataClass
     templateName,
     isVerified,
     isSample,
+    description,
   );
   @override
   bool operator ==(Object other) =>
@@ -584,7 +626,8 @@ class TransactionEntry extends DataClass
           other.bankName == this.bankName &&
           other.templateName == this.templateName &&
           other.isVerified == this.isVerified &&
-          other.isSample == this.isSample);
+          other.isSample == this.isSample &&
+          other.description == this.description);
 }
 
 class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
@@ -601,6 +644,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
   final Value<String?> templateName;
   final Value<bool> isVerified;
   final Value<bool> isSample;
+  final Value<String?> description;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -615,6 +659,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     this.templateName = const Value.absent(),
     this.isVerified = const Value.absent(),
     this.isSample = const Value.absent(),
+    this.description = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -630,6 +675,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     this.templateName = const Value.absent(),
     this.isVerified = const Value.absent(),
     this.isSample = const Value.absent(),
+    this.description = const Value.absent(),
   }) : amount = Value(amount),
        type = Value(type),
        date = Value(date),
@@ -650,6 +696,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Expression<String>? templateName,
     Expression<bool>? isVerified,
     Expression<bool>? isSample,
+    Expression<String>? description,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -665,6 +712,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       if (templateName != null) 'template_name': templateName,
       if (isVerified != null) 'is_verified': isVerified,
       if (isSample != null) 'is_sample': isSample,
+      if (description != null) 'description': description,
     });
   }
 
@@ -682,6 +730,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Value<String?>? templateName,
     Value<bool>? isVerified,
     Value<bool>? isSample,
+    Value<String?>? description,
   }) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -697,6 +746,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       templateName: templateName ?? this.templateName,
       isVerified: isVerified ?? this.isVerified,
       isSample: isSample ?? this.isSample,
+      description: description ?? this.description,
     );
   }
 
@@ -746,6 +796,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     if (isSample.present) {
       map['is_sample'] = Variable<bool>(isSample.value);
     }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
     return map;
   }
 
@@ -764,7 +817,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
           ..write('bankName: $bankName, ')
           ..write('templateName: $templateName, ')
           ..write('isVerified: $isVerified, ')
-          ..write('isSample: $isSample')
+          ..write('isSample: $isSample, ')
+          ..write('description: $description')
           ..write(')'))
         .toString();
   }
@@ -1092,6 +1146,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> templateName,
       Value<bool> isVerified,
       Value<bool> isSample,
+      Value<String?> description,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -1108,6 +1163,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> templateName,
       Value<bool> isVerified,
       Value<bool> isSample,
+      Value<String?> description,
     });
 
 class $$TransactionsTableFilterComposer
@@ -1185,6 +1241,11 @@ class $$TransactionsTableFilterComposer
     column: $table.isSample,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$TransactionsTableOrderingComposer
@@ -1260,6 +1321,11 @@ class $$TransactionsTableOrderingComposer
     column: $table.isSample,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -1315,6 +1381,11 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<bool> get isSample =>
       $composableBuilder(column: $table.isSample, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
 }
 
 class $$TransactionsTableTableManager
@@ -1361,6 +1432,7 @@ class $$TransactionsTableTableManager
                 Value<String?> templateName = const Value.absent(),
                 Value<bool> isVerified = const Value.absent(),
                 Value<bool> isSample = const Value.absent(),
+                Value<String?> description = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -1375,6 +1447,7 @@ class $$TransactionsTableTableManager
                 templateName: templateName,
                 isVerified: isVerified,
                 isSample: isSample,
+                description: description,
               ),
           createCompanionCallback:
               ({
@@ -1391,6 +1464,7 @@ class $$TransactionsTableTableManager
                 Value<String?> templateName = const Value.absent(),
                 Value<bool> isVerified = const Value.absent(),
                 Value<bool> isSample = const Value.absent(),
+                Value<String?> description = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -1405,6 +1479,7 @@ class $$TransactionsTableTableManager
                 templateName: templateName,
                 isVerified: isVerified,
                 isSample: isSample,
+                description: description,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

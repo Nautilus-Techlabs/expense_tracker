@@ -3401,6 +3401,16 @@
             ],
             "templates": [
                 {
+                    "name": "Kotak Sent Rs From Account To",
+                    "pattern": "Sent\\s+(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+([Xx*\\d]+)\\s+to\\s+([^\\n.]+?)\\s+on\\s+(\\d{2}/\\d{2}/\\d{4})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "upi",
+                    "priority": 1
+                },
+                {
                     "name": "Kotak UPI Slash Format",
                     "pattern": "UPI/(?:Rs\\.?|INR|₹)(\\d[\\d,]+(?:\\.\\d+)?)/A/c\\s+[Xx*]*(\\d{4,})/.*?/To:([^\\s.]+)",
                     "type": "debit",

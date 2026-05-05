@@ -54,12 +54,21 @@ class TransactionController extends Notifier<TransactionState> {
             isVerified: e.isVerified,
             isSample: e.isSample,
             id: e.id,
+            description: e.description,
           );
         }).toList();
+
+        // Auto-switch away from 'unsupported' if no more unverified transactions exist
+        String? currentBank = state.selectedBank;
+        if (currentBank == 'unsupported' &&
+            !allTransactions.any((t) => !t.isVerified)) {
+          currentBank = null;
+        }
 
         state = state.copyWith(
           allTransactions: allTransactions,
           isShowingSampleData: false,
+          selectedBank: () => currentBank,
         );
       }
     } catch (e, stack) {
@@ -89,6 +98,7 @@ class TransactionController extends Notifier<TransactionState> {
           templateName: Value(t.templateName),
           isVerified: Value(t.isVerified),
           isSample: Value(t.isSample),
+          description: Value(t.description),
         );
       }).toList();
 
@@ -114,9 +124,9 @@ class TransactionController extends Notifier<TransactionState> {
 
     try {
       final fetched = await _smsService.syncTransactions(
-        forceAll: !isStartup,
+        forceAll: false,
         db: ref.read(databaseProvider),
-        forceSampleData: true,
+        // forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
@@ -170,6 +180,7 @@ class TransactionController extends Notifier<TransactionState> {
     required PaymentMethod method,
     required String account,
     required String bankName,
+    String? description,
   }) async {
     try {
       final db = ref.read(databaseProvider);
@@ -182,6 +193,7 @@ class TransactionController extends Notifier<TransactionState> {
           account: Value(account),
           bankName: Value(bankName),
           isVerified: const Value(true),
+          description: Value(description),
         ),
       );
 
@@ -201,6 +213,7 @@ class TransactionController extends Notifier<TransactionState> {
     required double amount,
     required PaymentMethod method,
     required bool isVerified,
+    String? description,
   }) async {
     try {
       final db = ref.read(databaseProvider);
@@ -210,6 +223,7 @@ class TransactionController extends Notifier<TransactionState> {
           amount: Value(amount),
           method: Value(method),
           isVerified: Value(isVerified),
+          description: Value(description),
         ),
       );
 

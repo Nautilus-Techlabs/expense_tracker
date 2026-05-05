@@ -31,14 +31,11 @@ class Transaction {
   final String? account;
   final double? availableBalance;
   final String rawSms;
-
-  // Metadata for debugging and confidence
   final String bankName;
   final String? templateName;
   final bool isVerified;
-
-  // New: Persistence & Sample flags
   final bool isSample;
+  final String? description;
 
   Transaction({
     required this.amount,
@@ -54,6 +51,7 @@ class Transaction {
     this.isVerified = true,
     this.isSample = false,
     this.id,
+    this.description,
   });
 
   Map<String, dynamic> toMap() {
@@ -71,6 +69,7 @@ class Transaction {
       'templateName': templateName,
       'isVerified': isVerified,
       'isSample': isSample,
+      'description': description,
     };
   }
 
@@ -91,29 +90,41 @@ class Transaction {
       templateName: map['templateName'],
       isVerified: map['isVerified'] ?? true,
       isSample: map['isSample'] ?? false,
+      description: map['description'],
     );
   }
 
-  Transaction copyWith({bool? isSample, int? id}) {
+  Transaction copyWith({
+    bool? isSample,
+    int? id,
+    String? Function()? merchant,
+    double? amount,
+    PaymentMethod? method,
+    String? account,
+    String? bankName,
+    bool? isVerified,
+    String? Function()? description,
+  }) {
     return Transaction(
       id: id ?? this.id,
-      amount: amount,
+      amount: amount ?? this.amount,
       type: type,
-      merchant: merchant,
+      merchant: merchant != null ? merchant() : this.merchant,
       date: date,
-      method: method,
-      account: account,
+      method: method ?? this.method,
+      account: account ?? this.account,
       availableBalance: availableBalance,
       rawSms: rawSms,
-      bankName: bankName,
+      bankName: bankName ?? this.bankName,
       templateName: templateName,
-      isVerified: isVerified,
+      isVerified: isVerified ?? this.isVerified,
       isSample: isSample ?? this.isSample,
+      description: description != null ? description() : this.description,
     );
   }
 
   @override
   String toString() {
-    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, isSample: $isSample)';
+    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, isSample: $isSample, desc: $description)';
   }
 }

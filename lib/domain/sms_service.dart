@@ -148,7 +148,7 @@ class SmsService {
     _logUnsupported(filteredMessages, transactions, db);
 
     // 7. Update last sync date
-    if (filteredMessages.isNotEmpty && !forceAll) {
+    if (filteredMessages.isNotEmpty) {
       final newestDate = filteredMessages
           .map((m) => m.date ?? DateTime(2000))
           .reduce((a, b) => a.isAfter(b) ? a : b);

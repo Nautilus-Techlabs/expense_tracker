@@ -47,7 +47,18 @@ class TransactionState {
     this.bankLogos = const {},
   });
 
-  // Summary Data
+  // Global (Unfiltered) Summary Data - For Dashboard
+  double get totalGlobalDebit => allTransactions
+      .where((t) => t.type == TransactionType.debit)
+      .fold(0, (sum, t) => sum + t.amount);
+
+  double get totalGlobalCredit => allTransactions
+      .where((t) => t.type == TransactionType.credit)
+      .fold(0, (sum, t) => sum + t.amount);
+
+  double get globalBalance => totalGlobalCredit - totalGlobalDebit;
+
+  // Filtered Summary Data - For Transaction List
   double get totalDebit => filteredTransactions
       .where((t) => t.type == TransactionType.debit)
       .fold(0, (sum, t) => sum + t.amount);
@@ -59,6 +70,13 @@ class TransactionState {
   double get balance => totalCredit - totalDebit;
 
   List<Transaction> get transactions => filteredTransactions;
+
+  // Latest 10 Transactions (Unfiltered) - For Dashboard
+  List<Transaction> get latestTransactions {
+    final list = List<Transaction>.from(allTransactions);
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list.take(10).toList();
+  }
 
   List<Transaction> get filteredTransactions {
     final filtered = allTransactions.where((t) {

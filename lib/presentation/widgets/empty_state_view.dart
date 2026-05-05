@@ -17,71 +17,74 @@ class EmptyStateView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(32.w),
-              decoration: BoxDecoration(
-                color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(13),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isError ? Icons.error_outline_rounded : Icons.account_balance_wallet_outlined,
-                size: 64.sp,
-                color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(128),
-              ),
-            ),
-            UIHelpers.verticalSpace(24),
-            Text(
-              isError ? 'Oops! Something went wrong' : 'Start Tracking',
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            UIHelpers.verticalSpace(12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: AppTheme.getNeutralColor(context),
-                height: 1.5,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            UIHelpers.verticalSpace(32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  UIHelpers.mediumImpact();
-                  onRetry();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  elevation: 0,
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(32.w),
+                decoration: BoxDecoration(
+                  color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(13),
+                  shape: BoxShape.circle,
                 ),
-                child: Text(
-                  isError ? 'Retry Sync' : 'Sync Now',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Icon(
+                  isError ? Icons.error_outline_rounded : Icons.account_balance_wallet_outlined,
+                  size: 64.sp,
+                  color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(128),
                 ),
               ),
-            ),
-          ],
+              UIHelpers.verticalSpace(24),
+              Text(
+                isError ? 'Oops! Something went wrong' : 'Start Tracking',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              UIHelpers.verticalSpace(12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: AppTheme.getNeutralColor(context),
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              UIHelpers.verticalSpace(32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    UIHelpers.mediumImpact();
+                    onRetry();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    isError ? 'Retry Sync' : 'Sync Now',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
