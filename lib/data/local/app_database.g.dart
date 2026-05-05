@@ -96,9 +96,9 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> rawSms = GeneratedColumn<String>(
     'raw_sms',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _bankNameMeta = const VerificationMeta(
@@ -165,6 +165,16 @@ class $TransactionsTable extends Transactions
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<TransactionSource, String>
+  source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('sms'),
+  ).withConverter<TransactionSource>($TransactionsTable.$convertersource);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     amount,
@@ -180,6 +190,7 @@ class $TransactionsTable extends Transactions
     isVerified,
     isSample,
     description,
+    source,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -238,8 +249,6 @@ class $TransactionsTable extends Transactions
         _rawSmsMeta,
         rawSms.isAcceptableOrUnknown(data['raw_sms']!, _rawSmsMeta),
       );
-    } else if (isInserting) {
-      context.missing(_rawSmsMeta);
     }
     if (data.containsKey('bank_name')) {
       context.handle(
@@ -327,7 +336,7 @@ class $TransactionsTable extends Transactions
       rawSms: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}raw_sms'],
-      )!,
+      ),
       bankName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}bank_name'],
@@ -348,6 +357,12 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      source: $TransactionsTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
     );
   }
 
@@ -360,6 +375,10 @@ class $TransactionsTable extends Transactions
       const EnumNameConverter<TransactionType>(TransactionType.values);
   static JsonTypeConverter2<PaymentMethod, String, String> $convertermethod =
       const EnumNameConverter<PaymentMethod>(PaymentMethod.values);
+  static JsonTypeConverter2<TransactionSource, String, String>
+  $convertersource = const EnumNameConverter<TransactionSource>(
+    TransactionSource.values,
+  );
 }
 
 class TransactionEntry extends DataClass
@@ -372,12 +391,13 @@ class TransactionEntry extends DataClass
   final PaymentMethod method;
   final String? account;
   final double? availableBalance;
-  final String rawSms;
+  final String? rawSms;
   final String bankName;
   final String? templateName;
   final bool isVerified;
   final bool isSample;
   final String? description;
+  final TransactionSource source;
   const TransactionEntry({
     required this.id,
     required this.amount,
@@ -387,12 +407,13 @@ class TransactionEntry extends DataClass
     required this.method,
     this.account,
     this.availableBalance,
-    required this.rawSms,
+    this.rawSms,
     required this.bankName,
     this.templateName,
     required this.isVerified,
     required this.isSample,
     this.description,
+    required this.source,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -419,7 +440,9 @@ class TransactionEntry extends DataClass
     if (!nullToAbsent || availableBalance != null) {
       map['available_balance'] = Variable<double>(availableBalance);
     }
-    map['raw_sms'] = Variable<String>(rawSms);
+    if (!nullToAbsent || rawSms != null) {
+      map['raw_sms'] = Variable<String>(rawSms);
+    }
     map['bank_name'] = Variable<String>(bankName);
     if (!nullToAbsent || templateName != null) {
       map['template_name'] = Variable<String>(templateName);
@@ -428,6 +451,11 @@ class TransactionEntry extends DataClass
     map['is_sample'] = Variable<bool>(isSample);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
+    }
+    {
+      map['source'] = Variable<String>(
+        $TransactionsTable.$convertersource.toSql(source),
+      );
     }
     return map;
   }
@@ -448,7 +476,9 @@ class TransactionEntry extends DataClass
       availableBalance: availableBalance == null && nullToAbsent
           ? const Value.absent()
           : Value(availableBalance),
-      rawSms: Value(rawSms),
+      rawSms: rawSms == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawSms),
       bankName: Value(bankName),
       templateName: templateName == null && nullToAbsent
           ? const Value.absent()
@@ -458,6 +488,7 @@ class TransactionEntry extends DataClass
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      source: Value(source),
     );
   }
 
@@ -479,12 +510,15 @@ class TransactionEntry extends DataClass
       ),
       account: serializer.fromJson<String?>(json['account']),
       availableBalance: serializer.fromJson<double?>(json['availableBalance']),
-      rawSms: serializer.fromJson<String>(json['rawSms']),
+      rawSms: serializer.fromJson<String?>(json['rawSms']),
       bankName: serializer.fromJson<String>(json['bankName']),
       templateName: serializer.fromJson<String?>(json['templateName']),
       isVerified: serializer.fromJson<bool>(json['isVerified']),
       isSample: serializer.fromJson<bool>(json['isSample']),
       description: serializer.fromJson<String?>(json['description']),
+      source: $TransactionsTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
     );
   }
   @override
@@ -503,12 +537,15 @@ class TransactionEntry extends DataClass
       ),
       'account': serializer.toJson<String?>(account),
       'availableBalance': serializer.toJson<double?>(availableBalance),
-      'rawSms': serializer.toJson<String>(rawSms),
+      'rawSms': serializer.toJson<String?>(rawSms),
       'bankName': serializer.toJson<String>(bankName),
       'templateName': serializer.toJson<String?>(templateName),
       'isVerified': serializer.toJson<bool>(isVerified),
       'isSample': serializer.toJson<bool>(isSample),
       'description': serializer.toJson<String?>(description),
+      'source': serializer.toJson<String>(
+        $TransactionsTable.$convertersource.toJson(source),
+      ),
     };
   }
 
@@ -521,12 +558,13 @@ class TransactionEntry extends DataClass
     PaymentMethod? method,
     Value<String?> account = const Value.absent(),
     Value<double?> availableBalance = const Value.absent(),
-    String? rawSms,
+    Value<String?> rawSms = const Value.absent(),
     String? bankName,
     Value<String?> templateName = const Value.absent(),
     bool? isVerified,
     bool? isSample,
     Value<String?> description = const Value.absent(),
+    TransactionSource? source,
   }) => TransactionEntry(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -538,12 +576,13 @@ class TransactionEntry extends DataClass
     availableBalance: availableBalance.present
         ? availableBalance.value
         : this.availableBalance,
-    rawSms: rawSms ?? this.rawSms,
+    rawSms: rawSms.present ? rawSms.value : this.rawSms,
     bankName: bankName ?? this.bankName,
     templateName: templateName.present ? templateName.value : this.templateName,
     isVerified: isVerified ?? this.isVerified,
     isSample: isSample ?? this.isSample,
     description: description.present ? description.value : this.description,
+    source: source ?? this.source,
   );
   TransactionEntry copyWithCompanion(TransactionsCompanion data) {
     return TransactionEntry(
@@ -569,6 +608,7 @@ class TransactionEntry extends DataClass
       description: data.description.present
           ? data.description.value
           : this.description,
+      source: data.source.present ? data.source.value : this.source,
     );
   }
 
@@ -588,7 +628,8 @@ class TransactionEntry extends DataClass
           ..write('templateName: $templateName, ')
           ..write('isVerified: $isVerified, ')
           ..write('isSample: $isSample, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('source: $source')
           ..write(')'))
         .toString();
   }
@@ -609,6 +650,7 @@ class TransactionEntry extends DataClass
     isVerified,
     isSample,
     description,
+    source,
   );
   @override
   bool operator ==(Object other) =>
@@ -627,7 +669,8 @@ class TransactionEntry extends DataClass
           other.templateName == this.templateName &&
           other.isVerified == this.isVerified &&
           other.isSample == this.isSample &&
-          other.description == this.description);
+          other.description == this.description &&
+          other.source == this.source);
 }
 
 class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
@@ -639,12 +682,13 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
   final Value<PaymentMethod> method;
   final Value<String?> account;
   final Value<double?> availableBalance;
-  final Value<String> rawSms;
+  final Value<String?> rawSms;
   final Value<String> bankName;
   final Value<String?> templateName;
   final Value<bool> isVerified;
   final Value<bool> isSample;
   final Value<String?> description;
+  final Value<TransactionSource> source;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -660,6 +704,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     this.isVerified = const Value.absent(),
     this.isSample = const Value.absent(),
     this.description = const Value.absent(),
+    this.source = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -670,17 +715,17 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     required PaymentMethod method,
     this.account = const Value.absent(),
     this.availableBalance = const Value.absent(),
-    required String rawSms,
+    this.rawSms = const Value.absent(),
     required String bankName,
     this.templateName = const Value.absent(),
     this.isVerified = const Value.absent(),
     this.isSample = const Value.absent(),
     this.description = const Value.absent(),
+    this.source = const Value.absent(),
   }) : amount = Value(amount),
        type = Value(type),
        date = Value(date),
        method = Value(method),
-       rawSms = Value(rawSms),
        bankName = Value(bankName);
   static Insertable<TransactionEntry> custom({
     Expression<int>? id,
@@ -697,6 +742,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Expression<bool>? isVerified,
     Expression<bool>? isSample,
     Expression<String>? description,
+    Expression<String>? source,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -713,6 +759,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       if (isVerified != null) 'is_verified': isVerified,
       if (isSample != null) 'is_sample': isSample,
       if (description != null) 'description': description,
+      if (source != null) 'source': source,
     });
   }
 
@@ -725,12 +772,13 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Value<PaymentMethod>? method,
     Value<String?>? account,
     Value<double?>? availableBalance,
-    Value<String>? rawSms,
+    Value<String?>? rawSms,
     Value<String>? bankName,
     Value<String?>? templateName,
     Value<bool>? isVerified,
     Value<bool>? isSample,
     Value<String?>? description,
+    Value<TransactionSource>? source,
   }) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -747,6 +795,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       isVerified: isVerified ?? this.isVerified,
       isSample: isSample ?? this.isSample,
       description: description ?? this.description,
+      source: source ?? this.source,
     );
   }
 
@@ -799,6 +848,11 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $TransactionsTable.$convertersource.toSql(source.value),
+      );
+    }
     return map;
   }
 
@@ -818,7 +872,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
           ..write('templateName: $templateName, ')
           ..write('isVerified: $isVerified, ')
           ..write('isSample: $isSample, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('source: $source')
           ..write(')'))
         .toString();
   }
@@ -1141,12 +1196,13 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required PaymentMethod method,
       Value<String?> account,
       Value<double?> availableBalance,
-      required String rawSms,
+      Value<String?> rawSms,
       required String bankName,
       Value<String?> templateName,
       Value<bool> isVerified,
       Value<bool> isSample,
       Value<String?> description,
+      Value<TransactionSource> source,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -1158,12 +1214,13 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<PaymentMethod> method,
       Value<String?> account,
       Value<double?> availableBalance,
-      Value<String> rawSms,
+      Value<String?> rawSms,
       Value<String> bankName,
       Value<String?> templateName,
       Value<bool> isVerified,
       Value<bool> isSample,
       Value<String?> description,
+      Value<TransactionSource> source,
     });
 
 class $$TransactionsTableFilterComposer
@@ -1246,6 +1303,12 @@ class $$TransactionsTableFilterComposer
     column: $table.description,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<TransactionSource, TransactionSource, String>
+  get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 }
 
 class $$TransactionsTableOrderingComposer
@@ -1326,6 +1389,11 @@ class $$TransactionsTableOrderingComposer
     column: $table.description,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -1386,6 +1454,9 @@ class $$TransactionsTableAnnotationComposer
     column: $table.description,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<TransactionSource, String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 }
 
 class $$TransactionsTableTableManager
@@ -1427,12 +1498,13 @@ class $$TransactionsTableTableManager
                 Value<PaymentMethod> method = const Value.absent(),
                 Value<String?> account = const Value.absent(),
                 Value<double?> availableBalance = const Value.absent(),
-                Value<String> rawSms = const Value.absent(),
+                Value<String?> rawSms = const Value.absent(),
                 Value<String> bankName = const Value.absent(),
                 Value<String?> templateName = const Value.absent(),
                 Value<bool> isVerified = const Value.absent(),
                 Value<bool> isSample = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<TransactionSource> source = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -1448,6 +1520,7 @@ class $$TransactionsTableTableManager
                 isVerified: isVerified,
                 isSample: isSample,
                 description: description,
+                source: source,
               ),
           createCompanionCallback:
               ({
@@ -1459,12 +1532,13 @@ class $$TransactionsTableTableManager
                 required PaymentMethod method,
                 Value<String?> account = const Value.absent(),
                 Value<double?> availableBalance = const Value.absent(),
-                required String rawSms,
+                Value<String?> rawSms = const Value.absent(),
                 required String bankName,
                 Value<String?> templateName = const Value.absent(),
                 Value<bool> isVerified = const Value.absent(),
                 Value<bool> isSample = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<TransactionSource> source = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -1480,6 +1554,7 @@ class $$TransactionsTableTableManager
                 isVerified: isVerified,
                 isSample: isSample,
                 description: description,
+                source: source,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

@@ -21,6 +21,14 @@ enum PaymentMethod {
       .firstWhere((e) => e.name == name, orElse: () => unknown);
 }
 
+enum TransactionSource {
+  sms,
+  manual;
+
+  static TransactionSource fromString(String name) => TransactionSource.values
+      .firstWhere((e) => e.name == name, orElse: () => sms);
+}
+
 class Transaction {
   final int? id;
   final double amount;
@@ -30,12 +38,13 @@ class Transaction {
   final PaymentMethod method;
   final String? account;
   final double? availableBalance;
-  final String rawSms;
+  final String? rawSms;
   final String bankName;
   final String? templateName;
   final bool isVerified;
   final bool isSample;
   final String? description;
+  final TransactionSource source;
 
   Transaction({
     required this.amount,
@@ -45,13 +54,14 @@ class Transaction {
     required this.method,
     this.account,
     this.availableBalance,
-    required this.rawSms,
+    this.rawSms,
     required this.bankName,
     this.templateName,
     this.isVerified = true,
     this.isSample = false,
     this.id,
     this.description,
+    this.source = TransactionSource.sms,
   });
 
   Map<String, dynamic> toMap() {
@@ -70,6 +80,7 @@ class Transaction {
       'isVerified': isVerified,
       'isSample': isSample,
       'description': description,
+      'source': source.name,
     };
   }
 
@@ -91,6 +102,7 @@ class Transaction {
       isVerified: map['isVerified'] ?? true,
       isSample: map['isSample'] ?? false,
       description: map['description'],
+      source: TransactionSource.fromString(map['source'] ?? 'sms'),
     );
   }
 
@@ -104,6 +116,7 @@ class Transaction {
     String? bankName,
     bool? isVerified,
     String? Function()? description,
+    TransactionSource? source,
   }) {
     return Transaction(
       id: id ?? this.id,
@@ -120,11 +133,12 @@ class Transaction {
       isVerified: isVerified ?? this.isVerified,
       isSample: isSample ?? this.isSample,
       description: description != null ? description() : this.description,
+      source: source ?? this.source,
     );
   }
 
   @override
   String toString() {
-    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, isSample: $isSample, desc: $description)';
+    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, source: $source, isSample: $isSample, desc: $description)';
   }
 }

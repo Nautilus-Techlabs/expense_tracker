@@ -20,12 +20,14 @@ class Transactions extends Table {
   TextColumn get method => textEnum<PaymentMethod>()();
   TextColumn get account => text().nullable()();
   RealColumn get availableBalance => real().nullable()();
-  TextColumn get rawSms => text().unique()();
+  TextColumn get rawSms => text().nullable().unique()();
   TextColumn get bankName => text()();
   TextColumn get templateName => text().nullable()();
   BoolColumn get isVerified => boolean().withDefault(const Constant(true))();
   BoolColumn get isSample => boolean().withDefault(const Constant(false))();
   TextColumn get description => text().nullable()();
+  TextColumn get source =>
+      textEnum<TransactionSource>().withDefault(const Constant('sms'))();
 }
 
 @DataClassName('SmsLogEntry')
@@ -41,13 +43,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.addColumn(transactions, transactions.description);
+      }
+      if (from < 3) {
+        await m.addColumn(transactions, transactions.source);
+        await m.alterTable(TableMigration(transactions));
       }
     },
   );
@@ -73,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateTransaction(TransactionsCompanion companion) {
     return (update(
       transactions,
-    )..where((t) => t.rawSms.equals(companion.rawSms.value))).write(companion);
+    )..where((t) => t.rawSms.equals(companion.rawSms.value!))).write(companion);
   }
 
   Future<void> deleteSmsLogByBody(String body) {

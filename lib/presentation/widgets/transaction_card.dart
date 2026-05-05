@@ -85,15 +85,47 @@ class _TransactionCardState extends State<TransactionCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           UIHelpers.verticalSpace(4),
-                          Text(
-                            DateFormat(
-                              'dd MMM, yyyy',
-                            ).format(widget.transaction.date),
-                            style: TextStyle(
-                              color: AppTheme.getNeutralColor(context),
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat(
+                                  'dd MMM, yyyy',
+                                ).format(widget.transaction.date),
+                                style: TextStyle(
+                                  color: AppTheme.getNeutralColor(context),
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              if (widget.transaction.source ==
+                                  TransactionSource.manual) ...[
+                                UIHelpers.horizontalSpace(8),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 6.w,
+                                    vertical: 2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4.r),
+                                    border: Border.all(
+                                      color: theme.colorScheme.primary
+                                          .withOpacity(0.2),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'MANUAL',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontSize: 8.sp,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ],
                       ),
@@ -153,6 +185,10 @@ class _TransactionCardState extends State<TransactionCard> {
     if (widget.transaction.description != null &&
         widget.transaction.description!.isNotEmpty) {
       return widget.transaction.description!;
+    }
+    if (widget.transaction.merchant != null &&
+        widget.transaction.merchant!.isNotEmpty) {
+      return widget.transaction.merchant!;
     }
     final method = widget.transaction.method;
     final isDebit = widget.transaction.type == TransactionType.debit;

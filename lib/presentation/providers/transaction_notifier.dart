@@ -55,6 +55,7 @@ class TransactionController extends Notifier<TransactionState> {
             isSample: e.isSample,
             id: e.id,
             description: e.description,
+            source: e.source,
           );
         }).toList();
 
@@ -93,12 +94,13 @@ class TransactionController extends Notifier<TransactionState> {
           method: t.method,
           account: Value(t.account),
           availableBalance: Value(t.availableBalance),
-          rawSms: t.rawSms,
+          rawSms: Value(t.rawSms),
           bankName: t.bankName,
           templateName: Value(t.templateName),
           isVerified: Value(t.isVerified),
           isSample: Value(t.isSample),
           description: Value(t.description),
+          source: Value(t.source),
         );
       }).toList();
 
@@ -231,6 +233,47 @@ class TransactionController extends Notifier<TransactionState> {
     } catch (e, stack) {
       AppLogger.e("Transaction update failed", e, stack);
       state = state.copyWith(errorMessage: () => "Update failed: $e");
+    }
+  }
+
+  Future<void> addManualTransaction({
+    required double amount,
+    required TransactionType type,
+    required DateTime date,
+    required PaymentMethod method,
+    String? bankName,
+    String? merchant,
+    String? account,
+    String? description,
+  }) async {
+    try {
+      final db = ref.read(databaseProvider);
+
+      final companion = TransactionsCompanion.insert(
+        amount: amount,
+        type: type,
+        date: date,
+        method: method,
+        bankName: bankName ?? 'Manual',
+        merchant: Value(merchant),
+        account: Value(account),
+        description: Value(description),
+        source: const Value(TransactionSource.manual),
+        isVerified: const Value(true),
+        rawSms: const Value(null),
+      );
+
+      AppLogger.d("Adding manual transaction: ${bankName ?? 'Manual'} - ₹$amount");
+      await db.into(db.transactions).insert(companion);
+      
+      // Force refresh from storage to ensure UI reflects the change
+      await loadFromStorage();
+    } catch (e, stack) {
+      AppLogger.e("Failed to add manual transaction", e, stack);
+      state = state.copyWith(
+        errorMessage: () => "Failed to add transaction: $e",
+      );
+      rethrow;
     }
   }
 }

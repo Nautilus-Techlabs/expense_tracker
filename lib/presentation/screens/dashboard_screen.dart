@@ -10,6 +10,7 @@ import '../widgets/empty_state_view.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/transaction_ui_components.dart';
+import 'add_transaction_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -88,6 +89,21 @@ class DashboardScreen extends ConsumerWidget {
 
             SliverPadding(padding: EdgeInsets.only(bottom: 100.h)),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.black,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
       ),
     );

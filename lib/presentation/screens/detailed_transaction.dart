@@ -77,10 +77,17 @@ class _DetailedTransactionScreenState
       return;
     }
 
+    if (widget.transaction.rawSms == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot verify a manual transaction')),
+      );
+      return;
+    }
+
     await ref
         .read(transactionProvider.notifier)
         .verifyTransaction(
-          rawSms: widget.transaction.rawSms,
+          rawSms: widget.transaction.rawSms!,
           method: _selectedMethod,
           account: _accountController.text.trim(),
           bankName: _bankController.text.trim(),
@@ -493,7 +500,7 @@ class _DetailedTransactionScreenState
                       ),
                     ),
                     child: Text(
-                      widget.transaction.rawSms,
+                      widget.transaction.rawSms ?? 'Manual Entry (No SMS)',
                       style: TextStyle(
                         fontSize: 13.sp,
                         height: 1.6,

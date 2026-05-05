@@ -1,0 +1,601 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+
+import '../../domain/entities/transaction.dart';
+import '../providers/transaction_notifier.dart';
+import '../widgets/transaction_ui_components.dart';
+
+class AddTransactionScreen extends ConsumerStatefulWidget {
+  const AddTransactionScreen({super.key});
+
+  @override
+  ConsumerState<AddTransactionScreen> createState() => _AddTransactionScreenState();
+}
+
+class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _merchantController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _bankNameController = TextEditingController();
+  final _accountController = TextEditingController();
+
+  DateTime _selectedDate = DateTime.now();
+  TransactionType _selectedType = TransactionType.debit;
+  PaymentMethod _selectedMethod = PaymentMethod.upi;
+  String? _selectedAccountKey;
+
+  Widget _buildAccountChips() {
+    final transactions = ref.watch(transactionProvider).allTransactions;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // Extract unique accounts
+    final seen = <String>{};
+    final accounts = <({String account, String bank})>[];
+
+    for (final t in transactions) {
+      if (t.account != null && t.account!.isNotEmpty) {
+        final key = '${t.account}|${t.bankName}';
+        if (!seen.contains(key)) {
+          seen.add(key);
+          accounts.add((account: t.account!, bank: t.bankName));
+        }
+      }
+    }
+
+    if (accounts.isEmpty) {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: Text(
+          'No existing accounts found. Add manually below.',
+          style: TextStyle(
+            color: Colors.white24,
+            fontSize: 12.sp,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: [
+        ...accounts.map((acc) {
+          final key = '${acc.account}|${acc.bank}';
+          final isSelected = _selectedAccountKey == key;
+
+          return ChoiceChip(
+            label: Text('${acc.account} (${acc.bank})'),
+            selected: isSelected,
+            onSelected: (selected) {
+              setState(() {
+                if (selected) {
+                  _selectedAccountKey = key;
+                  _bankNameController.text = acc.bank;
+                  // Remove 'XX' prefix if present for editing, 
+                  // but keep it if it's the standard format.
+                  // Actually, the user should see what's in the DB.
+                  _accountController.text = acc.account.replaceAll('XX', '');
+                } else {
+                  _selectedAccountKey = null;
+                }
+              });
+            },
+            selectedColor: colorScheme.primary.withOpacity(0.2),
+            backgroundColor: Colors.white.withOpacity(0.05),
+            labelStyle: TextStyle(
+              color: isSelected ? colorScheme.primary : Colors.white60,
+              fontSize: 12.sp,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              side: BorderSide(
+                color: isSelected ? colorScheme.primary : Colors.white12,
+              ),
+            ),
+          );
+        }),
+        // "New" chip
+        ChoiceChip(
+          label: const Text('+ New'),
+          selected: _selectedAccountKey == null,
+          onSelected: (selected) {
+            if (selected) {
+              setState(() {
+                _selectedAccountKey = null;
+                _bankNameController.clear();
+                _accountController.clear();
+              });
+            }
+          },
+          selectedColor: colorScheme.primary.withOpacity(0.2),
+          backgroundColor: Colors.white.withOpacity(0.05),
+          labelStyle: TextStyle(
+            color: _selectedAccountKey == null ? colorScheme.primary : Colors.white60,
+            fontSize: 12.sp,
+            fontWeight: _selectedAccountKey == null ? FontWeight.bold : FontWeight.normal,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            side: BorderSide(
+              color: _selectedAccountKey == null ? colorScheme.primary : Colors.white12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _merchantController.dispose();
+    _descriptionController.dispose();
+    _bankNameController.dispose();
+    _accountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: Theme.of(context).colorScheme.primary,
+                  onPrimary: Colors.black,
+                  surface: const Color(0xFF1A1C1E),
+                  onSurface: Colors.white,
+                ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _selectedDate.hour,
+          _selectedDate.minute,
+        );
+      });
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          picked.hour,
+          picked.minute,
+        );
+      });
+    }
+  }
+
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      ref.read(transactionProvider.notifier).addManualTransaction(
+            amount: double.parse(_amountController.text),
+            type: _selectedType,
+            date: _selectedDate,
+            method: _selectedMethod,
+            bankName: _bankNameController.text.isEmpty ? null : _bankNameController.text,
+            merchant: _merchantController.text.isEmpty ? null : _merchantController.text,
+            account: _accountController.text.isEmpty ? null : _accountController.text,
+            description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+          ).then((_) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Transaction added successfully!'),
+                  backgroundColor: Color(0xFF4DFF88),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              Navigator.pop(context);
+            }
+          });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0C0E11),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Add Transaction',
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24.w),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Amount Input
+              _buildAmountCard(),
+              SizedBox(height: 32.h),
+
+              // Transaction Type Toggle
+              _buildTypeToggle(),
+              SizedBox(height: 24.h),
+
+              // Account Selection
+              _buildInputLabel('Select Account', Icons.account_balance_wallet_rounded),
+              _buildAccountChips(),
+              SizedBox(height: 24.h),
+
+              // Main Fields
+              _buildInputLabel('Merchant / Payee', Icons.storefront_rounded),
+              TextFormField(
+                controller: _merchantController,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('Enter merchant name'),
+              ),
+              SizedBox(height: 20.h),
+
+              _buildInputLabel('Bank Name', Icons.account_balance_rounded),
+              TextFormField(
+                controller: _bankNameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('e.g. HDFC Bank, SBI'),
+                onChanged: (_) => setState(() => _selectedAccountKey = null),
+              ),
+              SizedBox(height: 20.h),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInputLabel('Payment Method', Icons.payments_rounded),
+                        DropdownButtonFormField<PaymentMethod>(
+                          initialValue: _selectedMethod,
+                          dropdownColor: const Color(0xFF1A1C1E),
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration(''),
+                          items: PaymentMethod.values.map((m) {
+                            return DropdownMenuItem(
+                              value: m,
+                              child: Text(m.name.toUpperCase()),
+                            );
+                          }).toList(),
+                          onChanged: (val) => setState(() => _selectedMethod = val!),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInputLabel('Account (Last 4)', Icons.credit_card_rounded),
+                        TextFormField(
+                          controller: _accountController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 4,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('8237').copyWith(counterText: ""),
+                          onChanged: (_) => setState(() => _selectedAccountKey = null),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.h),
+
+              _buildInputLabel('Date & Time', Icons.calendar_today_rounded),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_month_rounded, size: 18.sp, color: colorScheme.primary),
+                            SizedBox(width: 8.w),
+                            Text(
+                              DateFormat('dd MMM, yyyy').format(_selectedDate),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectTime(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.access_time_rounded, size: 18.sp, color: colorScheme.primary),
+                            SizedBox(width: 8.w),
+                            Text(
+                              DateFormat('hh:mm a').format(_selectedDate),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.h),
+
+              _buildInputLabel('Description', Icons.description_rounded),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 3,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('Add a note...'),
+              ),
+              SizedBox(height: 40.h),
+
+              // Submit Button
+              SizedBox(
+                width: double.infinity,
+                height: 56.h,
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Save Transaction',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 40.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAmountCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Amount',
+            style: TextStyle(
+              color: colorScheme.primary.withOpacity(0.7),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '₹',
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 4.w),
+              IntrinsicWidth(
+                child: TextFormField(
+                  controller: _amountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: '0.00',
+                    hintStyle: TextStyle(color: Colors.white24),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  validator: (val) {
+                    if (val == null || val.isEmpty) return 'Required';
+                    if (double.tryParse(val) == null) return 'Invalid';
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeToggle() {
+    return Row(
+      children: [
+        _TypeButton(
+          label: 'Expense',
+          icon: Icons.arrow_outward_rounded,
+          isSelected: _selectedType == TransactionType.debit,
+          color: const Color(0xFFFF4D4D),
+          onTap: () => setState(() => _selectedType = TransactionType.debit),
+        ),
+        SizedBox(width: 12.w),
+        _TypeButton(
+          label: 'Income',
+          icon: Icons.south_west_rounded,
+          isSelected: _selectedType == TransactionType.credit,
+          color: const Color(0xFF4DFF88),
+          onTap: () => setState(() => _selectedType = TransactionType.credit),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputLabel(String label, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
+      child: Row(
+        children: [
+          Icon(icon, size: 14.sp, color: Colors.white54),
+          SizedBox(width: 6.w),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white24),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.05),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+    );
+  }
+}
+
+class _TypeButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TypeButton({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: 14.h),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withOpacity(0.15) : Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isSelected ? color.withOpacity(0.5) : Colors.white.withOpacity(0.1),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18.sp,
+                color: isSelected ? color : Colors.white38,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white38,
+                  fontSize: 14.sp,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
