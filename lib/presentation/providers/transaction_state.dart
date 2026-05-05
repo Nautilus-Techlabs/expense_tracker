@@ -2,6 +2,28 @@ import '../../domain/entities/transaction.dart';
 
 enum TransactionSort { dateDesc, dateAsc, amountDesc, amountAsc }
 
+class BankAccount {
+  final String bankName;
+  final String accountNumber;
+
+  BankAccount({required this.bankName, required this.accountNumber});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BankAccount &&
+          runtimeType == other.runtimeType &&
+          bankName == other.bankName &&
+          accountNumber == other.accountNumber;
+
+  @override
+  int get hashCode => bankName.hashCode ^ accountNumber.hashCode;
+
+  String get displayName =>
+      "$bankName ${accountNumber.isNotEmpty ? '...${accountNumber.replaceAll(RegExp(r'[^0-9]'), '')}' : ''}"
+          .trim();
+}
+
 class TransactionState {
   final List<Transaction> allTransactions;
   final bool isLoading;
@@ -70,6 +92,21 @@ class TransactionState {
     return filtered;
   }
 
+  List<BankAccount> getUniqueAccounts() {
+    final accounts = allTransactions
+        .where((t) => t.isVerified && t.account != null && t.account!.isNotEmpty)
+        .map(
+          (t) => BankAccount(
+            bankName: t.bankName,
+            accountNumber: t.account!,
+          ),
+        )
+        .toSet()
+        .toList()
+      ..sort((a, b) => a.bankName.compareTo(b.bankName));
+    return accounts;
+  }
+
   List<String> getAvailableBanks() {
     final banks =
         allTransactions
@@ -111,7 +148,9 @@ class TransactionState {
       debugInfo: debugInfo ?? this.debugInfo,
       isShowingSampleData: isShowingSampleData ?? this.isShowingSampleData,
       selectedBank: selectedBank != null ? selectedBank() : this.selectedBank,
-      selectedMethod: selectedMethod != null ? selectedMethod() : this.selectedMethod,
+      selectedMethod: selectedMethod != null
+          ? selectedMethod()
+          : this.selectedMethod,
       currentSort: currentSort ?? this.currentSort,
     );
   }

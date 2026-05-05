@@ -24,17 +24,8 @@ class MainScreen extends ConsumerWidget {
     final selectedIndex = ref.watch(navigationIndexProvider);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          IndexedStack(index: selectedIndex, children: _screens),
-          Positioned(
-            left: 24.w,
-            right: 24.w,
-            bottom: 24.h,
-            child: _buildCustomNavBar(context, ref, isDark, selectedIndex),
-          ),
-        ],
-      ),
+      body: IndexedStack(index: selectedIndex, children: _screens),
+      bottomNavigationBar: _buildCustomNavBar(context, ref, isDark, selectedIndex),
     );
   }
 
@@ -45,59 +36,57 @@ class MainScreen extends ConsumerWidget {
     int selectedIndex,
   ) {
     return Container(
-      height: 72.h,
+      height: 80.h + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
         color: isDark
-            ? AppTheme.surfaceDark.withAlpha(230)
-            : Colors.white.withAlpha(230),
-        borderRadius: BorderRadius.circular(30.r),
-        border: Border.all(
-          color: AppTheme.getBorderColor(context).withAlpha(100),
-          width: 1,
+            ? AppTheme.surfaceDark
+            : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppTheme.getBorderColor(context).withAlpha(100),
+            width: 1,
+          ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(isDark ? 80 : 30),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
+            color: Colors.black.withAlpha(isDark ? 100 : 20),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30.r),
-        child: BackdropFilter(
-          filter: ColorFilter.mode(
-            isDark ? Colors.black.withAlpha(20) : Colors.white.withAlpha(20),
-            BlendMode.srcOver,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavBarItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home_rounded,
-                  isSelected: selectedIndex == 0,
-                  onTap: () =>
-                      ref.read(navigationIndexProvider.notifier).state = 0,
-                ),
-                _NavBarItem(
-                  icon: Icons.bar_chart_outlined,
-                  activeIcon: Icons.bar_chart_rounded,
-                  isSelected: selectedIndex == 1,
-                  onTap: () =>
-                      ref.read(navigationIndexProvider.notifier).state = 1,
-                ),
-                _NavBarItem(
-                  icon: Icons.account_balance_wallet_outlined,
-                  activeIcon: Icons.account_balance_wallet_rounded,
-                  isSelected: selectedIndex == 2,
-                  onTap: () =>
-                      ref.read(navigationIndexProvider.notifier).state = 2,
-                ),
-              ],
-            ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavBarItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+                label: 'Home',
+                isSelected: selectedIndex == 0,
+                onTap: () =>
+                    ref.read(navigationIndexProvider.notifier).state = 0,
+              ),
+              _NavBarItem(
+                icon: Icons.bar_chart_outlined,
+                activeIcon: Icons.bar_chart_rounded,
+                label: 'Activity',
+                isSelected: selectedIndex == 1,
+                onTap: () =>
+                    ref.read(navigationIndexProvider.notifier).state = 1,
+              ),
+              _NavBarItem(
+                icon: Icons.account_balance_wallet_outlined,
+                activeIcon: Icons.account_balance_wallet_rounded,
+                label: 'Accounts',
+                isSelected: selectedIndex == 2,
+                onTap: () =>
+                    ref.read(navigationIndexProvider.notifier).state = 2,
+              ),
+            ],
           ),
         ),
       ),
@@ -108,12 +97,14 @@ class MainScreen extends ConsumerWidget {
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
   final IconData activeIcon;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _NavBarItem({
     required this.icon,
     required this.activeIcon,
+    required this.label,
     required this.isSelected,
     required this.onTap,
   });
@@ -132,24 +123,20 @@ class _NavBarItem extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedScale(
-              scale: isSelected ? 1.1 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? activeColor.withAlpha(30)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Icon(
-                  isSelected ? activeIcon : icon,
-                  color: isSelected ? activeColor : inactiveColor,
-                  size: 26.sp,
-                ),
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? activeColor : inactiveColor,
+              size: 24.sp,
+            ),
+            UIHelpers.verticalSpace(4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
           ],

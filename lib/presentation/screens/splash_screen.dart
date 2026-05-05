@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:math';
+
+import 'package:expense_tracker/core/constants/app_router.dart';
+import 'package:expense_tracker/core/theme/app_theme.dart';
+import 'package:expense_tracker/presentation/providers/transaction_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:expense_tracker/core/theme/app_theme.dart';
-import 'package:expense_tracker/presentation/providers/transaction_notifier.dart';
-import 'package:expense_tracker/core/constants/app_router.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -209,7 +210,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       if (isLoading) {
         // Wait until it's not loading anymore (or timeout after 5 more seconds)
         int retries = 0;
-        while (mounted && ref.read(transactionProvider).isLoading && retries < 50) {
+        while (mounted &&
+            ref.read(transactionProvider).isLoading &&
+            retries < 50) {
           await Future.delayed(const Duration(milliseconds: 100));
           retries++;
         }
@@ -282,9 +285,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
-                                      (_ringOpacity.value * 150).toInt(),
-                                    ),
+                                    color:
+                                        (isDark
+                                                ? AppTheme.primaryDark
+                                                : AppTheme.primaryLight)
+                                            .withAlpha(
+                                              (_ringOpacity.value * 150)
+                                                  .toInt(),
+                                            ),
                                     width: 2.5,
                                   ),
                                 ),
@@ -332,12 +340,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       );
                     },
                     child: Text(
-                      'Expense Tracker',
+                      'Expense Lite',
                       style: TextStyle(
                         fontSize: 30.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
-                        color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimaryLight,
+                        color: isDark
+                            ? AppTheme.textPrimaryDark
+                            : AppTheme.textPrimaryLight,
                       ),
                     ),
                   ),
@@ -357,12 +367,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       );
                     },
                     child: Text(
-                      'Track  •  Save  •  Grow',
+                      'Smart SMS tracking, zero bank login',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 3,
-                        color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight,
+                        color: isDark
+                            ? AppTheme.textSecondaryDark
+                            : AppTheme.textSecondaryLight,
                       ),
                     ),
                   ),
@@ -381,12 +393,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       height: 130.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight, // Match logo background
+        color: isDark
+            ? AppTheme.surfaceDark
+            : AppTheme.surfaceLight, // Match logo background
         boxShadow: [
           BoxShadow(
-            color: (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
-              60,
-            ),
+            color: (isDark ? AppTheme.primaryDark : AppTheme.primaryLight)
+                .withAlpha(60),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -428,9 +441,8 @@ class _ParticlePainter extends CustomPainter {
       final currentX = startX + sin(particleProgress * pi * 2) * 15;
       final opacity = (sin(particleProgress * pi) * 0.5).clamp(0.0, 1.0);
 
-      paint.color = (isDark ? AppTheme.primaryDark : AppTheme.primaryLight).withAlpha(
-        (opacity * 100).toInt(),
-      );
+      paint.color = (isDark ? AppTheme.primaryDark : AppTheme.primaryLight)
+          .withAlpha((opacity * 100).toInt());
 
       canvas.drawCircle(Offset(currentX, currentY), radius, paint);
     }

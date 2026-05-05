@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_notifier.dart';
+import '../providers/transaction_state.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/shimmer_loading.dart';
@@ -29,9 +30,10 @@ class DashboardScreen extends ConsumerWidget {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // 1. Summary Header
-            SliverToBoxAdapter(
-              child: DashboardHeader(
+            // 1. Pinned Summary Header
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: DashboardHeaderDelegate(
                 balance: state.balance,
                 income: state.totalCredit,
                 spends: state.totalDebit,
@@ -39,6 +41,7 @@ class DashboardScreen extends ConsumerWidget {
                 onSort: controller.setSort,
                 currentSort: state.currentSort,
                 isLoading: state.isLoading,
+                topPadding: MediaQuery.of(context).padding.top,
               ),
             ),
 
@@ -46,13 +49,13 @@ class DashboardScreen extends ConsumerWidget {
             SliverPadding(
               padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 16.h),
               sliver: SliverToBoxAdapter(
-                  child: SectionHeader(
-                    title: 'Recent Activity',
-                    actionLabel: 'See All',
-                    onActionPressed: () {
-                      ref.read(navigationIndexProvider.notifier).state = 1;
-                    },
-                  ),
+                child: SectionHeader(
+                  title: 'Recent Transactions',
+                  actionLabel: 'See All',
+                  onActionPressed: () {
+                    ref.read(navigationIndexProvider.notifier).state = 1;
+                  },
+                ),
               ),
             ),
 
@@ -88,5 +91,59 @@ class DashboardScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double balance;
+  final double income;
+  final double spends;
+  final VoidCallback onSync;
+  final Function(TransactionSort) onSort;
+  final TransactionSort currentSort;
+  final bool isLoading;
+  final double topPadding;
+
+  DashboardHeaderDelegate({
+    required this.balance,
+    required this.income,
+    required this.spends,
+    required this.onSync,
+    required this.onSort,
+    required this.currentSort,
+    required this.isLoading,
+    required this.topPadding,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return DashboardHeader(
+      balance: balance,
+      income: income,
+      spends: spends,
+      onSync: onSync,
+      onSort: onSort,
+      currentSort: currentSort,
+      isLoading: isLoading,
+    );
+  }
+
+  @override
+  double get maxExtent => 290.h + topPadding;
+
+  @override
+  double get minExtent => 290.h + topPadding;
+
+  @override
+  bool shouldRebuild(covariant DashboardHeaderDelegate oldDelegate) {
+    return oldDelegate.balance != balance ||
+        oldDelegate.income != income ||
+        oldDelegate.spends != spends ||
+        oldDelegate.isLoading != isLoading ||
+        oldDelegate.currentSort != currentSort;
   }
 }

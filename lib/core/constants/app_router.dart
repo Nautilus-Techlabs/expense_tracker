@@ -49,7 +49,14 @@ class AppRouter {
       GoRoute(
         path: bankTransactions,
         builder: (context, state) {
-          final bankName = state.extra as String;
+          final extra = state.extra;
+          if (extra is Map<String, String>) {
+            return BankDetailTransactionsScreen(
+              bankName: extra['bankName']!,
+              accountNumber: extra['accountNumber']!,
+            );
+          }
+          final bankName = extra as String;
           return BankDetailTransactionsScreen(bankName: bankName);
         },
       ),

@@ -20,7 +20,7 @@ class BankAccountsScreen extends ConsumerWidget {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
 
-    final banks = state.getAvailableBanks();
+    final accounts = state.getUniqueAccounts();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -36,9 +36,9 @@ class BankAccountsScreen extends ConsumerWidget {
               child: RefreshIndicator(
                 onRefresh: controller.syncTransactions,
                 color: Theme.of(context).colorScheme.primary,
-                child: banks.isEmpty
+                child: accounts.isEmpty
                     ? _buildEmptyState(context, controller)
-                    : _buildBankList(context, state, banks),
+                    : _buildBankList(context, state, accounts),
               ),
             ),
           ],
@@ -132,16 +132,20 @@ class BankAccountsScreen extends ConsumerWidget {
   Widget _buildBankList(
     BuildContext context,
     TransactionState state,
-    List<String> banks,
+    List<BankAccount> accounts,
   ) {
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h),
       physics: const BouncingScrollPhysics(),
-      itemCount: banks.length,
+      itemCount: accounts.length,
       itemBuilder: (context, index) {
-        final bankName = banks[index];
+        final account = accounts[index];
         final bankTransactions = state.allTransactions
-            .where((t) => t.bankName == bankName)
+            .where(
+              (t) =>
+                  t.bankName == account.bankName &&
+                  t.account == account.accountNumber,
+            )
             .toList();
 
         // Latest transaction to get balance
@@ -159,7 +163,7 @@ class BankAccountsScreen extends ConsumerWidget {
 
         return _buildBankCard(
           context,
-          bankName,
+          account,
           currentBalance,
           lastTransaction,
         );
@@ -169,14 +173,20 @@ class BankAccountsScreen extends ConsumerWidget {
 
   Widget _buildBankCard(
     BuildContext context,
-    String bankName,
+    BankAccount account,
     double? balance,
     var lastTx,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
-      onTap: () => context.push(AppRouter.bankTransactions, extra: bankName),
+      onTap: () => context.push(
+        AppRouter.bankTransactions,
+        extra: {
+          'bankName': account.bankName,
+          'accountNumber': account.accountNumber,
+        },
+      ),
       child: Container(
         margin: EdgeInsets.only(bottom: 16.h),
         padding: EdgeInsets.all(20.w),
@@ -198,14 +208,17 @@ class BankAccountsScreen extends ConsumerWidget {
               children: [
                 Container(
                   padding: EdgeInsets.all(
-                    AppConstants.getBankLogo(bankName).isNotEmpty ? 8.w : 12.w,
+                    AppConstants.getBankLogo(account.bankName).isNotEmpty
+                        ? 8.w
+                        : 12.w,
                   ),
                   decoration: BoxDecoration(
-                    color: AppConstants.getBankLogo(bankName).isNotEmpty
+                    color: AppConstants.getBankLogo(account.bankName).isNotEmpty
                         ? Colors.white
                         : Theme.of(context).colorScheme.primary.withAlpha(26),
                     shape: BoxShape.circle,
-                    boxShadow: AppConstants.getBankLogo(bankName).isNotEmpty
+                    boxShadow:
+                        AppConstants.getBankLogo(account.bankName).isNotEmpty
                         ? [
                             BoxShadow(
                               color: Colors.black.withAlpha(20),
@@ -215,15 +228,15 @@ class BankAccountsScreen extends ConsumerWidget {
                           ]
                         : null,
                   ),
-                  child: AppConstants.getBankLogo(bankName).isNotEmpty
+                  child: AppConstants.getBankLogo(account.bankName).isNotEmpty
                       ? SvgPicture.asset(
-                          AppConstants.getBankLogo(bankName),
+                          AppConstants.getBankLogo(account.bankName),
                           width: 24.sp,
                           height: 24.sp,
                           fit: BoxFit.contain,
                         )
                       : Text(
-                          bankName.substring(0, 1).toUpperCase(),
+                          account.bankName.substring(0, 1).toUpperCase(),
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w900,
@@ -237,11 +250,13 @@ class BankAccountsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        bankName,
+                        account.displayName,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w800,
-                          color: Theme.of(context).textTheme.titleLarge?.color,
+                          color: isDark
+                              ? Colors.white
+                              : AppTheme.textPrimaryLight,
                         ),
                       ),
                       if (lastTx != null)

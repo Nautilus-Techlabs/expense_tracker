@@ -11,10 +11,12 @@ import '../widgets/transaction_card.dart';
 
 class BankDetailTransactionsScreen extends ConsumerStatefulWidget {
   final String bankName;
+  final String? accountNumber;
 
   const BankDetailTransactionsScreen({
     super.key,
     required this.bankName,
+    this.accountNumber,
   });
 
   @override
@@ -32,7 +34,13 @@ class _BankDetailTransactionsScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Filter transactions by bank and method
-    final allBankTransactions = state.allTransactions.where((t) => t.bankName == widget.bankName).toList();
+    final allBankTransactions = state.allTransactions.where((t) {
+      final matchesBank = t.bankName == widget.bankName;
+      if (widget.accountNumber != null) {
+        return matchesBank && t.account == widget.accountNumber;
+      }
+      return matchesBank;
+    }).toList();
     
     // Available methods for this bank
     final availableMethods = allBankTransactions

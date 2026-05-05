@@ -33,14 +33,24 @@ class DashboardHeader extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24.w, topPadding + 12.h, 24.w, 32.h),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.light
-            ? AppTheme.primaryLight
-            : AppTheme.bgDark,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: Theme.of(context).brightness == Brightness.light
+              ? [AppTheme.primaryLight, AppTheme.primaryLight.withAlpha(230)]
+              : [AppTheme.surfaceDark, AppTheme.bgDark],
+        ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40.r),
           bottomRight: Radius.circular(40.r),
         ),
-        boxShadow: [],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
