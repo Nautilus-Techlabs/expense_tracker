@@ -24,57 +24,83 @@ void main() {
   // 2. Initialize factory from JSON definitions
   BankParserFactory.initializeFromDefinitions(definitions);
 
-  print('--- SMS HIERARCHICAL PARSER ACCURACY REPORT (JSON DRIVEN) ---');
+  print('--- SMS HIERARCHICAL PARSER ACCURACY REPORT ---');
   print('Total Samples: ${sampleSms.length}');
 
-  int hierSuccess = 0;
-  int hierMerchants = 0;
-  int hierVerified = 0;
+  final bankStats = <String, Map<String, int>>{};
   int totalTransactions = 0;
-
-  final failedSamples = <String>[];
+  final failedByBank = <String, List<String>>{};
 
   for (var sample in sampleSms) {
+    // Filter out OTPs and Spam
     if (sample.sender == 'SPAM') continue;
     if (sample.body.toLowerCase().contains('otp') ||
-        sample.body.toLowerCase().contains('code')) {
+        sample.body.toLowerCase().contains('code') ||
+        sample.body.toLowerCase().contains('one time password')) {
       continue;
     }
 
     totalTransactions++;
 
-    // Hierarchical Results
+    // Determine the bank name from definitions based on sender
+    String bankName = 'Unknown/Generic';
+    final senderUpper = sample.sender.toUpperCase();
+    for (var def in definitions) {
+      if (def.senderIdentifiers.any((id) => senderUpper.contains(id.toUpperCase()))) {
+        bankName = def.bankName;
+        break;
+      }
+    }
+
+    bankStats.putIfAbsent(bankName, () => {'total': 0, 'success': 0, 'merchant': 0, 'verified': 0});
+    bankStats[bankName]!['total'] = (bankStats[bankName]!['total'] ?? 0) + 1;
+
     final parser = BankParserFactory.getParser(sample.sender);
     final resH = parser.parse(sample.body);
+    
     if (resH != null) {
-      hierSuccess++;
-      if (resH.merchant != null) hierMerchants++;
-      if (resH.isVerified) hierVerified++;
+      bankStats[bankName]!['success'] = (bankStats[bankName]!['success'] ?? 0) + 1;
+      if (resH.merchant != null) bankStats[bankName]!['merchant'] = (bankStats[bankName]!['merchant'] ?? 0) + 1;
+      if (resH.isVerified) bankStats[bankName]!['verified'] = (bankStats[bankName]!['verified'] ?? 0) + 1;
     } else {
-      failedSamples.add('[${sample.sender}] ${sample.body}');
+      failedByBank.putIfAbsent(bankName, () => []);
+      failedByBank[bankName]!.add('[${sample.sender}] ${sample.body}');
     }
   }
 
-  double hp = (hierSuccess / totalTransactions) * 100;
-  double hm = (hierMerchants / hierSuccess) * 100;
-  double hv = (hierVerified / hierSuccess) * 100;
+  // Print Summary Table
+  print('\n| Bank Name | Total | Success | Accuracy | Merchant |');
+  print('|-----------|-------|---------|----------|----------|');
+  
+  final sortedBanks = bankStats.keys.toList()..sort();
+  int overallSuccess = 0;
 
-  print('\n[HIERARCHICAL PARSER PERFORMANCE]');
-  print('Active Coverage: $hierSuccess / $totalTransactions identified.');
-  print('Accuracy Score: ${hp.toStringAsFixed(1)}%');
-  print('Verified Matches: $hierVerified (${hv.toStringAsFixed(1)}%)');
-  print(
-    'Merchant Extraction: ${hm.toStringAsFixed(1)}% ($hierMerchants/$hierSuccess)',
-  );
+  for (var name in sortedBanks) {
+    final stats = bankStats[name]!;
+    final total = stats['total']!;
+    final success = stats['success']!;
+    final merchant = stats['merchant']!;
+    overallSuccess += success;
+    
+    double acc = (success / total) * 100;
+    print('| ${name.padRight(18)} | ${total.toString().padLeft(5)} | ${success.toString().padLeft(7)} | ${acc.toStringAsFixed(1).padLeft(7)}% | ${merchant.toString().padLeft(8)} |');
+  }
+
+  print('\n[OVERALL PERFORMANCE]');
+  print('Total Parsable SMS: $totalTransactions');
+  print('Overall Accuracy: ${((overallSuccess / totalTransactions) * 100).toStringAsFixed(1)}%');
   print('----------------------------------');
 
-  if (failedSamples.isNotEmpty) {
-    print('\nFAILED SAMPLES:');
-    for (var failed in failedSamples.take(20)) {
-      print(failed);
-    }
-    if (failedSamples.length > 20) {
-      print('... and ${failedSamples.length - 20} more.');
+  // Print failures for top banks with issues
+  print('\nDETAILED FAILURES:');
+  for (var name in sortedBanks) {
+    final failures = failedByBank[name];
+    if (failures != null && failures.isNotEmpty) {
+      print('\n--- $name (${failures.length} failures) ---');
+      for (var f in failures.take(3)) {
+        print('  $f');
+      }
+      if (failures.length > 3) print('  ... and ${failures.length - 3} more.');
     }
   }
 }

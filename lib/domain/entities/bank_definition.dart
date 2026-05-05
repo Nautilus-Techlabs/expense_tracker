@@ -68,7 +68,9 @@ class SmSTemplate {
 
   bool matches(String sms) {
     final lower = sms.toLowerCase();
-    if (exclusionKeywords.any((k) => lower.contains(k))) return false;
+    if (exclusionKeywords.any((k) => lower.contains(k))) {
+      return false;
+    }
     return pattern.hasMatch(sms);
   }
 }

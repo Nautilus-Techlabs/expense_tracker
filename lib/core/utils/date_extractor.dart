@@ -3,6 +3,9 @@ class DateExtractor {
     // 2025-06-08 (YYYY-MM-DD)
     RegExp(r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b'),
 
+    // 03.05.2026 (DD.MM.YYYY) - Must have 3 parts to avoid matching amounts like 37.91
+    RegExp(r'\b(\d{1,2})\.(\d{1,2})\.(\d{2,4})\b'),
+
     // 05-Feb-2026 / 05-Feb-26 / 05/02/26 / 05/02
     RegExp(r'\b(\d{1,2})[-/](\d{1,2})(?:[-/](\d{2,4}))?\b'),
 
@@ -21,6 +24,18 @@ class DateExtractor {
     // 05 Feb / 05 April (No Year)
     RegExp(
       r'\b(\d{1,2})[\s-](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\b',
+      caseSensitive: false,
+    ),
+
+    // 11SEP2024 / 14JUN2019
+    RegExp(
+      r'\b(\d{1,2})(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\d{2,4})\b',
+      caseSensitive: false,
+    ),
+
+    // September 21, 2022
+    RegExp(
+      r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\s+(\d{1,2}),\s+(\d{4})\b',
       caseSensitive: false,
     ),
   ];
@@ -43,7 +58,7 @@ class DateExtractor {
     final now = DateTime.now();
     final g1 = match.group(1)!;
     
-    if (g1.length == 4) {
+    if (g1.length == 4 && int.tryParse(g1) != null) {
       // YYYY-MM-DD format
       final year = int.parse(g1);
       final month = int.parse(match.group(2)!);
@@ -51,14 +66,25 @@ class DateExtractor {
       return DateTime(year, month, day);
     }
 
-    final day = int.parse(g1);
+    int day;
     String? monthRaw;
     String? yearRaw;
 
     if (match.groupCount >= 3) {
-      monthRaw = match.group(2);
-      yearRaw = match.group(3);
+      // If the matched string looks like MMMM dd, yyyy, the groups are (Month, Day, Year)
+      final g2 = match.group(2);
+      final isMonthFirst = int.tryParse(g1) == null;
+      if (isMonthFirst) {
+        monthRaw = g1;
+        day = int.parse(g2!);
+        yearRaw = match.group(3);
+      } else {
+        day = int.parse(g1);
+        monthRaw = g2;
+        yearRaw = match.group(3);
+      }
     } else {
+      day = int.parse(g1);
       monthRaw = match.group(2);
     }
 

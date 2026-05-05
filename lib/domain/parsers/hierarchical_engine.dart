@@ -26,7 +26,6 @@ class HierarchicalBankParser extends BankParser {
       ..sort((a, b) => a.priority.compareTo(b.priority));
 
     for (var template in sortedTemplates) {
-      // 🚫 Skip meta templates for main transaction extraction
       if (template.type == TransactionType.meta) continue;
 
       if (!template.matches(sms)) continue;

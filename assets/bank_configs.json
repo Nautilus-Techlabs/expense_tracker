@@ -11,7 +11,7 @@
             "templates": [
                 {
                     "name": "Airtel Credit Pattern",
-                    "pattern": "credited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:credited|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "wallet",
@@ -19,7 +19,7 @@
                 },
                 {
                     "name": "Airtel Debit Pattern",
-                    "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited\\s+from",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|spent|paid)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "wallet",
@@ -27,7 +27,7 @@
                 },
                 {
                     "name": "Airtel Debit With Pattern",
-                    "pattern": "debited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|spent|paid)\\s+(?:with|by|for)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "wallet",
@@ -233,6 +233,24 @@
             ],
             "templates": [
                 {
+                    "name": "AU Payment Credited",
+                    "pattern": "(?:Payment\\s+of\\s+)?(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:was\\s+)?credited[\\s\\S]*?(?:Available\\s+Balance\\s+is\\s+(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "balanceGroup": 2,
+                    "method": "card",
+                    "priority": 1
+                },
+                {
+                    "name": "AU Debited",
+                    "pattern": "(?:has\\s+been\\s+)?(?:Debited|debited)\\s+(?:with|for|of)?\\s*(?:INR|Rs\\.?|₹|INF)?\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Available\\s+Balance|Avl\\s+Bal|Bal|bal)[\\s\\S]*?(?:INR|Rs\\.?|₹|INF)?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "balanceGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
                     "name": "AU Credited Pattern",
                     "pattern": "Credited\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+to",
                     "type": "credit",
@@ -242,7 +260,15 @@
                 },
                 {
                     "name": "AU Debited Pattern",
-                    "pattern": "Debited\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+from",
+                    "pattern": "(?:Debited|debited|withdrawn|spent|paid|withdrawn|withdrawing)\\s+(?:with|for|of)?\\s*(?:INR|Rs\\.?|₹|INF)?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 2
+                },
+                {
+                    "name": "AU Amount First Debit",
+                    "pattern": "(?:INR|Rs\\.?|₹|INF)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -342,12 +368,19 @@
                 },
                 {
                     "name": "AU Universal Safety Net",
-                    "pattern": "(?:credited|debited|spent|withdrawn).*?INR\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A\\/c|Card)?\\s*([\\dX*]+)?",
+                    "pattern": "(?:credited|debited|spent|withdrawn|received|paid)\\s*(?:with|for|of)?\\s*(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
                     "type": "unknown",
                     "amountGroup": 1,
-                    "accountGroup": 2,
                     "method": "unknown",
                     "priority": 50
+                },
+                {
+                    "name": "AU Universal Safety Net Amount First",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s*(?:is\\s+)?(?:debited|credited|spent|withdrawn|received|paid)",
+                    "type": "unknown",
+                    "amountGroup": 1,
+                    "method": "unknown",
+                    "priority": 51
                 }
             ]
         },
@@ -375,17 +408,34 @@
             "templates": [
                 {
                     "name": "Axis Card Spent",
-                    "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\s+using|\\.)\\s+(?:Axis\\s+Bank\\s+)?(?:Card|A/c)\\s+(?:ending|XX)?\\s*([\\dX*]+)",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:spent|debited|paid)\\s+at\\s+([^\\.\\n;]+?)(?:\\s+on|\\s+using|\\.|\\s+at)\\s+(?:Axis\\s+Bank\\s+)?(?:Card|A/c|Acct)?\\s*(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "merchantGroup": 2,
                     "accountGroup": 3,
                     "method": "card",
-                    "priority": 3
+                    "priority": 1
+                },
+                {
+                    "name": "Axis Bill Payment",
+                    "pattern": "(?:payment|Payment)\\s+of\\s+.*?bill\\s+([\\dX*]+)\\s+for\\s+(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+has\\s+been\\s+processed",
+                    "type": "debit",
+                    "amountGroup": 2,
+                    "accountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "Axis Balance Inquiry",
+                    "pattern": "(?:Balance|bal|Bal)\\s+in\\s+.*?a/c\\s+([\\dX*]+).*?is\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "meta",
+                    "accountGroup": 1,
+                    "balanceGroup": 2,
+                    "priority": 1
                 },
                 {
                     "name": "Axis UPI Debit",
-                    "pattern": "(?:Debit\\s+)?(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited\\s+from\\s+)?.*?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+).*?(?:UPI/|UPI Ref:\\s*|for\\s+)([^\\s\\.;]+)",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn|to)\\s+(?:from|to|for)?\\s*(?:your|Axis)?\\s*(?:A/c|Acct|Card)?\\s*(?:no\\.\\s+)?(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+).*?(?:UPI/|UPI Ref:\\s*|for\\s+)([^\\s\\.;]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -394,21 +444,56 @@
                     "priority": 2
                 },
                 {
+                    "name": "Axis Account First Debit",
+                    "pattern": "(?:Axis\\s+Bank\\s+)?(?:A/c|Card|Acct)\\s*(?:no\\.\\s+)?(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+).*?(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn|to|wdl)",
+                    "type": "debit",
+                    "amountGroup": 2,
+                    "accountGroup": 1,
+                    "method": "unknown",
+                    "priority": 3
+                },
+                {
                     "name": "Axis General Debit",
-                    "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:your\\s+)?(?:Axis\\s+Bank\\s+)?A/c\\s+(?:no\\.\\s+)?(?:ending\\s+)?([\\dX*]+)",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn|wdl|to).*?(?:from|for|to)?\\s*(?:your\\s+)?(?:Axis\\s+Bank\\s+)?(?:A/c|Card|Acct)?\\s*(?:no\\.\\s+)?(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "unknown",
-                    "priority": 10
+                    "priority": 4
+                },
+                {
+                    "name": "Axis General Credit",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|has\\s+been\\s+)?(?:credited|received|deposited|credit|Credit).*?(?:to|in)?\\s*(?:your\\s+)?(?:Axis\\s+Bank\\s+)?(?:A/c|Card|Acct)?\\s*(?:no\\.\\s+)?(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 5
+                },
+                {
+                    "name": "Axis Account First Credit",
+                    "pattern": "(?:Axis\\s+Bank\\s+)?(?:A/c|Card|Acct)\\s*(?:no\\.\\s+)?(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+).*?(?:is\\s+|has\\s+been\\s+)?(?:credited|received|deposited|credit|Credit).*?(?:with|of)?\\s*(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?\\b)",
+                    "type": "credit",
+                    "amountGroup": 2,
+                    "accountGroup": 1,
+                    "method": "unknown",
+                    "priority": 6
+                },
+                {
+                    "name": "Axis Shorthand Credit",
+                    "pattern": "(?:credit|Credit)\\s+(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:to\\s+)?(?:A/c|Card|Acct)?\\s*(?:ending|XX|\\*\\*|ending\\s+in)?\\s*([\\dX*]+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 7
                 },
                 {
                     "name": "Axis Universal Safety-Net",
-                    "pattern": "(?:debited|spent|credited|withdrawn|received|A/c|Acct).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
-                    "type": "debit",
+                    "pattern": "(?:debited|spent|credited|withdrawn|received|paid|credit|debit)\\s+(?:for|with|of)?\\s*(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
+                    "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,
-                    "method": "unknown",
                     "priority": 25
                 }
             ]
@@ -444,7 +529,7 @@
             "templates": [
                 {
                     "name": "BOB ATM Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+from\\s+(?:A/c|a/c)\\s+[\\.\\*X]*(\\d+)\\s+at\\s+ATM",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:withdrawn|spent|debited)\\s+from\\s+(?:A/c|a/c)\\s+[\\.\\*X]*(\\d+)\\s+at\\s+ATM",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -463,7 +548,7 @@
                 },
                 {
                     "name": "BOB Debited and Trf No",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+(?:a/c|A/c)\\s+[Xx\\.\\*]*(\\d+)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent|paid)\\s+from\\s+(?:a/c|A/c)\\s+[Xx\\.\\*]*(\\d+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -509,7 +594,7 @@
             "templates": [
                 {
                     "name": "BOI Debit/Credit Rs Pattern",
-                    "pattern": "Rs\\.?\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)\\s+(?:debited|credited)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*(\\d+(?:,\\d{3})*(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|credited|withdrawn|spent|paid|received|deposited)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "method": "bank",
@@ -746,7 +831,7 @@
                 },
                 {
                     "name": "Canara Amount First Debited",
-                    "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?debited",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent|paid)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -754,7 +839,7 @@
                 },
                 {
                     "name": "Canara Amount First Credited",
-                    "pattern": "(?:INR|Rs\\.?)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?credited",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|received|deposited)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1344,7 +1429,7 @@
                 },
                 {
                     "name": "Federal INR Debited",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+debited",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|spent|paid|withdrawn)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1352,7 +1437,7 @@
                 },
                 {
                     "name": "Federal INR Credited",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+credited",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|received|deposited)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1360,7 +1445,7 @@
                 },
                 {
                     "name": "Federal UPI Debit",
-                    "pattern": "(?:Rs|INR)\\s+([0-9,]+(?:\\.\\d{2})?)\\s+debited",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|spent|paid)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "upi",
@@ -1487,7 +1572,7 @@
             "templates": [
                 {
                     "name": "HDFC Amount First Spent",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+spent\\s+on\\s+HDFC\\s+Bank\\s+(?:Credit\\s+)?Card\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:spent|debited|paid)\\s+(?:on|at|using)?\\s*(?:HDFC\\s+Bank\\s+)?(?:Credit\\s+)?(?:Card|A/c)\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -1497,44 +1582,27 @@
                 },
                 {
                     "name": "HDFC Amount First Debited",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+HDFC\\s+Bank\\s+A/c\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn|deducted)\\s+(?:from|on|at)?\\s*(?:your|HDFC\\s+Bank)?\\s*(?:A/c|Acct|Card)?\\s*[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "merchantGroup": 3,
                     "method": "bank",
-                    "priority": 0
-                },
-                {
-                    "name": "HDFC Amount First Received",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+received\\s+in\\s+HDFC\\s+Bank\\s+A/c\\s+[Xx*]*(\\d+)",
-                    "type": "credit",
-                    "amountGroup": 1,
-                    "accountGroup": 2,
-                    "method": "bank",
-                    "priority": 0
+                    "priority": 1
                 },
                 {
                     "name": "HDFC Card Spent Pattern",
-                    "pattern": "Spent\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+From\\s+HDFC\\s+Bank\\s+Card\\s+[Xx*]*(\\d+)\\s+At\\s+([^\\n]+?)\\s+On",
+                    "pattern": "(?:Spent|Txn|Paid)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:From|On|Using)\\s+(?:HDFC\\s+Bank\\s+)?(?:Card|A/c|Acct)\\s+[Xx*]*(\\d+)(?:\\s+At|at|to)\\s+([^\\n]+?)(?:\\s+On|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "merchantGroup": 3,
                     "method": "card",
-                    "priority": 1
-                },
-                {
-                    "name": "HDFC Generic Debited",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "HDFC Sent Money",
-                    "pattern": "Sent\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+From\\s+HDFC",
+                    "name": "HDFC Generic Debited",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:debited|spent|paid|withdrawn)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1542,27 +1610,38 @@
                 },
                 {
                     "name": "HDFC Credit Received",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+credited",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:credited|received|deposited|paid\\s+to)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 4
                 },
                 {
-                    "name": "HDFC Deposited",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+deposited",
+                    "name": "HDFC Amount First Credit",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:credited|received|deposited|received\\s+in)\\s+(?:to|in)?\\s*(?:your|HDFC\\s+Bank)?\\s*(?:A/c|Acct|Card)?\\s*[Xx*]*(\\d+)",
                     "type": "credit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
                     "priority": 5
                 },
                 {
                     "name": "HDFC ATM Withdrawal",
-                    "pattern": "withdrawn.*?At\\s+([^\\n]+?)\\s+On",
+                    "pattern": "(?:withdrawn|withdrawing)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?via\\s+(?:Debit\\s+Card)?\\s*[Xx*]*(\\d+).*?(?:At|at)\\s+([^\\n]+?)(?:\\s+on|\\.|$)",
                     "type": "debit",
-                    "merchantGroup": 1,
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
                     "method": "atm",
                     "priority": 6
+                },
+                {
+                    "name": "HDFC Universal Safety Net",
+                    "pattern": "(?:debited|spent|credited|received|deposited|withdrawn).*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|card|Acct|ending)\\s*([Xx*\\d]+)",
+                    "type": "unknown",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "priority": 50
                 },
                 {
                     "name": "HDFC UPI VPA Credit",
@@ -1708,7 +1787,7 @@
                 },
                 {
                     "name": "HSBC Paid/Debited Pattern",
-                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:paid|debited|spent)",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:paid|debited|spent|withdrawn)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1732,7 +1811,7 @@
                 },
                 {
                     "name": "HSBC Debited By Amount",
-                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:has\\s+been\\s+)?(?:debited|paid|spent)(?:\\s+(?:from|by|of))?",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:has\\s+been\\s+)?(?:debited|paid|spent|withdrawn)(?:\\s+(?:from|by|of))?",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1919,7 +1998,7 @@
                 },
                 {
                     "name": "ICICI Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+from\\s+(?:A/c|Acct)\\s+([\\dX*]+)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:withdrawn|debited)\\s+from\\s+(?:A/c|Acct)\\s+([\\dX*]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -1964,7 +2043,7 @@
             "templates": [
                 {
                     "name": "IDBI Amount First",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s*(?:has\\s+been\\s+|is\\s+|was\\s+)?(?:debited|credited|spent|withdrawn|paid)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s*(?:has\\s+been\\s+|is\\s+|was\\s+)?(?:debited|credited|spent|withdrawn|paid|received|deposited)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1972,7 +2051,7 @@
                 },
                 {
                     "name": "IDBI Debit With",
-                    "pattern": "debited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|spent|paid)\\s+(?:with|for|by|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -1988,7 +2067,7 @@
                 },
                 {
                     "name": "IDBI Credit With",
-                    "pattern": "credited\\s+with\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:credited|received|deposited)\\s+(?:with|for|by|of)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -2081,9 +2160,36 @@
             "bankName": "IDFC First Bank",
             "senderIdentifiers": [
                 "IDFCBK", "IDFCFB", "IDFC", "IDFCCM", "IDFCFZ",
-                "IDFCIT", "IDFCTS", "IDFCZ", "IDFSIT"
+                "IDFCIT", "IDFCTS", "IDFCZ", "IDFSIT",
+                "IDFC",
+                "IDFCPG",
+                "IDFCBN",
+                "IDFCFT"
             ],
             "templates": [
+                {
+                    "name": "IDFC Debit",
+                    "pattern": "(?:INR|Rs\\.?|USD|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:spent|debited|paid|toll)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "IDFC Credit",
+                    "pattern": "(?:Credit|credited).*?(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "IDFC Universal",
+                    "pattern": "(?:debited|credited|spent|withdrawn|received|paid)[\\s\\S]*?(?:Rs\\.?|INR|₹|USD)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+                    "type": "unknown",
+                    "amountGroup": 1,
+                    "priority": 50
+                },
                 {
                     "name": "IDFC Amount First Debit",
                     "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|spent)",
@@ -2455,9 +2561,33 @@
             "bankName": "IndusInd Bank",
             "senderIdentifiers": [
                 "INDUSB", "INDUSIND", "INDUS", "IIBTRX", "INDUSA",
-                "INDUSO", "INDSIN", "INDUSIN", "INDUSBNK"
+                "INDUSO", "INDSIN", "INDUSIN", "INDUSBNK",
+                "INDUSI", "INDSB", "INDBNK"
             ],
             "templates": [
+                {
+                    "name": "IndusInd Debit",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|spent|paid|withdrawn)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "IndusInd Credit",
+                    "pattern": "(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:credited|received|deposited)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "IndusInd Universal",
+                    "pattern": "(?:debited|credited|spent|withdrawn|received|paid)[\\s\\S]*?(?:Rs\\.?|INR|₹|USD)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+                    "type": "unknown",
+                    "amountGroup": 1,
+                    "priority": 50
+                },
                 {
                     "name": "IndusInd Amount First Debit",
                     "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s*(?:has\\s+been\\s+|is\\s+|was\\s+)?(?:debited|spent|withdrawn|paid|purchase)",
@@ -3016,7 +3146,7 @@
                 },
                 {
                     "name": "KBL Amount Debited From",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|spent|paid|withdrawn)\\s+from\\s+A/c\\s+[Xx*]*(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3061,7 +3191,7 @@
                 },
                 {
                     "name": "KBL Generic Debit Fallback",
-                    "pattern": "(?:debited|spent|withdrawn).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "pattern": "(?:debited|spent|withdrawn|paid).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "unknown",
@@ -3251,7 +3381,7 @@
                 },
                 {
                     "name": "Kotak General Debit",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+)?debited\\s+from\\s+(?:your\\s+)?(?:Kotak\\s+)?A/c\\s+([\\dX*]+)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:has\\s+been\\s+|is\\s+)?(?:debited|spent|paid|withdrawn)\\s+from\\s+(?:your\\s+)?(?:Kotak\\s+)?A/c\\s+([\\dX*]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3519,7 +3649,7 @@
                 },
                 {
                     "name": "SBI UPI Debit",
-                    "pattern": "(?:UPI\\s+)?(?:has\\s+been\\s+)?debited\\s+with\\s+(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+(?:your\\s+)?A/C\\s+([\\dX*]+)",
+                    "pattern": "(?:UPI\\s+)?(?:has\\s+been\\s+)?(?:debited|spent|paid)\\s+(?:with|by|for)?\\s*(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+from\\s+(?:your\\s+)?A/C\\s+([\\dX*]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3528,7 +3658,7 @@
                 },
                 {
                     "name": "SBI ATM Withdrawal",
-                    "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d+)?)\\s+withdrawn\\s+(?:from\\s+)?(?:Acct|a/c|\\s)\\s*([\\dX*]+)\\s+(?:via\\s+)?ATM",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:withdrawn|debited)\\s+(?:from\\s+)?(?:Acct|a/c|\\s)\\s*([\\dX*]+)\\s+(?:via\\s+)?ATM",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3865,6 +3995,26 @@
             ],
             "templates": [
                 {
+                    "name": "UCO Debited",
+                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Debited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Avl\\s+Bal[^0-9]*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "balanceGroup": 3,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "UCO Credited",
+                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Credited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Avl\\s+Bal[^0-9]*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "balanceGroup": 3,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
                     "name": "UCO Amount First Debit",
                     "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|withdrawn)",
                     "type": "debit",
@@ -3992,7 +4142,7 @@
             "templates": [
                 {
                     "name": "Union Bank Amount First Debit",
-                    "pattern": "(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|withdrawn|paid|spent|deducted|transfer)",
+                    "pattern": "(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|withdrawn|paid|spent|deducted|transfer)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4000,7 +4150,7 @@
                 },
                 {
                     "name": "Union Bank Amount First Credit",
-                    "pattern": "(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:credited|deposited|received)",
+                    "pattern": "(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|deposited|received)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4008,7 +4158,7 @@
                 },
                 {
                     "name": "Union Bank UPI Transfer",
-                    "pattern": "UPI\\s+transfer\\s+(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+to\\s+([^.\\n]+)",
+                    "pattern": "UPI\\s+transfer\\s+(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:to|sent to)\\s+([^.\\n]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "merchantGroup": 2,
@@ -4033,7 +4183,7 @@
                 },
                 {
                     "name": "Union Bank Debit",
-                    "pattern": "(?:[Dd]ebited|[Ww]ithdrawn|[Ww]ithdrawal|[Pp]aid|[Ss]pent|[Pp]ayment|[Dd]educted|[Tt]ransfer).*?(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:[Dd]ebited|[Ww]ithdrawn|[Ww]ithdrawal|[Pp]aid|[Ss]pent|[Pp]ayment|[Dd]educted|[Tt]ransfer).*?(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4041,7 +4191,7 @@
                 },
                 {
                     "name": "Union Bank Credit",
-                    "pattern": "(?:[Cc]redited|[Cc]redit|[Rr]eceived|[Dd]eposited).*?(?:Rs[:.]?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:[Cc]redited|[Cc]redit|[Rr]eceived|[Dd]eposited).*?(?:Rs[:.]?|INR|₹|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4162,7 +4312,7 @@
             "templates": [
                 {
                     "name": "Yes Bank Amount First Debit",
-                    "pattern": "(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:debited|withdrawn|charged|spent)",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|withdrawn|charged|spent|paid)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4170,7 +4320,7 @@
                 },
                 {
                     "name": "Yes Bank Amount First Credit",
-                    "pattern": "(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:credited|deposited|received)",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|deposited|received)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4178,15 +4328,15 @@
                 },
                 {
                     "name": "Yes Bank INR Spent",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.\\d{2})?)\\s+spent",
-                    "type": "credit",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?spent",
+                    "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 11
                 },
                 {
                     "name": "Yes Bank Debit Generic",
-                    "pattern": "(?:debited|withdrawn|charged|paid|spent).*?(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|withdrawn|charged|paid|spent).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4194,7 +4344,7 @@
                 },
                 {
                     "name": "Yes Bank Credit Generic",
-                    "pattern": "(?:credited|deposited|received|refund).*?(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:credited|deposited|received|refund).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
