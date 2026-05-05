@@ -19,6 +19,9 @@ class HierarchicalBankParser extends BankParser {
   bool canHandle(String sender) => definition.canHandle(sender);
 
   @override
+  String? getLogo() => definition.logo;
+
+  @override
   Transaction? parse(String sms, {DateTime? fallbackDate}) {
     Transaction? bestTransaction;
     int bestScore = -1;

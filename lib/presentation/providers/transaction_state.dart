@@ -33,6 +33,7 @@ class TransactionState {
   final String? selectedBank;
   final PaymentMethod? selectedMethod;
   final TransactionSort currentSort;
+  final Map<String, String> bankLogos;
 
   TransactionState({
     this.allTransactions = const [],
@@ -43,6 +44,7 @@ class TransactionState {
     this.selectedBank,
     this.selectedMethod,
     this.currentSort = TransactionSort.dateDesc,
+    this.bankLogos = const {},
   });
 
   // Summary Data
@@ -140,6 +142,7 @@ class TransactionState {
     String? Function()? selectedBank,
     PaymentMethod? Function()? selectedMethod,
     TransactionSort? currentSort,
+    Map<String, String>? bankLogos,
   }) {
     return TransactionState(
       allTransactions: allTransactions ?? this.allTransactions,
@@ -152,6 +155,7 @@ class TransactionState {
           ? selectedMethod()
           : this.selectedMethod,
       currentSort: currentSort ?? this.currentSort,
+      bankLogos: bankLogos ?? this.bankLogos,
     );
   }
 }

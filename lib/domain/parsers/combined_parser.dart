@@ -14,6 +14,9 @@ class CombinedParser extends BankParser {
   String getBankName() => primary?.getBankName() ?? fallback.getBankName();
 
   @override
+  String? getLogo() => primary?.getLogo();
+
+  @override
   bool canHandle(String sender) => true;
 
   @override
@@ -102,12 +105,25 @@ class BankParserFactory {
     }
     return CombinedParser(specificParser, _fallback, sender: sender);
   }
+
+  static Map<String, String> getBankLogos() {
+    final Map<String, String> logos = {};
+    for (final parser in _parsers) {
+      final logo = parser.getLogo();
+      if (logo != null) {
+        logos[parser.getBankName()] = logo;
+      }
+    }
+    return logos;
+  }
 }
 
 /// A no-op fallback used before initialization completes.
 class _NoOpParser extends BankParser {
   @override
   String getBankName() => 'None';
+  @override
+  String? getLogo() => null;
   @override
   bool canHandle(String sender) => false;
   @override

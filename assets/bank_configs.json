@@ -3,10 +3,15 @@
     "banks": [
         {
             "bankName": "Airtel Payments Bank",
+            "logo": "assets/bank_logos/airtel_payments_bank.svg",
             "senderIdentifiers": [
                 "AIRBNK",
                 "AIRBSE",
-                "AIRBSI"
+                "AIRBSI",
+                "AIRTEL",
+                "AIRTELPAYMENTS",
+                "AIRTELBANK",
+                "AIRTELPAY"
             ],
             "templates": [
                 {
@@ -98,10 +103,14 @@
         },
         {
             "bankName": "Amazon Pay",
+            "logo": "assets/bank_logos/amazon_pay.svg",
             "senderIdentifiers": [
                 "JUSPAY",
                 "APAY",
-                "AMAZON PAY"
+                "AMAZON PAY",
+                "AMZPAY",
+                "AMZ",
+                "AMAZON"
             ],
             "templates": [
                 {
@@ -222,6 +231,7 @@
         },
         {
             "bankName": "AU Small Finance Bank",
+            "logo": "assets/bank_logos/au_small_finance_bank.svg",
             "senderIdentifiers": [
                 "AUBANK",
                 "AUSFB",
@@ -386,6 +396,7 @@
         },
         {
             "bankName": "Axis Bank",
+            "logo": "assets/bank_logos/axis_bank.svg",
             "senderIdentifiers": [
                 "AXISBK",
                 "AXIS-BANK",
@@ -500,6 +511,7 @@
         },
         {
             "bankName": "Bank of Baroda",
+            "logo": "assets/bank_logos/bank_of_baroda.svg",
             "senderIdentifiers": [
                 "BOBTXN",
                 "BOB",
@@ -576,6 +588,7 @@
         },
         {
             "bankName": "Bank of India",
+            "logo": "assets/bank_logos/bank_of_india.svg",
             "senderIdentifiers": [
                 "BOIIND",
                 "BOIBNK",
@@ -742,6 +755,7 @@
         },
         {
             "bankName": "Canara Bank",
+            "logo": "assets/bank_logos/canara_bank.svg",
             "senderIdentifiers": [
                 "CAANBK",
                 "CANBK",
@@ -947,6 +961,7 @@
         },
         {
             "bankName": "City Union Bank",
+            "logo": "assets/bank_logos/city_union_bank.svg",
             "senderIdentifiers": [
                 "CUBANK",
                 "CUBLTD",
@@ -1058,6 +1073,7 @@
         },
         {
             "bankName": "CRED",
+            "logo": "assets/bank_logos/cred.svg",
             "senderIdentifiers": [
                 "CREDIN",
                 "CRED"
@@ -1114,6 +1130,7 @@
         },
         {
             "bankName": "Department of Post",
+            "logo": "assets/bank_logos/india_post_payments_bank.svg",
             "senderIdentifiers": [
                 "DOPBNK",
                 "DOP"
@@ -1189,6 +1206,7 @@
         },
         {
             "bankName": "Dhanlaxmi Bank",
+            "logo": "assets/bank_logos/dhanlaxmi_bank.svg",
             "senderIdentifiers": [
                 "DHANBK",
                 "DHANLAXMI",
@@ -1299,6 +1317,7 @@
         },
         {
             "bankName": "Equitas Small Finance Bank",
+            "logo": "assets/bank_logos/equitas_small_finance_bank.svg",
             "senderIdentifiers": [
                 "EQUTAS",
                 "EQUITA",
@@ -1390,6 +1409,7 @@
         },
         {
             "bankName": "Federal Bank",
+            "logo": "assets/bank_logos/federal_bank.svg",
             "senderIdentifiers": [
                 "FEDBNK",
                 "FEDERAL",
@@ -1563,11 +1583,12 @@
         },
         {
             "bankName": "HDFC Bank",
+            "logo": "assets/bank_logos/hdfc_bank.svg",
             "senderIdentifiers": [
                 "HDFCBK", "HDFCBANK", "HDFC", "HDFCB", "HDFCBN", "DPCSDX", "EBTALT",
                 "HDFCAL", "HDFCBA", "HDFCCC", "HDFCDC", "HDFCFD", "HDFCGC", "HDFCHI",
                 "HDFCHL", "HDFCIT", "HDFCLI", "HDFCPL", "HDFCRD", "HDFCSD", "HDFCSE",
-                "HDFCUN", "HDFSET", "HDFTST", "HRHDFC", "MIMTMX", "PAYZAP", "UNIXCE"
+                "HDFCUN", "HDFSET", "HDFTST", "HRHDFC", "MIMTMX", "PAYZAP", "UNIXCE", "HDFCSMS"
             ],
             "templates": [
                 {
@@ -1761,6 +1782,7 @@
         },
         {
             "bankName": "HSBC Bank",
+            "logo": "assets/bank_logos/hsbc_bank.svg",
             "senderIdentifiers": [
                 "HSBC", "HSBCIN", "HSBC-BANK", "HSBCBK", "HSBCEX", "HSBCIM"
             ],
@@ -1930,10 +1952,11 @@
         },
         {
             "bankName": "ICICI Bank",
+            "logo": "assets/bank_logos/icici_bank.svg",
             "senderIdentifiers": [
                 "ICICIB", "ICICI-BANK", "ICICIBANK", "ICICI", "ICIBNK", "ICBANK",
                 "ICICBK", "ICICIH", "ICICIK", "ICICIL", "ICICTC", "ICIEMP",
-                "ICIOTP", "ISECLD", "ISRVCE"
+                "ICIOTP", "ISECLD", "ISRVCE", "ICICIP", "ICICIT", "VMICICIB", "TM-ICICIB"
             ],
             "templates": [
                 {
@@ -2037,6 +2060,7 @@
         },
         {
             "bankName": "IDBI Bank",
+            "logo": "assets/bank_logos/idbi_bank.svg",
             "senderIdentifiers": [
                 "IDBIBK", "IDBIBANK", "IDBI", "IDBIDL"
             ],
@@ -2158,6 +2182,7 @@
         },
         {
             "bankName": "IDFC First Bank",
+            "logo": "assets/bank_logos/idfc_bank.svg",
             "senderIdentifiers": [
                 "IDFCBK", "IDFCFB", "IDFC", "IDFCCM", "IDFCFZ",
                 "IDFCIT", "IDFCTS", "IDFCZ", "IDFSIT",
@@ -2374,6 +2399,7 @@
         },
         {
             "bankName": "India Post Payments Bank",
+            "logo": "assets/bank_logos/india_post_payments_bank.svg",
             "senderIdentifiers": [
                 "IPBMSG", "IPBCOM", "IPBKYC", "IPBOFR", "IPBOTP", "IPBSEC", "MYIPPB"
             ],
@@ -2467,6 +2493,7 @@
         },
         {
             "bankName": "Indian Overseas Bank",
+            "logo": "assets/bank_logos/indian_overseas_bank.svg",
             "senderIdentifiers": [
                 "IOB", "IOBCHN", "IOBBNK", "IOBANK", "IOBATM",
                 "IOBBQR", "IOBHRD", "IOBJLS", "IOBMKT", "IOBOTP"
@@ -2559,6 +2586,7 @@
         },
         {
             "bankName": "IndusInd Bank",
+            "logo": "assets/bank_logos/induslnd_bank.svg",
             "senderIdentifiers": [
                 "INDUSB", "INDUSIND", "INDUS", "IIBTRX", "INDUSA",
                 "INDUSO", "INDSIN", "INDUSIN", "INDUSBNK",
@@ -2732,8 +2760,9 @@
         },
         {
             "bankName": "Jio Payments Bank",
+            "logo": "assets/bank_logos/jio_payments_bank.svg",
             "senderIdentifiers": [
-                "JIOPBS"
+                "JIOPBS", "JIOPBK"
             ],
             "templates": [
                 {
@@ -2859,6 +2888,7 @@
         },
         {
             "bankName": "JioPay",
+            "logo": "assets/bank_logos/jio_payments_bank.svg",
             "senderIdentifiers": [
                 "JIOPAY",
                 "JA-JIOPAY-S",
@@ -2935,6 +2965,7 @@
         },
         {
             "bankName": "JK Bank",
+            "logo": "assets/bank_logos/jammu_&_kashmir_bank.svg",
             "senderIdentifiers": [
                 "JKBANK", "JKB", "JKBANKL", "JKBNK", "JKCARD"
             ],
@@ -3092,6 +3123,7 @@
         },
         {
             "bankName": "Karnataka Bank",
+            "logo": "assets/bank_logos/karnataka_bank.svg",
             "senderIdentifiers": [
                 "KARBANK", "KARBK", "KARBNK", "KARNATAKA BANK", "KARNATAKABANK",
                 "KBL", "KBLBNK", "KBLTXN", "KRNBNK", "KRTBNK", "KTKBANK", "KTKBNK"
@@ -3209,6 +3241,7 @@
         },
         {
             "bankName": "Kerala Gramin Bank",
+            "logo": "assets/bank_logos/kerala_gramin_bank.svg",
             "senderIdentifiers": [
                 "KGBANK",
                 "KERALA GRAMIN",
@@ -3335,6 +3368,7 @@
         },
         {
             "bankName": "Kotak Bank",
+            "logo": "assets/bank_logos/kotak_mahindra_bank.svg",
             "senderIdentifiers": [
                 "KOTAK", "KMCBK", "KOTAKB", "KMBANK", "KBANKT",
                 "KOTAKP", "KTKREM", "KOTAKM", "KOTAKBN", "KOTAKD", "KOTAKMA"
@@ -3411,6 +3445,7 @@
         },
         {
             "bankName": "PNB",
+            "logo": "assets/bank_logos/punjab_national_bank.svg",
             "senderIdentifiers": [
                 "PNBSMS", "PNB", "PNBRET", "PNBTRX", "PNBINT", "PGBSMS",
                 "PNBACS", "PNBCCD", "PNBCRD", "PNBCRM", "PNBDBD", "PNBHRD",
@@ -3458,10 +3493,11 @@
         },
         {
             "bankName": "Saraswat Co-operative Bank",
+            "logo": "assets/bank_logos/saraswat_co-operative_bank.svg",
             "senderIdentifiers": [
                 "SARBNK",
                 "SARASWAT",
-                "SARASWATBANK"
+                "SARASWATBANK","SRSWTB","SARASW"
             ],
             "templates": [
                 {
@@ -3584,8 +3620,9 @@
         },
         {
             "bankName": "SBI Bank",
+            "logo": "assets/bank_logos/state_bank_of_india.svg",
             "senderIdentifiers": [
-                "SBI", "SBIBANK", "SBIPYG", "SBIINB", "SBIUPI", "ATMSBI", "SBI-ATM",
+                "SBINB", "SBYONO", "SBI", "SBIBANK", "SBIPYG", "SBIINB", "SBIUPI", "ATMSBI", "SBI-ATM",
                 "SBICRD", "SBIBNK", "ACEPLC", "AGMITS", "ATMMON", "ATMMVS", "ATMSMS",
                 "ATMTAD", "CBSSBI", "CCCDEL", "CCHRIR", "CCONLN", "CCPCAH", "CCPCCN",
                 "CCRSBI", "CFOBAN", "CMPHYD", "CSDSBI", "CTDSBI", "CTMUGM", "CVELUC",
@@ -3624,7 +3661,7 @@
                 "SBIWEB", "SBJSMS", "SBLCPC", "SBLLMS", "SBLSPC", "SBMCSH", "SBMINB",
                 "SBOCAS", "SBPBBU", "SBPINB", "SBRACC", "SBRLMS", "SBRWDZ", "SBSSBI",
                 "SBTINB", "SBWLTH", "SBYONO", "SOCINC", "SSCORE", "SSKSBH", "SSKSBI",
-                "SSKSBM", "SSKSBP", "SSKSBT", "WMBSMS"
+                "SSKSBM", "SSKSBP", "SSKSBT", "WMBSMS" , "SBINK"
             ],
             "templates": [
                 {
@@ -3705,8 +3742,9 @@
         },
         {
             "bankName": "South Indian Bank",
+            "logo": "assets/bank_logos/south_indian_bank.svg",
             "senderIdentifiers": [
-                "SIBSMS", "SIBBANK", "SOUTHINDIANBANK", "SIBCNP", "SIBPRD"
+                "SIBSMS", "SIBBANK", "SOUTHINDIANBANK", "SIBCNP", "SIBPRD", "SIBNK", "SIB"
             ],
             "templates": [
                 {
@@ -3729,11 +3767,37 @@
                 },
                 {
                     "name": "SIB UPI Payment Success",
-                    "pattern": "UPI\\s+(?:payment|txn)\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+successful",
+                    "pattern": "UPI\\s+(?:payment|txn|transfer)?\\s+(?:of\\s+)?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited|credited|successful).*?(?:A/c|Acct|account)?\\s*[Xx*]*(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "upi",
                     "priority": 3
+                },
+                {
+                    "name": "SIB Amount First Debit",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?)\\s+(?:debited|withdrawn|spent|purchase|paid).*?(?:A/c|Acct|account)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 4
+                },
+                {
+                    "name": "SIB Amount First Credit",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2,})?)\\s+(?:credited|received|refund|cashback|deposited).*?(?:A/c|Acct|account)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 5
+                },
+                {
+                    "name": "SIB Available Balance Alt",
+                    "pattern": "Avl\\s+Bal[:\\s]+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 6
                 },
                 {
                     "name": "SIB IMPS Credit",
@@ -3883,8 +3947,9 @@
         },
         {
             "bankName": "Standard Chartered Bank",
+            "logo": "assets/bank_logos/standard_chartered_bank.svg",
             "senderIdentifiers": [
-                "SCBANK", "STANCHART", "STANDARDCHARTERED", "STANDARD CHARTERED", "FROMSC"
+                "SCBANK", "STANCHART", "STANDARDCHARTERED", "STANDARD CHARTERED", "FROMSC","STANCB"
             ],
             "templates": [
                 {
@@ -3990,6 +4055,7 @@
         },
         {
             "bankName": "UCO Bank",
+            "logo": "assets/bank_logos/uco_bank.svg",
             "senderIdentifiers": [
                 "UCOBNK", "UCOBANK", "UCO BANK"
             ],
@@ -4135,6 +4201,7 @@
         },
         {
             "bankName": "Union Bank of India",
+            "logo": "assets/bank_logos/union_bank.svg",
             "senderIdentifiers": [
                 "UNIONB", "UNIONBANK", "UBOI", "AGVBNK", "AGVCBS", "BGVBNK",
                 "BGVCBS", "MRBANK", "MRBCBS", "TGBANK", "TGBCBS", "UBIBNK", "UBISMS"
@@ -4306,6 +4373,7 @@
         },
         {
             "bankName": "Yes Bank",
+            "logo": "assets/bank_logos/yes_bank.svg",
             "senderIdentifiers": [
                 "YESBNK", "YESBANK", "YESBCC", "YESBCM", "YESPAY"
             ],
@@ -4556,6 +4624,42 @@
                     "merchantGroup": 2,
                     "method": "unknown",
                     "priority": 32
+                },
+                {
+                    "name": "Gen Action First Debit",
+                    "pattern": "(?:debited|spent|paid|withdrawn|withdrawn\\s+at\\s+ATM|dr).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 40
+                },
+                {
+                    "name": "Gen Action First Credit",
+                    "pattern": "(?:credited|received|refund|cashback|deposited|cr).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 41
+                },
+                {
+                    "name": "Gen Amount First Debit",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:debited|spent|paid|withdrawn|dr).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 42
+                },
+                {
+                    "name": "Gen Amount First Credit",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:credited|received|refund|cashback|deposited|cr).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "unknown",
+                    "priority": 43
                 }
             ]
         }

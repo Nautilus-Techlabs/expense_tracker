@@ -5,6 +5,9 @@ abstract class BankParser {
   /// Unique bank identifier
   String getBankName();
 
+  /// Logo asset path
+  String? getLogo();
+
   /// Default currency for this bank
   String getCurrency() => "INR";
 

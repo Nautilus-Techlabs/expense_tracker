@@ -7,7 +7,10 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 
-class TransactionIcon extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/transaction_notifier.dart';
+
+class TransactionIcon extends ConsumerWidget {
   final PaymentMethod method;
   final Color color;
   final double? size;
@@ -26,28 +29,48 @@ class TransactionIcon extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(transactionProvider);
     final iconSize = size ?? 22.sp;
     final iconData = getIconData(method);
 
-    final logoPath = bankName != null ? AppConstants.getBankLogo(bankName!) : '';
+    // ✅ Try getting logo from config map first, then fallback to hardcoded logic
+    String logoPath = '';
+    if (bankName != null) {
+      logoPath = state.bankLogos[bankName!] ?? AppConstants.getBankLogo(bankName!);
+    }
 
     Widget iconWidget = Container(
       padding: EdgeInsets.all(logoPath.isNotEmpty ? 8.w : 12.w),
       decoration: BoxDecoration(
         color: logoPath.isNotEmpty ? Colors.white : color.withAlpha(26),
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: logoPath.isNotEmpty ? [
-          BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          )
-        ] : null,
+        boxShadow: logoPath.isNotEmpty
+            ? [
+                BoxShadow(
+                  color: Colors.black.withAlpha(20),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
-      child: logoPath.isNotEmpty
-          ? SvgPicture.asset(logoPath, width: iconSize + 8.w, height: iconSize + 8.w, fit: BoxFit.contain)
-          : Icon(iconData, color: color, size: iconSize),
+      child:
+          logoPath.isNotEmpty
+              ? (logoPath.endsWith('.svg')
+                  ? SvgPicture.asset(
+                    logoPath,
+                    width: iconSize + 8.w,
+                    height: iconSize + 8.w,
+                    fit: BoxFit.contain,
+                  )
+                  : Image.asset(
+                    logoPath,
+                    width: iconSize + 8.w,
+                    height: iconSize + 8.w,
+                    fit: BoxFit.contain,
+                  ))
+              : Icon(iconData, color: color, size: iconSize),
     );
 
     if (!showStatus) return iconWidget;
@@ -66,9 +89,10 @@ class TransactionIcon extends StatelessWidget {
             ),
             child: Icon(
               isVerified ? Icons.verified_rounded : Icons.warning_amber_rounded,
-              color: isVerified
-                  ? AppTheme.getIncomeColor(context)
-                  : AppTheme.getNeutralColor(context),
+              color:
+                  isVerified
+                      ? AppTheme.getIncomeColor(context)
+                      : AppTheme.getNeutralColor(context),
               size: 14.sp,
             ),
           ),
@@ -172,7 +196,7 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-class BankCard extends StatelessWidget {
+class BankCard extends ConsumerWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -191,7 +215,11 @@ class BankCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(transactionProvider);
+    // ✅ Try getting logo from config map first, then fallback to hardcoded logic
+    final logoPath = state.bankLogos[label] ?? AppConstants.getBankLogo(label);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: GestureDetector(
@@ -216,34 +244,44 @@ class BankCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withAlpha(51) // 0.2 * 255
-                      : (AppConstants.getBankLogo(label).isNotEmpty ? Colors.white : color.withAlpha(26)),
+                  color:
+                      isSelected
+                          ? Colors.white.withAlpha(51) // 0.2 * 255
+                          : (logoPath.isNotEmpty ? Colors.white : color.withAlpha(26)),
                   shape: BoxShape.circle,
                 ),
-                child: AppConstants.getBankLogo(label).isNotEmpty && !isSelected
-                    ? ClipOval(
-                        child: SvgPicture.asset(
-                          AppConstants.getBankLogo(label),
-                          width: 24.sp,
-                          height: 24.sp,
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                    : (letter != null
-                        ? Text(
-                            letter!,
-                            style: TextStyle(
+                child:
+                    logoPath.isNotEmpty && !isSelected
+                        ? ClipOval(
+                          child:
+                              logoPath.endsWith('.svg')
+                                  ? SvgPicture.asset(
+                                    logoPath,
+                                    width: 24.sp,
+                                    height: 24.sp,
+                                    fit: BoxFit.contain,
+                                  )
+                                  : Image.asset(
+                                    logoPath,
+                                    width: 24.sp,
+                                    height: 24.sp,
+                                    fit: BoxFit.contain,
+                                  ),
+                        )
+                        : (letter != null
+                            ? Text(
+                              letter!,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : color,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16.sp,
+                              ),
+                            )
+                            : Icon(
+                              icon,
                               color: isSelected ? Colors.white : color,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16.sp,
-                            ),
-                          )
-                        : Icon(
-                            icon,
-                            color: isSelected ? Colors.white : color,
-                            size: 20.sp,
-                          )),
+                              size: 20.sp,
+                            )),
               ),
               UIHelpers.verticalSpace(8),
               Padding(
@@ -253,9 +291,10 @@ class BankCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected
-                        ? Colors.white
-                        : Theme.of(context).textTheme.bodySmall?.color,
+                    color:
+                        isSelected
+                            ? Colors.white
+                            : Theme.of(context).textTheme.bodySmall?.color,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

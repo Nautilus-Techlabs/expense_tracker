@@ -174,6 +174,12 @@ class AppConstants {
     if (name.contains('cred')) {
       return 'assets/bank_logos/cred.svg';
     }
+    if (name.contains('south indian') || name.contains('south india')) {
+      return 'assets/bank_logos/south_indian_bank.svg';
+    }
+    if (name.contains('indian overseas')) {
+      return 'assets/bank_logos/indian_overseas_bank.svg';
+    }
     if (name.contains('indian bank')) {
       return 'assets/bank_logos/indian_bank.svg';
     }
@@ -222,18 +228,14 @@ class AppConstants {
     if (name.contains('dhanlaxmi')) {
       return 'assets/bank_logos/dhanlaxmi_bank.svg';
     }
-    if (name.contains('indian overseas')) {
-      return 'assets/bank_logos/indian_overseas_bank.svg';
-    }
+
     if (name.contains('equitas')) {
       return 'assets/bank_logos/equitas_small_finance_bank.svg';
     }
     if (name.contains('saraswat')) {
       return 'assets/bank_logos/saraswat_co-operative_bank.svg';
     }
-    if (name.contains('south indian')) {
-      return 'assets/bank_logos/south_indian_bank.svg';
-    }
+
     return ''; // Return empty string if no logo found
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/app_logger.dart';
 import '../../data/local/app_database.dart';
 import '../../domain/entities/transaction.dart';
+import '../../domain/parsers/combined_parser.dart';
 import '../../domain/sms_service.dart';
 import 'transaction_state.dart';
 
@@ -25,6 +26,8 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       await loadFromStorage();
       await syncTransactions(isStartup: true);
+      // ✅ Populate logos from the config engine
+      state = state.copyWith(bankLogos: BankParserFactory.getBankLogos());
     } finally {
       state = state.copyWith(isLoading: false);
     }

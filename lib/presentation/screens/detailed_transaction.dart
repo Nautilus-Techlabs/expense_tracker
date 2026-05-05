@@ -271,7 +271,7 @@ class _DetailedTransactionScreenState
                           runSpacing: 8.h,
                           children: existingAccounts.map((acc) {
                             final isSelected =
-                                _accountController.text == acc.account;
+                                _accountController.text == acc.account && _bankController.text == acc.bank;
                             return ChoiceChip(
                               label: Text('${acc.account} (${acc.bank})'),
                               selected: isSelected,

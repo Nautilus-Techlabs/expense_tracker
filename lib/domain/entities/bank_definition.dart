@@ -79,21 +79,25 @@ class BankDefinition {
   final String bankName;
   final List<String> senderIdentifiers;
   final List<SmSTemplate> templates;
+  final String? logo;
 
   BankDefinition({
     required this.bankName,
     required this.senderIdentifiers,
     required this.templates,
+    this.logo,
   });
 
   factory BankDefinition.fromJson(Map<String, dynamic> json) {
     return BankDefinition(
       bankName: json['bankName'] as String,
-      senderIdentifiers: (json['senderIdentifiers'] as List<dynamic>)
-          .cast<String>(),
-      templates: (json['templates'] as List<dynamic>)
-          .map((t) => SmSTemplate.fromJson(t as Map<String, dynamic>))
-          .toList(),
+      senderIdentifiers:
+          (json['senderIdentifiers'] as List<dynamic>).cast<String>(),
+      templates:
+          (json['templates'] as List<dynamic>)
+              .map((t) => SmSTemplate.fromJson(t as Map<String, dynamic>))
+              .toList(),
+      logo: json['logo'] as String?,
     );
   }
 
@@ -101,6 +105,7 @@ class BankDefinition {
     'bankName': bankName,
     'senderIdentifiers': senderIdentifiers,
     'templates': templates.map((t) => t.toJson()).toList(),
+    'logo': logo,
   };
 
   bool canHandle(String sender) {
