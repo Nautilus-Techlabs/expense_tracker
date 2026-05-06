@@ -1550,7 +1550,17 @@
             "templates": [
                 {
                     "name": "HDFC Amount First Spent",
-                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:spent|debited|paid)\\s+(?:on|at|using)?\\s*(?:HDFC\\s+Bank\\s+)?(?:Credit\\s+)?(?:Card|A/c)\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:spent|debited|paid)\\s+(?:on|at|using)?\\s*(?:HDFC\\s+Bank\\s+)?(?:Credit\\s+)?(?:Card|A/c|Acct)\\s+[Xx*]*(\\d+)(?:\\s+at\\s+([^\\n\\.]+?))?(?:\\s+on|\\.|$)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "card",
+                    "priority": 0
+                },
+                {
+                    "name": "HDFC Alert Pattern",
+                    "pattern": "ALERT:You've\\s+(?:spent|withdrawn)\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+via\\s+(?:Debit\\s+Card)?\\s*[Xx*]*(\\d+)\\s+at\\s+([^\\n\\.]+?)\\s+on\\s+",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -1570,7 +1580,7 @@
                 },
                 {
                     "name": "HDFC Card Spent Pattern",
-                    "pattern": "(?:Spent|Txn|Paid)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:From|On|Using)\\s+(?:HDFC\\s+Bank\\s+)?(?:Card|A/c|Acct)\\s+[Xx*]*(\\d+)(?:\\s+At|at|to)\\s+([^\\n]+?)(?:\\s+On|\\.|$)",
+                    "pattern": "(?:Spent|Txn|Paid)\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:From|On|Using)\\s+(?:HDFC\\s+Bank\\s+)?(?:Credit\\s+)?(?:Card|A/c|Acct)\\s+[Xx*]*(\\d+)(?:\\s+At|at|to)\\s+([^\\n]+?)(?:\\s+On|\\.|$)",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -1588,11 +1598,29 @@
                 },
                 {
                     "name": "HDFC Credit Received",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:credited|received|deposited|paid\\s+to)",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+|was\\s+|has\\s+been\\s+)?(?:credited|received|deposited|paid\\s+to|received\\s+in)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 4
+                },
+                {
+                    "name": "HDFC Money Received",
+                    "pattern": "Money\\s+Received\\s+-\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+in\\s+your\\s+HDFC\\s+Bank\\s+(?:A/c|Acct)\\s*[Xx*]*(\\d+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 0
+                },
+                {
+                    "name": "HDFC Credited From",
+                    "pattern": "Credited\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+From\\s+HDFC\\s+Bank\\s+(?:A/c|A/C|Acct)\\s*[Xx*]*(\\d+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 0
                 },
                 {
                     "name": "HDFC Amount First Credit",
@@ -1615,7 +1643,7 @@
                 },
                 {
                     "name": "HDFC Universal Safety Net",
-                    "pattern": "(?:debited|spent|credited|received|deposited|withdrawn).*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2,})?).*?(?:A/c|card|Acct|ending)\\s*([Xx*\\d]+)",
+                    "pattern": "(?:debited|spent|credited|received|deposited|withdrawn).*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?).*?(?:A/c|card|Acct|ending)\\s*([Xx*\\d]+)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,

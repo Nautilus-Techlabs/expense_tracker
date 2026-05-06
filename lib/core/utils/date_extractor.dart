@@ -9,9 +9,9 @@ class DateExtractor {
     // 05-Feb-2026 / 05-Feb-26 / 05/02/26 / 05/02
     RegExp(r'\b(\d{1,2})[-/](\d{1,2})(?:[-/](\d{2,4}))?\b'),
 
-    // 05-Feb-26 / 05-Feb-2026
+    // 05-Feb-26 / 05-Feb-2026 / 09/NOV/2020
     RegExp(
-      r'\b(\d{1,2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d{2,4})\b',
+      r'\b(\d{1,2})[-/](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/](\d{2,4})\b',
       caseSensitive: false,
     ),
 
@@ -41,35 +41,52 @@ class DateExtractor {
   ];
 
   static DateTime? extract(String sms) {
-    DateTime? extractedDate;
-    
-    // 1. Try to find a date
+    RegExpMatch? earliestMatch;
+    int earliestIndex = sms.length;
+
+    // 1. Find the EARLIEST match across all patterns
     for (final pattern in _patterns) {
-      final match = pattern.firstMatch(sms);
-      if (match != null) {
-        try {
-          extractedDate = _parseMatch(match);
-          break;
-        } catch (_) {
-          continue;
+      final matches = pattern.allMatches(sms);
+      for (final match in matches) {
+        if (match.start < earliestIndex) {
+          earliestIndex = match.start;
+          earliestMatch = match;
         }
       }
     }
 
-    if (extractedDate == null) return null;
+    if (earliestMatch == null) return null;
 
-    // 2. Try to find a time (e.g., 14:30:05 or 02:30 PM)
+    DateTime extractedDate;
+    try {
+      extractedDate = _parseMatch(earliestMatch);
+    } catch (_) {
+      return null;
+    }
+
+    // 2. Try to find a time (e.g., 14:30:05 or 02:30 PM or 11.08.05)
     final timePattern = RegExp(
-      r'\b(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?\b',
+      r'\b(\d{1,2})[:.](\d{2})(?:[:.](\d{2}))?\s*(AM|PM)?\b',
       caseSensitive: false,
     );
-    final timeMatch = timePattern.firstMatch(sms);
+    
+    // Look for time after the date or anywhere in the SMS
+    final timeMatches = timePattern.allMatches(sms);
+    RegExpMatch? bestTimeMatch;
+    
+    // Preferably find time NEAR the date (within 20 chars)
+    for (final tm in timeMatches) {
+      if ((tm.start - earliestMatch.end).abs() < 20 || bestTimeMatch == null) {
+        bestTimeMatch = tm;
+        if ((tm.start - earliestMatch.end).abs() < 20) break;
+      }
+    }
 
-    if (timeMatch != null) {
-      int hour = int.parse(timeMatch.group(1)!);
-      final minute = int.parse(timeMatch.group(2)!);
-      final second = int.tryParse(timeMatch.group(3) ?? '0') ?? 0;
-      final amPm = timeMatch.group(4)?.toUpperCase();
+    if (bestTimeMatch != null) {
+      int hour = int.parse(bestTimeMatch.group(1)!);
+      final minute = int.parse(bestTimeMatch.group(2)!);
+      final second = int.tryParse(bestTimeMatch.group(3) ?? '0') ?? 0;
+      final amPm = bestTimeMatch.group(4)?.toUpperCase();
 
       if (amPm == 'PM' && hour < 12) hour += 12;
       if (amPm == 'AM' && hour == 12) hour = 0;

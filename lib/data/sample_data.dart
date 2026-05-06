@@ -1729,7 +1729,7 @@ final List<SampleSms> sampleSms = [
   ),
   SampleSms(
     body:
-        'Hello! Your A/c no. 814478 has been credited with Rs. 500 on 260ct18. The A/c balance is Rs. 77.03. Info: IMPS/P2A/829916931193/919930066017/. Call 18605005555 (if in India) if you have not done this transaction.',
+        'Hello! Your A/c no. 814478 has been credited with Rs. 500 on 26oct18. The A/c balance is Rs. 77.03. Info: IMPS/P2A/829916931193/919930066017/. Call 18605005555 (if in India) if you have not done this transaction.',
     sender: 'VK-AxisBk',
   ),
   SampleSms(
@@ -1941,11 +1941,5 @@ final List<SampleSms> sampleSms = [
     body:
         'You have received a payment of Rs. 190.00 in a/c X9571 on 06/12/2025 17:07 from shiv raj thru IPPB. Info: UPI/CREDIT/ 534085674590.- IPPB',
     sender: 'AD-IPBMSG-S',
-  ),
-  // -- UCO Bank -------------------------------------------------------------
-  SampleSms(
-    body:
-        'Your UCO Bank A/c XX2963 has been Debited with Rs.2.66 by Transfer.Avl Bal in your A/c is Rs.5.48.For feedback, click https://apps.ucoonline.in/cust feedback/Home Page.jsp',
-    sender: 'VM-UCOBNK',
   ),
 ];

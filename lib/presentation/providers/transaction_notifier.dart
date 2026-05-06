@@ -140,7 +140,7 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: false,
         db: ref.read(databaseProvider),
-        // forceSampleData: true,
+        forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
@@ -275,9 +275,11 @@ class TransactionController extends Notifier<TransactionState> {
         rawSms: const Value(null),
       );
 
-      AppLogger.d("Adding manual transaction: ${bankName ?? 'Manual'} - ₹$amount");
+      AppLogger.d(
+        "Adding manual transaction: ${bankName ?? 'Manual'} - ₹$amount",
+      );
       await db.into(db.transactions).insert(companion);
-      
+
       // Force refresh from storage to ensure UI reflects the change
       await loadFromStorage();
     } catch (e, stack) {

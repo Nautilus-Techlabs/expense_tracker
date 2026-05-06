@@ -98,20 +98,26 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                       Row(
                         children: [
                           Text(
-                            DateFormat('dd MMM, yyyy').format(widget.transaction.date),
+                            DateFormat(
+                              'dd MMM, yyyy',
+                            ).format(widget.transaction.date),
                             style: TextStyle(
                               color: AppTheme.getNeutralColor(context),
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          if (widget.transaction.source == TransactionSource.manual) ...[
+                          if (widget.transaction.source ==
+                              TransactionSource.manual) ...[
                             UIHelpers.horizontalSpace(8),
                             _buildTag('MANUAL', theme.colorScheme.primary),
                           ],
                           if (isHistorical) ...[
                             UIHelpers.horizontalSpace(8),
-                            _buildTag('HISTORICAL', AppTheme.getNeutralColor(context)),
+                            _buildTag(
+                              'HISTORICAL',
+                              AppTheme.getNeutralColor(context),
+                            ),
                           ],
                         ],
                       ),
@@ -187,24 +193,11 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
 
     if (widget.heroTag == null) return iconWidget;
 
-    return Hero(
-      tag: widget.heroTag!,
-      child: iconWidget,
-    );
+    return Hero(tag: widget.heroTag!, child: iconWidget);
   }
 
   String _getTitle() {
-    if (widget.transaction.description != null && widget.transaction.description!.isNotEmpty) {
-      return widget.transaction.description!;
-    }
-    if (widget.transaction.merchant != null && widget.transaction.merchant!.isNotEmpty) {
-      return widget.transaction.merchant!;
-    }
-    final method = widget.transaction.method;
     final isDebit = widget.transaction.type == TransactionType.debit;
-    final typeStr = isDebit ? 'Debit' : 'Credit';
-
-    if (method == PaymentMethod.unknown) return typeStr;
-    return '${method.name.toUpperCase()} $typeStr';
+    return isDebit ? 'Debit' : 'Credit';
   }
 }
