@@ -35,59 +35,43 @@ class MainScreen extends ConsumerWidget {
     bool isDark,
     int selectedIndex,
   ) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Container(
-      height: 80.h + MediaQuery.of(context).padding.bottom,
+      height: 72.h + bottomPadding,
       decoration: BoxDecoration(
-        color: isDark
-            ? AppTheme.surfaceDark
-            : Colors.white,
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
         border: Border(
           top: BorderSide(
-            color: AppTheme.getBorderColor(context).withAlpha(100),
+            color: isDark ? Colors.white.withAlpha(10) : AppTheme.borderLight,
             width: 1,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(isDark ? 100 : 20),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavBarItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                label: 'Home',
-                isSelected: selectedIndex == 0,
-                onTap: () =>
-                    ref.read(navigationIndexProvider.notifier).state = 0,
-              ),
-              _NavBarItem(
-                icon: Icons.bar_chart_outlined,
-                activeIcon: Icons.bar_chart_rounded,
-                label: 'Activity',
-                isSelected: selectedIndex == 1,
-                onTap: () =>
-                    ref.read(navigationIndexProvider.notifier).state = 1,
-              ),
-              _NavBarItem(
-                icon: Icons.account_balance_wallet_outlined,
-                activeIcon: Icons.account_balance_wallet_rounded,
-                label: 'Accounts',
-                isSelected: selectedIndex == 2,
-                onTap: () =>
-                    ref.read(navigationIndexProvider.notifier).state = 2,
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _NavBarItem(
+              icon: Icons.home_rounded,
+              label: 'Home',
+              isSelected: selectedIndex == 0,
+              onTap: () => ref.read(navigationIndexProvider.notifier).state = 0,
+            ),
+            _NavBarItem(
+              icon: Icons.bar_chart_rounded,
+              label: 'History',
+              isSelected: selectedIndex == 1,
+              onTap: () => ref.read(navigationIndexProvider.notifier).state = 1,
+            ),
+            _NavBarItem(
+              icon: Icons.account_balance_wallet_rounded,
+              label: 'Wallet',
+              isSelected: selectedIndex == 2,
+              onTap: () => ref.read(navigationIndexProvider.notifier).state = 2,
+            ),
+          ],
         ),
       ),
     );
@@ -96,14 +80,12 @@ class MainScreen extends ConsumerWidget {
 
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
-  final IconData activeIcon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _NavBarItem({
     required this.icon,
-    required this.activeIcon,
     required this.label,
     required this.isSelected,
     required this.onTap,
@@ -111,8 +93,10 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = Theme.of(context).colorScheme.primary;
-    final inactiveColor = AppTheme.getNeutralColor(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final activeColor = const Color(0xFF3B82F6);
+    final inactiveColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Expanded(
       child: GestureDetector(
@@ -123,20 +107,30 @@ class _NavBarItem extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? activeColor : inactiveColor,
-              size: 24.sp,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? activeColor.withValues(alpha: 0.15) 
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? activeColor : inactiveColor,
+                size: 24.sp,
+              ),
             ),
             UIHelpers.verticalSpace(4),
             Text(
               label,
               style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                fontSize: 11.sp,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected ? activeColor : inactiveColor,
+                letterSpacing: 0.2,
               ),
             ),
           ],

@@ -40,28 +40,32 @@ class _BankDetailTransactionsScreenState
       if (widget.accountNumber != null) {
         matchesAccount = t.account == widget.accountNumber;
       }
-      
+
       if (!matchesBank || !matchesAccount) return false;
 
       // Check Opening Balance Date
       if (t.account != null && t.account!.isNotEmpty) {
-        final openingList = state.openingBalances.where(
-          (ob) => ob.bankName == t.bankName && ob.accountNumber == t.account,
-        ).toList();
+        final openingList = state.openingBalances
+            .where(
+              (ob) =>
+                  ob.bankName == t.bankName && ob.accountNumber == t.account,
+            )
+            .toList();
         if (openingList.isNotEmpty && t.date.isBefore(openingList.first.date)) {
           return false;
         }
       }
       return true;
     }).toList();
-    
+
     // Available methods for this bank
-    final availableMethods = allBankTransactions
-        .map((t) => t.method)
-        .where((m) => m != PaymentMethod.unknown)
-        .toSet()
-        .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final availableMethods =
+        allBankTransactions
+            .map((t) => t.method)
+            .where((m) => m != PaymentMethod.unknown)
+            .toSet()
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
 
     final bankTransactions = allBankTransactions.where((t) {
       if (_methodFilter == null) return true;
@@ -111,11 +115,12 @@ class _BankDetailTransactionsScreenState
             child: Row(
               children: [
                 _buildFilterChip(null, 'All'),
-                ...availableMethods
-                    .map((m) => Padding(
-                          padding: EdgeInsets.only(left: 8.w),
-                          child: _buildFilterChip(m, m.name.toUpperCase()),
-                        )),
+                ...availableMethods.map(
+                  (m) => Padding(
+                    padding: EdgeInsets.only(left: 8.w),
+                    child: _buildFilterChip(m, m.name.toUpperCase()),
+                  ),
+                ),
               ],
             ),
           ),
@@ -132,7 +137,8 @@ class _BankDetailTransactionsScreenState
                       final transaction = bankTransactions[index];
                       return TransactionCard(
                         transaction: transaction,
-                        heroTag: 'bank_detail_${transaction.id ?? transaction.rawSms}',
+                        heroTag:
+                            'bank_detail_${transaction.id ?? transaction.rawSms}',
                       );
                     },
                   ),
@@ -145,7 +151,7 @@ class _BankDetailTransactionsScreenState
   Widget _buildFilterChip(PaymentMethod? method, String label) {
     final isSelected = _methodFilter == method;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final activeColor = Theme.of(context).colorScheme.primary;
 
     return GestureDetector(
@@ -157,24 +163,30 @@ class _BankDetailTransactionsScreenState
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : (isDark ? AppTheme.surfaceElevatedDark : Colors.white),
+          color: isSelected
+              ? activeColor
+              : (isDark ? AppTheme.surfaceElevatedDark : Colors.white),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected ? activeColor : AppTheme.getBorderColor(context),
             width: 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: activeColor.withAlpha(60),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            )
-          ] : [],
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withAlpha(60),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.getNeutralColor(context),
+            color: isSelected
+                ? Colors.white
+                : AppTheme.getNeutralColor(context),
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             fontSize: 12.sp,
           ),

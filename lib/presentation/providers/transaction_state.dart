@@ -36,6 +36,9 @@ class TransactionState {
   final PaymentMethod? selectedMethod;
   final TransactionSort currentSort;
   final Map<String, String> bankLogos;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final TransactionType? selectedType;
 
   TransactionState({
     this.allTransactions = const [],
@@ -48,6 +51,9 @@ class TransactionState {
     this.selectedMethod,
     this.currentSort = TransactionSort.dateDesc,
     this.bankLogos = const {},
+    this.startDate,
+    this.endDate,
+    this.selectedType,
   });
 
   // Global (Unfiltered) Summary Data - For Dashboard
@@ -239,7 +245,28 @@ class TransactionState {
       if (selectedMethod != null) {
         matchesMethod = t.method == selectedMethod;
       }
-      return matchesBank && matchesMethod;
+
+      // 3. Type Filter
+      bool matchesType = true;
+      if (selectedType != null) {
+        matchesType = t.type == selectedType;
+      }
+
+      // 4. Date Range Filter
+      bool matchesDate = true;
+      if (startDate != null && endDate != null) {
+        // Normalize endDate to end of day
+        final endOfRange = DateTime(endDate!.year, endDate!.month, endDate!.day, 23, 59, 59);
+        matchesDate = t.date.isAfter(startDate!.subtract(const Duration(seconds: 1))) &&
+            t.date.isBefore(endOfRange.add(const Duration(seconds: 1)));
+      } else if (startDate != null) {
+        matchesDate = t.date.isAfter(startDate!.subtract(const Duration(seconds: 1)));
+      } else if (endDate != null) {
+        final endOfRange = DateTime(endDate!.year, endDate!.month, endDate!.day, 23, 59, 59);
+        matchesDate = t.date.isBefore(endOfRange.add(const Duration(seconds: 1)));
+      }
+
+      return matchesBank && matchesMethod && matchesType && matchesDate;
     }).toList();
 
     switch (currentSort) {
@@ -297,7 +324,6 @@ class TransactionState {
         .toList()
       ..sort((a, b) => a.name.compareTo(b.name));
   }
-
   TransactionState copyWith({
     List<Transaction>? allTransactions,
     List<OpeningBalance>? openingBalances,
@@ -309,6 +335,9 @@ class TransactionState {
     PaymentMethod? Function()? selectedMethod,
     TransactionSort? currentSort,
     Map<String, String>? bankLogos,
+    DateTime? Function()? startDate,
+    DateTime? Function()? endDate,
+    TransactionType? Function()? selectedType,
   }) {
     return TransactionState(
       allTransactions: allTransactions ?? this.allTransactions,
@@ -323,6 +352,9 @@ class TransactionState {
           : this.selectedMethod,
       currentSort: currentSort ?? this.currentSort,
       bankLogos: bankLogos ?? this.bankLogos,
+      startDate: startDate != null ? startDate() : this.startDate,
+      endDate: endDate != null ? endDate() : this.endDate,
+      selectedType: selectedType != null ? selectedType() : this.selectedType,
     );
   }
 }

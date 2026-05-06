@@ -1,82 +1,134 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../providers/transaction_notifier.dart';
-import '../providers/transaction_state.dart';
-import '../widgets/modern_filter_chips.dart';
-import '../widgets/transaction_card.dart';
-import '../widgets/shimmer_loading.dart';
-import '../widgets/empty_state_view.dart';
+import 'package:intl/intl.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
+import '../../domain/entities/transaction.dart';
+import '../providers/transaction_notifier.dart';
+import '../providers/transaction_state.dart';
+import '../widgets/empty_state_view.dart';
+import '../widgets/modern_filter_chips.dart';
+import '../widgets/shimmer_loading.dart';
+import '../widgets/transaction_card.dart';
 
-class TransactionListScreen extends ConsumerWidget {
+class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TransactionListScreen> createState() =>
+      _TransactionListScreenState();
+}
+
+class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Simple local search filter (can be moved to provider if needed)
+    final searchQuery = _searchController.text.toLowerCase();
+    final transactions = state.transactions.where((t) {
+      if (searchQuery.isEmpty) return true;
+      final merchant = (t.merchant ?? '').toLowerCase();
+      final desc = (t.description ?? '').toLowerCase();
+      return merchant.contains(searchQuery) || desc.contains(searchQuery);
+    }).toList();
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // 1. Redesigned Header
-            Container(
-              padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 8.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Transactions',
-                        style: TextStyle(
-                          fontSize: 28.sp,
-                          fontWeight: FontWeight.w900,
-                          color: Theme.of(context).textTheme.titleLarge?.color,
-                          letterSpacing: -1,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : AppTheme.bgLight,
+      appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Transactions',
+          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () {}, // Share functionality
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // 1. Search Bar
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    height: 52.h,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withAlpha(10)
+                            : AppTheme.borderLight,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_rounded,
+                          color: AppTheme.getNeutralColor(context),
+                          size: 20.sp,
                         ),
-                      ),
-                      _HeaderAction(
-                        icon: Icons.sync_rounded,
-                        onTap: controller.syncTransactions,
-                        isLoading: state.isLoading,
-                        isDark: isDark,
-                      ),
-                    ],
-                  ),
-                  UIHelpers.verticalSpace(8),
-                  Text(
-                    '${state.transactions.length} transactions found',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: AppTheme.getNeutralColor(context),
-                      fontWeight: FontWeight.w600,
+                        UIHelpers.horizontalSpace(12),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (v) => setState(() {}),
+                            style: TextStyle(fontSize: 14.sp),
+                            decoration: InputDecoration(
+                              hintText: 'Search transactions...',
+                              hintStyle: TextStyle(
+                                color: AppTheme.getNeutralColor(context),
+                                fontSize: 14.sp,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            // 2. Filters (Stays sticky below header)
-            ModernFilterBar(state: state, controller: controller),
+          // 2. Filters
+          ModernFilterBar(state: state, controller: controller),
 
-            // 3. Transactions List
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: controller.syncTransactions,
-                color: Theme.of(context).colorScheme.primary,
-                child: _buildListContent(state, controller),
-              ),
+          // 3. Transactions List
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: controller.syncTransactions,
+              color: Theme.of(context).colorScheme.primary,
+              child: _buildListContent(state, controller, transactions),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -84,78 +136,81 @@ class TransactionListScreen extends ConsumerWidget {
   Widget _buildListContent(
     TransactionState state,
     TransactionController controller,
+    List<Transaction> transactions,
   ) {
-    if (state.isLoading && state.transactions.isEmpty) {
+    if (state.isLoading && transactions.isEmpty) {
       return const ShimmerLoading();
     }
 
-    if (state.errorMessage != null && state.transactions.isEmpty) {
-      return EmptyStateView(
-        isError: true,
-        message: state.errorMessage!,
-        onRetry: controller.syncTransactions,
-      );
-    }
-
-    if (state.transactions.isEmpty) {
+    if (transactions.isEmpty) {
       return EmptyStateView(onRetry: controller.syncTransactions);
     }
 
+    // Group transactions by date
+    final groupedTransactions = _groupTransactionsByDate(transactions);
+
     return ListView.builder(
-      padding: EdgeInsets.only(top: 8.h, bottom: 100.h),
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      itemCount: state.transactions.length,
+      padding: EdgeInsets.only(bottom: 100.h),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      itemCount: groupedTransactions.length,
       itemBuilder: (context, index) {
-        final transaction = state.transactions[index];
-        return TransactionCard(
-          key: ValueKey('list_${transaction.id ?? transaction.rawSms}'),
-          transaction: transaction,
-          heroTag: 'hero_list_${transaction.id ?? transaction.rawSms}',
-        );
+        final group = groupedTransactions[index];
+
+        if (group is String) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 12.h),
+            child: Text(
+              group.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.getNeutralColor(context),
+                letterSpacing: 0.5,
+              ),
+            ),
+          );
+        } else {
+          final t = group as Transaction;
+          return TransactionCard(
+            key: ValueKey('list_${t.id ?? t.rawSms}'),
+            transaction: t,
+            heroTag: 'hero_list_${t.id ?? t.rawSms}',
+          );
+        }
       },
     );
   }
-}
 
-class _HeaderAction extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isLoading;
-  final bool isDark;
+  List<dynamic> _groupTransactionsByDate(List<Transaction> transactions) {
+    final List<dynamic> grouped = [];
+    String? lastDate;
 
-  const _HeaderAction({
-    required this.icon,
-    required this.onTap,
-    this.isLoading = false,
-    required this.isDark,
-  });
+    // Transactions are assumed to be sorted by date descending
+    for (final t in transactions) {
+      final dateStr = _formatDateHeader(t.date);
+      if (dateStr != lastDate) {
+        grouped.add(dateStr);
+        lastDate = dateStr;
+      }
+      grouped.add(t);
+    }
+    return grouped;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        padding: EdgeInsets.all(10.w),
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.surfaceElevatedDark : AppTheme.surfaceSecondaryLight,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: AppTheme.getBorderColor(context)),
-        ),
-        child: isLoading
-            ? SizedBox(
-                width: 20.sp,
-                height: 20.sp,
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).colorScheme.primary,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20.sp,
-              ),
-      ),
-    );
+  String _formatDateHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final tDate = DateTime(date.year, date.month, date.day);
+
+    if (tDate == today) {
+      return "Today, ${DateFormat('MMM dd').format(date)}";
+    } else if (tDate == yesterday) {
+      return "Yesterday, ${DateFormat('MMM dd').format(date)}";
+    } else {
+      return DateFormat('EEEE, MMM dd').format(date);
+    }
   }
 }

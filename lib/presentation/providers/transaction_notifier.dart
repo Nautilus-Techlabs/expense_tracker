@@ -189,6 +189,17 @@ class TransactionController extends Notifier<TransactionState> {
     state = state.copyWith(selectedMethod: () => method);
   }
 
+  void setDateRange(DateTime? start, DateTime? end) {
+    state = state.copyWith(
+      startDate: () => start,
+      endDate: () => end,
+    );
+  }
+
+  void setTypeFilter(TransactionType? type) {
+    state = state.copyWith(selectedType: () => type);
+  }
+
   Future<void> verifyTransaction({
     required String rawSms,
     required PaymentMethod method,

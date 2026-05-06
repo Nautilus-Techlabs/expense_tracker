@@ -38,7 +38,10 @@ class DashboardHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: Theme.of(context).brightness == Brightness.light
-              ? [AppTheme.primaryLight, AppTheme.primaryLight.withValues(alpha: 230 / 255)]
+              ? [
+                  AppTheme.primaryLight,
+                  AppTheme.primaryLight.withValues(alpha: 230 / 255),
+                ]
               : [AppTheme.surfaceDark, AppTheme.bgDark],
         ),
         borderRadius: BorderRadius.only(
@@ -125,7 +128,7 @@ class DashboardHeader extends StatelessWidget {
             children: [
               Expanded(
                 child: _SummaryIndicator(
-                  label: 'Income',
+                  label: 'Credit',
                   amount: income,
                   icon: Icons.south_west_rounded,
                   color: AppTheme.getIncomeColor(context),
@@ -134,7 +137,7 @@ class DashboardHeader extends StatelessWidget {
               UIHelpers.horizontalSpace(16),
               Expanded(
                 child: _SummaryIndicator(
-                  label: 'Expenses',
+                  label: 'Debit',
                   amount: spends,
                   icon: Icons.north_east_rounded,
                   color: AppTheme.getExpenseColor(context),
@@ -260,7 +263,9 @@ class _HeaderAction extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.white.withValues(alpha: 26 / 255)), // 0.1 * 255
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 26 / 255),
+          ), // 0.1 * 255
         ),
         child: isLoading
             ? SizedBox(
@@ -297,7 +302,9 @@ class _SummaryIndicator extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.white.withValues(alpha: 26 / 255)), // 0.1 * 255
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 26 / 255),
+        ), // 0.1 * 255
       ),
       child: Row(
         children: [
