@@ -1174,16 +1174,381 @@ class SmsLogsCompanion extends UpdateCompanion<SmsLogEntry> {
   }
 }
 
+class $OpeningBalancesTable extends OpeningBalances
+    with TableInfo<$OpeningBalancesTable, OpeningBalanceEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OpeningBalancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _bankNameMeta = const VerificationMeta(
+    'bankName',
+  );
+  @override
+  late final GeneratedColumn<String> bankName = GeneratedColumn<String>(
+    'bank_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _accountNumberMeta = const VerificationMeta(
+    'accountNumber',
+  );
+  @override
+  late final GeneratedColumn<String> accountNumber = GeneratedColumn<String>(
+    'account_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bankName,
+    accountNumber,
+    amount,
+    date,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'opening_balances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OpeningBalanceEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('bank_name')) {
+      context.handle(
+        _bankNameMeta,
+        bankName.isAcceptableOrUnknown(data['bank_name']!, _bankNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bankNameMeta);
+    }
+    if (data.containsKey('account_number')) {
+      context.handle(
+        _accountNumberMeta,
+        accountNumber.isAcceptableOrUnknown(
+          data['account_number']!,
+          _accountNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_accountNumberMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {bankName, accountNumber},
+  ];
+  @override
+  OpeningBalanceEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OpeningBalanceEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      bankName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bank_name'],
+      )!,
+      accountNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_number'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+    );
+  }
+
+  @override
+  $OpeningBalancesTable createAlias(String alias) {
+    return $OpeningBalancesTable(attachedDatabase, alias);
+  }
+}
+
+class OpeningBalanceEntry extends DataClass
+    implements Insertable<OpeningBalanceEntry> {
+  final int id;
+  final String bankName;
+  final String accountNumber;
+  final double amount;
+  final DateTime date;
+  const OpeningBalanceEntry({
+    required this.id,
+    required this.bankName,
+    required this.accountNumber,
+    required this.amount,
+    required this.date,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['bank_name'] = Variable<String>(bankName);
+    map['account_number'] = Variable<String>(accountNumber);
+    map['amount'] = Variable<double>(amount);
+    map['date'] = Variable<DateTime>(date);
+    return map;
+  }
+
+  OpeningBalancesCompanion toCompanion(bool nullToAbsent) {
+    return OpeningBalancesCompanion(
+      id: Value(id),
+      bankName: Value(bankName),
+      accountNumber: Value(accountNumber),
+      amount: Value(amount),
+      date: Value(date),
+    );
+  }
+
+  factory OpeningBalanceEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OpeningBalanceEntry(
+      id: serializer.fromJson<int>(json['id']),
+      bankName: serializer.fromJson<String>(json['bankName']),
+      accountNumber: serializer.fromJson<String>(json['accountNumber']),
+      amount: serializer.fromJson<double>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'bankName': serializer.toJson<String>(bankName),
+      'accountNumber': serializer.toJson<String>(accountNumber),
+      'amount': serializer.toJson<double>(amount),
+      'date': serializer.toJson<DateTime>(date),
+    };
+  }
+
+  OpeningBalanceEntry copyWith({
+    int? id,
+    String? bankName,
+    String? accountNumber,
+    double? amount,
+    DateTime? date,
+  }) => OpeningBalanceEntry(
+    id: id ?? this.id,
+    bankName: bankName ?? this.bankName,
+    accountNumber: accountNumber ?? this.accountNumber,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+  );
+  OpeningBalanceEntry copyWithCompanion(OpeningBalancesCompanion data) {
+    return OpeningBalanceEntry(
+      id: data.id.present ? data.id.value : this.id,
+      bankName: data.bankName.present ? data.bankName.value : this.bankName,
+      accountNumber: data.accountNumber.present
+          ? data.accountNumber.value
+          : this.accountNumber,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OpeningBalanceEntry(')
+          ..write('id: $id, ')
+          ..write('bankName: $bankName, ')
+          ..write('accountNumber: $accountNumber, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, bankName, accountNumber, amount, date);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OpeningBalanceEntry &&
+          other.id == this.id &&
+          other.bankName == this.bankName &&
+          other.accountNumber == this.accountNumber &&
+          other.amount == this.amount &&
+          other.date == this.date);
+}
+
+class OpeningBalancesCompanion extends UpdateCompanion<OpeningBalanceEntry> {
+  final Value<int> id;
+  final Value<String> bankName;
+  final Value<String> accountNumber;
+  final Value<double> amount;
+  final Value<DateTime> date;
+  const OpeningBalancesCompanion({
+    this.id = const Value.absent(),
+    this.bankName = const Value.absent(),
+    this.accountNumber = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+  });
+  OpeningBalancesCompanion.insert({
+    this.id = const Value.absent(),
+    required String bankName,
+    required String accountNumber,
+    required double amount,
+    required DateTime date,
+  }) : bankName = Value(bankName),
+       accountNumber = Value(accountNumber),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<OpeningBalanceEntry> custom({
+    Expression<int>? id,
+    Expression<String>? bankName,
+    Expression<String>? accountNumber,
+    Expression<double>? amount,
+    Expression<DateTime>? date,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bankName != null) 'bank_name': bankName,
+      if (accountNumber != null) 'account_number': accountNumber,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+    });
+  }
+
+  OpeningBalancesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? bankName,
+    Value<String>? accountNumber,
+    Value<double>? amount,
+    Value<DateTime>? date,
+  }) {
+    return OpeningBalancesCompanion(
+      id: id ?? this.id,
+      bankName: bankName ?? this.bankName,
+      accountNumber: accountNumber ?? this.accountNumber,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (bankName.present) {
+      map['bank_name'] = Variable<String>(bankName.value);
+    }
+    if (accountNumber.present) {
+      map['account_number'] = Variable<String>(accountNumber.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OpeningBalancesCompanion(')
+          ..write('id: $id, ')
+          ..write('bankName: $bankName, ')
+          ..write('accountNumber: $accountNumber, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $SmsLogsTable smsLogs = $SmsLogsTable(this);
+  late final $OpeningBalancesTable openingBalances = $OpeningBalancesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [transactions, smsLogs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    transactions,
+    smsLogs,
+    openingBalances,
+  ];
 }
 
 typedef $$TransactionsTableCreateCompanionBuilder =
@@ -1753,6 +2118,212 @@ typedef $$SmsLogsTableProcessedTableManager =
       SmsLogEntry,
       PrefetchHooks Function()
     >;
+typedef $$OpeningBalancesTableCreateCompanionBuilder =
+    OpeningBalancesCompanion Function({
+      Value<int> id,
+      required String bankName,
+      required String accountNumber,
+      required double amount,
+      required DateTime date,
+    });
+typedef $$OpeningBalancesTableUpdateCompanionBuilder =
+    OpeningBalancesCompanion Function({
+      Value<int> id,
+      Value<String> bankName,
+      Value<String> accountNumber,
+      Value<double> amount,
+      Value<DateTime> date,
+    });
+
+class $$OpeningBalancesTableFilterComposer
+    extends Composer<_$AppDatabase, $OpeningBalancesTable> {
+  $$OpeningBalancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bankName => $composableBuilder(
+    column: $table.bankName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get accountNumber => $composableBuilder(
+    column: $table.accountNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OpeningBalancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $OpeningBalancesTable> {
+  $$OpeningBalancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bankName => $composableBuilder(
+    column: $table.bankName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get accountNumber => $composableBuilder(
+    column: $table.accountNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OpeningBalancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OpeningBalancesTable> {
+  $$OpeningBalancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get bankName =>
+      $composableBuilder(column: $table.bankName, builder: (column) => column);
+
+  GeneratedColumn<String> get accountNumber => $composableBuilder(
+    column: $table.accountNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+}
+
+class $$OpeningBalancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OpeningBalancesTable,
+          OpeningBalanceEntry,
+          $$OpeningBalancesTableFilterComposer,
+          $$OpeningBalancesTableOrderingComposer,
+          $$OpeningBalancesTableAnnotationComposer,
+          $$OpeningBalancesTableCreateCompanionBuilder,
+          $$OpeningBalancesTableUpdateCompanionBuilder,
+          (
+            OpeningBalanceEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $OpeningBalancesTable,
+              OpeningBalanceEntry
+            >,
+          ),
+          OpeningBalanceEntry,
+          PrefetchHooks Function()
+        > {
+  $$OpeningBalancesTableTableManager(
+    _$AppDatabase db,
+    $OpeningBalancesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OpeningBalancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OpeningBalancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OpeningBalancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> bankName = const Value.absent(),
+                Value<String> accountNumber = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+              }) => OpeningBalancesCompanion(
+                id: id,
+                bankName: bankName,
+                accountNumber: accountNumber,
+                amount: amount,
+                date: date,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String bankName,
+                required String accountNumber,
+                required double amount,
+                required DateTime date,
+              }) => OpeningBalancesCompanion.insert(
+                id: id,
+                bankName: bankName,
+                accountNumber: accountNumber,
+                amount: amount,
+                date: date,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OpeningBalancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OpeningBalancesTable,
+      OpeningBalanceEntry,
+      $$OpeningBalancesTableFilterComposer,
+      $$OpeningBalancesTableOrderingComposer,
+      $$OpeningBalancesTableAnnotationComposer,
+      $$OpeningBalancesTableCreateCompanionBuilder,
+      $$OpeningBalancesTableUpdateCompanionBuilder,
+      (
+        OpeningBalanceEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $OpeningBalancesTable,
+          OpeningBalanceEntry
+        >,
+      ),
+      OpeningBalanceEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1761,4 +2332,6 @@ class $AppDatabaseManager {
       $$TransactionsTableTableManager(_db, _db.transactions);
   $$SmsLogsTableTableManager get smsLogs =>
       $$SmsLogsTableTableManager(_db, _db.smsLogs);
+  $$OpeningBalancesTableTableManager get openingBalances =>
+      $$OpeningBalancesTableTableManager(_db, _db.openingBalances);
 }

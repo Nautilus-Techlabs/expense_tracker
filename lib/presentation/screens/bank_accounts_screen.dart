@@ -148,14 +148,7 @@ class BankAccountsScreen extends ConsumerWidget {
             )
             .toList();
 
-        // Latest transaction to get balance
-        final latestWithBalance =
-            bankTransactions.where((t) => t.availableBalance != null).toList()
-              ..sort((a, b) => b.date.compareTo(a.date));
-
-        final currentBalance = latestWithBalance.isNotEmpty
-            ? latestWithBalance.first.availableBalance
-            : null;
+        final currentBalance = state.getAccountBalance(account.bankName, account.accountNumber);
 
         final lastTransaction = bankTransactions.isNotEmpty
             ? bankTransactions.reduce((a, b) => a.date.isAfter(b.date) ? a : b)

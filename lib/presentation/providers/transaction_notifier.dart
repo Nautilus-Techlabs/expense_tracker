@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/app_logger.dart';
 import '../../data/local/app_database.dart';
+import '../../domain/entities/opening_balance.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/parsers/combined_parser.dart';
 import '../../domain/sms_service.dart';
@@ -37,8 +38,18 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       final db = ref.read(databaseProvider);
       final entries = await db.getAllTransactions();
+      final List<OpeningBalanceEntry> balanceEntries = await db.getAllOpeningBalances();
+      
+      final List<OpeningBalance> openingBalances = balanceEntries.map((e) {
+        return OpeningBalance(
+          bankName: e.bankName,
+          accountNumber: e.accountNumber,
+          amount: e.amount,
+          date: e.date,
+        );
+      }).toList();
 
-      if (entries.isNotEmpty) {
+      if (entries.isNotEmpty || openingBalances.isNotEmpty) {
         final List<Transaction> allTransactions = entries.map((e) {
           return Transaction(
             amount: e.amount,
@@ -68,6 +79,7 @@ class TransactionController extends Notifier<TransactionState> {
 
         state = state.copyWith(
           allTransactions: allTransactions,
+          openingBalances: openingBalances,
           isShowingSampleData: false,
           selectedBank: () => currentBank,
         );
@@ -274,6 +286,26 @@ class TransactionController extends Notifier<TransactionState> {
         errorMessage: () => "Failed to add transaction: $e",
       );
       rethrow;
+    }
+  }
+
+  Future<void> setOpeningBalance(OpeningBalance balance) async {
+    try {
+      final db = ref.read(databaseProvider);
+      
+      // Safety: Always snap to midnight so transactions on the same day are included
+      final snappedDate = DateTime(balance.date.year, balance.date.month, balance.date.day);
+      
+      await db.setOpeningBalance(OpeningBalancesCompanion(
+        bankName: Value(balance.bankName),
+        accountNumber: Value(balance.accountNumber),
+        amount: Value(balance.amount),
+        date: Value(snappedDate),
+      ));
+      await loadFromStorage();
+    } catch (e, stack) {
+      AppLogger.e("Failed to set opening balance", e, stack);
+      state = state.copyWith(errorMessage: () => "Failed to set opening balance: $e");
     }
   }
 }

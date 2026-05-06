@@ -1,3 +1,4 @@
+import '../../domain/entities/opening_balance.dart';
 import '../../domain/entities/transaction.dart';
 
 enum TransactionSort { dateDesc, dateAsc, amountDesc, amountAsc }
@@ -30,6 +31,7 @@ class TransactionState {
   final String? errorMessage;
   final String debugInfo;
   final bool isShowingSampleData;
+  final List<OpeningBalance> openingBalances;
   final String? selectedBank;
   final PaymentMethod? selectedMethod;
   final TransactionSort currentSort;
@@ -37,6 +39,7 @@ class TransactionState {
 
   TransactionState({
     this.allTransactions = const [],
+    this.openingBalances = const [],
     this.isLoading = false,
     this.errorMessage,
     this.debugInfo = "",
@@ -48,30 +51,171 @@ class TransactionState {
   });
 
   // Global (Unfiltered) Summary Data - For Dashboard
-  double get totalGlobalDebit => allTransactions
-      .where((t) => t.type == TransactionType.debit)
-      .fold(0, (sum, t) => sum + t.amount);
+  // Global (Unfiltered) Summary Data - For Dashboard
+  double get totalGlobalDebit {
+    double total = 0;
+    final accounts = getUniqueAccounts();
+    
+    // 1. Sum debits from accounts with opening balances (from opening date onwards)
+    for (final acc in accounts) {
+      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
+      if (opening != null) {
+        total += allTransactions
+            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where((t) => t.type == TransactionType.debit)
+            .where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+            .fold(0.0, (sum, t) => sum + t.amount);
+      } else {
+        // No opening balance, sum all
+        total += allTransactions
+            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where((t) => t.type == TransactionType.debit)
+            .fold(0.0, (sum, t) => sum + t.amount);
+      }
+    }
 
-  double get totalGlobalCredit => allTransactions
-      .where((t) => t.type == TransactionType.credit)
-      .fold(0, (sum, t) => sum + t.amount);
+    // 2. Add debits from transactions without accounts
+    total += allTransactions
+        .where((t) => t.account == null || t.account!.isEmpty)
+        .where((t) => t.type == TransactionType.debit)
+        .fold(0.0, (sum, t) => sum + t.amount);
 
-  double get globalBalance => totalGlobalCredit - totalGlobalDebit;
+    return total;
+  }
+
+  double get totalGlobalCredit {
+    double total = 0;
+    final accounts = getUniqueAccounts();
+    
+    for (final acc in accounts) {
+      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
+      if (opening != null) {
+        total += allTransactions
+            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where((t) => t.type == TransactionType.credit)
+            .where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+            .fold(0.0, (sum, t) => sum + t.amount);
+      } else {
+        total += allTransactions
+            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where((t) => t.type == TransactionType.credit)
+            .fold(0.0, (sum, t) => sum + t.amount);
+      }
+    }
+
+    total += allTransactions
+        .where((t) => t.account == null || t.account!.isEmpty)
+        .where((t) => t.type == TransactionType.credit)
+        .fold(0.0, (sum, t) => sum + t.amount);
+
+    return total;
+  }
+
+  double get globalBalance {
+    double total = 0;
+    final accounts = getUniqueAccounts();
+
+    // 1. Sum up per-account balances
+    for (final acc in accounts) {
+      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
+      double accountTotal = opening?.amount ?? 0;
+      
+      final txs = allTransactions.where((t) => 
+        t.bankName == acc.bankName && t.account == acc.accountNumber);
+      
+      final filteredTxs = opening != null 
+          ? txs.where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+          : txs;
+
+      for (final t in filteredTxs) {
+        if (t.type == TransactionType.credit) {
+          accountTotal += t.amount;
+        } else {
+          accountTotal -= t.amount;
+        }
+      }
+      total += accountTotal;
+    }
+
+    // 2. Add impact of transactions without accounts
+    final orphanedTxs = allTransactions.where((t) => t.account == null || t.account!.isEmpty);
+    for (final t in orphanedTxs) {
+      if (t.type == TransactionType.credit) {
+        total += t.amount;
+      } else {
+        total -= t.amount;
+      }
+    }
+
+    return total;
+  }
+
+  double getAccountBalance(String bank, String acc) {
+    final opening = _getOpeningFor(bank, acc);
+    double accountTotal = opening?.amount ?? 0;
+
+    final txs = allTransactions.where((t) => t.bankName == bank && t.account == acc);
+
+    final filteredTxs = opening != null
+        ? txs.where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+        : txs;
+
+    for (final t in filteredTxs) {
+      if (t.type == TransactionType.credit) {
+        accountTotal += t.amount;
+      } else {
+        accountTotal -= t.amount;
+      }
+    }
+    return accountTotal;
+  }
+
+  bool isTransactionBeforeOpening(Transaction t) {
+    if (t.account == null || t.account!.isEmpty) return false;
+    final opening = _getOpeningFor(t.bankName, t.account!);
+    if (opening == null) return false;
+    return t.date.isBefore(opening.date);
+  }
+
+  OpeningBalance? _getOpeningFor(String bank, String acc) {
+    try {
+      return openingBalances.firstWhere(
+        (ob) => ob.bankName == bank && ob.accountNumber == acc,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
   // Filtered Summary Data - For Transaction List
   double get totalDebit => filteredTransactions
       .where((t) => t.type == TransactionType.debit)
-      .fold(0, (sum, t) => sum + t.amount);
+      .fold(0.0, (sum, t) => sum + t.amount);
 
   double get totalCredit => filteredTransactions
       .where((t) => t.type == TransactionType.credit)
-      .fold(0, (sum, t) => sum + t.amount);
+      .fold(0.0, (sum, t) => sum + t.amount);
 
-  double get balance => totalCredit - totalDebit;
+  double get balance {
+    double total = 0;
+    final accounts = getUniqueAccounts();
+    
+    // Check if we are filtering by a specific bank
+    if (selectedBank != null) {
+      // If filtering by bank, only sum verified accounts for that bank
+      for (final acc in accounts.where((a) => a.bankName == selectedBank)) {
+        total += getAccountBalance(acc.bankName, acc.accountNumber);
+      }
+      return total;
+    }
+
+    // Default: Return the global calculated balance
+    return globalBalance;
+  }
 
   List<Transaction> get transactions => filteredTransactions;
 
-  // Latest 10 Transactions (Unfiltered) - For Dashboard
+  // Latest 10 Transactions (All visible) - For Dashboard
   List<Transaction> get latestTransactions {
     final list = List<Transaction>.from(allTransactions);
     list.sort((a, b) => b.date.compareTo(a.date));
@@ -80,6 +224,7 @@ class TransactionState {
 
   List<Transaction> get filteredTransactions {
     final filtered = allTransactions.where((t) {
+      // 1. Bank Filter
       bool matchesBank = true;
       if (selectedBank != null) {
         if (selectedBank == 'unsupported') {
@@ -88,6 +233,8 @@ class TransactionState {
           matchesBank = t.isVerified && t.bankName == selectedBank;
         }
       }
+
+      // 2. Method Filter
       bool matchesMethod = true;
       if (selectedMethod != null) {
         matchesMethod = t.method == selectedMethod;
@@ -153,6 +300,7 @@ class TransactionState {
 
   TransactionState copyWith({
     List<Transaction>? allTransactions,
+    List<OpeningBalance>? openingBalances,
     bool? isLoading,
     String? Function()? errorMessage,
     String? debugInfo,
@@ -164,6 +312,7 @@ class TransactionState {
   }) {
     return TransactionState(
       allTransactions: allTransactions ?? this.allTransactions,
+      openingBalances: openingBalances ?? this.openingBalances,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
       debugInfo: debugInfo ?? this.debugInfo,

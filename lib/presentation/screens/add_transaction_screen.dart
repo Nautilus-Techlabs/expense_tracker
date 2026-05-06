@@ -316,7 +316,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           Icons.payments_rounded,
                         ),
                         DropdownButtonFormField<PaymentMethod>(
-                          value: _selectedMethod,
+                          initialValue: _selectedMethod,
                           dropdownColor: Theme.of(context).cardColor,
                           style: TextStyle(color: colorScheme.onSurface),
                           decoration: _inputDecoration(''),

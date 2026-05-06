@@ -38,25 +38,29 @@ class SmsLogs extends Table {
   TextColumn get body => text()();
 }
 
-@DriftDatabase(tables: [Transactions, SmsLogs])
+@DataClassName('OpeningBalanceEntry')
+class OpeningBalances extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get bankName => text()();
+  TextColumn get accountNumber => text()();
+  RealColumn get amount => real()();
+  DateTimeColumn get date => dateTime()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {bankName, accountNumber},
+  ];
+}
+
+@DriftDatabase(tables: [Transactions, SmsLogs, OpeningBalances])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 1;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-    onUpgrade: (m, from, to) async {
-      if (from < 2) {
-        await m.addColumn(transactions, transactions.description);
-      }
-      if (from < 3) {
-        await m.addColumn(transactions, transactions.source);
-        await m.alterTable(TableMigration(transactions));
-      }
-    },
-  );
+  MigrationStrategy get migration => MigrationStrategy();
 
   // Helpers
   Future<List<TransactionEntry>> getAllTransactions() =>
@@ -75,6 +79,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<SmsLogEntry>> getAllSmsLogs() => select(smsLogs).get();
+
+  Future<List<OpeningBalanceEntry>> getAllOpeningBalances() =>
+      select(openingBalances).get();
+
+  Future<void> setOpeningBalance(OpeningBalancesCompanion companion) {
+    return into(openingBalances).insertOnConflictUpdate(companion);
+  }
 
   Future<void> updateTransaction(TransactionsCompanion companion) {
     return (update(

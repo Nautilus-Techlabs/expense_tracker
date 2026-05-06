@@ -33,13 +33,26 @@ class _BankDetailTransactionsScreenState
     final state = ref.watch(transactionProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Filter transactions by bank and method
+    // Filter transactions by bank and method, respecting opening balance date
     final allBankTransactions = state.allTransactions.where((t) {
       final matchesBank = t.bankName == widget.bankName;
+      bool matchesAccount = true;
       if (widget.accountNumber != null) {
-        return matchesBank && t.account == widget.accountNumber;
+        matchesAccount = t.account == widget.accountNumber;
       }
-      return matchesBank;
+      
+      if (!matchesBank || !matchesAccount) return false;
+
+      // Check Opening Balance Date
+      if (t.account != null && t.account!.isNotEmpty) {
+        final openingList = state.openingBalances.where(
+          (ob) => ob.bankName == t.bankName && ob.accountNumber == t.account,
+        ).toList();
+        if (openingList.isNotEmpty && t.date.isBefore(openingList.first.date)) {
+          return false;
+        }
+      }
+      return true;
     }).toList();
     
     // Available methods for this bank
