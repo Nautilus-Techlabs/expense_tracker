@@ -2818,7 +2818,38 @@
             "senderIdentifiers": [
                 "JIOPBS", "JIOPBK"
             ],
+
             "templates": [
+                {
+                    "name": "JPB UPI Payment",
+                    "pattern": "UPI\\s+payment\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s]+)\\s+from\\s+(?:A/c|A/C)\\s+([Xx*\\d]+)\\s+successful",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "accountGroup": 3,
+                    "method": "upi",
+                    "priority": 0
+                },
+                {
+                    "name": "JPB Cashback Received",
+                    "pattern": "(Cashback)\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+received",
+                    "type": "credit",
+                    "merchantGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 0
+                },
+                {
+                    "name": "JPB Cashback Received Alt",
+                    "pattern": "Cashback\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+received\\s+in\\s+([^.]+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+
+
                 {
                     "name": "JPB Amount First Debited",
                     "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited",
@@ -2945,18 +2976,19 @@
             "logo": "assets/bank_logos/jio_payments_bank.svg",
             "senderIdentifiers": [
                 "JIOPAY",
-                "JA-JIOPAY-S",
-                "JM-JIOPAY"
+                "JIOPAY-S"
             ],
+
             "templates": [
                 {
                     "name": "JioPay Plan Amount",
-                    "pattern": "Plan\\s+Name\\s*:\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "Plan\\s+Name\\s*:\\s*.*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "wallet",
                     "priority": 1
                 },
+
                 {
                     "name": "JioPay Refund",
                     "pattern": "Refund\\s+of\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
@@ -2966,13 +2998,34 @@
                     "priority": 1
                 },
                 {
+                    "name": "JioPay Money Added",
+                    "pattern": "Money\\s+added\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "upi",
+                    "priority": 0
+                },
+                {
+                    "name": "JioPay Transaction Debit",
+
+                    "pattern": "(?:Recharge|payment|bill payment)\\s+successful(?:\\s+to\\s+([^\\.]+))?.*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "debit",
+                    "merchantGroup": 1,
+                    "amountGroup": 2,
+                    "method": "wallet",
+                    "priority": 0
+                },
+                {
                     "name": "JioPay Rs Amount",
-                    "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:Paid|Payment|Spent|debited|recharge|payment)\\s+(?:successful\\s+)?(?:of\\s+)?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "wallet",
-                    "priority": 2
+                    "priority": 1
                 },
+
+
+
                 {
                     "name": "Jio Recharge Number",
                     "pattern": "Jio\\s+Number\\s*:\\s*(\\d{10})",
@@ -3010,11 +3063,21 @@
                 },
                 {
                     "name": "Jio Universal Safety Net",
-                    "pattern": "(?:Plan\\s+Name|Rs\\.?|recharge).*?([0-9,]+(?:\\.\\d{1,2})?)",
-                    "type": "credit",
+                    "pattern": "(?:recharge\\s+successful|payment\\s+successful|bill\\s+payment).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+                    "type": "debit",
                     "amountGroup": 1,
                     "priority": 50
+                },
+                {
+                    "name": "Jio Plan Safety Net",
+                    "pattern": "(?:Plan\\s+Name).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "priority": 51
                 }
+
+
+
             ]
         },
         {
@@ -4495,8 +4558,17 @@
             ],
             "templates": [
                 {
+                    "name": "Yes Bank UPI Transaction",
+                    "pattern": "UPI\\s+txn\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s]+?)\\s+successful",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "upi",
+                    "priority": 0
+                },
+                {
                     "name": "Yes Bank Amount First Debit",
-                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:debited|withdrawn|charged|spent|paid)",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|charged|spent|paid)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4504,7 +4576,7 @@
                 },
                 {
                     "name": "Yes Bank Amount First Credit",
-                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?(?:credited|deposited|received)",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:credited|deposited|received)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4512,7 +4584,7 @@
                 },
                 {
                     "name": "Yes Bank INR Spent",
-                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+(?:is\\s+)?spent",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?spent",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4520,7 +4592,7 @@
                 },
                 {
                     "name": "Yes Bank Debit Generic",
-                    "pattern": "(?:debited|withdrawn|charged|paid|spent).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|withdrawn|charged|paid|spent).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d+)?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4528,7 +4600,7 @@
                 },
                 {
                     "name": "Yes Bank Credit Generic",
-                    "pattern": "(?:credited|deposited|received|refund).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:credited|deposited|received|refund).*?(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d+)?)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",

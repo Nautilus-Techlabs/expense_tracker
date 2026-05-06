@@ -50,6 +50,11 @@ class AppConstants {
     "unsuccessful",
     "insufficient funds",
     "rejected",
+    "get flat",
+    "on your next",
+    "win",
+    "promo",
+    "use code",
   ];
 
   /// Common senders that should be ignored entirely as they are not banks
@@ -57,10 +62,6 @@ class AppConstants {
     "PHONEPE",
     "PAYTM",
     "GPAY",
-    "AMAZON",
-    "JIO",
-    "AIRTEL",
-    "VI",
     "ZOMATO",
     "SWIGGY",
     "UBER",
