@@ -11,8 +11,6 @@ class DashboardHeader extends StatelessWidget {
   final double income;
   final double spends;
   final VoidCallback onSync;
-  final Function(TransactionSort) onSort;
-  final TransactionSort currentSort;
   final bool isLoading;
 
   const DashboardHeader({
@@ -21,8 +19,6 @@ class DashboardHeader extends StatelessWidget {
     required this.income,
     required this.spends,
     required this.onSync,
-    required this.onSort,
-    required this.currentSort,
     required this.isLoading,
   });
 
@@ -90,11 +86,6 @@ class DashboardHeader extends StatelessWidget {
                   ),
                   UIHelpers.horizontalSpace(12),
                   _HeaderAction(
-                    icon: Icons.sort_rounded,
-                    onTap: () => _showSortMenu(context),
-                  ),
-                  UIHelpers.horizontalSpace(12),
-                  _HeaderAction(
                     icon: Icons.sync_rounded,
                     onTap: onSync,
                     isLoading: isLoading,
@@ -159,83 +150,6 @@ class DashboardHeader extends StatelessWidget {
     );
   }
 
-  void _showSortMenu(BuildContext context) {
-    final theme = Theme.of(context);
-    showMenu<TransactionSort>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        MediaQuery.of(context).size.width - 100,
-        100,
-        24,
-        0,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      color: theme.colorScheme.surface,
-      elevation: 8,
-      items: [
-        _buildSortItem(
-          context,
-          TransactionSort.dateDesc,
-          'Newest First',
-          Icons.calendar_today_rounded,
-        ),
-        _buildSortItem(
-          context,
-          TransactionSort.dateAsc,
-          'Oldest First',
-          Icons.history_rounded,
-        ),
-        _buildSortItem(
-          context,
-          TransactionSort.amountDesc,
-          'High to Low',
-          Icons.trending_down_rounded,
-        ),
-        _buildSortItem(
-          context,
-          TransactionSort.amountAsc,
-          'Low to High',
-          Icons.trending_up_rounded,
-        ),
-      ],
-    ).then((value) {
-      if (value != null) onSort(value);
-    });
-  }
-
-  PopupMenuItem<TransactionSort> _buildSortItem(
-    BuildContext context,
-    TransactionSort value,
-    String label,
-    IconData icon,
-  ) {
-    final isSelected = currentSort == value;
-
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 18.sp,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : AppTheme.getNeutralColor(context),
-          ),
-          UIHelpers.horizontalSpace(12),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).textTheme.bodyLarge?.color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _HeaderAction extends StatelessWidget {

@@ -447,9 +447,17 @@ class _DetailedTransactionScreenState
                 AppTheme.getNeutralColor(context),
               ),
               SizedBox(height: 12.h),
-              _isEditing
-                  ? _buildEditableDescriptionCard(isDark)
-                  : const SizedBox.shrink(),
+              if (_isEditing)
+                _buildEditableDescriptionCard(isDark)
+              else if (widget.transaction.description != null &&
+                  widget.transaction.description!.isNotEmpty)
+                _buildModernDetailCard(
+                  context,
+                  'DESCRIPTION',
+                  widget.transaction.description!,
+                  Icons.notes_rounded,
+                  AppTheme.getNeutralColor(context),
+                ),
 
               SizedBox(height: 12.h),
               _isEditing
@@ -760,7 +768,10 @@ class _DetailedTransactionScreenState
                 ),
                 Text(
                   widget.transaction.merchant ??
-                      (isDebit ? "Total Spent" : "Total Received"),
+                      (widget.transaction.description != null &&
+                              widget.transaction.description!.isNotEmpty
+                          ? widget.transaction.description!
+                          : (isDebit ? "Total Spent" : "Total Received")),
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
@@ -768,20 +779,26 @@ class _DetailedTransactionScreenState
                     letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  widget.transaction.merchant != null
-                      ? (isDebit ? "Spent Amount" : "Received Amount")
-                      : "Total Transaction",
+                  widget.transaction.description != null &&
+                          widget.transaction.merchant != null
+                      ? widget.transaction.description!
+                      : (widget.transaction.merchant != null
+                          ? (isDebit ? "Spent Amount" : "Received Amount")
+                          : "Total Transaction"),
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: semanticColor.withAlpha(isDark ? 255 : 200),
                     letterSpacing: 1.2,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 12.h),
                 FittedBox(

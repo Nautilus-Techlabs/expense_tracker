@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import '../widgets/bank_summary_card.dart';
 import '../widgets/transaction_card.dart';
 
 class BankDetailTransactionsScreen extends ConsumerStatefulWidget {
@@ -108,10 +109,31 @@ class _BankDetailTransactionsScreenState
       ),
       body: Column(
         children: [
+          // ── Summary Card ──
+          BankSummaryCard(
+            bankName: widget.bankName,
+            accountNumber: widget.accountNumber,
+            balance: widget.accountNumber != null
+                ? state.getAccountBalance(widget.bankName, widget.accountNumber!)
+                : state.getAvailableBanks().contains(widget.bankName)
+                    ? state.allTransactions
+                        .where((t) => t.bankName == widget.bankName && t.isVerified)
+                        .map((t) => t.account)
+                        .toSet()
+                        .fold(0.0, (sum, acc) => sum + (acc != null ? state.getAccountBalance(widget.bankName, acc) : 0))
+                    : 0,
+            income: bankTransactions
+                .where((t) => t.type == TransactionType.credit)
+                .fold(0.0, (sum, t) => sum + t.amount),
+            spends: bankTransactions
+                .where((t) => t.type == TransactionType.debit)
+                .fold(0.0, (sum, t) => sum + t.amount),
+          ),
+
           // ── Filter Bar ──
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
             child: Row(
               children: [
                 _buildFilterChip(null, 'All'),

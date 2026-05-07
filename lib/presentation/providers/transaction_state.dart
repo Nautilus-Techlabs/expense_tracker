@@ -226,11 +226,9 @@ class TransactionState {
 
   List<Transaction> get transactions => filteredTransactions;
 
-  // Latest 10 Transactions (All visible) - For Dashboard
+  // Latest 10 Filtered Transactions - For Dashboard Preview
   List<Transaction> get latestTransactions {
-    final list = List<Transaction>.from(allTransactions);
-    list.sort((a, b) => b.date.compareTo(a.date));
-    return list.take(10).toList();
+    return filteredTransactions.take(10).toList();
   }
 
   List<Transaction> get filteredTransactions {

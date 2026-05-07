@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../core/theme/app_theme.dart';
+import '../../core/utils/ui_helpers.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
@@ -56,6 +58,17 @@ class DashboardScreen extends ConsumerWidget {
                   onActionPressed: () {
                     ref.read(navigationIndexProvider.notifier).state = 1;
                   },
+                  trailing: IconButton(
+                    onPressed: () => _showSortMenu(context, ref),
+                    icon: Icon(
+                      Icons.sort_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20.sp,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
             ),
@@ -95,7 +108,9 @@ class DashboardScreen extends ConsumerWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
+            MaterialPageRoute(
+              builder: (context) => const AddTransactionScreen(),
+            ),
           );
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -142,8 +157,6 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
       income: income,
       spends: spends,
       onSync: onSync,
-      onSort: onSort,
-      currentSort: currentSort,
       isLoading: isLoading,
     );
   }
@@ -159,7 +172,92 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.balance != balance ||
         oldDelegate.income != income ||
         oldDelegate.spends != spends ||
-        oldDelegate.isLoading != isLoading ||
-        oldDelegate.currentSort != currentSort;
+        oldDelegate.isLoading != isLoading;
   }
+}
+
+void _showSortMenu(BuildContext context, WidgetRef ref) {
+  final state = ref.read(transactionProvider);
+  final controller = ref.read(transactionProvider.notifier);
+  final theme = Theme.of(context);
+
+  showMenu<TransactionSort>(
+    context: context,
+    position: RelativeRect.fromLTRB(
+      MediaQuery.of(context).size.width - 50.w,
+      400.h, // Adjusted position for dashboard list
+      24.w,
+      0,
+    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+    color: theme.colorScheme.surface,
+    elevation: 8,
+    items: [
+      _buildSortItem(
+        context,
+        TransactionSort.dateDesc,
+        'Newest First',
+        Icons.calendar_today_rounded,
+        state.currentSort,
+      ),
+      _buildSortItem(
+        context,
+        TransactionSort.dateAsc,
+        'Oldest First',
+        Icons.history_rounded,
+        state.currentSort,
+      ),
+      _buildSortItem(
+        context,
+        TransactionSort.amountDesc,
+        'High to Low',
+        Icons.trending_down_rounded,
+        state.currentSort,
+      ),
+      _buildSortItem(
+        context,
+        TransactionSort.amountAsc,
+        'Low to High',
+        Icons.trending_up_rounded,
+        state.currentSort,
+      ),
+    ],
+  ).then((value) {
+    if (value != null) controller.setSort(value);
+  });
+}
+
+PopupMenuItem<TransactionSort> _buildSortItem(
+  BuildContext context,
+  TransactionSort value,
+  String label,
+  IconData icon,
+  TransactionSort currentSort,
+) {
+  final isSelected = currentSort == value;
+
+  return PopupMenuItem(
+    value: value,
+    child: Row(
+      children: [
+        Icon(
+          icon,
+          size: 18.sp,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : AppTheme.getNeutralColor(context),
+        ),
+        UIHelpers.horizontalSpace(12),
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+        ),
+      ],
+    ),
+  );
 }

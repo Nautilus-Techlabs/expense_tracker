@@ -157,18 +157,19 @@ class SectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;
   final VoidCallback? onActionPressed;
+  final Widget? trailing;
 
   const SectionHeader({
     super.key,
     required this.title,
     this.actionLabel,
     this.onActionPressed,
+    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
@@ -179,6 +180,11 @@ class SectionHeader extends StatelessWidget {
             letterSpacing: -0.5,
           ),
         ),
+        const Spacer(),
+        if (trailing != null) ...[
+          trailing!,
+          UIHelpers.horizontalSpace(8),
+        ],
         if (actionLabel != null && onActionPressed != null)
           TextButton(
             onPressed: onActionPressed,

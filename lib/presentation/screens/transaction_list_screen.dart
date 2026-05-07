@@ -50,10 +50,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: false,
         title: Text(
           'Transactions',
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),

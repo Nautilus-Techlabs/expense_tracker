@@ -81,7 +81,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   // Remove 'XX' prefix if present for editing,
                   // but keep it if it's the standard format.
                   // Actually, the user should see what's in the DB.
-                  _accountController.text = acc.account.replaceAll('XX', '');
+                  _accountController.text = acc.account;
                 } else {
                   _selectedAccountKey = null;
                 }
@@ -222,7 +222,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 : _merchantController.text,
             account: _accountController.text.isEmpty
                 ? null
-                : _accountController.text,
+                : (_accountController.text.length == 4 &&
+                        RegExp(r'^\d+$').hasMatch(_accountController.text))
+                    ? 'XX${_accountController.text}'
+                    : _accountController.text,
             description: _descriptionController.text.isEmpty
                 ? null
                 : _descriptionController.text,

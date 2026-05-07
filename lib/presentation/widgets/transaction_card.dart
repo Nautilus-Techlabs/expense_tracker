@@ -92,10 +92,28 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                           fontSize: 15.sp,
                           color: theme.colorScheme.onSurface,
                         ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (widget.transaction.description != null &&
+                          widget.transaction.description!.isNotEmpty) ...[
+                        UIHelpers.verticalSpace(2),
+                        Text(
+                          widget.transaction.description!,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppTheme.getNeutralColor(context),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                       UIHelpers.verticalSpace(4),
-                      Row(
+                      Wrap(
+                        spacing: 8.w,
+                        runSpacing: 4.h,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
                             DateFormat(
@@ -108,26 +126,20 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                             ),
                           ),
                           if (widget.transaction.source ==
-                              TransactionSource.manual) ...[
-                            UIHelpers.horizontalSpace(8),
+                              TransactionSource.manual)
                             _buildTag('MANUAL', theme.colorScheme.primary),
-                          ],
-                          if (isHistorical) ...[
-                            UIHelpers.horizontalSpace(8),
+                          if (isHistorical)
                             _buildTag(
                               'HISTORICAL',
                               AppTheme.getNeutralColor(context),
                             ),
-                          ],
-                          if (widget.transaction.category != null) ...[
-                            UIHelpers.horizontalSpace(8),
+                          if (widget.transaction.category != null)
                             _buildTag(
                               widget.transaction.category!.name.toUpperCase(),
                               widget.transaction.category!.color != null
                                   ? Color(widget.transaction.category!.color!)
                                   : theme.colorScheme.primary,
                             ),
-                          ],
                         ],
                       ),
                     ],
