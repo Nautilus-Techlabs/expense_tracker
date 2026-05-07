@@ -1,3 +1,4 @@
+import '../../domain/entities/category.dart';
 import '../../domain/entities/opening_balance.dart';
 import '../../domain/entities/transaction.dart';
 
@@ -39,6 +40,8 @@ class TransactionState {
   final DateTime? startDate;
   final DateTime? endDate;
   final TransactionType? selectedType;
+  final List<Category> categories;
+  final int? selectedCategoryId;
 
   TransactionState({
     this.allTransactions = const [],
@@ -54,6 +57,8 @@ class TransactionState {
     this.startDate,
     this.endDate,
     this.selectedType,
+    this.categories = const [],
+    this.selectedCategoryId,
   });
 
   // Global (Unfiltered) Summary Data - For Dashboard
@@ -266,7 +271,13 @@ class TransactionState {
         matchesDate = t.date.isBefore(endOfRange.add(const Duration(seconds: 1)));
       }
 
-      return matchesBank && matchesMethod && matchesType && matchesDate;
+      // 5. Category Filter
+      bool matchesCategory = true;
+      if (selectedCategoryId != null) {
+        matchesCategory = t.categoryId == selectedCategoryId;
+      }
+
+      return matchesBank && matchesMethod && matchesType && matchesDate && matchesCategory;
     }).toList();
 
     switch (currentSort) {
@@ -338,6 +349,8 @@ class TransactionState {
     DateTime? Function()? startDate,
     DateTime? Function()? endDate,
     TransactionType? Function()? selectedType,
+    List<Category>? categories,
+    int? Function()? selectedCategoryId,
   }) {
     return TransactionState(
       allTransactions: allTransactions ?? this.allTransactions,
@@ -355,6 +368,8 @@ class TransactionState {
       startDate: startDate != null ? startDate() : this.startDate,
       endDate: endDate != null ? endDate() : this.endDate,
       selectedType: selectedType != null ? selectedType() : this.selectedType,
+      categories: categories ?? this.categories,
+      selectedCategoryId: selectedCategoryId != null ? selectedCategoryId() : this.selectedCategoryId,
     );
   }
 }

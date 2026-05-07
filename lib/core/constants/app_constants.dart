@@ -129,6 +129,10 @@ class AppConstants {
     "upi",
     "txn",
     "ref",
+    "services",
+    "other services",
+    "call",
+    "support",
   ];
 
   /// Hard block keywords that immediately invalidate a merchant name

@@ -1,3 +1,4 @@
+import 'package:expense_tracker/domain/entities/category.dart';
 enum TransactionType {
   debit,
   credit,
@@ -45,6 +46,8 @@ class Transaction {
   final bool isSample;
   final String? description;
   final TransactionSource source;
+  final int? categoryId;
+  final Category? category;
 
   Transaction({
     required this.amount,
@@ -62,6 +65,8 @@ class Transaction {
     this.id,
     this.description,
     this.source = TransactionSource.sms,
+    this.categoryId,
+    this.category,
   });
 
   Map<String, dynamic> toMap() {
@@ -81,6 +86,7 @@ class Transaction {
       'isSample': isSample,
       'description': description,
       'source': source.name,
+      'categoryId': categoryId,
     };
   }
 
@@ -103,6 +109,8 @@ class Transaction {
       isSample: map['isSample'] ?? false,
       description: map['description'],
       source: TransactionSource.fromString(map['source'] ?? 'sms'),
+      categoryId: map['categoryId'],
+      category: map['category'] != null ? Category.fromMap(map['category']) : null,
     );
   }
 
@@ -117,6 +125,8 @@ class Transaction {
     bool? isVerified,
     String? Function()? description,
     TransactionSource? source,
+    int? Function()? categoryId,
+    Category? Function()? category,
   }) {
     return Transaction(
       id: id ?? this.id,
@@ -134,6 +144,8 @@ class Transaction {
       isSample: isSample ?? this.isSample,
       description: description != null ? description() : this.description,
       source: source ?? this.source,
+      categoryId: categoryId != null ? categoryId() : this.categoryId,
+      category: category != null ? category() : this.category,
     );
   }
 

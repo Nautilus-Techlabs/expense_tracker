@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../widgets/transaction_ui_components.dart';
@@ -32,6 +33,7 @@ class _DetailedTransactionScreenState
   late TextEditingController _amountController;
   late TextEditingController _descriptionController;
   late bool _isVerified;
+  int? _selectedCategoryId;
   bool _isEditing = false;
 
   @override
@@ -51,6 +53,7 @@ class _DetailedTransactionScreenState
       text: widget.transaction.description ?? '',
     );
     _isVerified = widget.transaction.isVerified;
+    _selectedCategoryId = widget.transaction.categoryId;
   }
 
   @override
@@ -133,6 +136,7 @@ class _DetailedTransactionScreenState
           description: _descriptionController.text.trim().isEmpty
               ? null
               : _descriptionController.text.trim(),
+          categoryId: _selectedCategoryId,
         );
 
     if (mounted) {
@@ -445,14 +449,22 @@ class _DetailedTransactionScreenState
               SizedBox(height: 12.h),
               _isEditing
                   ? _buildEditableDescriptionCard(isDark)
-                  : widget.transaction.description != null &&
-                        widget.transaction.description!.isNotEmpty
+                  : const SizedBox.shrink(),
+
+              SizedBox(height: 12.h),
+              _isEditing
+                  ? _buildEditableCategoryCard()
+                  : widget.transaction.category != null
                   ? _buildModernDetailCard(
                       context,
-                      'DESCRIPTION',
-                      widget.transaction.description!,
-                      Icons.description_rounded,
-                      AppTheme.getNeutralColor(context),
+                      'CATEGORY',
+                      widget.transaction.category!.name,
+                      UIHelpers.getCategoryIcon(
+                        widget.transaction.category!.icon,
+                      ),
+                      widget.transaction.category!.color != null
+                          ? Color(widget.transaction.category!.color!)
+                          : Theme.of(context).colorScheme.primary,
                     )
                   : const SizedBox.shrink(),
 
@@ -746,14 +758,29 @@ class _DetailedTransactionScreenState
                     size: 32.sp,
                   ),
                 ),
-                SizedBox(height: 24.h),
                 Text(
-                  isDebit ? "Total Spent" : "Total Received",
+                  widget.transaction.merchant ??
+                      (isDebit ? "Total Spent" : "Total Received"),
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w800,
+                    color: semanticColor,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  widget.transaction.merchant != null
+                      ? (isDebit ? "Spent Amount" : "Received Amount")
+                      : "Total Transaction",
+                  style: TextStyle(
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: semanticColor.withAlpha(isDark ? 255 : 200),
-                    letterSpacing: 0.5,
+                    letterSpacing: 1.2,
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -813,5 +840,157 @@ class _DetailedTransactionScreenState
         ),
       ),
     );
+  }
+
+  Widget _buildEditableCategoryCard() {
+    final state = ref.watch(transactionProvider);
+    final categories = state.categories;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withAlpha(100),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'CATEGORY',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: AppTheme.getNeutralColor(context),
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              GestureDetector(
+                onTap: _showAddCategoryDialog,
+                child: Text(
+                  '+ ADD NEW',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: [
+              ChoiceChip(
+                label: const Text('Uncategorized'),
+                selected: _selectedCategoryId == null,
+                onSelected: (selected) {
+                  if (selected) setState(() => _selectedCategoryId = null);
+                },
+                showCheckmark: false,
+                selectedColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+                backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
+                labelStyle: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                  color: _selectedCategoryId == null
+                      ? Theme.of(context).colorScheme.primary
+                      : AppTheme.getNeutralColor(context),
+                ),
+              ),
+              ...categories.map((cat) {
+                final isSelected = _selectedCategoryId == cat.id;
+                final catColor = cat.color != null
+                    ? Color(cat.color!)
+                    : Theme.of(context).colorScheme.primary;
+                return ChoiceChip(
+                  label: Text(cat.name),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) setState(() => _selectedCategoryId = cat.id);
+                  },
+                  showCheckmark: false,
+                  selectedColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+                  backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
+                  labelStyle: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? catColor
+                        : AppTheme.getNeutralColor(context),
+                  ),
+                  avatar: Icon(
+                    UIHelpers.getCategoryIcon(cat.icon),
+                    size: 14.sp,
+                    color: isSelected
+                        ? catColor
+                        : AppTheme.getNeutralColor(context),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddCategoryDialog() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          'New Category',
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: _inputDecoration(
+            Theme.of(context).brightness == Brightness.dark,
+          ).copyWith(hintText: 'Category Name'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final id = await ref
+          .read(transactionProvider.notifier)
+          .addCategory(result);
+      if (id != null) {
+        setState(() => _selectedCategoryId = id);
+      }
+    }
   }
 }

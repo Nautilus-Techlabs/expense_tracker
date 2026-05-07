@@ -58,12 +58,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           'Transactions',
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: () {}, // Share functionality
-          ),
-        ],
       ),
       body: Column(
         children: [

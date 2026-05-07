@@ -27,6 +27,7 @@ class ModernFilterBar extends StatelessWidget {
         _AccountChips(state: state, controller: controller),
         _MethodChips(state: state, controller: controller),
         _TypeChips(state: state, controller: controller),
+        _CategoryChips(state: state, controller: controller),
         _DateRangeSelector(state: state, controller: controller),
       ],
     );
@@ -136,6 +137,41 @@ class _TypeChips extends StatelessWidget {
             isSelected: state.selectedType == TransactionType.credit,
             onTap: () => controller.setTypeFilter(TransactionType.credit),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryChips extends StatelessWidget {
+  final TransactionState state;
+  final TransactionController controller;
+
+  const _CategoryChips({required this.state, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = state.categories;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: [
+          _FilterChip(
+            label: 'All Categories',
+            isSelected: state.selectedCategoryId == null,
+            onTap: () => controller.setCategoryFilter(null),
+          ),
+          ...categories.map((cat) => Padding(
+            padding: EdgeInsets.only(left: 8.w),
+            child: _FilterChip(
+              label: cat.name,
+              isSelected: state.selectedCategoryId == cat.id,
+              onTap: () => controller.setCategoryFilter(cat.id),
+              icon: UIHelpers.getCategoryIcon(cat.icon),
+            ),
+          )),
         ],
       ),
     );

@@ -101,6 +101,23 @@ class HierarchicalBankParser extends BankParser {
       }
     }
 
+    // 2.b Fallback Merchant Guessing (if template didn't capture it)
+    if (merchant == null) {
+      // Unified pattern for common merchant/sender keywords (debit & credit)
+      final universalPattern = RegExp(
+        r"(?:at|to|towards|for|using|trf\s+to|transfer\s+to|transfer\s+from|from\s+beneficiary|beneficiary|from)\s+([a-zA-Z0-9\s\-&]+?)(?:\s+on|\s+at|\s+via|\s+using|\s+Ref|\s+Refno|\s+UTR|\.|$|;)",
+        caseSensitive: false,
+      );
+
+      final m = universalPattern.firstMatch(sms);
+      if (m != null) {
+        final guessed = cleanMerchantName(m.group(1)!);
+        if (isValidMerchantName(guessed)) {
+          merchant = guessed;
+        }
+      }
+    }
+
     // 3. Account Extraction
     String? account;
     if (template.accountGroup != null) {

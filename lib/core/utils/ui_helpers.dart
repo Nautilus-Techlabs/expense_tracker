@@ -18,24 +18,63 @@ class UIHelpers {
 
   // Common Padding
   static EdgeInsets get screenPadding => EdgeInsets.all(20.w);
-  static EdgeInsets get horizontalPadding => EdgeInsets.symmetric(horizontal: 20.w);
+  static EdgeInsets get horizontalPadding =>
+      EdgeInsets.symmetric(horizontal: 20.w);
   static EdgeInsets get verticalPadding => EdgeInsets.symmetric(vertical: 20.h);
 
   // Decorations
   static BoxDecoration glassDecoration({required BuildContext context}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
-      color: isDark 
-        ? Colors.white.withAlpha(13) // 0.05 * 255
-        : Colors.white.withAlpha(179), // 0.7 * 255
+      color: isDark
+          ? Colors.white.withAlpha(13) // 0.05 * 255
+          : Colors.white.withAlpha(179), // 0.7 * 255
       borderRadius: BorderRadius.circular(24.r),
       border: Border.all(
-        color: isDark 
-          ? Colors.white.withAlpha(26) // 0.1 * 255
-          : Colors.white.withAlpha(77), // 0.3 * 255
+        color: isDark
+            ? Colors.white.withAlpha(26) // 0.1 * 255
+            : Colors.white.withAlpha(77), // 0.3 * 255
       ),
     );
   }
+
+  static IconData getCategoryIcon(String? iconName) {
+    switch (iconName) {
+      case 'home':
+        return Icons.home_rounded;
+      case 'directions_car':
+        return Icons.directions_car_rounded;
+      case 'restaurant':
+        return Icons.restaurant_rounded;
+      case 'bolt':
+        return Icons.bolt_rounded;
+      case 'medical_services':
+        return Icons.medical_services_rounded;
+      case 'verified_user':
+        return Icons.verified_user_rounded;
+      case 'trending_up':
+        return Icons.trending_up_rounded;
+      case 'payments':
+        return Icons.payments_rounded;
+      case 'shopping_bag':
+        return Icons.shopping_bag_rounded;
+      case 'movie':
+        return Icons.movie_rounded;
+      case 'face':
+        return Icons.face_rounded;
+      case 'school':
+        return Icons.school_rounded;
+      case 'flight':
+        return Icons.flight_rounded;
+      case 'child_care':
+        return Icons.child_care_rounded;
+      case 'more_horiz':
+        return Icons.more_horiz_rounded;
+      default:
+        return Icons.category_rounded;
+    }
+  }
+
 }
 
 extension AppSpacing on num {

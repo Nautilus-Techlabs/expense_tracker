@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/app_logger.dart';
 import '../../data/local/app_database.dart';
+import '../../domain/entities/category.dart';
 import '../../domain/entities/opening_balance.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/parsers/combined_parser.dart';
@@ -25,6 +26,7 @@ class TransactionController extends Notifier<TransactionState> {
 
   Future<void> _init() async {
     try {
+      await loadCategories();
       await loadFromStorage();
       await syncTransactions(isStartup: true);
       // ✅ Populate logos from the config engine
@@ -38,8 +40,9 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       final db = ref.read(databaseProvider);
       final entries = await db.getAllTransactions();
-      final List<OpeningBalanceEntry> balanceEntries = await db.getAllOpeningBalances();
-      
+      final List<OpeningBalanceEntry> balanceEntries = await db
+          .getAllOpeningBalances();
+
       final List<OpeningBalance> openingBalances = balanceEntries.map((e) {
         return OpeningBalance(
           bankName: e.bankName,
@@ -51,6 +54,10 @@ class TransactionController extends Notifier<TransactionState> {
 
       if (entries.isNotEmpty || openingBalances.isNotEmpty) {
         final List<Transaction> allTransactions = entries.map((e) {
+          final cat = state.categories.firstWhere(
+            (c) => c.id == e.categoryId,
+            orElse: () => const Category(name: 'Uncategorized', id: -1),
+          );
           return Transaction(
             amount: e.amount,
             type: e.type,
@@ -67,6 +74,8 @@ class TransactionController extends Notifier<TransactionState> {
             id: e.id,
             description: e.description,
             source: e.source,
+            categoryId: e.categoryId,
+            category: cat.id == -1 ? null : cat,
           );
         }).toList();
 
@@ -113,6 +122,7 @@ class TransactionController extends Notifier<TransactionState> {
           isSample: Value(t.isSample),
           description: Value(t.description),
           source: Value(t.source),
+          categoryId: Value(t.categoryId),
         );
       }).toList();
 
@@ -140,7 +150,6 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: false,
         db: ref.read(databaseProvider),
-        forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
@@ -189,15 +198,16 @@ class TransactionController extends Notifier<TransactionState> {
     state = state.copyWith(selectedMethod: () => method);
   }
 
-  void setDateRange(DateTime? start, DateTime? end) {
-    state = state.copyWith(
-      startDate: () => start,
-      endDate: () => end,
-    );
-  }
-
   void setTypeFilter(TransactionType? type) {
     state = state.copyWith(selectedType: () => type);
+  }
+
+  void setCategoryFilter(int? categoryId) {
+    state = state.copyWith(selectedCategoryId: () => categoryId);
+  }
+
+  void setDateRange(DateTime? start, DateTime? end) {
+    state = state.copyWith(startDate: () => start, endDate: () => end);
   }
 
   Future<void> verifyTransaction({
@@ -239,6 +249,7 @@ class TransactionController extends Notifier<TransactionState> {
     required PaymentMethod method,
     required bool isVerified,
     String? description,
+    int? categoryId,
   }) async {
     try {
       final db = ref.read(databaseProvider);
@@ -249,6 +260,7 @@ class TransactionController extends Notifier<TransactionState> {
           method: Value(method),
           isVerified: Value(isVerified),
           description: Value(description),
+          categoryId: Value(categoryId),
         ),
       );
 
@@ -268,6 +280,7 @@ class TransactionController extends Notifier<TransactionState> {
     String? merchant,
     String? account,
     String? description,
+    int? categoryId,
   }) async {
     try {
       final db = ref.read(databaseProvider);
@@ -284,6 +297,7 @@ class TransactionController extends Notifier<TransactionState> {
         source: const Value(TransactionSource.manual),
         isVerified: const Value(true),
         rawSms: const Value(null),
+        categoryId: Value(categoryId),
       );
 
       AppLogger.d(
@@ -305,20 +319,98 @@ class TransactionController extends Notifier<TransactionState> {
   Future<void> setOpeningBalance(OpeningBalance balance) async {
     try {
       final db = ref.read(databaseProvider);
-      
+
       // Safety: Always snap to midnight so transactions on the same day are included
-      final snappedDate = DateTime(balance.date.year, balance.date.month, balance.date.day);
-      
-      await db.setOpeningBalance(OpeningBalancesCompanion(
-        bankName: Value(balance.bankName),
-        accountNumber: Value(balance.accountNumber),
-        amount: Value(balance.amount),
-        date: Value(snappedDate),
-      ));
+      final snappedDate = DateTime(
+        balance.date.year,
+        balance.date.month,
+        balance.date.day,
+      );
+
+      await db.setOpeningBalance(
+        OpeningBalancesCompanion(
+          bankName: Value(balance.bankName),
+          accountNumber: Value(balance.accountNumber),
+          amount: Value(balance.amount),
+          date: Value(snappedDate),
+        ),
+      );
       await loadFromStorage();
     } catch (e, stack) {
       AppLogger.e("Failed to set opening balance", e, stack);
-      state = state.copyWith(errorMessage: () => "Failed to set opening balance: $e");
+      state = state.copyWith(
+        errorMessage: () => "Failed to set opening balance: $e",
+      );
+    }
+  }
+
+  Future<void> loadCategories() async {
+    try {
+      final db = ref.read(databaseProvider);
+      var entries = await db.getAllCategories();
+      
+      if (entries.isEmpty) {
+        // Seed if empty (for users who already migrated but have no data)
+        final defaultCategories = [
+          (name: 'Housing', icon: 'home', color: 0xFF2196F3),
+          (name: 'Transportation', icon: 'directions_car', color: 0xFFFF9800),
+          (name: 'Food & Dining', icon: 'restaurant', color: 0xFFF44336),
+          (name: 'Utilities', icon: 'bolt', color: 0xFFFFEB3B),
+          (name: 'Healthcare', icon: 'medical_services', color: 0xFF4CAF50),
+          (name: 'Insurance', icon: 'verified_user', color: 0xFF009688),
+          (name: 'Savings & Investments', icon: 'trending_up', color: 0xFF8BC34A),
+          (name: 'Debt Payments', icon: 'payments', color: 0xFF9C27B0),
+          (name: 'Shopping', icon: 'shopping_bag', color: 0xFFE91E63),
+          (name: 'Entertainment', icon: 'movie', color: 0xFF3F51B5),
+          (name: 'Personal Care', icon: 'face', color: 0xFFFF5722),
+          (name: 'Education', icon: 'school', color: 0xFF795548),
+          (name: 'Travel', icon: 'flight', color: 0xFF00BCD4),
+          (name: 'Family & Kids', icon: 'child_care', color: 0xFFFF4081),
+          (name: 'Miscellaneous', icon: 'more_horiz', color: 0xFF9E9E9E),
+        ];
+
+        for (final cat in defaultCategories) {
+          await db.addCategory(CategoriesCompanion.insert(
+            name: cat.name,
+            icon: Value(cat.icon),
+            color: Value(cat.color),
+          ));
+        }
+        entries = await db.getAllCategories();
+      }
+
+      final categories = entries.map((e) => Category(
+        id: e.id,
+        name: e.name,
+        icon: e.icon,
+        color: e.color,
+      )).toList();
+      state = state.copyWith(categories: categories);
+    } catch (e, stack) {
+      AppLogger.e("Failed to load categories", e, stack);
+    }
+  }
+
+  Future<int?> addCategory(
+    String name, {
+    String icon = 'category',
+    int? color,
+  }) async {
+    try {
+      final db = ref.read(databaseProvider);
+      final id = await db.addCategory(
+        CategoriesCompanion.insert(
+          name: name,
+          icon: Value(icon),
+          color: Value(color),
+        ),
+      );
+      await loadCategories();
+      return id;
+    } catch (e, stack) {
+      AppLogger.e("Failed to add category", e, stack);
+      state = state.copyWith(errorMessage: () => "Failed to add category: $e");
+      return null;
     }
   }
 }

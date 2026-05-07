@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 
@@ -27,6 +28,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   TransactionType _selectedType = TransactionType.debit;
   PaymentMethod _selectedMethod = PaymentMethod.upi;
   String? _selectedAccountKey;
+  int? _selectedCategoryId;
 
   Widget _buildAccountChips() {
     final transactions = ref.watch(transactionProvider).allTransactions;
@@ -224,6 +226,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             description: _descriptionController.text.isEmpty
                 ? null
                 : _descriptionController.text,
+            categoryId: _selectedCategoryId,
           )
           .then((_) {
             if (mounted) {
@@ -429,7 +432,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 24.h),
+
+              _buildInputLabel('Category', Icons.category_rounded),
+              _buildCategoryChips(),
+              SizedBox(height: 24.h),
 
               _buildInputLabel('Description', Icons.description_rounded),
               TextFormField(
@@ -611,6 +618,145 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
     );
+  }
+
+  Widget _buildCategoryChips() {
+    final state = ref.watch(transactionProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: [
+        ChoiceChip(
+          label: const Text('Uncategorized'),
+          selected: _selectedCategoryId == null,
+          onSelected: (selected) {
+            if (selected) setState(() => _selectedCategoryId = null);
+          },
+          showCheckmark: false,
+          selectedColor: colorScheme.primary.withValues(alpha: 0.12),
+          backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
+          labelStyle: TextStyle(
+            color: _selectedCategoryId == null
+                ? colorScheme.primary
+                : Theme.of(context).textTheme.bodyMedium?.color,
+            fontSize: 12.sp,
+            fontWeight: _selectedCategoryId == null
+                ? FontWeight.bold
+                : FontWeight.normal,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            side: BorderSide(
+              color: _selectedCategoryId == null
+                  ? colorScheme.primary
+                  : AppTheme.getBorderColor(context),
+            ),
+          ),
+        ),
+        ...state.categories.map((cat) {
+          final isSelected = _selectedCategoryId == cat.id;
+          final catColor = cat.color != null
+              ? Color(cat.color!)
+              : colorScheme.primary;
+
+          return ChoiceChip(
+            label: Text(cat.name),
+            selected: isSelected,
+            onSelected: (selected) {
+              if (selected) setState(() => _selectedCategoryId = cat.id);
+            },
+            showCheckmark: false,
+            selectedColor: colorScheme.primary.withValues(alpha: 0.12),
+            backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
+            avatar: Icon(
+              UIHelpers.getCategoryIcon(cat.icon),
+              size: 14.sp,
+              color: isSelected
+                  ? catColor
+                  : Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+            labelStyle: TextStyle(
+              color: isSelected
+                  ? catColor
+                  : Theme.of(context).textTheme.bodyMedium?.color,
+              fontSize: 12.sp,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              side: BorderSide(
+                color: isSelected ? catColor : AppTheme.getBorderColor(context),
+              ),
+            ),
+          );
+        }),
+        ChoiceChip(
+          label: const Text('+ Add'),
+          selected: false,
+          onSelected: (_) => _showAddCategoryDialog(),
+          backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
+          labelStyle: TextStyle(
+            color: colorScheme.primary,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.bold,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            side: BorderSide(color: colorScheme.primary),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showAddCategoryDialog() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          'New Category',
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: _inputDecoration('Category Name'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final id = await ref
+          .read(transactionProvider.notifier)
+          .addCategory(result);
+      if (id != null) {
+        setState(() => _selectedCategoryId = id);
+      }
+    }
   }
 }
 

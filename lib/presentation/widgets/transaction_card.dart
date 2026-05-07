@@ -119,6 +119,15 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                               AppTheme.getNeutralColor(context),
                             ),
                           ],
+                          if (widget.transaction.category != null) ...[
+                            UIHelpers.horizontalSpace(8),
+                            _buildTag(
+                              widget.transaction.category!.name.toUpperCase(),
+                              widget.transaction.category!.color != null
+                                  ? Color(widget.transaction.category!.color!)
+                                  : theme.colorScheme.primary,
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -197,6 +206,10 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
   }
 
   String _getTitle() {
+    if (widget.transaction.merchant != null &&
+        widget.transaction.merchant!.isNotEmpty) {
+      return widget.transaction.merchant!;
+    }
     final isDebit = widget.transaction.type == TransactionType.debit;
     return isDebit ? 'Debit' : 'Credit';
   }
