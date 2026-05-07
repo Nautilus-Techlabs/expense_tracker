@@ -150,6 +150,7 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: false,
         db: ref.read(databaseProvider),
+        forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
@@ -348,7 +349,7 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       final db = ref.read(databaseProvider);
       var entries = await db.getAllCategories();
-      
+
       if (entries.isEmpty) {
         // Seed if empty (for users who already migrated but have no data)
         final defaultCategories = [
@@ -358,7 +359,11 @@ class TransactionController extends Notifier<TransactionState> {
           (name: 'Utilities', icon: 'bolt', color: 0xFFFFEB3B),
           (name: 'Healthcare', icon: 'medical_services', color: 0xFF4CAF50),
           (name: 'Insurance', icon: 'verified_user', color: 0xFF009688),
-          (name: 'Savings & Investments', icon: 'trending_up', color: 0xFF8BC34A),
+          (
+            name: 'Savings & Investments',
+            icon: 'trending_up',
+            color: 0xFF8BC34A,
+          ),
           (name: 'Debt Payments', icon: 'payments', color: 0xFF9C27B0),
           (name: 'Shopping', icon: 'shopping_bag', color: 0xFFE91E63),
           (name: 'Entertainment', icon: 'movie', color: 0xFF3F51B5),
@@ -370,21 +375,23 @@ class TransactionController extends Notifier<TransactionState> {
         ];
 
         for (final cat in defaultCategories) {
-          await db.addCategory(CategoriesCompanion.insert(
-            name: cat.name,
-            icon: Value(cat.icon),
-            color: Value(cat.color),
-          ));
+          await db.addCategory(
+            CategoriesCompanion.insert(
+              name: cat.name,
+              icon: Value(cat.icon),
+              color: Value(cat.color),
+            ),
+          );
         }
         entries = await db.getAllCategories();
       }
 
-      final categories = entries.map((e) => Category(
-        id: e.id,
-        name: e.name,
-        icon: e.icon,
-        color: e.color,
-      )).toList();
+      final categories = entries
+          .map(
+            (e) =>
+                Category(id: e.id, name: e.name, icon: e.icon, color: e.color),
+          )
+          .toList();
       state = state.copyWith(categories: categories);
     } catch (e, stack) {
       AppLogger.e("Failed to load categories", e, stack);

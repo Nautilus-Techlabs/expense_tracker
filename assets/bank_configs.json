@@ -114,120 +114,84 @@
             ],
             "templates": [
                 {
-                    "name": "Amazon Pay Cashback/Refund",
-                    "pattern": "(?:Cashback|Refund)\\s+of\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:credited|processed)\\s+to\\s+(?:your\\s+)?Amazon\\s+Pay\\s+balance",
+                    "name": "Amazon Pay Added",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+added\\s+to\\s+your\\s+Amazon\\s+Pay\\s+balance",
                     "type": "credit",
                     "amountGroup": 1,
-                    "method": "unknown",
-                    "priority": 4,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "method": "wallet",
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Paid Mobile Recharge",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+paid\\s+for\\s+(?:mobile\\s+recharge|recharge)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "upi",
-                    "priority": 3,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Added To Balance",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+added\\s+to\\s+(?:your\\s+)?Amazon\\s+Pay\\s+balance",
-                    "type": "credit",
-                    "amountGroup": 1,
-                    "method": "upi",
-                    "priority": 2,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Paid To",
-                    "pattern": "(?:Amazon\\s+Pay:\\s+)?(?:Paid|paid)\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:to|using\\s+Amazon\\s+Pay\\s+balance\\s+at)\\s+([^\\s.]+)",
+                    "name": "Amazon Pay Paid At",
+                    "pattern": "Paid\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+using\\s+Amazon\\s+Pay\\s+balance\\s+at\\s+([^\\.]+)",
                     "type": "debit",
                     "amountGroup": 1,
                     "merchantGroup": 2,
-                    "method": "upi",
-                    "priority": 1,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "method": "wallet",
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Debit INR",
-                    "pattern": "debited\\s+for\\s+INR\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
+
+                    "name": "Amazon Pay Paid For",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+paid\\s+for\\s+([^\\n\\.]+?)\\s+using\\s+Amazon\\s+Pay\\s+balance",
                     "type": "debit",
                     "amountGroup": 1,
+                    "merchantGroup": 2,
                     "method": "wallet",
-                    "priority": 1,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Payment",
-                    "pattern": "Payment\\s+of\\s+Rs\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
-                    "type": "debit",
-                    "amountGroup": 1,
-                    "method": "wallet",
-                    "priority": 2,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Credit",
-                    "pattern": "(?:credited|refunded|received).*?(?:Rs|INR)\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
+                    "name": "Amazon Pay Cashback",
+                    "pattern": "Cashback\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+credited\\s+to\\s+your\\s+Amazon\\s+Pay\\s+balance",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "wallet",
-                    "priority": 3,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Generic Rs",
-                    "pattern": "Rs\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
-                    "type": "unknown",
+                    "name": "Amazon Pay Refund",
+                    "pattern": "Refund\\s+of\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:processed|credited)\\s+to\\s+(?:your\\s+)?Amazon\\s+Pay\\s+balance",
+                    "type": "credit",
                     "amountGroup": 1,
                     "method": "wallet",
-                    "priority": 4,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Generic INR",
-                    "pattern": "INR\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
-                    "type": "unknown",
+                    "name": "Amazon Pay Wallet Load",
+                    "pattern": "Wallet\\s+load\\s+successful:\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+added",
+                    "type": "credit",
                     "amountGroup": 1,
                     "method": "wallet",
-                    "priority": 5,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "priority": 0
                 },
                 {
-                    "name": "Amazon Pay Merchant Success",
-                    "pattern": "successful\\s+at\\s+(.+?)(?:\\.\\s*Updated|\\s*\\.\\s*Updated|\\.(?:\\s|$))",
-                    "type": "meta",
-                    "merchantGroup": 1,
-                    "priority": 6,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Reference Exact",
-                    "pattern": "Transaction\\s+Reference\\s+Number\\s+is\\s+(\\d{12})",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 7,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Reference Alt",
-                    "pattern": "Reference\\s+(?:Number|No)[:\\s]+(\\d{12})",
-                    "type": "meta",
-                    "referenceGroup": 1,
-                    "priority": 8,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
-                },
-                {
-                    "name": "Amazon Pay Universal Safety Net",
-                    "pattern": "(?:debited|credited|payment|refunded|received).*?(?:Rs|INR)\\s+([0-9,]+(?:\\.[0-9]{1,2})?)",
-                    "type": "unknown",
+                    "name": "Amazon Pay Order Paid",
+
+                    "pattern": "Amazon\\s+Pay:\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+paid\\s+to\\s+([^\\s\\.]+)\\s+using\\s+balance",
+                    "type": "debit",
                     "amountGroup": 1,
-                    "priority": 50,
-                    "exclusionKeywords": ["otp", "code", "password", "failed", "declined"]
+                    "merchantGroup": 2,
+                    "method": "wallet",
+                    "priority": 0
+                },
+                {
+                    "name": "Amazon Pay Simple Paid",
+                    "pattern": "(?:Amazon\\s+Pay:\\s+)?Paid\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s\\.]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "wallet",
+                    "priority": 0
+                },
+                {
+                    "name": "Amazon Pay Updated Balance",
+                    "pattern": "(?:Updated|Total|Available(?:\\s+Amazon\\s+Pay)?)\\s+balance[:\\s]+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 10
                 }
             ]
+
         },
         {
             "bankName": "AU Small Finance Bank",
@@ -2687,6 +2651,24 @@
                     "priority": 2
                 },
                 {
+                    "name": "IndusInd Account Credited",
+                    "pattern": "A/?C\\s+[\\*Xx]*(\\d{4,})\\s+credited\\s+by\\s+(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{1,2})?)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 0
+                },
+                {
+                    "name": "IndusInd Card Spent",
+                    "pattern": "(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)\\s+spent\\s+on\\s+indusind\\s+Card\\s+[\\*Xx]*(\\d{4})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "card",
+                    "priority": 0
+                },
+                {
                     "name": "IndusInd Of Amount Debit",
                     "pattern": "(?:debit|withdrawal|txn|used)\\s+(?:of|for)\\s+(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
@@ -2756,7 +2738,8 @@
                 },
                 {
                     "name": "IndusInd Merchant At",
-                    "pattern": "at\\s+([^\\n]+?)(?:\\s+Ref|\\s+on|$)",
+                    "pattern": "at\\s+([^\\.\\n]+?)(?:\\s+Ref|\\s+on|\\.|$)",
+
                     "type": "meta",
                     "merchantGroup": 1,
                     "priority": 17
@@ -2788,6 +2771,20 @@
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 12
+                },
+                {
+                    "name": "IndusInd Available Limit",
+                    "pattern": "Avl\\s*(?:Lmt|Limit)[:\\s]+(?:INR|Rs\\.?|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 10
+                },
+                {
+                    "name": "IndusInd Avl Bal No Currency",
+                    "pattern": "Avl\\s*Bal[:\\s]*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 10
                 },
                 {
                     "name": "IndusInd RRN Reference",
@@ -4853,3 +4850,5 @@
         }
     ]
 }
+
+

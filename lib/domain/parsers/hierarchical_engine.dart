@@ -32,17 +32,75 @@ class HierarchicalBankParser extends BankParser {
       if (template.type == TransactionType.meta) continue;
 
       if (!template.matches(sms)) continue;
-      final result = _extract(sms, template, fallbackDate);
-      if (result == null) continue;
-      final score = _calculateScore(result, template);
+      var tx = _extract(sms, template, fallbackDate);
+      if (tx == null) continue;
+
+      tx = _applyMetaTemplates(tx, sms);
+
+      final score = _calculateScore(tx, template);
 
       if (score > bestScore) {
         bestScore = score;
-        bestTransaction = result;
+        bestTransaction = tx;
       }
     }
     return bestTransaction;
   }
+
+  Transaction _applyMetaTemplates(Transaction initialTx, String sms) {
+    var tx = initialTx;
+    final sortedTemplates = [...definition.templates]
+      ..sort((a, b) => a.priority.compareTo(b.priority));
+
+    for (var meta in sortedTemplates) {
+      if (meta.type != TransactionType.meta) continue;
+      if (!meta.matches(sms)) continue;
+
+      final metaMatch = meta.pattern.firstMatch(sms);
+      if (metaMatch == null) continue;
+
+      // Fill Merchant if missing
+      if (tx.merchant == null && meta.merchantGroup != null) {
+        final raw = metaMatch.group(meta.merchantGroup!);
+        if (raw != null) {
+          final cleaned = cleanMerchantName(raw);
+          if (isValidMerchantName(cleaned)) {
+            tx = tx.copyWith(merchant: () => cleaned);
+          }
+        }
+      }
+
+      // Fill Account if missing
+      if (tx.account == null && meta.accountGroup != null) {
+        final raw = metaMatch.group(meta.accountGroup!);
+        if (raw != null) {
+          tx = tx.copyWith(account: () => _cleanupAccount(raw));
+        }
+      }
+
+      // Fill Balance if missing
+      if (tx.availableBalance == null && meta.balanceGroup != null) {
+        final raw = metaMatch.group(meta.balanceGroup!);
+        if (raw != null) {
+          final val = double.tryParse(raw.replaceAll(",", ""));
+          if (val != null) {
+            tx = tx.copyWith(availableBalance: () => val);
+          }
+        }
+      }
+    }
+    return tx;
+  }
+
+
+  String _cleanupAccount(String raw) {
+    var acc = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (acc.length > 4) {
+      acc = acc.substring(acc.length - 4);
+    }
+    return 'XX$acc';
+  }
+
 
   int _calculateScore(Transaction tx, SmSTemplate template) {
     int score = 0;
@@ -138,15 +196,9 @@ class HierarchicalBankParser extends BankParser {
 
     // 3. CLEANUP: Standardize the display (e.g., remove 'XX' or '****')
     if (account != null) {
-      // Keep only the last 4 digits for a clean UI
-      account = account.replaceAll(RegExp(r'[^0-9]'), '');
-      if (account.length > 4) {
-        account = account.substring(account.length - 4);
-      }
+      account = _cleanupAccount(account);
     }
-    if (account != null) {
-      account = 'XX$account';
-    }
+
 
     // 4. Balance Extraction
     double? balance;

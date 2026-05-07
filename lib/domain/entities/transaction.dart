@@ -120,7 +120,8 @@ class Transaction {
     String? Function()? merchant,
     double? amount,
     PaymentMethod? method,
-    String? account,
+    String? Function()? account,
+    double? Function()? availableBalance,
     String? bankName,
     bool? isVerified,
     String? Function()? description,
@@ -135,8 +136,9 @@ class Transaction {
       merchant: merchant != null ? merchant() : this.merchant,
       date: date,
       method: method ?? this.method,
-      account: account ?? this.account,
-      availableBalance: availableBalance,
+      account: account != null ? account() : this.account,
+      availableBalance:
+          availableBalance != null ? availableBalance() : this.availableBalance,
       rawSms: rawSms,
       bankName: bankName ?? this.bankName,
       templateName: templateName,
@@ -148,6 +150,7 @@ class Transaction {
       category: category != null ? category() : this.category,
     );
   }
+
 
   @override
   String toString() {
