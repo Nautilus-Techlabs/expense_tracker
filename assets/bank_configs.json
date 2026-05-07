@@ -3635,6 +3635,41 @@
                     "priority": 1
                 },
                 {
+                    "name": "Saraswat A/c Credited For",
+                    "pattern": "A/c\\s+[Xx*]*(\\d{4,})\\s+credited\\s+for\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "credit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "Saraswat A/c Debited For",
+                    "pattern": "A/c\\s+[Xx*]*(\\d{4,})\\s+debited\\s+for\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "debit",
+                    "accountGroup": 1,
+                    "amountGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "Saraswat Amount Debited From A/c",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+debited\\s+from\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "Saraswat Cheque Passed",
+                    "pattern": "Cheque\\s+no\\s+\\d+\\s+passed\\s+for\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
                     "name": "Saraswat Salary Credit",
                     "pattern": "(?:Salary\\s+)?credit\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+in\\s+A/c\\s+[Xx*]*(\\d{4,})",
                     "type": "credit",
@@ -4029,12 +4064,28 @@
                     "priority": 4
                 },
                 {
+                    "name": "SIB Generic Amount Credited",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:credited|received|deposited|cashback)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 10
+                },
+                {
+                    "name": "SIB Generic Amount Debited",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+(?:debited|withdrawn|spent|paid)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 10
+                },
+                {
                     "name": "South Indian Bank Amount",
                     "pattern": "(?:Rs\\.?|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "method": "bank",
-                    "priority": 1
+                    "priority": 50
                 },
                 {
                     "name": "South Indian Bank Debit",
@@ -4042,7 +4093,7 @@
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
-                    "priority": 2
+                    "priority": 30
                 },
                 {
                     "name": "South Indian Bank Credit",
@@ -4050,7 +4101,7 @@
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
-                    "priority": 3
+                    "priority": 31
                 },
                 {
                     "name": "South Indian IMPS Merchant",
@@ -4173,61 +4224,84 @@
             ],
             "templates": [
                 {
-                    "name": "SCB Card Spent",
-                    "pattern": "(?:spent|Spent)\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+(?:your\\s+)?(?:Credit\\s+)?Card\\s+[Xx*]*(\\d{4,})",
+                    "name": "SCB Credit Card Spent",
+                    "pattern": "(?:spent|Spent)\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+(?:your\\s+)?(?:Credit\\s+)?Card\\s+[Xx*]*(\\d{4,})(?:\\s+at\\s+([^\\.]+))?",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
+                    "merchantGroup": 3,
                     "method": "card",
                     "priority": 1
                 },
                 {
-                    "name": "SCB Amount First Debit",
-                    "pattern": "(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:spent|debited|paid|withdrawn)",
+                    "name": "SCB Debited From A/c",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+debited\\s+from\\s+(?:your\\s+)?A/c\\s+[Xx*]*(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
+                    "accountGroup": 2,
                     "method": "bank",
                     "priority": 1
                 },
                 {
-                    "name": "SCB Keyword First Credit",
-                    "pattern": "(?:[Cc]redit|[Rr]efund|[Cc]redited).*?(?:INR|Rs\\.?)[\\s:]*([0-9,]+(?:\\.\\d{2})?)",
+                    "name": "SCB Credited To A/c",
+                    "pattern": "(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+credited\\s+to\\s+(?:your\\s+)?A/c\\s+[Xx*]*(\\d{4,})",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "SCB Salary Credit",
+                    "pattern": "Salary\\s+credit\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+to\\s+A/c\\s+[Xx*]*(\\d{4,})",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 0,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
+                    "name": "SCB Amount First Debit",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:spent|debited|paid|withdrawn)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "method": "bank",
+                    "priority": 2
+                },
+                {
+                    "name": "SCB Amount First Credit",
+                    "pattern": "(?:INR|Rs\\.?|₹)[\\s:]*([0-9,]+(?:\\.\\d{2})?)\\s+(?:credited|received|refunded)",
                     "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 2
                 },
                 {
-                    "name": "SCB USD Txn",
-                    "pattern": "(?:txn|spent|paid).*?USD\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "debit",
+                    "name": "SCB Keyword First Credit",
+                    "pattern": "(?:[Cc]redit|[Rr]efund|[Cc]redited)\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "credit",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 3
                 },
                 {
-                    "name": "SCB Debit",
-                    "pattern": "is debited for Rs\\.\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "name": "SCB USD Txn",
+                    "pattern": "(?:International\\s+)?(?:txn|spent|paid).*?USD\\s*([0-9,]+(?:\\.\\d{2})?)(?:\\s+at\\s+([^\\.]+))?",
                     "type": "debit",
                     "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 11
+                    "merchantGroup": 2,
+                    "method": "card",
+                    "priority": 3
                 },
                 {
-                    "name": "SCB Transfer Credit",
-                    "pattern": "(?:NEFT|RTGS|IMPS)\\s+credit\\s+of\\s+INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+                    "name": "SCB Refund To Card",
+                    "pattern": "Refund\\s+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)\\s+to\\s+card\\s+[Xx*]*(\\d{4,})",
                     "type": "credit",
                     "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 12
-                },
-                {
-                    "name": "SCB Direct Credit",
-                    "pattern": "is credited for Rs\\.\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "credit",
-                    "amountGroup": 1,
-                    "method": "bank",
-                    "priority": 13
+                    "accountGroup": 2,
+                    "method": "card",
+                    "priority": 1
                 },
                 {
                     "name": "SCB Merchant UPI Transfer",
@@ -4259,14 +4333,21 @@
                 },
                 {
                     "name": "SCB Available Balance",
-                    "pattern": "Available Balance:\\s*INR\\s+([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:Avl|Available)\\s+(?:Bal|Balance)[:\\s]+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "type": "meta",
+                    "balanceGroup": 1,
+                    "priority": 18
+                },
+                {
+                    "name": "SCB Available Limit",
+                    "pattern": "(?:Avl|Available)\\s+limit[:\\s]+(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 18
                 },
                 {
                     "name": "SCB Universal Safety Net",
-                    "pattern": "(?:debited|credited|credit).*?(?:Rs\\.|INR)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|credited|credit|spent)\\s+(?:for|to|from|of)?\\s*(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "priority": 50
@@ -4280,6 +4361,15 @@
                 "UCOBNK", "UCOBANK", "UCO BANK"
             ],
             "templates": [
+                {
+                    "name": "UCO UPI Payment Debit",
+                    "pattern": "UPI\\s+(?:txn|payment|transfer)\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?)\\s+to\\s+([^\\s.]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "merchantGroup": 2,
+                    "method": "upi",
+                    "priority": 1
+                },
                 {
                     "name": "UCO Debited",
                     "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Debited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Avl\\s+Bal[^0-9]*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
@@ -4405,7 +4495,7 @@
                 {
                     "name": "UCO Amount",
                     "pattern": "Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
-                    "type": "unknown",
+                    "type": "meta",
                     "amountGroup": 1,
                     "method": "bank",
                     "priority": 50
