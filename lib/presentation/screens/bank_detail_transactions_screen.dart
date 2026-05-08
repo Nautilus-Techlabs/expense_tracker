@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
@@ -34,7 +35,7 @@ class _BankDetailTransactionsScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    // Filter transactions by bank and method, respecting opening balance date
+    // Filter transactions by bank and method
     final allBankTransactions = state.allTransactions.where((t) {
       final matchesBank = t.bankName == widget.bankName;
       bool matchesAccount = true;
@@ -42,21 +43,7 @@ class _BankDetailTransactionsScreenState
         matchesAccount = t.account == widget.accountNumber;
       }
 
-      if (!matchesBank || !matchesAccount) return false;
-
-      // Check Opening Balance Date
-      if (t.account != null && t.account!.isNotEmpty) {
-        final openingList = state.openingBalances
-            .where(
-              (ob) =>
-                  ob.bankName == t.bankName && ob.accountNumber == t.account,
-            )
-            .toList();
-        if (openingList.isNotEmpty && t.date.isBefore(openingList.first.date)) {
-          return false;
-        }
-      }
-      return true;
+      return matchesBank && matchesAccount;
     }).toList();
 
     // Available methods for this bank
@@ -143,10 +130,18 @@ class _BankDetailTransactionsScreenState
                       )
                 : 0,
             income: bankTransactions
-                .where((t) => t.type == TransactionType.credit)
+                .where(
+                  (t) =>
+                      t.type == TransactionType.credit &&
+                      !state.isTransactionBeforeOpening(t),
+                )
                 .fold(0.0, (sum, t) => sum + t.amount),
             spends: bankTransactions
-                .where((t) => t.type == TransactionType.debit)
+                .where(
+                  (t) =>
+                      t.type == TransactionType.debit &&
+                      !state.isTransactionBeforeOpening(t),
+                )
                 .fold(0.0, (sum, t) => sum + t.amount),
           ),
 
@@ -171,19 +166,7 @@ class _BankDetailTransactionsScreenState
           Expanded(
             child: bankTransactions.isEmpty
                 ? _buildEmptyState()
-                : ListView.builder(
-                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 40.h),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: bankTransactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = bankTransactions[index];
-                      return TransactionCard(
-                        transaction: transaction,
-                        heroTag:
-                            'bank_detail_${transaction.id ?? transaction.rawSms}',
-                      );
-                    },
-                  ),
+                : _buildGroupedList(bankTransactions),
           ),
         ],
       ),
@@ -252,6 +235,65 @@ class _BankDetailTransactionsScreenState
         isFixed: true,
       ),
     );
+  }
+
+  Widget _buildGroupedList(List<Transaction> transactions) {
+    final grouped = _groupByDate(transactions);
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 40.h),
+      physics: const BouncingScrollPhysics(),
+      itemCount: grouped.length,
+      itemBuilder: (context, index) {
+        final item = grouped[index];
+        if (item is String) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 12.h),
+            child: Text(
+              item.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.getNeutralColor(context),
+                letterSpacing: 0.5,
+              ),
+            ),
+          );
+        }
+        final transaction = item as Transaction;
+        return TransactionCard(
+          transaction: transaction,
+          heroTag: 'bank_detail_${transaction.id ?? transaction.rawSms}',
+        );
+      },
+    );
+  }
+
+  List<dynamic> _groupByDate(List<Transaction> transactions) {
+    final List<dynamic> grouped = [];
+    String? lastDate;
+    for (final t in transactions) {
+      final dateStr = _formatDateHeader(t.date);
+      if (dateStr != lastDate) {
+        grouped.add(dateStr);
+        lastDate = dateStr;
+      }
+      grouped.add(t);
+    }
+    return grouped;
+  }
+
+  String _formatDateHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final tDate = DateTime(date.year, date.month, date.day);
+    if (tDate == today) {
+      return "Today, ${DateFormat('MMM dd').format(date)}";
+    } else if (tDate == yesterday) {
+      return "Yesterday, ${DateFormat('MMM dd').format(date)}";
+    } else {
+      return DateFormat('EEEE, MMM dd').format(date);
+    }
   }
 
   Widget _buildEmptyState() {

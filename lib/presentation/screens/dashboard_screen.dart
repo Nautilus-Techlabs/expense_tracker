@@ -22,7 +22,6 @@ class DashboardScreen extends ConsumerWidget {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
 
-    // Use global unfiltered transactions for dashboard
     final latestTransactions = state.latestTransactions;
 
     return Scaffold(
@@ -115,8 +114,8 @@ class DashboardScreen extends ConsumerWidget {
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.black,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add'),
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text('Add', style: TextStyle(color: Colors.white)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.r),
         ),

@@ -38,6 +38,18 @@ class _TransactionFilterSheetState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40.w,
+                height: 4.h,
+                margin: EdgeInsets.only(bottom: 20.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.getNeutralColor(context).withAlpha(40),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
             // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

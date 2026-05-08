@@ -150,6 +150,41 @@ class _DetailedTransactionScreenState
     }
   }
 
+  Future<void> _handleDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Transaction'),
+        content: const Text(
+          'Are you sure you want to delete this manual transaction?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.getExpenseColor(context),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && widget.transaction.id != null) {
+      await ref
+          .read(transactionProvider.notifier)
+          .deleteTransaction(widget.transaction.id!);
+      if (mounted) {
+        context.pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final transactions = ref.watch(transactionProvider).allTransactions;
@@ -168,6 +203,7 @@ class _DetailedTransactionScreenState
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final isManual = widget.transaction.source == TransactionSource.manual;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -187,12 +223,21 @@ class _DetailedTransactionScreenState
           ),
         ),
         actions: [
-          if (!_isEditing && !widget.transaction.isSample)
+          if (!_isEditing && !widget.transaction.isSample) ...[
+            if (isManual)
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 22.sp,
+                  color: AppTheme.getExpenseColor(context),
+                ),
+                onPressed: _handleDelete,
+              ),
             IconButton(
               icon: Icon(Icons.edit_rounded, size: 22.sp),
               onPressed: () => setState(() => _isEditing = true),
-            )
-          else if (_isEditing)
+            ),
+          ] else if (_isEditing)
             TextButton(
               onPressed: _handleSave,
               child: Text(
@@ -767,11 +812,7 @@ class _DetailedTransactionScreenState
                   ),
                 ),
                 Text(
-                  widget.transaction.merchant ??
-                      (widget.transaction.description != null &&
-                              widget.transaction.description!.isNotEmpty
-                          ? widget.transaction.description!
-                          : (isDebit ? "Total Spent" : "Total Received")),
+                  widget.transaction.merchant ?? 'Unknown Merchant',
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
@@ -782,25 +823,6 @@ class _DetailedTransactionScreenState
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  widget.transaction.description != null &&
-                          widget.transaction.merchant != null
-                      ? widget.transaction.description!
-                      : (widget.transaction.merchant != null
-                          ? (isDebit ? "Spent Amount" : "Received Amount")
-                          : "Total Transaction"),
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: semanticColor.withAlpha(isDark ? 255 : 200),
-                    letterSpacing: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 12.h),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Row(
@@ -914,7 +936,9 @@ class _DetailedTransactionScreenState
                   if (selected) setState(() => _selectedCategoryId = null);
                 },
                 showCheckmark: false,
-                selectedColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+                selectedColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha(40),
                 backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
                 labelStyle: TextStyle(
                   fontSize: 11.sp,
@@ -936,7 +960,9 @@ class _DetailedTransactionScreenState
                     if (selected) setState(() => _selectedCategoryId = cat.id);
                   },
                   showCheckmark: false,
-                  selectedColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+                  selectedColor: Theme.of(
+                    context,
+                  ).colorScheme.primary.withAlpha(40),
                   backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
                   labelStyle: TextStyle(
                     fontSize: 11.sp,

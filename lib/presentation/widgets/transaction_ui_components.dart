@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -6,8 +7,6 @@ import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/transaction_notifier.dart';
 
 class TransactionIcon extends ConsumerWidget {
@@ -37,7 +36,8 @@ class TransactionIcon extends ConsumerWidget {
     // ✅ Try getting logo from config map first, then fallback to hardcoded logic
     String logoPath = '';
     if (bankName != null) {
-      logoPath = state.bankLogos[bankName!] ?? AppConstants.getBankLogo(bankName!);
+      logoPath =
+          state.bankLogos[bankName!] ?? AppConstants.getBankLogo(bankName!);
     }
 
     Widget iconWidget = Container(
@@ -55,22 +55,21 @@ class TransactionIcon extends ConsumerWidget {
               ]
             : null,
       ),
-      child:
-          logoPath.isNotEmpty
-              ? (logoPath.endsWith('.svg')
-                  ? SvgPicture.asset(
+      child: logoPath.isNotEmpty
+          ? (logoPath.endsWith('.svg')
+                ? SvgPicture.asset(
                     logoPath,
                     width: iconSize + 8.w,
                     height: iconSize + 8.w,
                     fit: BoxFit.contain,
                   )
-                  : Image.asset(
+                : Image.asset(
                     logoPath,
                     width: iconSize + 8.w,
                     height: iconSize + 8.w,
                     fit: BoxFit.contain,
                   ))
-              : Icon(iconData, color: color, size: iconSize),
+          : Icon(iconData, color: color, size: iconSize),
     );
 
     if (!showStatus) return iconWidget;
@@ -89,10 +88,9 @@ class TransactionIcon extends ConsumerWidget {
             ),
             child: Icon(
               isVerified ? Icons.verified_rounded : Icons.warning_amber_rounded,
-              color:
-                  isVerified
-                      ? AppTheme.getIncomeColor(context)
-                      : AppTheme.getNeutralColor(context),
+              color: isVerified
+                  ? AppTheme.getIncomeColor(context)
+                  : AppTheme.getNeutralColor(context),
               size: 14.sp,
             ),
           ),
@@ -142,7 +140,9 @@ class TransactionAmountText extends StatelessWidget {
         : AppTheme.getIncomeColor(context);
 
     final sign = isDebit ? "-" : "+";
-    final formattedAmount = amount.toStringAsFixed(0);
+    final formattedAmount = amount
+        .toStringAsFixed(2)
+        .replaceAll(RegExp(r'\.00$'), '');
 
     return Text(
       '${showSign ? sign : ""}₹$formattedAmount',
@@ -181,10 +181,7 @@ class SectionHeader extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        if (trailing != null) ...[
-          trailing!,
-          UIHelpers.horizontalSpace(8),
-        ],
+        if (trailing != null) ...[trailing!, UIHelpers.horizontalSpace(8)],
         if (actionLabel != null && onActionPressed != null)
           TextButton(
             onPressed: onActionPressed,
@@ -250,32 +247,31 @@ class BankCard extends ConsumerWidget {
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected
-                          ? Colors.white.withAlpha(51) // 0.2 * 255
-                          : (logoPath.isNotEmpty ? Colors.white : color.withAlpha(26)),
+                  color: isSelected
+                      ? Colors.white.withAlpha(51) // 0.2 * 255
+                      : (logoPath.isNotEmpty
+                            ? Colors.white
+                            : color.withAlpha(26)),
                   shape: BoxShape.circle,
                 ),
-                child:
-                    logoPath.isNotEmpty && !isSelected
-                        ? ClipOval(
-                          child:
-                              logoPath.endsWith('.svg')
-                                  ? SvgPicture.asset(
-                                    logoPath,
-                                    width: 24.sp,
-                                    height: 24.sp,
-                                    fit: BoxFit.contain,
-                                  )
-                                  : Image.asset(
-                                    logoPath,
-                                    width: 24.sp,
-                                    height: 24.sp,
-                                    fit: BoxFit.contain,
-                                  ),
-                        )
-                        : (letter != null
-                            ? Text(
+                child: logoPath.isNotEmpty && !isSelected
+                    ? ClipOval(
+                        child: logoPath.endsWith('.svg')
+                            ? SvgPicture.asset(
+                                logoPath,
+                                width: 24.sp,
+                                height: 24.sp,
+                                fit: BoxFit.contain,
+                              )
+                            : Image.asset(
+                                logoPath,
+                                width: 24.sp,
+                                height: 24.sp,
+                                fit: BoxFit.contain,
+                              ),
+                      )
+                    : (letter != null
+                          ? Text(
                               letter!,
                               style: TextStyle(
                                 color: isSelected ? Colors.white : color,
@@ -283,7 +279,7 @@ class BankCard extends ConsumerWidget {
                                 fontSize: 16.sp,
                               ),
                             )
-                            : Icon(
+                          : Icon(
                               icon,
                               color: isSelected ? Colors.white : color,
                               size: 20.sp,
@@ -297,10 +293,9 @@ class BankCard extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color:
-                        isSelected
-                            ? Colors.white
-                            : Theme.of(context).textTheme.bodySmall?.color,
+                    color: isSelected
+                        ? Colors.white
+                        : Theme.of(context).textTheme.bodySmall?.color,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

@@ -18,6 +18,13 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
 
 class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _scrollController = ScrollController();
+
+  // Keys for scrolling to errors
+  final _amountKey = GlobalKey();
+  final _bankKey = GlobalKey();
+  final _accountKey = GlobalKey();
+
   final _amountController = TextEditingController();
   final _merchantController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -145,6 +152,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _amountController.dispose();
     _merchantController.dispose();
     _descriptionController.dispose();
@@ -243,6 +251,34 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               Navigator.pop(context);
             }
           });
+    } else {
+      // Logic to scroll to the first error
+      _scrollToFirstError();
+    }
+  }
+
+  void _scrollToFirstError() {
+    // Check fields in order of appearance
+    if (_amountController.text.isEmpty ||
+        double.tryParse(_amountController.text) == null) {
+      _scrollToKey(_amountKey);
+    } else if (_bankNameController.text.trim().isEmpty) {
+      _scrollToKey(_bankKey);
+    } else if (_selectedAccountKey == null &&
+        (_accountController.text.length != 4 ||
+            int.tryParse(_accountController.text) == null)) {
+      _scrollToKey(_accountKey);
+    }
+  }
+
+  void _scrollToKey(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -269,6 +305,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         ),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         padding: EdgeInsets.all(24.w),
         child: Form(
           key: _formKey,
@@ -276,7 +313,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Amount Input
-              _buildAmountCard(),
+              KeyedSubtree(key: _amountKey, child: _buildAmountCard()),
               SizedBox(height: 32.h),
 
               // Transaction Type Toggle
@@ -302,10 +339,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
               _buildInputLabel('Bank Name', Icons.account_balance_rounded),
               TextFormField(
+                key: _bankKey,
                 controller: _bankNameController,
                 style: TextStyle(color: colorScheme.onSurface),
                 decoration: _inputDecoration('e.g. HDFC Bank, SBI'),
                 onChanged: (_) => setState(() => _selectedAccountKey = null),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Bank name is required';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 20.h),
 
@@ -346,6 +390,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           Icons.credit_card_rounded,
                         ),
                         TextFormField(
+                          key: _accountKey,
                           controller: _accountController,
                           keyboardType: TextInputType.number,
                           maxLength: 4,
@@ -355,6 +400,18 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           ).copyWith(counterText: ""),
                           onChanged: (_) =>
                               setState(() => _selectedAccountKey = null),
+                          validator: (val) {
+                            if (_selectedAccountKey == null) {
+                              if (val == null || val.trim().isEmpty) {
+                                return 'Required';
+                              }
+                              if (val.length != 4 ||
+                                  int.tryParse(val) == null) {
+                                return 'Must be 4 digits';
+                              }
+                            }
+                            return null;
+                          },
                         ),
                       ],
                     ),

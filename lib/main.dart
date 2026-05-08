@@ -15,10 +15,6 @@ void main() async {
   // Without this, the app doesn't know how to read your bank SMS.
   await FlutterParserInitializer.initialize();
 
-  // Initialize Notifications
-
-  await NotificationService.instance.initialize();
-
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

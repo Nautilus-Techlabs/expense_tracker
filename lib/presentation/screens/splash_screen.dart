@@ -10,6 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../core/services/notification_service.dart';
+
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -199,9 +201,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void _navigateToHome() async {
     if (!mounted) return;
 
-    // Check permissions
+    // Check SMS permissions
     final status = await Permission.sms.status;
     final bool isGranted = status.isGranted;
+
+    // Request notification permission after SMS check
+    await NotificationService.instance.initialize();
 
     if (isGranted) {
       // Ensure data is loaded (it should have started in transactionProvider's build)

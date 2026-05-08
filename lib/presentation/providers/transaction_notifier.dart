@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/services/notification_service.dart';
 import '../../core/utils/app_logger.dart';
 import '../../data/local/app_database.dart';
 import '../../domain/entities/category.dart';
@@ -9,7 +10,6 @@ import '../../domain/entities/transaction.dart';
 import '../../domain/parsers/combined_parser.dart';
 import '../../domain/sms_service.dart';
 import '../providers/transaction_state.dart';
-import '../../core/services/notification_service.dart';
 
 final transactionProvider =
     NotifierProvider<TransactionController, TransactionState>(() {
@@ -332,19 +332,14 @@ class TransactionController extends Notifier<TransactionState> {
     try {
       final db = ref.read(databaseProvider);
 
-      // Safety: Always snap to midnight so transactions on the same day are included
-      final snappedDate = DateTime(
-        balance.date.year,
-        balance.date.month,
-        balance.date.day,
-      );
-
+      // We no longer snap to midnight to allow precise timing for opening balance
+      // If a user picks a transaction, we want the exact timestamp.
       await db.setOpeningBalance(
         OpeningBalancesCompanion(
           bankName: Value(balance.bankName),
           accountNumber: Value(balance.accountNumber),
           amount: Value(balance.amount),
-          date: Value(snappedDate),
+          date: Value(balance.date),
         ),
       );
       await loadFromStorage();
@@ -439,6 +434,25 @@ class TransactionController extends Notifier<TransactionState> {
       AppLogger.e("Failed to add category", e, stack);
       state = state.copyWith(errorMessage: () => "Failed to add category: $e");
       return null;
+    }
+  }
+
+  Future<void> deleteTransaction(int id) async {
+    try {
+      final transaction = state.allTransactions.firstWhere((t) => t.id == id);
+      if (transaction.source != TransactionSource.manual) {
+        state = state.copyWith(
+          errorMessage: () => "Only manual transactions can be deleted",
+        );
+        return;
+      }
+
+      final db = ref.read(databaseProvider);
+      await (db.delete(db.transactions)..where((t) => t.id.equals(id))).go();
+      await loadFromStorage();
+    } catch (e, stack) {
+      AppLogger.e("Failed to delete transaction", e, stack);
+      state = state.copyWith(errorMessage: () => "Delete failed: $e");
     }
   }
 }

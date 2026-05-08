@@ -95,20 +95,6 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (widget.transaction.description != null &&
-                          widget.transaction.description!.isNotEmpty) ...[
-                        UIHelpers.verticalSpace(2),
-                        Text(
-                          widget.transaction.description!,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: AppTheme.getNeutralColor(context),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
                       UIHelpers.verticalSpace(4),
                       Wrap(
                         spacing: 8.w,
@@ -117,7 +103,7 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                         children: [
                           Text(
                             DateFormat(
-                              'dd MMM, yyyy',
+                              'h:mm a',
                             ).format(widget.transaction.date),
                             style: TextStyle(
                               color: AppTheme.getNeutralColor(context),

@@ -61,30 +61,41 @@ class TransactionState {
     this.selectedCategoryId,
   });
 
-  bool get hasActiveFilters =>
-      selectedMethod != null ||
-      selectedType != null ||
-      selectedCategoryId != null;
+  int get activeFiltersCount {
+    int count = 0;
+    if (selectedBank != null) count++;
+    if (selectedMethod != null) count++;
+    if (selectedType != null) count++;
+    if (selectedCategoryId != null) count++;
+    if (startDate != null || endDate != null) count++;
+    return count;
+  }
 
   // Global (Unfiltered) Summary Data - For Dashboard
   // Global (Unfiltered) Summary Data - For Dashboard
   double get totalGlobalDebit {
     double total = 0;
     final accounts = getUniqueAccounts();
-    
+
     // 1. Sum debits from accounts with opening balances (from opening date onwards)
     for (final acc in accounts) {
       final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
       if (opening != null) {
         total += allTransactions
-            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where(
+              (t) =>
+                  t.bankName == acc.bankName && t.account == acc.accountNumber,
+            )
             .where((t) => t.type == TransactionType.debit)
-            .where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+            .where((t) => t.date.isAfter(opening.date))
             .fold(0.0, (sum, t) => sum + t.amount);
       } else {
         // No opening balance, sum all
         total += allTransactions
-            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where(
+              (t) =>
+                  t.bankName == acc.bankName && t.account == acc.accountNumber,
+            )
             .where((t) => t.type == TransactionType.debit)
             .fold(0.0, (sum, t) => sum + t.amount);
       }
@@ -102,18 +113,24 @@ class TransactionState {
   double get totalGlobalCredit {
     double total = 0;
     final accounts = getUniqueAccounts();
-    
+
     for (final acc in accounts) {
       final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
       if (opening != null) {
         total += allTransactions
-            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where(
+              (t) =>
+                  t.bankName == acc.bankName && t.account == acc.accountNumber,
+            )
             .where((t) => t.type == TransactionType.credit)
-            .where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+            .where((t) => t.date.isAfter(opening.date))
             .fold(0.0, (sum, t) => sum + t.amount);
       } else {
         total += allTransactions
-            .where((t) => t.bankName == acc.bankName && t.account == acc.accountNumber)
+            .where(
+              (t) =>
+                  t.bankName == acc.bankName && t.account == acc.accountNumber,
+            )
             .where((t) => t.type == TransactionType.credit)
             .fold(0.0, (sum, t) => sum + t.amount);
       }
@@ -135,12 +152,13 @@ class TransactionState {
     for (final acc in accounts) {
       final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
       double accountTotal = opening?.amount ?? 0;
-      
-      final txs = allTransactions.where((t) => 
-        t.bankName == acc.bankName && t.account == acc.accountNumber);
-      
-      final filteredTxs = opening != null 
-          ? txs.where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+
+      final txs = allTransactions.where(
+        (t) => t.bankName == acc.bankName && t.account == acc.accountNumber,
+      );
+
+      final filteredTxs = opening != null
+          ? txs.where((t) => t.date.isAfter(opening.date))
           : txs;
 
       for (final t in filteredTxs) {
@@ -154,7 +172,9 @@ class TransactionState {
     }
 
     // 2. Add impact of transactions without accounts
-    final orphanedTxs = allTransactions.where((t) => t.account == null || t.account!.isEmpty);
+    final orphanedTxs = allTransactions.where(
+      (t) => t.account == null || t.account!.isEmpty,
+    );
     for (final t in orphanedTxs) {
       if (t.type == TransactionType.credit) {
         total += t.amount;
@@ -170,10 +190,12 @@ class TransactionState {
     final opening = _getOpeningFor(bank, acc);
     double accountTotal = opening?.amount ?? 0;
 
-    final txs = allTransactions.where((t) => t.bankName == bank && t.account == acc);
+    final txs = allTransactions.where(
+      (t) => t.bankName == bank && t.account == acc,
+    );
 
     final filteredTxs = opening != null
-        ? txs.where((t) => t.date.isAfter(opening.date.subtract(const Duration(seconds: 1))))
+        ? txs.where((t) => t.date.isAfter(opening.date))
         : txs;
 
     for (final t in filteredTxs) {
@@ -190,7 +212,9 @@ class TransactionState {
     if (t.account == null || t.account!.isEmpty) return false;
     final opening = _getOpeningFor(t.bankName, t.account!);
     if (opening == null) return false;
-    return t.date.isBefore(opening.date);
+    // We treat transactions happening AT the same moment as being BEFORE the opening balance
+    // because the opening balance is usually taken AFTER a specific transaction.
+    return !t.date.isAfter(opening.date);
   }
 
   OpeningBalance? _getOpeningFor(String bank, String acc) {
@@ -215,7 +239,7 @@ class TransactionState {
   double get balance {
     double total = 0;
     final accounts = getUniqueAccounts();
-    
+
     // Check if we are filtering by a specific bank
     if (selectedBank != null) {
       // If filtering by bank, only sum verified accounts for that bank
@@ -233,9 +257,27 @@ class TransactionState {
 
   // Latest 10 Unfiltered Transactions - For Dashboard Global Preview
   List<Transaction> get latestTransactions {
+    // 1. Get the 10 most recent transactions by date
     final list = List<Transaction>.from(allTransactions);
     list.sort((a, b) => b.date.compareTo(a.date));
-    return list.take(10).toList();
+    final latest10 = list.take(10).toList();
+
+    // 2. Sort those 10 specifically based on user selection
+    switch (currentSort) {
+      case TransactionSort.dateDesc:
+        latest10.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case TransactionSort.dateAsc:
+        latest10.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case TransactionSort.amountDesc:
+        latest10.sort((a, b) => b.amount.compareTo(a.amount));
+        break;
+      case TransactionSort.amountAsc:
+        latest10.sort((a, b) => a.amount.compareTo(b.amount));
+        break;
+    }
+    return latest10;
   }
 
   List<Transaction> get filteredTransactions {
@@ -266,14 +308,33 @@ class TransactionState {
       bool matchesDate = true;
       if (startDate != null && endDate != null) {
         // Normalize endDate to end of day
-        final endOfRange = DateTime(endDate!.year, endDate!.month, endDate!.day, 23, 59, 59);
-        matchesDate = t.date.isAfter(startDate!.subtract(const Duration(seconds: 1))) &&
+        final endOfRange = DateTime(
+          endDate!.year,
+          endDate!.month,
+          endDate!.day,
+          23,
+          59,
+          59,
+        );
+        matchesDate =
+            t.date.isAfter(startDate!.subtract(const Duration(seconds: 1))) &&
             t.date.isBefore(endOfRange.add(const Duration(seconds: 1)));
       } else if (startDate != null) {
-        matchesDate = t.date.isAfter(startDate!.subtract(const Duration(seconds: 1)));
+        matchesDate = t.date.isAfter(
+          startDate!.subtract(const Duration(seconds: 1)),
+        );
       } else if (endDate != null) {
-        final endOfRange = DateTime(endDate!.year, endDate!.month, endDate!.day, 23, 59, 59);
-        matchesDate = t.date.isBefore(endOfRange.add(const Duration(seconds: 1)));
+        final endOfRange = DateTime(
+          endDate!.year,
+          endDate!.month,
+          endDate!.day,
+          23,
+          59,
+          59,
+        );
+        matchesDate = t.date.isBefore(
+          endOfRange.add(const Duration(seconds: 1)),
+        );
       }
 
       // 5. Category Filter
@@ -282,7 +343,11 @@ class TransactionState {
         matchesCategory = t.categoryId == selectedCategoryId;
       }
 
-      return matchesBank && matchesMethod && matchesType && matchesDate && matchesCategory;
+      return matchesBank &&
+          matchesMethod &&
+          matchesType &&
+          matchesDate &&
+          matchesCategory;
     }).toList();
 
     switch (currentSort) {
@@ -303,17 +368,18 @@ class TransactionState {
   }
 
   List<BankAccount> getUniqueAccounts() {
-    final accounts = allTransactions
-        .where((t) => t.isVerified && t.account != null && t.account!.isNotEmpty)
-        .map(
-          (t) => BankAccount(
-            bankName: t.bankName,
-            accountNumber: t.account!,
-          ),
-        )
-        .toSet()
-        .toList()
-      ..sort((a, b) => a.bankName.compareTo(b.bankName));
+    final accounts =
+        allTransactions
+            .where(
+              (t) => t.isVerified && t.account != null && t.account!.isNotEmpty,
+            )
+            .map(
+              (t) =>
+                  BankAccount(bankName: t.bankName, accountNumber: t.account!),
+            )
+            .toSet()
+            .toList()
+          ..sort((a, b) => a.bankName.compareTo(b.bankName));
     return accounts;
   }
 
@@ -353,6 +419,7 @@ class TransactionState {
         .toList()
       ..sort((a, b) => a.name.compareTo(b.name));
   }
+
   TransactionState copyWith({
     List<Transaction>? allTransactions,
     List<OpeningBalance>? openingBalances,
@@ -387,7 +454,9 @@ class TransactionState {
       endDate: endDate != null ? endDate() : this.endDate,
       selectedType: selectedType != null ? selectedType() : this.selectedType,
       categories: categories ?? this.categories,
-      selectedCategoryId: selectedCategoryId != null ? selectedCategoryId() : this.selectedCategoryId,
+      selectedCategoryId: selectedCategoryId != null
+          ? selectedCategoryId()
+          : this.selectedCategoryId,
     );
   }
 }

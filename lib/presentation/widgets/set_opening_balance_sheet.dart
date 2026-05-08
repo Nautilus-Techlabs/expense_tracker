@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
+import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
 
@@ -35,6 +36,7 @@ class _SetOpeningBalanceSheetState
     DateTime.now().day,
   );
   BankAccount? _selectedExistingAccount;
+  bool _isFromTransaction = false;
 
   @override
   void initState() {
@@ -44,9 +46,10 @@ class _SetOpeningBalanceSheetState
       // Auto-fill amount if it already exists
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final state = ref.read(transactionProvider);
-        final existing = state.openingBalances.where((ob) => 
-          ob.bankName == widget.initialAccount!.bankName && 
-          ob.accountNumber == widget.initialAccount!.accountNumber
+        final existing = state.openingBalances.where(
+          (ob) =>
+              ob.bankName == widget.initialAccount!.bankName &&
+              ob.accountNumber == widget.initialAccount!.accountNumber,
         );
         if (existing.isNotEmpty) {
           _amountController.text = existing.first.amount.toStringAsFixed(0);
@@ -88,6 +91,7 @@ class _SetOpeningBalanceSheetState
       setState(() {
         // Default to start of day (00:00:00) so today's transactions are visible
         _selectedDate = DateTime(picked.year, picked.month, picked.day);
+        _isFromTransaction = false;
       });
     }
   }
@@ -98,41 +102,102 @@ class _SetOpeningBalanceSheetState
           _selectedExistingAccount?.bankName ?? _bankNameController.text;
       final acc =
           _selectedExistingAccount?.accountNumber ?? _accountController.text;
+      final amount = double.parse(_amountController.text);
 
-      ref
-          .read(transactionProvider.notifier)
-          .setOpeningBalance(
-            OpeningBalance(
-              bankName: bank,
-              accountNumber: acc,
-              amount: double.parse(_amountController.text),
-              date: _selectedDate,
-            ),
-          )
-          .then((_) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Opening balance for $bank updated!'),
-                  backgroundColor: AppTheme.getIncomeColor(context),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+      if (!_isFromTransaction) {
+        final state = ref.read(transactionProvider);
+        final potentialDuplicate = state.allTransactions.where((t) {
+          final sameAccount = t.bankName == bank && t.account == acc;
+          final sameAmount =
+              (t.availableBalance != null &&
+                  (t.availableBalance! - amount).abs() < 0.1) ||
+              (t.amount - amount).abs() < 0.1;
+          final sameDay =
+              t.date.year == _selectedDate.year &&
+              t.date.month == _selectedDate.month &&
+              t.date.day == _selectedDate.day;
+          return sameAccount && sameAmount && sameDay;
+        }).toList();
 
-              if (widget.isFixed) {
-                Navigator.pop(context);
-              } else {
-                // Clear inputs but keep sheet open
-                setState(() {
-                  _amountController.clear();
-                  _selectedExistingAccount = null;
-                  _bankNameController.clear();
-                  _accountController.clear();
-                });
-              }
-            }
-          });
+        if (potentialDuplicate.isNotEmpty) {
+          _showDuplicateDialog(bank, acc, amount, potentialDuplicate.first);
+          return;
+        }
+      }
+
+      _doSubmit(bank, acc, amount, _selectedDate);
     }
+  }
+
+  void _showDuplicateDialog(
+    String bank,
+    String acc,
+    double amount,
+    Transaction existingTx,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Potential Duplicate'),
+        content: Text(
+          'A transaction with the same amount (₹$amount) and date already exists for this account. '
+          'Should this transaction be treated as the initial balance, or should the initial balance be added separately?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _doSubmit(bank, acc, amount, _selectedDate);
+            },
+            child: const Text('Add Separately'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _doSubmit(bank, acc, amount, existingTx.date);
+            },
+            child: const Text('Use Existing Transaction'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _doSubmit(String bank, String acc, double amount, DateTime date) {
+    ref
+        .read(transactionProvider.notifier)
+        .setOpeningBalance(
+          OpeningBalance(
+            bankName: bank,
+            accountNumber: acc,
+            amount: amount,
+            date: date,
+          ),
+        )
+        .then((_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Opening balance for $bank updated!'),
+                backgroundColor: AppTheme.getIncomeColor(context),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+
+            if (widget.isFixed) {
+              Navigator.pop(context);
+            } else {
+              // Clear inputs but keep sheet open
+              setState(() {
+                _amountController.clear();
+                _selectedExistingAccount = null;
+                _bankNameController.clear();
+                _accountController.clear();
+                _isFromTransaction = false;
+              });
+            }
+          }
+        });
   }
 
   @override
@@ -163,9 +228,7 @@ class _SetOpeningBalanceSheetState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.isFixed 
-                        ? 'Set Balance' 
-                        : 'Set Opening Balance',
+                    widget.isFixed ? 'Set Balance' : 'Set Opening Balance',
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -187,11 +250,17 @@ class _SetOpeningBalanceSheetState
                   decoration: BoxDecoration(
                     color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.account_balance_rounded, color: colorScheme.primary, size: 20.sp),
+                      Icon(
+                        Icons.account_balance_rounded,
+                        color: colorScheme.primary,
+                        size: 20.sp,
+                      ),
                       UIHelpers.horizontalSpace(12),
                       Expanded(
                         child: Text(
@@ -232,7 +301,13 @@ class _SetOpeningBalanceSheetState
                             ob.accountNumber == acc.accountNumber,
                       );
                       return ChoiceChip(
-                        avatar: hasBalance ? Icon(Icons.check_circle_rounded, size: 16.sp, color: Colors.green) : null,
+                        avatar: hasBalance
+                            ? Icon(
+                                Icons.check_circle_rounded,
+                                size: 16.sp,
+                                color: Colors.green,
+                              )
+                            : null,
                         label: Text(acc.displayName),
                         selected: isSelected,
                         onSelected: (selected) {
@@ -242,9 +317,14 @@ class _SetOpeningBalanceSheetState
                               _bankNameController.text = "";
                               _accountController.text = "";
                               // Auto-fill existing amount if any (optional, but good for editing)
-                              final existing = state.openingBalances.where((ob) => ob.bankName == acc.bankName && ob.accountNumber == acc.accountNumber);
+                              final existing = state.openingBalances.where(
+                                (ob) =>
+                                    ob.bankName == acc.bankName &&
+                                    ob.accountNumber == acc.accountNumber,
+                              );
                               if (existing.isNotEmpty) {
-                                _amountController.text = existing.first.amount.toStringAsFixed(0);
+                                _amountController.text = existing.first.amount
+                                    .toStringAsFixed(0);
                               } else {
                                 _amountController.clear();
                               }
