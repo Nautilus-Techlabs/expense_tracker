@@ -72,118 +72,76 @@ class TransactionState {
   }
 
   // Global (Unfiltered) Summary Data - For Dashboard
-  // Global (Unfiltered) Summary Data - For Dashboard
-  double get totalGlobalDebit {
-    double total = 0;
-    final accounts = getUniqueAccounts();
-
-    // 1. Sum debits from accounts with opening balances (from opening date onwards)
-    for (final acc in accounts) {
-      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
-      if (opening != null) {
-        total += allTransactions
-            .where(
-              (t) =>
-                  t.bankName == acc.bankName && t.account == acc.accountNumber,
-            )
-            .where((t) => t.type == TransactionType.debit)
-            .where((t) => t.date.isAfter(opening.date))
-            .fold(0.0, (sum, t) => sum + t.amount);
-      } else {
-        // No opening balance, sum all
-        total += allTransactions
-            .where(
-              (t) =>
-                  t.bankName == acc.bankName && t.account == acc.accountNumber,
-            )
-            .where((t) => t.type == TransactionType.debit)
-            .fold(0.0, (sum, t) => sum + t.amount);
-      }
-    }
-
-    // 2. Add debits from transactions without accounts
-    total += allTransactions
-        .where((t) => t.account == null || t.account!.isEmpty)
-        .where((t) => t.type == TransactionType.debit)
-        .fold(0.0, (sum, t) => sum + t.amount);
-
-    return total;
-  }
 
   double get totalGlobalCredit {
     double total = 0;
-    final accounts = getUniqueAccounts();
-
-    for (final acc in accounts) {
-      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
-      if (opening != null) {
-        total += allTransactions
-            .where(
-              (t) =>
-                  t.bankName == acc.bankName && t.account == acc.accountNumber,
-            )
-            .where((t) => t.type == TransactionType.credit)
-            .where((t) => t.date.isAfter(opening.date))
-            .fold(0.0, (sum, t) => sum + t.amount);
-      } else {
-        total += allTransactions
-            .where(
-              (t) =>
-                  t.bankName == acc.bankName && t.account == acc.accountNumber,
-            )
-            .where((t) => t.type == TransactionType.credit)
-            .fold(0.0, (sum, t) => sum + t.amount);
+    
+    for (final t in allTransactions) {
+      if (t.type == TransactionType.credit && !isTransactionBeforeOpening(t)) {
+        total += t.amount;
       }
     }
+    
+    return total;
+  }
 
-    total += allTransactions
-        .where((t) => t.account == null || t.account!.isEmpty)
-        .where((t) => t.type == TransactionType.credit)
-        .fold(0.0, (sum, t) => sum + t.amount);
-
+  double get totalGlobalDebit {
+    double total = 0;
+    
+    for (final t in allTransactions) {
+      if (t.type == TransactionType.debit && !isTransactionBeforeOpening(t)) {
+        total += t.amount;
+      }
+    }
+    
     return total;
   }
 
   double get globalBalance {
     double total = 0;
+    
+    // 1. Sum up per-account balances (correctly handling opening balances)
     final accounts = getUniqueAccounts();
-
-    // 1. Sum up per-account balances
     for (final acc in accounts) {
-      final opening = _getOpeningFor(acc.bankName, acc.accountNumber);
-      double accountTotal = opening?.amount ?? 0;
-
-      final txs = allTransactions.where(
-        (t) => t.bankName == acc.bankName && t.account == acc.accountNumber,
-      );
-
-      final filteredTxs = opening != null
-          ? txs.where((t) => t.date.isAfter(opening.date))
-          : txs;
-
-      for (final t in filteredTxs) {
-        if (t.type == TransactionType.credit) {
-          accountTotal += t.amount;
-        } else {
-          accountTotal -= t.amount;
-        }
-      }
-      total += accountTotal;
+      total += getAccountBalance(acc.bankName, acc.accountNumber);
     }
 
-    // 2. Add impact of transactions without accounts
+    // 2. Add impact of transactions without accounts (orphaned)
+    // We check them against the earliest opening balance of their respective bank if available
     final orphanedTxs = allTransactions.where(
       (t) => t.account == null || t.account!.isEmpty,
     );
     for (final t in orphanedTxs) {
-      if (t.type == TransactionType.credit) {
-        total += t.amount;
-      } else {
-        total -= t.amount;
+      if (!isTransactionBeforeOpening(t)) {
+        if (t.type == TransactionType.credit) {
+          total += t.amount;
+        } else {
+          total -= t.amount;
+        }
       }
     }
 
     return total;
+  }
+
+  /// Helper to compare account numbers flexibly (e.g., 'XX1234' matches '1234')
+  bool _isSameAccount(String? a, String? b) {
+    if (a == null || b == null) return a == b;
+    if (a == b) return true;
+    
+    // Extract only digits
+    final digitsA = a.replaceAll(RegExp(r'\D'), '');
+    final digitsB = b.replaceAll(RegExp(r'\D'), '');
+    
+    if (digitsA.isEmpty || digitsB.isEmpty) return a.toLowerCase() == b.toLowerCase();
+    
+    // Compare last 4 digits if both are long enough
+    if (digitsA.length >= 4 && digitsB.length >= 4) {
+      return digitsA.substring(digitsA.length - 4) == digitsB.substring(digitsB.length - 4);
+    }
+    
+    // Fallback to exact digit match
+    return digitsA == digitsB;
   }
 
   double getAccountBalance(String bank, String acc) {
@@ -191,11 +149,11 @@ class TransactionState {
     double accountTotal = opening?.amount ?? 0;
 
     final txs = allTransactions.where(
-      (t) => t.bankName == bank && t.account == acc,
+      (t) => t.bankName == bank && _isSameAccount(t.account, acc),
     );
 
     final filteredTxs = opening != null
-        ? txs.where((t) => t.date.isAfter(opening.date))
+        ? txs.where((t) => t.date.millisecondsSinceEpoch > opening.date.millisecondsSinceEpoch)
         : txs;
 
     for (final t in filteredTxs) {
@@ -209,22 +167,34 @@ class TransactionState {
   }
 
   bool isTransactionBeforeOpening(Transaction t) {
-    if (t.account == null || t.account!.isEmpty) return false;
-    final opening = _getOpeningFor(t.bankName, t.account!);
-    if (opening == null) return false;
-    // We treat transactions happening AT the same moment as being BEFORE the opening balance
-    // because the opening balance is usually taken AFTER a specific transaction.
-    return !t.date.isAfter(opening.date);
+    final bank = t.bankName;
+    final acc = t.account;
+    
+    // If we have an account number, check that specific opening balance
+    if (acc != null && acc.isNotEmpty) {
+      final matches = openingBalances.where(
+        (ob) => ob.bankName == bank && _isSameAccount(ob.accountNumber, acc),
+      );
+      
+      if (matches.isEmpty) return false;
+      final opening = matches.first;
+      return t.date.millisecondsSinceEpoch <= opening.date.millisecondsSinceEpoch;
+    }
+    
+    // If no account number (orphaned transaction), check if ANY account in this bank has an opening balance.
+    // If so, we should probably exclude it if it's before the EARLIEST opening balance for this bank.
+    final bankOpenings = openingBalances.where((ob) => ob.bankName == bank);
+    if (bankOpenings.isEmpty) return false;
+    
+    final earliestDate = bankOpenings.map((ob) => ob.date).reduce((a, b) => a.isBefore(b) ? a : b);
+    return t.date.millisecondsSinceEpoch <= earliestDate.millisecondsSinceEpoch;
   }
 
   OpeningBalance? _getOpeningFor(String bank, String acc) {
-    try {
-      return openingBalances.firstWhere(
-        (ob) => ob.bankName == bank && ob.accountNumber == acc,
-      );
-    } catch (_) {
-      return null;
-    }
+    final matches = openingBalances.where(
+      (ob) => ob.bankName == bank && _isSameAccount(ob.accountNumber, acc),
+    );
+    return matches.isEmpty ? null : matches.first;
   }
 
   // Filtered Summary Data - For Transaction List
@@ -368,18 +338,37 @@ class TransactionState {
   }
 
   List<BankAccount> getUniqueAccounts() {
-    final accounts =
-        allTransactions
-            .where(
-              (t) => t.isVerified && t.account != null && t.account!.isNotEmpty,
-            )
-            .map(
-              (t) =>
-                  BankAccount(bankName: t.bankName, accountNumber: t.account!),
-            )
-            .toSet()
-            .toList()
-          ..sort((a, b) => a.bankName.compareTo(b.bankName));
+    final seen = <String>{};
+    final accounts = <BankAccount>[];
+
+    // 1. Add accounts from transactions
+    for (final t in allTransactions) {
+      if (t.isVerified && t.account != null && t.account!.isNotEmpty) {
+        // Normalize for uniqueness check: "BankName_Last4Digits"
+        final digits = t.account!.replaceAll(RegExp(r'\D'), '');
+        final suffix = digits.length >= 4 ? digits.substring(digits.length - 4) : digits;
+        final normalizedKey = "${t.bankName}_$suffix";
+        
+        if (!seen.contains(normalizedKey)) {
+          seen.add(normalizedKey);
+          accounts.add(BankAccount(bankName: t.bankName, accountNumber: t.account!));
+        }
+      }
+    }
+
+    // 2. Add accounts from opening balances that might not have transactions yet
+    for (final ob in openingBalances) {
+      final digits = ob.accountNumber.replaceAll(RegExp(r'\D'), '');
+      final suffix = digits.length >= 4 ? digits.substring(digits.length - 4) : digits;
+      final normalizedKey = "${ob.bankName}_$suffix";
+      
+      if (!seen.contains(normalizedKey)) {
+        seen.add(normalizedKey);
+        accounts.add(BankAccount(bankName: ob.bankName, accountNumber: ob.accountNumber));
+      }
+    }
+
+    accounts.sort((a, b) => a.bankName.compareTo(b.bankName));
     return accounts;
   }
 
@@ -392,7 +381,7 @@ class TransactionState {
 
   bool _hasOpeningFor(String bank, String acc) {
     return openingBalances.any(
-      (ob) => ob.bankName == bank && ob.accountNumber == acc,
+      (ob) => ob.bankName == bank && _isSameAccount(ob.accountNumber, acc),
     );
   }
 

@@ -170,8 +170,8 @@ class _SetOpeningBalanceSheetState
           OpeningBalance(
             bankName: bank,
             accountNumber: acc,
-            amount: amount,
-            date: date,
+            amount: double.parse(_amountController.text),
+            date: _selectedDate,
           ),
         )
         .then((_) {
@@ -187,7 +187,6 @@ class _SetOpeningBalanceSheetState
             if (widget.isFixed) {
               Navigator.pop(context);
             } else {
-              // Clear inputs but keep sheet open
               setState(() {
                 _amountController.clear();
                 _selectedExistingAccount = null;
@@ -198,6 +197,126 @@ class _SetOpeningBalanceSheetState
             }
           }
         });
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          picked.hour,
+          picked.minute,
+        );
+      });
+    }
+  }
+
+  Widget _buildRecentTransactionsLinker(TransactionState state) {
+    final bank = widget.initialAccount?.bankName;
+    final acc = widget.initialAccount?.accountNumber;
+    
+    final txs = state.allTransactions
+        .where((t) => t.bankName == bank && t.account == acc)
+        .where((t) => t.availableBalance != null)
+        .take(5)
+        .toList();
+
+    if (txs.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInputLabel('Link to Transaction (Recommended)', Icons.link_rounded),
+        UIHelpers.verticalSpace(8),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.getSurfaceSecondaryColor(context),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: AppTheme.getBorderColor(context)),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: txs.length,
+            separatorBuilder: (_, _) => Divider(height: 1, color: AppTheme.getBorderColor(context)),
+            itemBuilder: (context, index) {
+              final t = txs[index];
+              final isSelected = t.date == _selectedDate;
+              return ListTile(
+                onTap: () {
+                  setState(() {
+                    _selectedDate = t.date;
+                    _amountController.text = t.availableBalance!.toStringAsFixed(0);
+                  });
+                },
+                dense: true,
+                selected: isSelected,
+                selectedTileColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                leading: Icon(
+                  isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : AppTheme.getNeutralColor(context),
+                  size: 20.sp,
+                ),
+                title: Text(
+                  'Balance: ₹${t.availableBalance!.toStringAsFixed(0)}',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
+                ),
+                subtitle: Text(
+                  DateFormat('dd MMM, hh:mm a').format(t.date),
+                  style: TextStyle(fontSize: 11.sp),
+                ),
+              );
+            },
+          ),
+        ),
+        UIHelpers.verticalSpace(4),
+        Text(
+          'Linking ensures the opening balance starts exactly after this message.',
+          style: TextStyle(
+            fontSize: 10.sp,
+            color: AppTheme.getNeutralColor(context),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputLabel(String label, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w),
+      child: Row(
+        children: [
+          Icon(icon, size: 14.sp, color: AppTheme.getNeutralColor(context)),
+          UIHelpers.horizontalSpace(8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.getNeutralColor(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountCard() {
+    return _buildTextField(
+      controller: _amountController,
+      label: 'Opening Amount',
+      hint: '0.00',
+      icon: Icons.currency_rupee_rounded,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+    );
   }
 
   @override
@@ -243,7 +362,6 @@ class _SetOpeningBalanceSheetState
               ),
               UIHelpers.verticalSpace(16),
 
-              // Existing Account Selection
               if (widget.isFixed && widget.initialAccount != null) ...[
                 Container(
                   padding: EdgeInsets.all(12.r),
@@ -316,7 +434,6 @@ class _SetOpeningBalanceSheetState
                             if (selected) {
                               _bankNameController.text = "";
                               _accountController.text = "";
-                              // Auto-fill existing amount if any (optional, but good for editing)
                               final existing = state.openingBalances.where(
                                 (ob) =>
                                     ob.bankName == acc.bankName &&
@@ -381,56 +498,67 @@ class _SetOpeningBalanceSheetState
                 UIHelpers.verticalSpace(16),
               ],
 
-              _buildTextField(
-                controller: _amountController,
-                label: 'Opening Amount',
-                hint: '0.00',
-                icon: Icons.currency_rupee_rounded,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              UIHelpers.verticalSpace(16),
+              KeyedSubtree(key: const ValueKey('amount_input'), child: _buildAmountCard()),
+              UIHelpers.verticalSpace(24),
 
-              Text(
-                'As of Date',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              UIHelpers.verticalSpace(8),
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 14.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.getSurfaceSecondaryColor(context),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: AppTheme.getBorderColor(context)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_month_rounded,
-                        size: 18.sp,
-                        color: colorScheme.primary,
+              _buildInputLabel('Effective Date & Time', Icons.calendar_today_rounded),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        decoration: BoxDecoration(
+                          color: AppTheme.getSurfaceSecondaryColor(context),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: AppTheme.getBorderColor(context)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_month_rounded, size: 18.sp, color: colorScheme.primary),
+                            UIHelpers.horizontalSpace(8),
+                            Text(
+                              DateFormat('dd MMM, yyyy').format(_selectedDate),
+                              style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
                       ),
-                      UIHelpers.horizontalSpace(12),
-                      Text(
-                        DateFormat('dd MMM, yyyy').format(_selectedDate),
-                        style: TextStyle(color: colorScheme.onSurface),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  UIHelpers.horizontalSpace(12),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectTime(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                        decoration: BoxDecoration(
+                          color: AppTheme.getSurfaceSecondaryColor(context),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: AppTheme.getBorderColor(context)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.access_time_rounded, size: 18.sp, color: colorScheme.primary),
+                            UIHelpers.horizontalSpace(8),
+                            Text(
+                              DateFormat('hh:mm a').format(_selectedDate),
+                              style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              UIHelpers.verticalSpace(32),
+              UIHelpers.verticalSpace(24),
+
+              if (widget.initialAccount != null) ...[
+                _buildRecentTransactionsLinker(state),
+                UIHelpers.verticalSpace(24),
+              ],
 
               SizedBox(
                 width: double.infinity,

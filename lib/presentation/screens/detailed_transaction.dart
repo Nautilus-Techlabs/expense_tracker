@@ -126,13 +126,14 @@ class _DetailedTransactionScreenState
       return;
     }
 
+    final isManual = widget.transaction.source == TransactionSource.manual;
     await ref
         .read(transactionProvider.notifier)
         .updateTransactionDetails(
           id: widget.transaction.id!,
           amount: amount,
           method: _selectedMethod,
-          isVerified: _isVerified,
+          isVerified: isManual ? true : _isVerified,
           description: _descriptionController.text.trim().isEmpty
               ? null
               : _descriptionController.text.trim(),
@@ -443,12 +444,12 @@ class _DetailedTransactionScreenState
               _buildModernDetailCard(
                 context,
                 'STATUS',
-                _isVerified ? 'Verified' : 'Unverified',
-                _isVerified ? Icons.check_rounded : Icons.warning_rounded,
-                _isVerified
+                isManual || _isVerified ? 'Verified' : 'Unverified',
+                isManual || _isVerified ? Icons.check_rounded : Icons.warning_rounded,
+                isManual || _isVerified
                     ? AppTheme.getIncomeColor(context)
                     : AppTheme.getNeutralColor(context),
-                trailing: _isEditing
+                trailing: _isEditing && !isManual
                     ? Switch.adaptive(
                         value: _isVerified,
                         onChanged: (val) => setState(() => _isVerified = val),
@@ -669,7 +670,7 @@ class _DetailedTransactionScreenState
           ),
           SizedBox(height: 12.h),
           DropdownButtonFormField<PaymentMethod>(
-            initialValue: _selectedMethod,
+          initialValue: _selectedMethod,
             dropdownColor: Theme.of(context).cardColor,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyLarge?.color,

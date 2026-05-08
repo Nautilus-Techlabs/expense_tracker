@@ -99,7 +99,7 @@ class BankAccountsScreen extends ConsumerWidget {
                       ),
                       UIHelpers.verticalSpace(4),
                       Text(
-                        '₹${state.balance.toStringAsFixed(2)}',
+                        '₹${state.globalBalance.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 32.sp,

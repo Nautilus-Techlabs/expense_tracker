@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'core/constants/app_router.dart';
-import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/parsers/flutter_parser_initializer.dart';
 

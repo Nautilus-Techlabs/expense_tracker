@@ -130,7 +130,13 @@ class AppDatabase extends _$AppDatabase {
       select(openingBalances).get();
 
   Future<void> setOpeningBalance(OpeningBalancesCompanion companion) {
-    return into(openingBalances).insertOnConflictUpdate(companion);
+    return into(openingBalances).insert(
+      companion,
+      onConflict: DoUpdate(
+        (old) => companion,
+        target: [openingBalances.bankName, openingBalances.accountNumber],
+      ),
+    );
   }
 
   Future<void> updateTransaction(TransactionsCompanion companion) {
