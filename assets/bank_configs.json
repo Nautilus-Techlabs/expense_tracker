@@ -4372,21 +4372,19 @@
                 },
                 {
                     "name": "UCO Debited",
-                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Debited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Avl\\s+Bal[^0-9]*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
+                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Debited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "accountGroup": 1,
                     "amountGroup": 2,
-                    "balanceGroup": 3,
                     "method": "bank",
                     "priority": 1
                 },
                 {
                     "name": "UCO Credited",
-                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Credited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)[\\s\\S]*?(?:Avl\\s+Bal[^0-9]*?(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d{2})?))?",
+                    "pattern": "A/c\\s+([\\dX*]+)\\s+has\\s+been\\s+Credited\\s+with\\s+(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "credit",
                     "accountGroup": 1,
                     "amountGroup": 2,
-                    "balanceGroup": 3,
                     "method": "bank",
                     "priority": 1
                 },
@@ -4452,14 +4450,14 @@
                 },
                 {
                     "name": "UCO Balance Avl",
-                    "pattern": "Avl\\s+Bal\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "Avl\\s+Bal.*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 18
                 },
                 {
                     "name": "UCO Balance Available",
-                    "pattern": "Available\\s+Balance\\s+Rs\\.?\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "Available\\s+Balance.*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 19
