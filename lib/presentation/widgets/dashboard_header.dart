@@ -3,8 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../providers/transaction_state.dart';
-import 'set_opening_balance_sheet.dart';
 
 class DashboardHeader extends StatelessWidget {
   final double balance;
@@ -81,11 +79,6 @@ class DashboardHeader extends StatelessWidget {
               Row(
                 children: [
                   _HeaderAction(
-                    icon: Icons.account_balance_rounded,
-                    onTap: () => _showOpeningBalanceSheet(context),
-                  ),
-                  UIHelpers.horizontalSpace(12),
-                  _HeaderAction(
                     icon: Icons.sync_rounded,
                     onTap: onSync,
                     isLoading: isLoading,
@@ -141,14 +134,6 @@ class DashboardHeader extends StatelessWidget {
     );
   }
 
-  void _showOpeningBalanceSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const SetOpeningBalanceSheet(),
-    );
-  }
 
 }
 

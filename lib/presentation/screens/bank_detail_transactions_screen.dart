@@ -7,7 +7,9 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import '../providers/transaction_state.dart';
 import '../widgets/bank_summary_card.dart';
+import '../widgets/set_opening_balance_sheet.dart';
 import '../widgets/transaction_card.dart';
 
 class BankDetailTransactionsScreen extends ConsumerStatefulWidget {
@@ -32,8 +34,6 @@ class _BankDetailTransactionsScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     // Filter transactions by bank and method, respecting opening balance date
     final allBankTransactions = state.allTransactions.where((t) {
       final matchesBank = t.bankName == widget.bankName;
@@ -106,6 +106,14 @@ class _BankDetailTransactionsScreenState
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_balance_wallet_rounded, size: 20.sp),
+            onPressed: () => _showOpeningBalanceSheet(context),
+            tooltip: 'Set Initial Balance',
+          ),
+          UIHelpers.horizontalSpace(8),
+        ],
       ),
       body: Column(
         children: [
@@ -114,14 +122,26 @@ class _BankDetailTransactionsScreenState
             bankName: widget.bankName,
             accountNumber: widget.accountNumber,
             balance: widget.accountNumber != null
-                ? state.getAccountBalance(widget.bankName, widget.accountNumber!)
+                ? state.getAccountBalance(
+                    widget.bankName,
+                    widget.accountNumber!,
+                  )
                 : state.getAvailableBanks().contains(widget.bankName)
-                    ? state.allTransactions
-                        .where((t) => t.bankName == widget.bankName && t.isVerified)
-                        .map((t) => t.account)
-                        .toSet()
-                        .fold(0.0, (sum, acc) => sum + (acc != null ? state.getAccountBalance(widget.bankName, acc) : 0))
-                    : 0,
+                ? state.allTransactions
+                      .where(
+                        (t) => t.bankName == widget.bankName && t.isVerified,
+                      )
+                      .map((t) => t.account)
+                      .toSet()
+                      .fold(
+                        0.0,
+                        (sum, acc) =>
+                            sum +
+                            (acc != null
+                                ? state.getAccountBalance(widget.bankName, acc)
+                                : 0),
+                      )
+                : 0,
             income: bankTransactions
                 .where((t) => t.type == TransactionType.credit)
                 .fold(0.0, (sum, t) => sum + t.amount),
@@ -213,6 +233,23 @@ class _BankDetailTransactionsScreenState
             fontSize: 12.sp,
           ),
         ),
+      ),
+    );
+  }
+
+  void _showOpeningBalanceSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SetOpeningBalanceSheet(
+        initialAccount: widget.accountNumber != null
+            ? BankAccount(
+                bankName: widget.bankName,
+                accountNumber: widget.accountNumber!,
+              )
+            : null,
+        isFixed: true,
       ),
     );
   }

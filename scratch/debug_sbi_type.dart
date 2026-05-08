@@ -1,10 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:expense_tracker/data/sample_data.dart';
 import 'package:expense_tracker/domain/entities/bank_definition.dart';
 import 'package:expense_tracker/domain/parsers/hierarchical_engine.dart';
-import 'package:expense_tracker/domain/entities/transaction.dart';
-import 'package:expense_tracker/data/sample_data.dart';
-import 'dart:io';
-import 'dart:convert';
 
 void main() async {
   final file = File('assets/bank_configs.json');

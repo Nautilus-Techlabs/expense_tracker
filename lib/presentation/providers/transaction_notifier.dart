@@ -8,7 +8,8 @@ import '../../domain/entities/opening_balance.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/parsers/combined_parser.dart';
 import '../../domain/sms_service.dart';
-import 'transaction_state.dart';
+import '../providers/transaction_state.dart';
+import '../../core/services/notification_service.dart';
 
 final transactionProvider =
     NotifierProvider<TransactionController, TransactionState>(() {
@@ -92,6 +93,17 @@ class TransactionController extends Notifier<TransactionState> {
           isShowingSampleData: false,
           selectedBank: () => currentBank,
         );
+
+        // 🔔 Update Notifications based on missing balances
+        final notificationService = NotificationService.instance;
+        final missing = state.missingInitialBalances;
+        if (missing.isNotEmpty) {
+          notificationService.scheduleBalanceReminders(
+            missingBanks: missing.map((e) => e.bankName).toSet().toList(),
+          );
+        } else {
+          notificationService.cancelAllReminders();
+        }
       }
     } catch (e, stack) {
       AppLogger.e("Failed to load transactions from storage", e, stack);
@@ -150,7 +162,6 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: false,
         db: ref.read(databaseProvider),
-        forceSampleData: true,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);
@@ -337,6 +348,16 @@ class TransactionController extends Notifier<TransactionState> {
         ),
       );
       await loadFromStorage();
+
+      // 🔔 Refresh notifications after change
+      final missing = state.missingInitialBalances;
+      if (missing.isEmpty) {
+        NotificationService.instance.cancelAllReminders();
+      } else {
+        NotificationService.instance.scheduleBalanceReminders(
+          missingBanks: missing.map((e) => e.bankName).toSet().toList(),
+        );
+      }
     } catch (e, stack) {
       AppLogger.e("Failed to set opening balance", e, stack);
       state = state.copyWith(

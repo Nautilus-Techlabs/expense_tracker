@@ -12,6 +12,7 @@ import '../widgets/empty_state_view.dart';
 import '../widgets/modern_filter_chips.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/transaction_card.dart';
+import '../widgets/transaction_filter_sheet.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -101,6 +102,30 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                UIHelpers.horizontalSpace(12),
+                // Filter Button
+                GestureDetector(
+                  onTap: () => _showFilterSheet(context, state, controller),
+                  child: Container(
+                    padding: EdgeInsets.all(14.w),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withAlpha(10)
+                            : AppTheme.borderLight,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.tune_rounded,
+                      color: state.hasActiveFilters 
+                          ? Theme.of(context).colorScheme.primary 
+                          : AppTheme.getNeutralColor(context),
+                      size: 22.sp,
                     ),
                   ),
                 ),
@@ -203,5 +228,18 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     } else {
       return DateFormat('EEEE, MMM dd').format(date);
     }
+  }
+
+  void _showFilterSheet(
+    BuildContext context,
+    TransactionState state,
+    TransactionController controller,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const TransactionFilterSheet(),
+    );
   }
 }

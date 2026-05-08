@@ -10,7 +10,13 @@ import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
 
 class SetOpeningBalanceSheet extends ConsumerStatefulWidget {
-  const SetOpeningBalanceSheet({super.key});
+  final BankAccount? initialAccount;
+  final bool isFixed;
+  const SetOpeningBalanceSheet({
+    super.key,
+    this.initialAccount,
+    this.isFixed = false,
+  });
 
   @override
   ConsumerState<SetOpeningBalanceSheet> createState() =>
@@ -29,6 +35,25 @@ class _SetOpeningBalanceSheetState
     DateTime.now().day,
   );
   BankAccount? _selectedExistingAccount;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialAccount != null) {
+      _selectedExistingAccount = widget.initialAccount;
+      // Auto-fill amount if it already exists
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final state = ref.read(transactionProvider);
+        final existing = state.openingBalances.where((ob) => 
+          ob.bankName == widget.initialAccount!.bankName && 
+          ob.accountNumber == widget.initialAccount!.accountNumber
+        );
+        if (existing.isNotEmpty) {
+          _amountController.text = existing.first.amount.toStringAsFixed(0);
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -88,12 +113,23 @@ class _SetOpeningBalanceSheetState
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Opening balance updated!'),
+                  content: Text('Opening balance for $bank updated!'),
                   backgroundColor: AppTheme.getIncomeColor(context),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-              Navigator.pop(context);
+
+              if (widget.isFixed) {
+                Navigator.pop(context);
+              } else {
+                // Clear inputs but keep sheet open
+                setState(() {
+                  _amountController.clear();
+                  _selectedExistingAccount = null;
+                  _bankNameController.clear();
+                  _accountController.clear();
+                });
+              }
             }
           });
     }
@@ -127,7 +163,9 @@ class _SetOpeningBalanceSheetState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Set Opening Balance',
+                    widget.isFixed 
+                        ? 'Set Balance' 
+                        : 'Set Opening Balance',
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -143,7 +181,33 @@ class _SetOpeningBalanceSheetState
               UIHelpers.verticalSpace(16),
 
               // Existing Account Selection
-              if (accounts.isNotEmpty) ...[
+              if (widget.isFixed && widget.initialAccount != null) ...[
+                Container(
+                  padding: EdgeInsets.all(12.r),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.account_balance_rounded, color: colorScheme.primary, size: 20.sp),
+                      UIHelpers.horizontalSpace(12),
+                      Expanded(
+                        child: Text(
+                          widget.initialAccount!.displayName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                UIHelpers.verticalSpace(20),
+              ] else if (accounts.isNotEmpty) ...[
                 Text(
                   'Select Account',
                   style: TextStyle(
@@ -162,7 +226,13 @@ class _SetOpeningBalanceSheetState
                     itemBuilder: (context, index) {
                       final acc = accounts[index];
                       final isSelected = _selectedExistingAccount == acc;
+                      final hasBalance = state.openingBalances.any(
+                        (ob) =>
+                            ob.bankName == acc.bankName &&
+                            ob.accountNumber == acc.accountNumber,
+                      );
                       return ChoiceChip(
+                        avatar: hasBalance ? Icon(Icons.check_circle_rounded, size: 16.sp, color: Colors.green) : null,
                         label: Text(acc.displayName),
                         selected: isSelected,
                         onSelected: (selected) {
@@ -171,6 +241,13 @@ class _SetOpeningBalanceSheetState
                             if (selected) {
                               _bankNameController.text = "";
                               _accountController.text = "";
+                              // Auto-fill existing amount if any (optional, but good for editing)
+                              final existing = state.openingBalances.where((ob) => ob.bankName == acc.bankName && ob.accountNumber == acc.accountNumber);
+                              if (existing.isNotEmpty) {
+                                _amountController.text = existing.first.amount.toStringAsFixed(0);
+                              } else {
+                                _amountController.clear();
+                              }
                             }
                           });
                         },

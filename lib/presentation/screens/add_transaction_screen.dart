@@ -223,9 +223,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             account: _accountController.text.isEmpty
                 ? null
                 : (_accountController.text.length == 4 &&
-                        RegExp(r'^\d+$').hasMatch(_accountController.text))
-                    ? 'XX${_accountController.text}'
-                    : _accountController.text,
+                      RegExp(r'^\d+$').hasMatch(_accountController.text))
+                ? 'XX${_accountController.text}'
+                : _accountController.text,
             description: _descriptionController.text.isEmpty
                 ? null
                 : _descriptionController.text,
@@ -249,8 +249,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,

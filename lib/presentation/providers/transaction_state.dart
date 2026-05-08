@@ -61,6 +61,11 @@ class TransactionState {
     this.selectedCategoryId,
   });
 
+  bool get hasActiveFilters =>
+      selectedMethod != null ||
+      selectedType != null ||
+      selectedCategoryId != null;
+
   // Global (Unfiltered) Summary Data - For Dashboard
   // Global (Unfiltered) Summary Data - For Dashboard
   double get totalGlobalDebit {
@@ -226,9 +231,11 @@ class TransactionState {
 
   List<Transaction> get transactions => filteredTransactions;
 
-  // Latest 10 Filtered Transactions - For Dashboard Preview
+  // Latest 10 Unfiltered Transactions - For Dashboard Global Preview
   List<Transaction> get latestTransactions {
-    return filteredTransactions.take(10).toList();
+    final list = List<Transaction>.from(allTransactions);
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list.take(10).toList();
   }
 
   List<Transaction> get filteredTransactions {
@@ -308,6 +315,19 @@ class TransactionState {
         .toList()
       ..sort((a, b) => a.bankName.compareTo(b.bankName));
     return accounts;
+  }
+
+  List<BankAccount> get missingInitialBalances {
+    final uniqueAccounts = getUniqueAccounts();
+    return uniqueAccounts.where((acc) {
+      return !_hasOpeningFor(acc.bankName, acc.accountNumber);
+    }).toList();
+  }
+
+  bool _hasOpeningFor(String bank, String acc) {
+    return openingBalances.any(
+      (ob) => ob.bankName == bank && ob.accountNumber == acc,
+    );
   }
 
   List<String> getAvailableBanks() {

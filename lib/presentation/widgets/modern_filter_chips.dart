@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
 
@@ -25,9 +25,6 @@ class ModernFilterBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _AccountChips(state: state, controller: controller),
-        _MethodChips(state: state, controller: controller),
-        _TypeChips(state: state, controller: controller),
-        _CategoryChips(state: state, controller: controller),
         _DateRangeSelector(state: state, controller: controller),
       ],
     );
@@ -73,111 +70,6 @@ class _AccountChips extends StatelessWidget {
   }
 }
 
-class _MethodChips extends StatelessWidget {
-  final TransactionState state;
-  final TransactionController controller;
-
-  const _MethodChips({required this.state, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final methods = state.getAvailableMethods();
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          _FilterChip(
-            label: 'All Methods',
-            isSelected: state.selectedMethod == null,
-            onTap: () => controller.setMethodFilter(null),
-          ),
-          ...methods.map((method) => Padding(
-            padding: EdgeInsets.only(left: 8.w),
-            child: _FilterChip(
-              label: method.name.toUpperCase(),
-              isSelected: state.selectedMethod == method,
-              onTap: () => controller.setMethodFilter(method),
-            ),
-          )),
-        ],
-      ),
-    );
-  }
-}
-
-class _TypeChips extends StatelessWidget {
-  final TransactionState state;
-  final TransactionController controller;
-
-  const _TypeChips({required this.state, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      child: Row(
-        children: [
-          _FilterChip(
-            label: 'All Types',
-            isSelected: state.selectedType == null,
-            onTap: () => controller.setTypeFilter(null),
-          ),
-          UIHelpers.horizontalSpace(8),
-          _FilterChip(
-            label: 'Debit',
-            isSelected: state.selectedType == TransactionType.debit,
-            onTap: () => controller.setTypeFilter(TransactionType.debit),
-          ),
-          UIHelpers.horizontalSpace(8),
-          _FilterChip(
-            label: 'Credit',
-            isSelected: state.selectedType == TransactionType.credit,
-            onTap: () => controller.setTypeFilter(TransactionType.credit),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoryChips extends StatelessWidget {
-  final TransactionState state;
-  final TransactionController controller;
-
-  const _CategoryChips({required this.state, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final categories = state.categories;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          _FilterChip(
-            label: 'All Categories',
-            isSelected: state.selectedCategoryId == null,
-            onTap: () => controller.setCategoryFilter(null),
-          ),
-          ...categories.map((cat) => Padding(
-            padding: EdgeInsets.only(left: 8.w),
-            child: _FilterChip(
-              label: cat.name,
-              isSelected: state.selectedCategoryId == cat.id,
-              onTap: () => controller.setCategoryFilter(cat.id),
-              icon: UIHelpers.getCategoryIcon(cat.icon),
-            ),
-          )),
-        ],
-      ),
-    );
-  }
-}
-
 class _DateRangeSelector extends StatelessWidget {
   final TransactionState state;
   final TransactionController controller;
@@ -191,7 +83,8 @@ class _DateRangeSelector extends StatelessWidget {
 
     String rangeText = 'Select Date Range';
     if (state.startDate != null && state.endDate != null) {
-      rangeText = '${DateFormat('MMM dd, yyyy').format(state.startDate!)} - ${DateFormat('MMM dd, yyyy').format(state.endDate!)}';
+      rangeText =
+          '${DateFormat('MMM dd, yyyy').format(state.startDate!)} - ${DateFormat('MMM dd, yyyy').format(state.endDate!)}';
     }
 
     return Padding(
@@ -311,7 +204,9 @@ class _FilterChip extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final activeColor = const Color(0xFF2563EB);
-    final inactiveTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final inactiveTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF475569);
 
     return GestureDetector(
       onTap: () {
@@ -323,12 +218,14 @@ class _FilterChip extends StatelessWidget {
         constraints: BoxConstraints(minHeight: 44.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? activeColor 
+          color: isSelected
+              ? activeColor
               : (isDark ? const Color(0xFF1E293B) : Colors.white),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isSelected ? activeColor : (isDark ? Colors.white.withAlpha(20) : AppTheme.borderLight),
+            color: isSelected
+                ? activeColor
+                : (isDark ? Colors.white.withAlpha(20) : AppTheme.borderLight),
             width: 1,
           ),
         ),
