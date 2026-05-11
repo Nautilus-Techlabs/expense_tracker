@@ -288,11 +288,11 @@ class _BankDetailTransactionsScreenState
     final yesterday = today.subtract(const Duration(days: 1));
     final tDate = DateTime(date.year, date.month, date.day);
     if (tDate == today) {
-      return "Today, ${DateFormat('MMM dd').format(date)}";
+      return "Today, ${DateFormat('MMM dd, yyyy').format(date)}";
     } else if (tDate == yesterday) {
-      return "Yesterday, ${DateFormat('MMM dd').format(date)}";
+      return "Yesterday, ${DateFormat('MMM dd, yyyy').format(date)}";
     } else {
-      return DateFormat('EEEE, MMM dd').format(date);
+      return DateFormat('EEEE, MMM dd, yyyy').format(date);
     }
   }
 

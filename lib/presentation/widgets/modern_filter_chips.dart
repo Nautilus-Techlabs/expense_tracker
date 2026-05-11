@@ -39,7 +39,9 @@ class _AccountChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final banks = state.getAvailableBanks();
+    final accounts = state.getUniqueAccounts();
+    final hasUnknown = state.hasUnsupportedTransactions();
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
@@ -52,18 +54,28 @@ class _AccountChips extends StatelessWidget {
             onTap: () => controller.setBankFilter(null),
             icon: Icons.account_balance_wallet_rounded,
           ),
-          ...banks.map((bank) {
-            final logoUrl = state.bankLogos[bank];
+          ...accounts.map((acc) {
+            final logoUrl = state.bankLogos[acc.bankName];
             return Padding(
               padding: EdgeInsets.only(left: 8.w),
               child: _FilterChip(
-                label: bank,
-                isSelected: state.selectedBank == bank,
-                onTap: () => controller.setBankFilter(bank),
+                label: acc.accountNumber,
+                isSelected: state.selectedBank == acc.accountNumber,
+                onTap: () => controller.setBankFilter(acc.accountNumber),
                 logo: logoUrl,
               ),
             );
           }),
+          if (hasUnknown)
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: _FilterChip(
+                label: 'Unknown',
+                isSelected: state.selectedBank == 'unsupported',
+                onTap: () => controller.setBankFilter('unsupported'),
+                icon: Icons.help_outline_rounded,
+              ),
+            ),
         ],
       ),
     );
@@ -95,7 +107,7 @@ class _DateRangeSelector extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF151B2B) : Colors.white,
+            color: isDark ? AppTheme.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(20.r),
             border: Border.all(
               color: isDark ? Colors.white.withAlpha(10) : AppTheme.borderLight,
@@ -203,10 +215,8 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final activeColor = const Color(0xFF2563EB);
-    final inactiveTextColor = isDark
-        ? const Color(0xFF94A3B8)
-        : const Color(0xFF475569);
+    final activeColor = theme.colorScheme.primary;
+    final inactiveTextColor = theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.45 : 0.55);
 
     return GestureDetector(
       onTap: () {
@@ -220,12 +230,12 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? activeColor
-              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+              : AppTheme.getSurfaceSecondaryColor(context),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isSelected
                 ? activeColor
-                : (isDark ? Colors.white.withAlpha(20) : AppTheme.borderLight),
+                : AppTheme.getBorderColor(context),
             width: 1,
           ),
         ),

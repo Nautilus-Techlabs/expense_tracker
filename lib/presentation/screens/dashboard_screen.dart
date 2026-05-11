@@ -93,6 +93,7 @@ class DashboardScreen extends ConsumerWidget {
                       'dash_${transaction.id ?? transaction.rawSms}',
                     ),
                     transaction: transaction,
+                    showDate: true,
                     heroTag:
                         'hero_dash_${transaction.id ?? transaction.rawSms}',
                   );

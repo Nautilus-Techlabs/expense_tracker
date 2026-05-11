@@ -40,7 +40,7 @@ class AppTheme {
   // LIGHT THEME TOKENS
   // =====================================================
 
-  static const Color bgLight = Color(0xFFF5F7FA);
+  static const Color bgLight = Color(0xFFF8FAFC);
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceSecondaryLight = Color(0xFFF1F5F9);
 
@@ -133,6 +133,40 @@ class AppTheme {
       ),
 
       dividerTheme: const DividerThemeData(color: borderLight, thickness: 1),
+
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: bgLight,
+        headerBackgroundColor: primaryLight,
+        headerForegroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
+        dayStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        rangeSelectionBackgroundColor: primaryLight.withValues(alpha: 0.15),
+        rangePickerHeaderBackgroundColor: primaryLight,
+        rangePickerHeaderForegroundColor: Colors.white,
+      ),
+
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: bgLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
+        hourMinuteColor: WidgetStateColor.resolveWith((states) => 
+          states.contains(WidgetState.selected) 
+            ? primaryLight.withValues(alpha: 0.12) 
+            : surfaceSecondaryLight),
+        hourMinuteTextColor: WidgetStateColor.resolveWith((states) => 
+          states.contains(WidgetState.selected) 
+            ? primaryLight 
+            : textPrimaryLight),
+        dialHandColor: primaryLight,
+        dialBackgroundColor: surfaceSecondaryLight,
+      ),
 
       textTheme: TextTheme(
         headlineLarge: TextStyle(
@@ -257,6 +291,40 @@ class AppTheme {
       ),
 
       dividerTheme: const DividerThemeData(color: borderDark, thickness: 1),
+
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: bgDark,
+        headerBackgroundColor: primaryDark,
+        headerForegroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
+        dayStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        rangeSelectionBackgroundColor: primaryDark.withValues(alpha: 0.25),
+        rangePickerHeaderBackgroundColor: primaryDark,
+        rangePickerHeaderForegroundColor: Colors.white,
+      ),
+
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: bgDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
+        hourMinuteColor: WidgetStateColor.resolveWith((states) => 
+          states.contains(WidgetState.selected) 
+            ? primaryDark.withValues(alpha: 0.2) 
+            : surfaceElevatedDark),
+        hourMinuteTextColor: WidgetStateColor.resolveWith((states) => 
+          states.contains(WidgetState.selected) 
+            ? primaryDark 
+            : textPrimaryDark),
+        dialHandColor: primaryDark,
+        dialBackgroundColor: surfaceElevatedDark,
+      ),
 
       textTheme: TextTheme(
         headlineLarge: TextStyle(

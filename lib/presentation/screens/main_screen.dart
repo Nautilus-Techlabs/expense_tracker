@@ -25,7 +25,12 @@ class MainScreen extends ConsumerWidget {
 
     return Scaffold(
       body: IndexedStack(index: selectedIndex, children: _screens),
-      bottomNavigationBar: _buildCustomNavBar(context, ref, isDark, selectedIndex),
+      bottomNavigationBar: _buildCustomNavBar(
+        context,
+        ref,
+        isDark,
+        selectedIndex,
+      ),
     );
   }
 
@@ -36,16 +41,13 @@ class MainScreen extends ConsumerWidget {
     int selectedIndex,
   ) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    
+
     return Container(
       height: 72.h + bottomPadding,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        color: AppTheme.getSurfaceSecondaryColor(context),
         border: Border(
-          top: BorderSide(
-            color: isDark ? Colors.white.withAlpha(10) : AppTheme.borderLight,
-            width: 1,
-          ),
+          top: BorderSide(color: AppTheme.getBorderColor(context), width: 1),
         ),
       ),
       child: Padding(
@@ -95,8 +97,10 @@ class _NavBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final activeColor = const Color(0xFF3B82F6);
-    final inactiveColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final activeColor = theme.colorScheme.primary;
+    final inactiveColor = theme.colorScheme.onSurface.withValues(
+      alpha: isDark ? 0.45 : 0.5,
+    );
 
     return Expanded(
       child: GestureDetector(
@@ -112,8 +116,8 @@ class _NavBarItem extends StatelessWidget {
               duration: const Duration(milliseconds: 300),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? activeColor.withValues(alpha: 0.15) 
+                color: isSelected
+                    ? activeColor.withValues(alpha: 0.15)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(12.r),
               ),

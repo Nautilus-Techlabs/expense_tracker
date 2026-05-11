@@ -145,6 +145,59 @@ class AppConstants {
     "upi",
   ];
 
+  /// Priority prefixes for merchant extraction (typically debits)
+  static const List<String> merchantPriorityPrefixes = [
+    "at",
+    "to",
+    "towards",
+    "for",
+    "using",
+    "trf to",
+    "transfer to",
+    "paid to",
+    "spent at",
+    "sent to",
+    "into",
+  ];
+
+  /// Secondary prefixes for merchant extraction (typically credits)
+  static const List<String> merchantSecondaryPrefixes = [
+    "transfer from",
+    "from beneficiary",
+    "beneficiary",
+    "from",
+  ];
+
+  /// Words that signal the end of a merchant name in an SMS
+  static const List<String> merchantStopWords = [
+    "on",
+    "at",
+    "via",
+    "using",
+    "Ref",
+    "Refno",
+    "UTR",
+  ];
+
+  /// Regex part for allowed characters in a merchant name
+  static const String merchantNameChars = r"[a-zA-Z0-9\s\-\.&/]";
+
+  static String get merchantPriorityRegex {
+    final prefixes = merchantPriorityPrefixes
+        .map((p) => p.replaceAll(' ', '\\s+'))
+        .join('|');
+    final stopWords = merchantStopWords.join('|');
+    return "(?:$prefixes)\\s+($merchantNameChars+?)(?:\\s+(?:$stopWords)|\\.|\\\$|;)";
+  }
+
+  static String get merchantSecondaryRegex {
+    final prefixes = merchantSecondaryPrefixes
+        .map((p) => p.replaceAll(' ', '\\s+'))
+        .join('|');
+    final stopWords = merchantStopWords.join('|');
+    return "(?:$prefixes)\\s+($merchantNameChars+?)(?:\\s+(?:$stopWords)|\\.|\\\$|;)";
+  }
+
   /// Regex pattern for common payment methods
   static const String paymentMethodPattern = r'(UPI|Card|ATM|NEFT|RTGS|IMPS)';
 

@@ -38,22 +38,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   int? _selectedCategoryId;
 
   Widget _buildAccountChips() {
-    final transactions = ref.watch(transactionProvider).allTransactions;
+    final state = ref.watch(transactionProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Extract unique accounts
-    final seen = <String>{};
-    final accounts = <({String account, String bank})>[];
-
-    for (final t in transactions) {
-      if (t.account != null && t.account!.isNotEmpty) {
-        final key = '${t.account}|${t.bankName}';
-        if (!seen.contains(key)) {
-          seen.add(key);
-          accounts.add((account: t.account!, bank: t.bankName));
-        }
-      }
-    }
+    // Use centralized logic to get accounts from both transactions AND opening balances
+    final accounts = state.getUniqueAccounts();
 
     if (accounts.isEmpty) {
       return Container(
@@ -74,21 +63,18 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       runSpacing: 8.h,
       children: [
         ...accounts.map((acc) {
-          final key = '${acc.account}|${acc.bank}';
+          final key = '${acc.accountNumber}|${acc.bankName}';
           final isSelected = _selectedAccountKey == key;
 
           return ChoiceChip(
-            label: Text('${acc.account} (${acc.bank})'),
+            label: Text('${acc.accountNumber} (${acc.bankName})'),
             selected: isSelected,
             onSelected: (selected) {
               setState(() {
                 if (selected) {
                   _selectedAccountKey = key;
-                  _bankNameController.text = acc.bank;
-                  // Remove 'XX' prefix if present for editing,
-                  // but keep it if it's the standard format.
-                  // Actually, the user should see what's in the DB.
-                  _accountController.text = acc.account;
+                  _bankNameController.text = acc.bankName;
+                  _accountController.text = acc.accountNumber;
                 } else {
                   _selectedAccountKey = null;
                 }
@@ -167,20 +153,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: Theme.of(context).colorScheme.primary,
-              onPrimary: isDark ? Colors.black : Colors.white,
-              surface: isDark ? const Color(0xFF1A1C1E) : Colors.white,
-              onSurface: isDark ? Colors.white : Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {

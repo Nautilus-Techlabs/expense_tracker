@@ -356,17 +356,16 @@ class TransactionController extends Notifier<TransactionState> {
     } catch (e, stack) {
       AppLogger.e("Failed to set opening balance", e, stack);
       String userMessage = "Failed to set opening balance";
-      
+
       final errorStr = e.toString();
-      if (errorStr.contains("2067") || errorStr.contains("UNIQUE constraint failed")) {
+      if (errorStr.contains("2067") ||
+          errorStr.contains("UNIQUE constraint failed")) {
         userMessage = "An opening balance for this account already exists.";
       } else {
         userMessage = "Error: $e";
       }
 
-      state = state.copyWith(
-        errorMessage: () => userMessage,
-      );
+      state = state.copyWith(errorMessage: () => userMessage);
     }
   }
 
@@ -443,7 +442,8 @@ class TransactionController extends Notifier<TransactionState> {
       AppLogger.e("Failed to add category", e, stack);
       String userMessage = "Failed to add category";
       final errorStr = e.toString();
-      if (errorStr.contains("2067") || errorStr.contains("UNIQUE constraint failed")) {
+      if (errorStr.contains("2067") ||
+          errorStr.contains("UNIQUE constraint failed")) {
         userMessage = "A category with this name already exists.";
       } else {
         userMessage = "Error: $e";

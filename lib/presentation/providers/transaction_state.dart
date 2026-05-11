@@ -249,13 +249,20 @@ class TransactionState {
 
   List<Transaction> get filteredTransactions {
     final filtered = allTransactions.where((t) {
-      // 1. Bank Filter
+      // 1. Bank/Account Filter
       bool matchesBank = true;
       if (selectedBank != null) {
         if (selectedBank == 'unsupported') {
           matchesBank = !t.isVerified;
         } else {
-          matchesBank = t.isVerified && t.bankName == selectedBank;
+          // Match by bank name or account number
+          final normalizedSelected = normalizeAccount(selectedBank);
+          final matchesName = t.isVerified && t.bankName == selectedBank;
+          final matchesAcc =
+              t.isVerified &&
+              t.account != null &&
+              normalizeAccount(t.account) == normalizedSelected;
+          matchesBank = matchesName || matchesAcc;
         }
       }
 

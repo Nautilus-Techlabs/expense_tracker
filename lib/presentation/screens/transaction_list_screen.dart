@@ -47,9 +47,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : AppTheme.bgLight,
+      backgroundColor: isDark ? AppTheme.bgDark : AppTheme.bgLight,
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+        backgroundColor: isDark ? AppTheme.bgDark : Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
@@ -69,7 +69,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     height: 52.h,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      color: isDark ? AppTheme.surfaceDark : Colors.white,
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
                         color: isDark
@@ -264,11 +264,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final tDate = DateTime(date.year, date.month, date.day);
 
     if (tDate == today) {
-      return "Today, ${DateFormat('MMM dd').format(date)}";
+      return "Today, ${DateFormat('MMM dd, yyyy').format(date)}";
     } else if (tDate == yesterday) {
-      return "Yesterday, ${DateFormat('MMM dd').format(date)}";
+      return "Yesterday, ${DateFormat('MMM dd, yyyy').format(date)}";
     } else {
-      return DateFormat('EEEE, MMM dd').format(date);
+      return DateFormat('EEEE, MMM dd, yyyy').format(date);
     }
   }
 

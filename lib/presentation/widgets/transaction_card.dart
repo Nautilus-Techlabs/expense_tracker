@@ -15,12 +15,14 @@ class TransactionCard extends ConsumerStatefulWidget {
   final Transaction transaction;
   final String? heroTag;
   final String? source;
+  final bool showDate;
 
   const TransactionCard({
     super.key,
     required this.transaction,
     this.heroTag,
     this.source,
+    this.showDate = false,
   });
 
   @override
@@ -32,31 +34,32 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
     final isHistorical = state.isTransactionBeforeOpening(widget.transaction);
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isDebit = widget.transaction.type == TransactionType.debit;
     final color = isDebit
         ? AppTheme.getExpenseColor(context)
         : AppTheme.getIncomeColor(context);
     final theme = Theme.of(context);
+    final shouldDim = isHistorical && !state.isShowingSampleData;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: isHistorical
-            ? theme.colorScheme.surface.withValues(alpha: 0.6)
+        color: shouldDim
+            ? theme.colorScheme.surface.withValues(alpha: 0.8)
             : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isHistorical
-              ? AppTheme.getBorderColor(context).withValues(alpha: 0.3)
+          color: shouldDim
+              ? AppTheme.getBorderColor(context).withValues(alpha: 0.4)
               : AppTheme.getBorderColor(context),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -101,6 +104,15 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                         runSpacing: 4.h,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
+                          if (widget.showDate)
+                            Text(
+                              '${DateFormat('MMM dd, yyyy').format(widget.transaction.date)}  •  ',
+                              style: TextStyle(
+                                color: AppTheme.getNeutralColor(context),
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           Text(
                             DateFormat(
                               'h:mm a',
@@ -132,7 +144,7 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                   ),
                 ),
                 Opacity(
-                  opacity: isHistorical ? 0.5 : 1.0,
+                  opacity: shouldDim ? 0.6 : 1.0,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

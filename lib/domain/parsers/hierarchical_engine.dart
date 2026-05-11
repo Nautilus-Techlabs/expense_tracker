@@ -161,17 +161,35 @@ class HierarchicalBankParser extends BankParser {
 
     // 2.b Fallback Merchant Guessing (if template didn't capture it)
     if (merchant == null) {
-      // Unified pattern for common merchant/sender keywords (debit & credit)
-      final universalPattern = RegExp(
-        r"(?:at|to|towards|for|using|trf\s+to|transfer\s+to|transfer\s+from|from\s+beneficiary|beneficiary|from)\s+([a-zA-Z0-9\s\-&]+?)(?:\s+on|\s+at|\s+via|\s+using|\s+Ref|\s+Refno|\s+UTR|\.|$|;)",
+      // 🎯 Priority 1: Specific transfer targets (to, at, sent to)
+      final priorityPattern = RegExp(
+        AppConstants.merchantPriorityRegex,
         caseSensitive: false,
       );
 
-      final m = universalPattern.firstMatch(sms);
-      if (m != null) {
-        final guessed = cleanMerchantName(m.group(1)!);
+      // 🎯 Priority 2: Generic sources (from, beneficiary)
+      final secondaryPattern = RegExp(
+        AppConstants.merchantSecondaryRegex,
+        caseSensitive: false,
+      );
+
+      // Try Priority 1 first
+      final m1 = priorityPattern.firstMatch(sms);
+      if (m1 != null) {
+        final guessed = cleanMerchantName(m1.group(1)!);
         if (isValidMerchantName(guessed)) {
           merchant = guessed;
+        }
+      }
+
+      // If still null, try Priority 2
+      if (merchant == null) {
+        final m2 = secondaryPattern.firstMatch(sms);
+        if (m2 != null) {
+          final guessed = cleanMerchantName(m2.group(1)!);
+          if (isValidMerchantName(guessed)) {
+            merchant = guessed;
+          }
         }
       }
     }
