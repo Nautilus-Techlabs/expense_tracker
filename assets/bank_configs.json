@@ -487,6 +487,15 @@
                     "priority": 10
                 },
                 {
+                    "name": "BOB Account Credited UPI Format",
+                    "pattern": "Your\\s+account\\s+is\\s+credited\\s+with\\s+(?:INR|Rs[:.]?|₹|IR)?\\s*([0-9,]+(?:\\.\\d+)?).*?ref\\s+no\\s+([0-9]+)",
+                    "type": "credit",
+                    "amountGroup": 1,
+                    "referenceGroup": 2,
+                    "method": "upi",
+                    "priority": 1
+                },
+                {
                     "name": "BOB Universal Safety-Net",
                     "pattern": "(?:debited|spent|credited|withdrawn|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card|XX|\\*\\*)\\s*([\\dX*]+)",
                     "type": "unknown",
@@ -4656,7 +4665,7 @@
                 },
                 {
                     "name": "Gen Fallback Debit 1",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent|deducted)\\s+(?:from\\s+)?.*?(?:A/c|Acct|account)?\\s*([Xx*\\d]{4,})",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([\\d,]+(?:\\.\\d+)?)\\s+(?:is\\s+)?(?:debited|withdrawn|spent|deducted)\\s+(?:from\\s+)?.*?(?:(?:A/c|Acct|account)\\s*[Xx*]*|[Xx*]+)(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4729,7 +4738,7 @@
                 },
                 {
                     "name": "Gen Action First Debit",
-                    "pattern": "(?:debited|spent|paid|withdrawn|withdrawn\\s+at\\s+ATM|dr|transferred)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:debited|spent|paid|withdrawn|withdrawn\\s+at\\s+ATM|dr|transferred)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:(?:A/c|Acct|account|Card)\\s*[Xx*]*|[Xx*]+)(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4738,7 +4747,7 @@
                 },
                 {
                     "name": "Gen Action First Credit",
-                    "pattern": "(?:credited|received|refund|cashback|deposited|cr)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:credited|received|refund|cashback|deposited|cr)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:(?:A/c|Acct|account|Card)\\s*[Xx*]*|[Xx*]+)(\\d{4,})",
                     "type": "credit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4747,7 +4756,7 @@
                 },
                 {
                     "name": "Gen Amount First Debit",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:debited|spent|paid|withdrawn|dr|transferred).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:debited|spent|paid|withdrawn|dr|transferred).*?(?:(?:A/c|Acct|account|Card)\\s*[Xx*]*|[Xx*]+)(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4756,7 +4765,7 @@
                 },
                 {
                     "name": "Gen Amount First Credit",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:credited|received|refund|cashback|deposited|cr).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:credited|received|refund|cashback|deposited|cr).*?(?:(?:A/c|Acct|account|Card)\\s*[Xx*]*|[Xx*]+)(\\d{4,})",
                     "type": "credit",
                     "amountGroup": 1,
                     "accountGroup": 2,
