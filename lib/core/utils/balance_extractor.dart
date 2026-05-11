@@ -1,10 +1,9 @@
 class BalanceExtractor {
   static final List<RegExp> _patterns = [
     RegExp(
-      r'(?<!Average\s+)(?<!Average\s+Monthly\s+)(?:Available|Avl|Avail|Avbl|Bal|Balance|Lmt|Limit|balance\s+is|BAL-|New balance is|Total\s+Amt\s+Due|Outstanding)[\s:\.]*(?:is|of|in|your|account|A/c)?\s*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
+      r'(?<!Average\s+)(?<!Average\s+Monthly\s+)(?:Available|Avl|Avail|Avbl|Bal|Balance|Lmt|Limit|balance\s+is|BAL-|New balance is|Total\s+Amt\s+Due|Outstanding|Avlbl Amt)[\s:\.]*(?:is|of|in|your|account|A/c)?\s*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',
       caseSensitive: false,
     ),
-
 
     RegExp(
       r'(?:Total\s+)?Avl\s+Bal[:\s-]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)',

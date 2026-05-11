@@ -16,6 +16,7 @@ class AppConstants {
     'sent',
     'using',
     'done',
+    'transferred',
   ];
 
   static const List<String> creditKeywords = [

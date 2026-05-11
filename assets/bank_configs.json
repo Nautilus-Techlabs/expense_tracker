@@ -504,6 +504,27 @@
             ],
             "templates": [
                 {
+                    "name": "BOB Transferred Format Image",
+                    "pattern": "Rs\\.?\\s*([0-9,.]+)\\s+transferred\\s+from\\s+A/c\\s+[\\.Xx*]*(\\d+)\\s+to[:\\s]*([^\\s\\n,]+).*?Total\\s+Bal[:\\s]*(?:Rs\\.?)?\\s*[0-9,.]+\\s*CR.*?Avlbl\\s+Amt[:\\s]*(?:Rs\\.?)?\\s*([0-9,.]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "balanceGroup": 4,
+                    "method": "bank",
+                    "priority": 0
+                },
+                {
+                    "name": "BOB Transferred From A/c",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+transferred\\s+from\\s+(?:a/c|A/c|Acct|account)\\s*[\\.Xx*]*(\\d+).*?(?:to|at)[:\\s]*([^\\s\\n,]+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "merchantGroup": 3,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
                     "name": "BOB Dr Pattern",
                     "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+Dr\\.\\s+from\\s+(?:a/c|A/c|Acct|account)?\\s*[Xx*]*(\\d+)",
                     "type": "debit",
@@ -552,7 +573,7 @@
                 },
                 {
                     "name": "BOB Balance Info",
-                    "pattern": "(?:Avl|Available)\\s*Bal(?:ance)?\\s*[:\\s]*(?:INR|Rs[:.]?|₹|[A-Za-z]+)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "pattern": "(?:Avl|Available|AVLnl|Avlbl)\\s*(?:Bal(?:ance)?|AMt|Amt)?\\s*[:\\s]*(?:INR|Rs[:.]?|₹|[A-Za-z]+)?\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 10
@@ -1504,7 +1525,7 @@
                 },
                 {
                     "name": "Federal Universal Safety Net",
-                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer).*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
+                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer)[^0-9]*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "priority": 50
@@ -1729,7 +1750,7 @@
                 },
                 {
                     "name": "HDFC Universal Safety Net",
-                    "pattern": "(?:debited|credited|spent|received).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Card|XX)?\\s*([\\dX*]+)?",
+                    "pattern": "(?:debited|credited|spent|received)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Card|XX)?\\s*([\\dX*]+)?",
                     "type": "unknown",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -3123,7 +3144,7 @@
                 },
                 {
                     "name": "JK Debit",
-                    "pattern": "(?:debited|withdrawn|spent|charged|paid|purchase|transferred).*?(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
+                    "pattern": "(?:debited|withdrawn|spent|charged|paid|purchase|transferred)[^0-9]*?(?:INR|Rs\\.?|₹)\\s*([0-9,]+(?:\\.\\d{2})?)",
                     "type": "debit",
                     "amountGroup": 1,
                     "method": "bank",
@@ -4637,7 +4658,7 @@
                 },
                 {
                     "name": "Union Bank Universal Safety Net",
-                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer).*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
+                    "pattern": "(?:debited|credited|withdrawn|received|paid|spent|transfer)[^0-9]*?(?:Rs[:.]?|INR|₹)\\s*([0-9,]+(?:\\.\\d+)?|\\d+)",
                     "type": "unknown",
                     "amountGroup": 1,
                     "priority": 50
@@ -4909,7 +4930,7 @@
                 },
                 {
                     "name": "Gen Action First Debit",
-                    "pattern": "(?:debited|spent|paid|withdrawn|withdrawn\\s+at\\s+ATM|dr).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:debited|spent|paid|withdrawn|withdrawn\\s+at\\s+ATM|dr|transferred)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4918,7 +4939,7 @@
                 },
                 {
                     "name": "Gen Action First Credit",
-                    "pattern": "(?:credited|received|refund|cashback|deposited|cr).*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:credited|received|refund|cashback|deposited|cr)[^0-9]*?(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
                     "type": "credit",
                     "amountGroup": 1,
                     "accountGroup": 2,
@@ -4927,12 +4948,12 @@
                 },
                 {
                     "name": "Gen Amount First Debit",
-                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:debited|spent|paid|withdrawn|dr).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
+                    "pattern": "(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)\\s+(?:debited|spent|paid|withdrawn|dr|transferred).*?(?:A/c|Acct|account|Card)?\\s*[Xx*]*(\\d{4,})",
                     "type": "debit",
                     "amountGroup": 1,
                     "accountGroup": 2,
                     "method": "unknown",
-                    "priority": 42
+                    "priority": 39
                 },
                 {
                     "name": "Gen Amount First Credit",
