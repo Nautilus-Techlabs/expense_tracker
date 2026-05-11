@@ -171,7 +171,7 @@ class _SetOpeningBalanceSheetState
             bankName: bank,
             accountNumber: acc,
             amount: double.parse(_amountController.text),
-            date: _selectedDate,
+            date: date,
           ),
         )
         .then((_) {
