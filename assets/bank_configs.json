@@ -504,6 +504,15 @@
             ],
             "templates": [
                 {
+                    "name": "BOB Dr Pattern",
+                    "pattern": "(?:Rs\\.?|INR|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+Dr\\.\\s+from\\s+(?:a/c|A/c|Acct|account)?\\s*[Xx*]*(\\d+)",
+                    "type": "debit",
+                    "amountGroup": 1,
+                    "accountGroup": 2,
+                    "method": "bank",
+                    "priority": 1
+                },
+                {
                     "name": "BOB Account Debited via Method",
                     "pattern": "Your\\s+BOB\\s+A/c\\s+([Xx*\\d]+)\\s+debited\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)\\s+on\\s+(\\d{2}-[a-zA-Z]{3}-\\d{2})\\s+via\\s+([^\\.\\n]+)",
                     "type": "debit",
@@ -543,7 +552,7 @@
                 },
                 {
                     "name": "BOB Balance Info",
-                    "pattern": "(?:Avl|Available)\\s+Bal\\s+(?:INR|Rs[:.]?|₹)?\\s*([0-9,]+(?:\\.\\d+)?)",
+                    "pattern": "(?:Avl|Available)\\s*Bal(?:ance)?\\s*[:\\s]*(?:INR|Rs[:.]?|₹|[A-Za-z]+)?\\s*([0-9,]+(?:\\.\\d+)?)",
                     "type": "meta",
                     "balanceGroup": 1,
                     "priority": 10
