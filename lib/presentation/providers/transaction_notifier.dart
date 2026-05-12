@@ -272,6 +272,7 @@ class TransactionController extends Notifier<TransactionState> {
     required bool isVerified,
     String? description,
     int? categoryId,
+    String? merchant,
   }) async {
     try {
       final db = ref.read(databaseProvider);
@@ -283,6 +284,7 @@ class TransactionController extends Notifier<TransactionState> {
           isVerified: Value(isVerified),
           description: Value(description),
           categoryId: Value(categoryId),
+          merchant: Value(merchant),
         ),
       );
 

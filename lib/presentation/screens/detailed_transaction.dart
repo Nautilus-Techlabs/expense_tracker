@@ -32,6 +32,7 @@ class _DetailedTransactionScreenState
   late TextEditingController _bankController;
   late TextEditingController _amountController;
   late TextEditingController _descriptionController;
+  late TextEditingController _merchantController;
   late bool _isVerified;
   int? _selectedCategoryId;
   bool _isEditing = false;
@@ -52,6 +53,9 @@ class _DetailedTransactionScreenState
     _descriptionController = TextEditingController(
       text: widget.transaction.description ?? '',
     );
+    _merchantController = TextEditingController(
+      text: widget.transaction.merchant ?? '',
+    );
     _isVerified = widget.transaction.isVerified;
     _selectedCategoryId = widget.transaction.categoryId;
   }
@@ -62,6 +66,7 @@ class _DetailedTransactionScreenState
     _bankController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
+    _merchantController.dispose();
     super.dispose();
   }
 
@@ -138,6 +143,9 @@ class _DetailedTransactionScreenState
               ? null
               : _descriptionController.text.trim(),
           categoryId: _selectedCategoryId,
+          merchant: _merchantController.text.trim().isEmpty
+              ? null
+              : _merchantController.text.trim(),
         );
 
     if (mounted) {
@@ -809,18 +817,42 @@ class _DetailedTransactionScreenState
                     size: 24.sp,
                   ),
                 ),
-                Text(
-                  widget.transaction.merchant ?? 'Unknown Merchant',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                    color: semanticColor,
-                    letterSpacing: -0.5,
+                if (_isEditing)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: TextFormField(
+                      controller: _merchantController,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w800,
+                        color: semanticColor,
+                        letterSpacing: -0.5,
+                      ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Merchant Name',
+                        hintStyle: TextStyle(
+                          color: semanticColor.withAlpha(100),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 4.h),
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    widget.transaction.merchant ?? 'Unknown Merchant',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w800,
+                      color: semanticColor,
+                      letterSpacing: -0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Row(
