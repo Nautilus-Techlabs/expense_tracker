@@ -7,6 +7,7 @@ import '../../presentation/screens/detailed_transaction.dart';
 import '../../presentation/screens/main_screen.dart';
 import '../../presentation/screens/onboarding_screen.dart';
 import '../../presentation/screens/splash_screen.dart';
+import '../../presentation/screens/feedback_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -14,6 +15,7 @@ class AppRouter {
   static const String transactions = '/transactions';
   static const String transactionDetail = '/transaction-detail';
   static const String bankTransactions = '/bank-transactions';
+  static const String feedback = '/feedback';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -59,6 +61,10 @@ class AppRouter {
           final bankName = extra as String;
           return BankDetailTransactionsScreen(bankName: bankName);
         },
+      ),
+      GoRoute(
+        path: feedback,
+        builder: (context, state) => const FeedbackScreen(),
       ),
     ],
   );

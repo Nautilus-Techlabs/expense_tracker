@@ -268,7 +268,7 @@ class _DetailedTransactionScreenState
               if (!widget.transaction.isVerified) ...[
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(24.w),
+                  padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(28.r),
@@ -291,7 +291,7 @@ class _DetailedTransactionScreenState
                           Text(
                             'Complete Info',
                             style: TextStyle(
-                              fontSize: 16.sp,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w700,
                               color: Theme.of(
                                 context,
@@ -445,7 +445,9 @@ class _DetailedTransactionScreenState
                 context,
                 'STATUS',
                 isManual || _isVerified ? 'Verified' : 'Unverified',
-                isManual || _isVerified ? Icons.check_rounded : Icons.warning_rounded,
+                isManual || _isVerified
+                    ? Icons.check_rounded
+                    : Icons.warning_rounded,
                 isManual || _isVerified
                     ? AppTheme.getIncomeColor(context)
                     : AppTheme.getNeutralColor(context),
@@ -504,8 +506,6 @@ class _DetailedTransactionScreenState
                   Icons.notes_rounded,
                   AppTheme.getNeutralColor(context),
                 ),
-
-              SizedBox(height: 12.h),
               _isEditing
                   ? _buildEditableCategoryCard()
                   : widget.transaction.category != null
@@ -521,8 +521,6 @@ class _DetailedTransactionScreenState
                           : Theme.of(context).colorScheme.primary,
                     )
                   : const SizedBox.shrink(),
-
-              SizedBox(height: 32.h),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,7 +540,6 @@ class _DetailedTransactionScreenState
                         SizedBox(width: 8.w),
                         Text(
                           'RAW SMS MESSAGE',
-
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w800,
@@ -596,7 +593,7 @@ class _DetailedTransactionScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20.r),
@@ -605,12 +602,12 @@ class _DetailedTransactionScreenState
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(12.w),
+            padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
               color: accentColor.withAlpha(isDark ? 35 : 15),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 20.sp, color: accentColor),
+            child: Icon(icon, size: 18.sp, color: accentColor),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -620,7 +617,7 @@ class _DetailedTransactionScreenState
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     color: AppTheme.getNeutralColor(context),
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.5,
@@ -630,7 +627,7 @@ class _DetailedTransactionScreenState
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
@@ -670,7 +667,7 @@ class _DetailedTransactionScreenState
           ),
           SizedBox(height: 12.h),
           DropdownButtonFormField<PaymentMethod>(
-          initialValue: _selectedMethod,
+            initialValue: _selectedMethod,
             dropdownColor: Theme.of(context).cardColor,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyLarge?.color,
@@ -742,7 +739,7 @@ class _DetailedTransactionScreenState
     return Text(
       text,
       style: TextStyle(
-        fontSize: 12.sp,
+        fontSize: 11.sp,
         fontWeight: FontWeight.w600,
         color: AppTheme.getNeutralColor(context),
       ),
@@ -776,7 +773,7 @@ class _DetailedTransactionScreenState
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 24.h),
+      padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         color: semanticBg,
         borderRadius: BorderRadius.circular(28.r),
@@ -795,7 +792,7 @@ class _DetailedTransactionScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: EdgeInsets.all(18.w),
+                  padding: EdgeInsets.all(14.w),
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.black.withAlpha(40)
@@ -809,13 +806,13 @@ class _DetailedTransactionScreenState
                   child: TransactionIcon(
                     method: widget.transaction.method,
                     color: semanticColor,
-                    size: 32.sp,
+                    size: 24.sp,
                   ),
                 ),
                 Text(
                   widget.transaction.merchant ?? 'Unknown Merchant',
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
                     color: semanticColor,
                     letterSpacing: -0.5,
@@ -841,7 +838,7 @@ class _DetailedTransactionScreenState
                               decimal: true,
                             ),
                             style: TextStyle(
-                              fontSize: 48.sp,
+                              fontSize: 36.sp,
                               fontWeight: FontWeight.w900,
                               color: semanticColor,
                               letterSpacing: -1,
@@ -865,7 +862,7 @@ class _DetailedTransactionScreenState
                           type: widget.transaction.type,
                           showSign: false,
                           style: TextStyle(
-                            fontSize: 52.sp,
+                            fontSize: 30.sp,
                             fontWeight: FontWeight.w900,
                             color: semanticColor,
                             letterSpacing: -1,

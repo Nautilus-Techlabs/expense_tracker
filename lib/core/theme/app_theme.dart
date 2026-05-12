@@ -142,10 +142,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28.r),
         ),
-        dayStyle: TextStyle(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        dayStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
         rangeSelectionBackgroundColor: primaryLight.withValues(alpha: 0.15),
         rangePickerHeaderBackgroundColor: primaryLight,
         rangePickerHeaderForegroundColor: Colors.white,
@@ -156,14 +153,16 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28.r),
         ),
-        hourMinuteColor: WidgetStateColor.resolveWith((states) => 
-          states.contains(WidgetState.selected) 
-            ? primaryLight.withValues(alpha: 0.12) 
-            : surfaceSecondaryLight),
-        hourMinuteTextColor: WidgetStateColor.resolveWith((states) => 
-          states.contains(WidgetState.selected) 
-            ? primaryLight 
-            : textPrimaryLight),
+        hourMinuteColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? primaryLight.withValues(alpha: 0.12)
+              : surfaceSecondaryLight,
+        ),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? primaryLight
+              : textPrimaryLight,
+        ),
         dialHandColor: primaryLight,
         dialBackgroundColor: surfaceSecondaryLight,
       ),
@@ -300,10 +299,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28.r),
         ),
-        dayStyle: TextStyle(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        dayStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
         rangeSelectionBackgroundColor: primaryDark.withValues(alpha: 0.25),
         rangePickerHeaderBackgroundColor: primaryDark,
         rangePickerHeaderForegroundColor: Colors.white,
@@ -314,14 +310,16 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28.r),
         ),
-        hourMinuteColor: WidgetStateColor.resolveWith((states) => 
-          states.contains(WidgetState.selected) 
-            ? primaryDark.withValues(alpha: 0.2) 
-            : surfaceElevatedDark),
-        hourMinuteTextColor: WidgetStateColor.resolveWith((states) => 
-          states.contains(WidgetState.selected) 
-            ? primaryDark 
-            : textPrimaryDark),
+        hourMinuteColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? primaryDark.withValues(alpha: 0.2)
+              : surfaceElevatedDark,
+        ),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? primaryDark
+              : textPrimaryDark,
+        ),
         dialHandColor: primaryDark,
         dialBackgroundColor: surfaceElevatedDark,
       ),

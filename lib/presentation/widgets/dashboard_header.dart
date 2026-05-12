@@ -9,6 +9,7 @@ class DashboardHeader extends StatelessWidget {
   final double income;
   final double spends;
   final VoidCallback onSync;
+  final VoidCallback onSupport;
   final bool isLoading;
 
   const DashboardHeader({
@@ -17,6 +18,7 @@ class DashboardHeader extends StatelessWidget {
     required this.income,
     required this.spends,
     required this.onSync,
+    required this.onSupport,
     required this.isLoading,
   });
 
@@ -34,9 +36,11 @@ class DashboardHeader extends StatelessWidget {
           colors: Theme.of(context).brightness == Brightness.light
               ? [
                   AppTheme.primaryLight,
-                  AppTheme.primaryLight.withValues(alpha: 230 / 255),
+                  const Color(
+                    0xFF0D9488,
+                  ), // Darker teal for better contrast and depth
                 ]
-              : [AppTheme.surfaceDark, AppTheme.bgDark],
+              : [const Color(0xFF1E293B), AppTheme.bgDark],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40.r),
@@ -82,6 +86,11 @@ class DashboardHeader extends StatelessWidget {
                     icon: Icons.sync_rounded,
                     onTap: onSync,
                     isLoading: isLoading,
+                  ),
+                  UIHelpers.horizontalSpace(8),
+                  _HeaderAction(
+                    icon: Icons.support_agent_rounded,
+                    onTap: onSupport,
                   ),
                 ],
               ),
@@ -197,21 +206,36 @@ class _SummaryIndicator extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
+        color: Colors.white.withValues(
+          alpha: 40 / 255,
+        ), // Increased opacity (0.16)
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 26 / 255),
-        ), // 0.1 * 255
+        border: Border.all(color: Colors.white.withValues(alpha: 40 / 255)),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(6.w),
+            padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 51 / 255), // 0.2 * 255
+              color: color, // Solid Green or Red
               shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 100 / 255),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 40 / 255),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 14.sp),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 16.sp,
+            ),
           ),
           UIHelpers.horizontalSpace(12),
           Column(
@@ -220,9 +244,11 @@ class _SummaryIndicator extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 179 / 255), // 0.7 * 255
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withValues(
+                    alpha: 220 / 255,
+                  ), // Lighter, more visible
+                  fontSize: 12.sp, // Slightly larger
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               Text(

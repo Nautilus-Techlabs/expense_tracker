@@ -233,7 +233,7 @@ class BankAccountsScreen extends ConsumerWidget {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w900,
-                            fontSize: 18.sp,
+                            fontSize: 16.sp,
                           ),
                         ),
                 ),
@@ -245,7 +245,7 @@ class BankAccountsScreen extends ConsumerWidget {
                       Text(
                         account.displayName,
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
                           color: isDark
                               ? Colors.white
@@ -271,7 +271,7 @@ class BankAccountsScreen extends ConsumerWidget {
                       Text(
                         '₹${balance.toStringAsFixed(0)}',
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w900,
                           color: Theme.of(context).textTheme.titleLarge?.color,
                         ),

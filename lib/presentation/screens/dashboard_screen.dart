@@ -7,6 +7,8 @@ import '../../core/utils/ui_helpers.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
+import '../../core/constants/app_router.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/shimmer_loading.dart';
@@ -43,6 +45,7 @@ class DashboardScreen extends ConsumerWidget {
                 onSort: controller.setSort,
                 currentSort: state.currentSort,
                 isLoading: state.isLoading,
+                onSupport: () => context.push(AppRouter.feedback),
                 topPadding: MediaQuery.of(context).padding.top,
               ),
             ),
@@ -133,6 +136,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Function(TransactionSort) onSort;
   final TransactionSort currentSort;
   final bool isLoading;
+  final VoidCallback onSupport;
   final double topPadding;
 
   DashboardHeaderDelegate({
@@ -143,6 +147,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.onSort,
     required this.currentSort,
     required this.isLoading,
+    required this.onSupport,
     required this.topPadding,
   });
 
@@ -157,6 +162,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
       income: income,
       spends: spends,
       onSync: onSync,
+      onSupport: onSupport,
       isLoading: isLoading,
     );
   }
