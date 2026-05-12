@@ -214,8 +214,18 @@ class TransactionController extends Notifier<TransactionState> {
     state = state.copyWith(selectedType: () => type);
   }
 
-  void setCategoryFilter(int? categoryId) {
-    state = state.copyWith(selectedCategoryId: () => categoryId);
+  void toggleCategoryFilter(int categoryId) {
+    final current = Set<int>.from(state.selectedCategoryIds);
+    if (current.contains(categoryId)) {
+      current.remove(categoryId);
+    } else {
+      current.add(categoryId);
+    }
+    state = state.copyWith(selectedCategoryIds: () => current);
+  }
+
+  void clearCategoryFilter() {
+    state = state.copyWith(selectedCategoryIds: () => {});
   }
 
   void setDateRange(DateTime? start, DateTime? end) {

@@ -69,7 +69,7 @@ class MainScreen extends ConsumerWidget {
             ),
             _NavBarItem(
               icon: Icons.account_balance_wallet_rounded,
-              label: 'Wallet',
+              label: 'Accounts',
               isSelected: selectedIndex == 2,
               onTap: () => ref.read(navigationIndexProvider.notifier).state = 2,
             ),

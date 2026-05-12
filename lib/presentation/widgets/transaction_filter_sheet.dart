@@ -66,7 +66,7 @@ class _TransactionFilterSheetState
                   onPressed: () {
                     controller.setMethodFilter(null);
                     controller.setTypeFilter(null);
-                    controller.setCategoryFilter(null);
+                    controller.clearCategoryFilter();
                   },
                   child: Text(
                     'Clear All',
@@ -238,14 +238,14 @@ class _CategoryFilter extends StatelessWidget {
       children: [
         _FilterChipWrapper(
           label: 'All',
-          isSelected: state.selectedCategoryId == null,
-          onTap: () => controller.setCategoryFilter(null),
+          isSelected: state.selectedCategoryIds.isEmpty,
+          onTap: () => controller.clearCategoryFilter(),
         ),
         ...categories.map(
           (cat) => _FilterChipWrapper(
             label: cat.name,
-            isSelected: state.selectedCategoryId == cat.id,
-            onTap: () => controller.setCategoryFilter(cat.id),
+            isSelected: state.selectedCategoryIds.contains(cat.id),
+            onTap: () => controller.toggleCategoryFilter(cat.id!),
             icon: UIHelpers.getCategoryIcon(cat.icon),
           ),
         ),

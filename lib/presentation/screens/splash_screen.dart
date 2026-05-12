@@ -330,33 +330,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                   ),
 
-                  SizedBox(height: 40.h),
-
-                  // ── Title ──
-                  AnimatedBuilder(
-                    animation: _textController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _titleOpacity.value,
-                        child: SlideTransition(
-                          position: _titleSlide,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Expense Lite',
-                      style: TextStyle(
-                        fontSize: 30.sp,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -1,
-                        color: isDark
-                            ? AppTheme.textPrimaryDark
-                            : AppTheme.textPrimaryLight,
-                      ),
-                    ),
-                  ),
-
                   SizedBox(height: 10.h),
 
                   // ── Tagline ──

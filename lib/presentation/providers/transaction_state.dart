@@ -41,7 +41,7 @@ class TransactionState {
   final DateTime? endDate;
   final TransactionType? selectedType;
   final List<Category> categories;
-  final int? selectedCategoryId;
+  final Set<int> selectedCategoryIds;
 
   TransactionState({
     this.allTransactions = const [],
@@ -58,7 +58,7 @@ class TransactionState {
     this.endDate,
     this.selectedType,
     this.categories = const [],
-    this.selectedCategoryId,
+    this.selectedCategoryIds = const {},
   });
 
   int get activeFiltersCount {
@@ -66,7 +66,7 @@ class TransactionState {
     if (selectedBank != null) count++;
     if (selectedMethod != null) count++;
     if (selectedType != null) count++;
-    if (selectedCategoryId != null) count++;
+    if (selectedCategoryIds.isNotEmpty) count++;
     if (startDate != null || endDate != null) count++;
     return count;
   }
@@ -313,8 +313,8 @@ class TransactionState {
 
       // 5. Category Filter
       bool matchesCategory = true;
-      if (selectedCategoryId != null) {
-        matchesCategory = t.categoryId == selectedCategoryId;
+      if (selectedCategoryIds.isNotEmpty) {
+        matchesCategory = selectedCategoryIds.contains(t.categoryId);
       }
 
       return matchesBank &&
@@ -428,7 +428,7 @@ class TransactionState {
     DateTime? Function()? endDate,
     TransactionType? Function()? selectedType,
     List<Category>? categories,
-    int? Function()? selectedCategoryId,
+    Set<int>? Function()? selectedCategoryIds,
   }) {
     return TransactionState(
       allTransactions: allTransactions ?? this.allTransactions,
@@ -447,9 +447,9 @@ class TransactionState {
       endDate: endDate != null ? endDate() : this.endDate,
       selectedType: selectedType != null ? selectedType() : this.selectedType,
       categories: categories ?? this.categories,
-      selectedCategoryId: selectedCategoryId != null
-          ? selectedCategoryId()
-          : this.selectedCategoryId,
+      selectedCategoryIds: selectedCategoryIds != null
+          ? (selectedCategoryIds() ?? const {})
+          : this.selectedCategoryIds,
     );
   }
 }
