@@ -5,16 +5,18 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../providers/transaction_notifier.dart';
+import '../providers/history_filter_provider.dart';
 import '../providers/transaction_state.dart';
 
 class ModernFilterBar extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
   const ModernFilterBar({
     super.key,
     required this.state,
+    required this.filters,
     required this.controller,
   });
 
@@ -24,8 +26,8 @@ class ModernFilterBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _AccountChips(state: state, controller: controller),
-        _DateRangeSelector(state: state, controller: controller),
+        _AccountChips(state: state, filters: filters, controller: controller),
+        _DateRangeSelector(filters: filters, controller: controller),
       ],
     );
   }
@@ -33,9 +35,14 @@ class ModernFilterBar extends StatelessWidget {
 
 class _AccountChips extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
-  const _AccountChips({required this.state, required this.controller});
+  const _AccountChips({
+    required this.state,
+    required this.filters,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,7 @@ class _AccountChips extends StatelessWidget {
         children: [
           _FilterChip(
             label: 'All Accounts',
-            isSelected: state.selectedBank == null,
+            isSelected: filters.selectedBank == null,
             onTap: () => controller.setBankFilter(null),
             icon: Icons.account_balance_wallet_rounded,
           ),
@@ -60,7 +67,7 @@ class _AccountChips extends StatelessWidget {
               padding: EdgeInsets.only(left: 8.w),
               child: _FilterChip(
                 label: acc.accountNumber,
-                isSelected: state.selectedBank == acc.accountNumber,
+                isSelected: filters.selectedBank == acc.accountNumber,
                 onTap: () => controller.setBankFilter(acc.accountNumber),
                 logo: logoUrl,
               ),
@@ -71,7 +78,7 @@ class _AccountChips extends StatelessWidget {
               padding: EdgeInsets.only(left: 8.w),
               child: _FilterChip(
                 label: 'Unknown',
-                isSelected: state.selectedBank == 'unsupported',
+                isSelected: filters.selectedBank == 'unsupported',
                 onTap: () => controller.setBankFilter('unsupported'),
                 icon: Icons.help_outline_rounded,
               ),
@@ -83,10 +90,10 @@ class _AccountChips extends StatelessWidget {
 }
 
 class _DateRangeSelector extends StatelessWidget {
-  final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
-  const _DateRangeSelector({required this.state, required this.controller});
+  const _DateRangeSelector({required this.filters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +101,9 @@ class _DateRangeSelector extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     String rangeText = 'Select Date Range';
-    if (state.startDate != null && state.endDate != null) {
+    if (filters.startDate != null && filters.endDate != null) {
       rangeText =
-          '${DateFormat('MMM dd, yyyy').format(state.startDate!)} - ${DateFormat('MMM dd, yyyy').format(state.endDate!)}';
+          '${DateFormat('MMM dd, yyyy').format(filters.startDate!)} - ${DateFormat('MMM dd, yyyy').format(filters.endDate!)}';
     }
 
     return Padding(
@@ -153,7 +160,7 @@ class _DateRangeSelector extends StatelessWidget {
                   ],
                 ),
               ),
-              if (state.startDate != null)
+              if (filters.startDate != null)
                 IconButton(
                   onPressed: () {
                     UIHelpers.mediumImpact();
@@ -185,8 +192,8 @@ class _DateRangeSelector extends StatelessWidget {
       context: context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      initialDateRange: state.startDate != null && state.endDate != null
-          ? DateTimeRange(start: state.startDate!, end: state.endDate!)
+      initialDateRange: filters.startDate != null && filters.endDate != null
+          ? DateTimeRange(start: filters.startDate!, end: filters.endDate!)
           : null,
     );
 
@@ -216,7 +223,9 @@ class _FilterChip extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final activeColor = theme.colorScheme.primary;
-    final inactiveTextColor = theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.45 : 0.55);
+    final inactiveTextColor = theme.colorScheme.onSurface.withValues(
+      alpha: isDark ? 0.45 : 0.55,
+    );
 
     return GestureDetector(
       onTap: () {
@@ -233,9 +242,7 @@ class _FilterChip extends StatelessWidget {
               : AppTheme.getSurfaceSecondaryColor(context),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isSelected
-                ? activeColor
-                : AppTheme.getBorderColor(context),
+            color: isSelected ? activeColor : AppTheme.getBorderColor(context),
             width: 1,
           ),
         ),

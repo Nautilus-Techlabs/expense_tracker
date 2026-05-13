@@ -8,6 +8,7 @@ import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
+import '../providers/history_filter_provider.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/modern_filter_chips.dart';
 import '../widgets/shimmer_loading.dart';
@@ -34,12 +35,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
+    final historyFilters = ref.watch(historyFilterProvider);
     final controller = ref.read(transactionProvider.notifier);
+    final filteredTransactions = ref.watch(filteredTransactionsProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Simple local search filter (can be moved to provider if needed)
+    // Simple local search filter
     final searchQuery = _searchController.text.toLowerCase();
-    final transactions = state.transactions.where((t) {
+    final transactions = filteredTransactions.where((t) {
       if (searchQuery.isEmpty) return true;
       final merchant = (t.merchant ?? '').toLowerCase();
       final desc = (t.description ?? '').toLowerCase();
@@ -110,7 +113,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 GestureDetector(
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    _showFilterSheet(context, state, controller);
+                    _showFilterSheet(context);
                   },
                   child: Stack(
                     clipBehavior: Clip.none,
@@ -130,13 +133,13 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                         ),
                         child: Icon(
                           Icons.tune_rounded,
-                          color: state.activeFiltersCount > 0
+                          color: historyFilters.activeFiltersCount > 0
                               ? Theme.of(context).colorScheme.primary
                               : AppTheme.getNeutralColor(context),
                           size: 22.sp,
                         ),
                       ),
-                      if (state.activeFiltersCount > 0)
+                      if (historyFilters.activeFiltersCount > 0)
                         Positioned(
                           right: -4.w,
                           top: -4.h,
@@ -158,7 +161,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                '${state.activeFiltersCount}',
+                                '${historyFilters.activeFiltersCount}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10.sp,
@@ -176,7 +179,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ),
 
           // 2. Filters
-          ModernFilterBar(state: state, controller: controller),
+          ModernFilterBar(state: state, filters: historyFilters, controller: ref.read(historyFilterProvider.notifier)),
 
           // 3. Transactions List
           Expanded(
@@ -274,8 +277,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   void _showFilterSheet(
     BuildContext context,
-    TransactionState state,
-    TransactionController controller,
   ) {
     showModalBottomSheet(
       context: context,

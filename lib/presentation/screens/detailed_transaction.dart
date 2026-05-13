@@ -514,6 +514,7 @@ class _DetailedTransactionScreenState
                   Icons.notes_rounded,
                   AppTheme.getNeutralColor(context),
                 ),
+              _isEditing ? SizedBox(height: 12.h) : const SizedBox.shrink(),
               _isEditing
                   ? _buildEditableCategoryCard()
                   : widget.transaction.category != null
@@ -643,7 +644,7 @@ class _DetailedTransactionScreenState
               ],
             ),
           ),
-          if (trailing != null) trailing,
+          ?trailing,
         ],
       ),
     );

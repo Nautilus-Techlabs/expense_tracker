@@ -80,18 +80,10 @@ class TransactionController extends Notifier<TransactionState> {
           );
         }).toList();
 
-        // Auto-switch away from 'unsupported' if no more unverified transactions exist
-        String? currentBank = state.selectedBank;
-        if (currentBank == 'unsupported' &&
-            !allTransactions.any((t) => !t.isVerified)) {
-          currentBank = null;
-        }
-
         state = state.copyWith(
           allTransactions: allTransactions,
           openingBalances: openingBalances,
           isShowingSampleData: false,
-          selectedBank: () => currentBank,
         );
 
         // 🔔 Update Notifications based on missing balances
@@ -200,36 +192,6 @@ class TransactionController extends Notifier<TransactionState> {
 
   void setSort(TransactionSort sort) {
     state = state.copyWith(currentSort: sort);
-  }
-
-  void setBankFilter(String? bank) {
-    state = state.copyWith(selectedBank: () => bank);
-  }
-
-  void setMethodFilter(PaymentMethod? method) {
-    state = state.copyWith(selectedMethod: () => method);
-  }
-
-  void setTypeFilter(TransactionType? type) {
-    state = state.copyWith(selectedType: () => type);
-  }
-
-  void toggleCategoryFilter(int categoryId) {
-    final current = Set<int>.from(state.selectedCategoryIds);
-    if (current.contains(categoryId)) {
-      current.remove(categoryId);
-    } else {
-      current.add(categoryId);
-    }
-    state = state.copyWith(selectedCategoryIds: () => current);
-  }
-
-  void clearCategoryFilter() {
-    state = state.copyWith(selectedCategoryIds: () => {});
-  }
-
-  void setDateRange(DateTime? start, DateTime? end) {
-    state = state.copyWith(startDate: () => start, endDate: () => end);
   }
 
   Future<void> verifyTransaction({

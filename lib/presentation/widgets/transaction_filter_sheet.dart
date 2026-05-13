@@ -7,6 +7,7 @@ import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
+import '../providers/history_filter_provider.dart';
 
 class TransactionFilterSheet extends ConsumerStatefulWidget {
   const TransactionFilterSheet({super.key});
@@ -21,7 +22,8 @@ class _TransactionFilterSheetState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    final controller = ref.read(transactionProvider.notifier);
+    final historyFilters = ref.watch(historyFilterProvider);
+    final controller = ref.read(historyFilterProvider.notifier);
     final theme = Theme.of(context);
 
     return ConstrainedBox(
@@ -64,9 +66,7 @@ class _TransactionFilterSheetState
                 ),
                 TextButton(
                   onPressed: () {
-                    controller.setMethodFilter(null);
-                    controller.setTypeFilter(null);
-                    controller.clearCategoryFilter();
+                    controller.clearAll();
                   },
                   child: Text(
                     'Clear All',
@@ -88,17 +88,17 @@ class _TransactionFilterSheetState
                   children: [
                     // 1. Transaction Type
                     _SectionHeader(title: 'TRANSACTION TYPE'),
-                    _TypeFilter(state: state, controller: controller),
+                    _TypeFilter(filters: historyFilters, controller: controller),
                     UIHelpers.verticalSpace(24),
 
                     // 2. Payment Method
                     _SectionHeader(title: 'PAYMENT METHOD'),
-                    _MethodFilter(state: state, controller: controller),
+                    _MethodFilter(state: state, filters: historyFilters, controller: controller),
                     UIHelpers.verticalSpace(24),
 
                     // 3. Category
                     _SectionHeader(title: 'CATEGORY'),
-                    _CategoryFilter(state: state, controller: controller),
+                    _CategoryFilter(state: state, filters: historyFilters, controller: controller),
                     UIHelpers.verticalSpace(32),
                   ],
                 ),
@@ -160,10 +160,10 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _TypeFilter extends StatelessWidget {
-  final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
-  const _TypeFilter({required this.state, required this.controller});
+  const _TypeFilter({required this.filters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -173,18 +173,18 @@ class _TypeFilter extends StatelessWidget {
       children: [
         _FilterChipWrapper(
           label: 'All',
-          isSelected: state.selectedType == null,
+          isSelected: filters.selectedType == null,
           onTap: () => controller.setTypeFilter(null),
         ),
         _FilterChipWrapper(
           label: 'Debit',
-          isSelected: state.selectedType == TransactionType.debit,
+          isSelected: filters.selectedType == TransactionType.debit,
           onTap: () => controller.setTypeFilter(TransactionType.debit),
           icon: Icons.arrow_outward_rounded,
         ),
         _FilterChipWrapper(
           label: 'Credit',
-          isSelected: state.selectedType == TransactionType.credit,
+          isSelected: filters.selectedType == TransactionType.credit,
           onTap: () => controller.setTypeFilter(TransactionType.credit),
           icon: Icons.south_west_rounded,
         ),
@@ -195,9 +195,10 @@ class _TypeFilter extends StatelessWidget {
 
 class _MethodFilter extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
-  const _MethodFilter({required this.state, required this.controller});
+  const _MethodFilter({required this.state, required this.filters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -208,13 +209,13 @@ class _MethodFilter extends StatelessWidget {
       children: [
         _FilterChipWrapper(
           label: 'All',
-          isSelected: state.selectedMethod == null,
+          isSelected: filters.selectedMethod == null,
           onTap: () => controller.setMethodFilter(null),
         ),
         ...methods.map(
           (m) => _FilterChipWrapper(
             label: m.name.toUpperCase(),
-            isSelected: state.selectedMethod == m,
+            isSelected: filters.selectedMethod == m,
             onTap: () => controller.setMethodFilter(m),
           ),
         ),
@@ -225,9 +226,10 @@ class _MethodFilter extends StatelessWidget {
 
 class _CategoryFilter extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
-  const _CategoryFilter({required this.state, required this.controller});
+  const _CategoryFilter({required this.state, required this.filters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -238,13 +240,13 @@ class _CategoryFilter extends StatelessWidget {
       children: [
         _FilterChipWrapper(
           label: 'All',
-          isSelected: state.selectedCategoryIds.isEmpty,
+          isSelected: filters.selectedCategoryIds.isEmpty,
           onTap: () => controller.clearCategoryFilter(),
         ),
         ...categories.map(
           (cat) => _FilterChipWrapper(
             label: cat.name,
-            isSelected: state.selectedCategoryIds.contains(cat.id),
+            isSelected: filters.selectedCategoryIds.contains(cat.id),
             onTap: () => controller.toggleCategoryFilter(cat.id!),
             icon: UIHelpers.getCategoryIcon(cat.icon),
           ),

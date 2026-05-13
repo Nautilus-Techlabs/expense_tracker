@@ -16,11 +16,55 @@ import '../widgets/transaction_card.dart';
 import '../widgets/transaction_ui_components.dart';
 import 'add_transaction_screen.dart';
 
-class DashboardScreen extends ConsumerWidget {
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
+
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final GlobalKey _balanceKey = GlobalKey();
+  final GlobalKey _syncKey = GlobalKey();
+  final GlobalKey _supportKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseView.register(
+      onFinish: () => debugPrint('Tutorial Finished'),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void dispose() {
+    ShowcaseView.get().unregister();
+    super.dispose();
+  }
+
+  Future<void> _startTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenTutorial =
+        prefs.getBool('has_seen_dashboard_tutorial') ?? false;
+
+    if (!hasSeenTutorial && mounted) {
+      ShowcaseView.get().startShowCase([
+        _balanceKey,
+        _syncKey,
+        _supportKey,
+        _addKey,
+      ]);
+      await prefs.setBool('has_seen_dashboard_tutorial', true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
 
@@ -47,6 +91,9 @@ class DashboardScreen extends ConsumerWidget {
                 isLoading: state.isLoading,
                 onSupport: () => context.push(AppRouter.feedback),
                 topPadding: MediaQuery.of(context).padding.top,
+                balanceKey: _balanceKey,
+                syncKey: _syncKey,
+                supportKey: _supportKey,
               ),
             ),
 
@@ -107,21 +154,26 @@ class DashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddTransactionScreen(),
-            ),
-          );
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.black,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add', style: TextStyle(color: Colors.white)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+      floatingActionButton: Showcase(
+        key: _addKey,
+        title: 'Manual Entry',
+        description: 'Add cash or other manual transactions here.',
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddTransactionScreen(),
+              ),
+            );
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.black,
+          icon: const Icon(Icons.add_rounded, color: Colors.white),
+          label: const Text('Add', style: TextStyle(color: Colors.white)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
         ),
       ),
     );
@@ -138,6 +190,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final bool isLoading;
   final VoidCallback onSupport;
   final double topPadding;
+  final GlobalKey? balanceKey;
+  final GlobalKey? syncKey;
+  final GlobalKey? supportKey;
 
   DashboardHeaderDelegate({
     required this.balance,
@@ -149,6 +204,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.isLoading,
     required this.onSupport,
     required this.topPadding,
+    this.balanceKey,
+    this.syncKey,
+    this.supportKey,
   });
 
   @override
@@ -164,6 +222,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
       onSync: onSync,
       onSupport: onSupport,
       isLoading: isLoading,
+      balanceKey: balanceKey,
+      syncKey: syncKey,
+      supportKey: supportKey,
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class DashboardHeader extends StatelessWidget {
   final double balance;
@@ -11,6 +12,9 @@ class DashboardHeader extends StatelessWidget {
   final VoidCallback onSync;
   final VoidCallback onSupport;
   final bool isLoading;
+  final GlobalKey? balanceKey;
+  final GlobalKey? syncKey;
+  final GlobalKey? supportKey;
 
   const DashboardHeader({
     super.key,
@@ -20,6 +24,9 @@ class DashboardHeader extends StatelessWidget {
     required this.onSync,
     required this.onSupport,
     required this.isLoading,
+    this.balanceKey,
+    this.syncKey,
+    this.supportKey,
   });
 
   @override
@@ -82,15 +89,25 @@ class DashboardHeader extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _HeaderAction(
-                    icon: Icons.sync_rounded,
-                    onTap: onSync,
-                    isLoading: isLoading,
+                  Showcase(
+                    key: syncKey ?? GlobalKey(),
+                    title: 'Sync Transactions',
+                    description: 'Tap here to refresh your transactions from SMS.',
+                    child: _HeaderAction(
+                      icon: Icons.sync_rounded,
+                      onTap: onSync,
+                      isLoading: isLoading,
+                    ),
                   ),
                   UIHelpers.horizontalSpace(8),
-                  _HeaderAction(
-                    icon: Icons.support_agent_rounded,
-                    onTap: onSupport,
+                  Showcase(
+                    key: supportKey ?? GlobalKey(),
+                    title: 'Support & Feedback',
+                    description: 'Have a suggestion? Send us a message here!',
+                    child: _HeaderAction(
+                      icon: Icons.support_agent_rounded,
+                      onTap: onSupport,
+                    ),
                   ),
                 ],
               ),
@@ -107,13 +124,18 @@ class DashboardHeader extends StatelessWidget {
             ),
           ),
           UIHelpers.verticalSpace(4),
-          Text(
-            '₹${balance.toStringAsFixed(2)}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 36.sp,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.5,
+          Showcase(
+            key: balanceKey ?? GlobalKey(),
+            title: 'Total Balance',
+            description: 'Your combined balance across all verified accounts.',
+            child: Text(
+              '₹${balance.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36.sp,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -1.5,
+              ),
             ),
           ),
           UIHelpers.verticalSpace(28),

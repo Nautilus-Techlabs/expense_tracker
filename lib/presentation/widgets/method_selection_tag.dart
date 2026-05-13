@@ -4,17 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
-import '../providers/transaction_notifier.dart';
+import '../providers/history_filter_provider.dart';
 import '../providers/transaction_state.dart';
 import 'transaction_ui_components.dart';
 
 class MethodSelectionTag extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
   const MethodSelectionTag({
     super.key,
     required this.state,
+    required this.filters,
     required this.controller,
   });
 
@@ -48,7 +50,7 @@ class MethodSelectionTag extends StatelessWidget {
             children: [
               _MethodPill(
                 label: 'All',
-                isSelected: state.selectedMethod == null,
+                isSelected: filters.selectedMethod == null,
                 onTap: () => controller.setMethodFilter(null),
                 icon: Icons.all_inbox_rounded,
                 color: Theme.of(context).colorScheme.primary,
@@ -56,7 +58,7 @@ class MethodSelectionTag extends StatelessWidget {
               ...methods.map(
                 (method) => _MethodPill(
                   label: method.name.toUpperCase(),
-                  isSelected: state.selectedMethod == method,
+                  isSelected: filters.selectedMethod == method,
                   onTap: () => controller.setMethodFilter(method),
                   icon: TransactionIcon.getIconData(method),
                   color: _getMethodColor(context, method),

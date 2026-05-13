@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../providers/transaction_notifier.dart';
+import '../providers/history_filter_provider.dart';
 import 'transaction_ui_components.dart';
 
 class BankSelectorBar extends StatelessWidget {
   final TransactionState state;
-  final TransactionController controller;
+  final HistoryFilterState filters;
+  final HistoryFilterNotifier controller;
 
   const BankSelectorBar({
     super.key,
     required this.state,
+    required this.filters,
     required this.controller,
   });
 
@@ -47,7 +49,7 @@ class BankSelectorBar extends StatelessWidget {
             children: [
               BankCard(
                 label: 'All',
-                isSelected: state.selectedBank == null,
+                isSelected: filters.selectedBank == null,
                 onTap: () => controller.setBankFilter(null),
                 icon: Icons.apps_rounded,
                 color: Theme.of(context).colorScheme.primary,
@@ -55,7 +57,7 @@ class BankSelectorBar extends StatelessWidget {
               ...banks.map(
                 (bank) => BankCard(
                   label: bank,
-                  isSelected: state.selectedBank == bank,
+                  isSelected: filters.selectedBank == bank,
                   onTap: () => controller.setBankFilter(bank),
                   letter: bank.substring(0, 1).toUpperCase(),
                   color: _getBankColor(context, bank),
@@ -64,7 +66,7 @@ class BankSelectorBar extends StatelessWidget {
               if (hasUnsupported)
                 BankCard(
                   label: 'Unknown',
-                  isSelected: state.selectedBank == 'unsupported',
+                  isSelected: filters.selectedBank == 'unsupported',
                   onTap: () => controller.setBankFilter('unsupported'),
                   icon: Icons.help_outline_rounded,
                   color: AppTheme.getNeutralColor(context),
