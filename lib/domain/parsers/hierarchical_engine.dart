@@ -167,28 +167,39 @@ class HierarchicalBankParser extends BankParser {
         caseSensitive: false,
       );
 
-      // 🎯 Priority 2: Generic sources (from, beneficiary)
-      final secondaryPattern = RegExp(
-        AppConstants.merchantSecondaryRegex,
-        caseSensitive: false,
-      );
+      final matches1 = priorityPattern.allMatches(sms);
+      for (final m in matches1) {
+        final guessed = cleanMerchantName(m.group(1)!);
+        final lowerGuessed = guessed.toLowerCase();
 
-      // Try Priority 1 first
-      final m1 = priorityPattern.firstMatch(sms);
-      if (m1 != null) {
-        final guessed = cleanMerchantName(m1.group(1)!);
-        if (isValidMerchantName(guessed)) {
+        final isHardBlocked = AppConstants.merchantHardBlockKeywords.any(
+          (k) => lowerGuessed.contains(k),
+        );
+
+        if (!isHardBlocked && isValidMerchantName(guessed)) {
           merchant = guessed;
+          break; // Found a valid merchant!
         }
       }
 
-      // If still null, try Priority 2
+      // If still null, try Priority 2: Generic sources (from, beneficiary)
       if (merchant == null) {
-        final m2 = secondaryPattern.firstMatch(sms);
-        if (m2 != null) {
-          final guessed = cleanMerchantName(m2.group(1)!);
-          if (isValidMerchantName(guessed)) {
+        final secondaryPattern = RegExp(
+          AppConstants.merchantSecondaryRegex,
+          caseSensitive: false,
+        );
+        final matches2 = secondaryPattern.allMatches(sms);
+        for (final m in matches2) {
+          final guessed = cleanMerchantName(m.group(1)!);
+          final lowerGuessed = guessed.toLowerCase();
+
+          final isHardBlocked = AppConstants.merchantHardBlockKeywords.any(
+            (k) => lowerGuessed.contains(k),
+          );
+
+          if (!isHardBlocked && isValidMerchantName(guessed)) {
             merchant = guessed;
+            break;
           }
         }
       }

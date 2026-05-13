@@ -148,6 +148,8 @@ class AppConstants {
   /// Priority prefixes for merchant extraction (typically debits)
   static const List<String> merchantPriorityPrefixes = [
     "at",
+    "spent at",
+    "at the",
     "to",
     "towards",
     "for",
@@ -158,6 +160,7 @@ class AppConstants {
     "spent at",
     "sent to",
     "into",
+    "toll paid",
   ];
 
   /// Secondary prefixes for merchant extraction (typically credits)
@@ -172,6 +175,7 @@ class AppConstants {
   static const List<String> merchantStopWords = [
     "on",
     "at",
+    "for",
     "via",
     "using",
     "Ref",
