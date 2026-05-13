@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import 'common/bank_logo_avatar.dart';
 
 class TransactionIcon extends ConsumerWidget {
   final PaymentMethod method;
@@ -31,45 +31,22 @@ class TransactionIcon extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(transactionProvider);
     final iconSize = size ?? 22.sp;
-    final iconData = getIconData(method);
-
-    // ✅ Try getting logo from config map first, then fallback to hardcoded logic
+    // Resolve bank logo path from state config map, then fall back to constants
     String logoPath = '';
     if (bankName != null) {
       logoPath =
           state.bankLogos[bankName!] ?? AppConstants.getBankLogo(bankName!);
     }
 
-    Widget iconWidget = Container(
-      padding: EdgeInsets.all(logoPath.isNotEmpty ? 8.w : 12.w),
+    Widget iconWidget;
+
+    iconWidget = Container(
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: logoPath.isNotEmpty ? Colors.white : color.withAlpha(26),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: logoPath.isNotEmpty
-            ? [
-                BoxShadow(
-                  color: Colors.black.withAlpha(20),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
       ),
-      child: logoPath.isNotEmpty
-          ? (logoPath.endsWith('.svg')
-                ? SvgPicture.asset(
-                    logoPath,
-                    width: iconSize + 8.w,
-                    height: iconSize + 8.w,
-                    fit: BoxFit.contain,
-                  )
-                : Image.asset(
-                    logoPath,
-                    width: iconSize + 8.w,
-                    height: iconSize + 8.w,
-                    fit: BoxFit.contain,
-                  ))
-          : Icon(iconData, color: color, size: iconSize),
+      child: Icon(getIconData(method), color: color, size: iconSize),
     );
 
     if (!showStatus) return iconWidget;
@@ -244,46 +221,12 @@ class BankCard extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withAlpha(51) // 0.2 * 255
-                      : (logoPath.isNotEmpty
-                            ? Colors.white
-                            : color.withAlpha(26)),
-                  shape: BoxShape.circle,
-                ),
-                child: logoPath.isNotEmpty && !isSelected
-                    ? ClipOval(
-                        child: logoPath.endsWith('.svg')
-                            ? SvgPicture.asset(
-                                logoPath,
-                                width: 24.sp,
-                                height: 24.sp,
-                                fit: BoxFit.contain,
-                              )
-                            : Image.asset(
-                                logoPath,
-                                width: 24.sp,
-                                height: 24.sp,
-                                fit: BoxFit.contain,
-                              ),
-                      )
-                    : (letter != null
-                          ? Text(
-                              letter!,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : color,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16.sp,
-                              ),
-                            )
-                          : Icon(
-                              icon,
-                              color: isSelected ? Colors.white : color,
-                              size: 20.sp,
-                            )),
+              BankLogoAvatar(
+                bankName: label,
+                logoPath: logoPath.isNotEmpty ? logoPath : null,
+                size: 24,
+                isSelected: isSelected,
+                fallbackColor: color,
               ),
               UIHelpers.verticalSpace(8),
               Padding(

@@ -2,21 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../core/theme/app_theme.dart';
+import 'common/app_primary_button.dart';
 
 class EmptyStateView extends StatelessWidget {
+  final String? title;
   final String message;
   final VoidCallback onRetry;
   final bool isError;
+  final IconData? icon;
+  final String? actionLabel;
 
   const EmptyStateView({
     super.key,
+    this.title,
     this.message = 'No transactions found.\nTap sync to check your SMS.',
     required this.onRetry,
     this.isError = false,
+    this.icon,
+    this.actionLabel,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = isError
+        ? AppTheme.getExpenseColor(context)
+        : colorScheme.primary;
+
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: Center(
@@ -28,22 +40,27 @@ class EmptyStateView extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(32.w),
                 decoration: BoxDecoration(
-                  color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(13),
+                  color: primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isError ? Icons.error_outline_rounded : Icons.account_balance_wallet_outlined,
+                  icon ??
+                      (isError
+                          ? Icons.error_outline_rounded
+                          : Icons.account_balance_wallet_outlined),
                   size: 64.sp,
-                  color: (isError ? AppTheme.getExpenseColor(context) : Theme.of(context).colorScheme.primary).withAlpha(128),
+                  color: primaryColor.withValues(alpha: 0.6),
                 ),
               ),
               UIHelpers.verticalSpace(24),
               Text(
-                isError ? 'Oops! Something went wrong' : 'Start Tracking',
+                title ??
+                    (isError ? 'Oops! Something went wrong' : 'Start Tracking'),
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: colorScheme.onSurface,
                 ),
               ),
               UIHelpers.verticalSpace(12),
@@ -58,30 +75,10 @@ class EmptyStateView extends StatelessWidget {
                 ),
               ),
               UIHelpers.verticalSpace(32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    UIHelpers.mediumImpact();
-                    onRetry();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    isError ? 'Retry Sync' : 'Sync Now',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+              AppPrimaryButton(
+                label: actionLabel ?? (isError ? 'Retry Sync' : 'Sync Now'),
+                onPressed: onRetry,
+                backgroundColor: primaryColor,
               ),
             ],
           ),

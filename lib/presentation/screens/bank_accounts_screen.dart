@@ -1,8 +1,6 @@
-import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +9,9 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
+import '../widgets/common/bank_logo_avatar.dart';
+import '../widgets/common/app_gradient_balance_card.dart';
+import '../widgets/empty_state_view.dart';
 
 class BankAccountsScreen extends ConsumerWidget {
   const BankAccountsScreen({super.key});
@@ -19,7 +20,6 @@ class BankAccountsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
-
     final accounts = state.getUniqueAccounts();
 
     return Scaffold(
@@ -28,16 +28,22 @@ class BankAccountsScreen extends ConsumerWidget {
         bottom: false,
         child: Column(
           children: [
-            // 1. Header
+            // Header with total balance card
             _buildHeader(context, state),
 
-            // 2. Bank List
+            // Bank account list
             Expanded(
               child: RefreshIndicator(
                 onRefresh: controller.syncTransactions,
                 color: Theme.of(context).colorScheme.primary,
                 child: accounts.isEmpty
-                    ? _buildEmptyState(context, controller)
+                    ? EmptyStateView(
+                        icon: Icons.account_balance_outlined,
+                        title: 'No Bank Accounts Detected',
+                        message: 'Sync your SMS to see your accounts',
+                        actionLabel: 'Sync Now',
+                        onRetry: controller.syncTransactions,
+                      )
                     : _buildBankList(context, state, accounts),
               ),
             ),
@@ -48,7 +54,7 @@ class BankAccountsScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, TransactionState state) {
-    return Container(
+    return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,65 +69,19 @@ class BankAccountsScreen extends ConsumerWidget {
             ),
           ),
           UIHelpers.verticalSpace(16),
-          Container(
-            padding: EdgeInsets.all(20.w),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withAlpha(200),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          AppGradientBalanceCard(
+            balance: state.globalBalance,
+            trailing: Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
               ),
-              borderRadius: BorderRadius.circular(24.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withAlpha(60),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total Balance',
-                        style: TextStyle(
-                          color: Colors.white.withAlpha(200),
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      UIHelpers.verticalSpace(4),
-                      Text(
-                        '₹${state.globalBalance.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32.sp,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(40),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.account_balance_rounded,
-                    color: Colors.white,
-                    size: 30.sp,
-                  ),
-                ),
-              ],
+              child: Icon(
+                Icons.account_balance_rounded,
+                color: Colors.white,
+                size: 30.sp,
+              ),
             ),
           ),
         ],
@@ -134,43 +94,59 @@ class BankAccountsScreen extends ConsumerWidget {
     TransactionState state,
     List<BankAccount> accounts,
   ) {
+    // Pre-group transactions by account key for O(1) per card lookup
+    final txByAccount = <String, List<dynamic>>{};
+    for (final t in state.allTransactions) {
+      final key = '${t.bankName}|${t.account}';
+      txByAccount.putIfAbsent(key, () => []).add(t);
+    }
+
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h),
       physics: const BouncingScrollPhysics(),
       itemCount: accounts.length,
       itemBuilder: (context, index) {
         final account = accounts[index];
-        final bankTransactions = state.allTransactions
-            .where(
-              (t) =>
-                  t.bankName == account.bankName &&
-                  t.account == account.accountNumber,
-            )
-            .toList();
+        final key = '${account.bankName}|${account.accountNumber}';
+        final bankTransactions = txByAccount[key] ?? [];
 
-        final currentBalance = state.getAccountBalance(account.bankName, account.accountNumber);
+        final currentBalance = state.getAccountBalance(
+          account.bankName,
+          account.accountNumber,
+        );
 
         final lastTransaction = bankTransactions.isNotEmpty
-            ? bankTransactions.reduce((a, b) => a.date.isAfter(b.date) ? a : b)
+            ? bankTransactions.reduce(
+                (a, b) =>
+                    (a.date as DateTime).isAfter(b.date as DateTime) ? a : b,
+              )
             : null;
 
-        return _buildBankCard(
-          context,
-          account,
-          currentBalance,
-          lastTransaction,
+        return _BankAccountCard(
+          account: account,
+          balance: currentBalance,
+          lastTransaction: lastTransaction,
         );
       },
     );
   }
+}
 
-  Widget _buildBankCard(
-    BuildContext context,
-    BankAccount account,
-    double? balance,
-    var lastTx,
-  ) {
+class _BankAccountCard extends StatelessWidget {
+  final BankAccount account;
+  final double? balance;
+  final dynamic lastTransaction;
+
+  const _BankAccountCard({
+    required this.account,
+    this.balance,
+    this.lastTransaction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () => context.push(
@@ -189,156 +165,69 @@ class BankAccountsScreen extends ConsumerWidget {
           border: Border.all(color: AppTheme.getBorderColor(context), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(isDark ? 30 : 10),
+              color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Column(
+        child: Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(
-                    AppConstants.getBankLogo(account.bankName).isNotEmpty
-                        ? 8.w
-                        : 12.w,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppConstants.getBankLogo(account.bankName).isNotEmpty
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary.withAlpha(26),
-                    shape: BoxShape.circle,
-                    boxShadow:
-                        AppConstants.getBankLogo(account.bankName).isNotEmpty
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(20),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: AppConstants.getBankLogo(account.bankName).isNotEmpty
-                      ? SvgPicture.asset(
-                          AppConstants.getBankLogo(account.bankName),
-                          width: 24.sp,
-                          height: 24.sp,
-                          fit: BoxFit.contain,
-                        )
-                      : Text(
-                          account.bankName.substring(0, 1).toUpperCase(),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                ),
-                UIHelpers.horizontalSpace(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        account.displayName,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? Colors.white
-                              : AppTheme.textPrimaryLight,
-                        ),
-                      ),
-                      if (lastTx != null)
-                        Text(
-                          'Last: ${DateFormat('dd MMM').format(lastTx.date)}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: AppTheme.getNeutralColor(context),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (balance != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '₹${balance.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w900,
-                          color: Theme.of(context).textTheme.titleLarge?.color,
-                        ),
-                      ),
-                      Text(
-                        'Balance',
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: AppTheme.getNeutralColor(context),
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
+            BankLogoAvatar(
+              bankName: account.bankName,
+              size: 24,
+              fallbackColor: colorScheme.primary,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context,
-    TransactionController controller,
-  ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.account_balance_outlined,
-            size: 64.sp,
-            color: AppTheme.getNeutralColor(context).withAlpha(100),
-          ),
-          UIHelpers.verticalSpace(16),
-          Text(
-            'No Bank Accounts Detected',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.getNeutralColor(context),
-            ),
-          ),
-          UIHelpers.verticalSpace(8),
-          Text(
-            'Sync your SMS to see your accounts',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppTheme.getNeutralColor(context).withAlpha(150),
-            ),
-          ),
-          UIHelpers.verticalSpace(24),
-          ElevatedButton(
-            onPressed: controller.syncTransactions,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+            UIHelpers.horizontalSpace(16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    account.displayName,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : AppTheme.textPrimaryLight,
+                    ),
+                  ),
+                  if (lastTransaction != null)
+                    Text(
+                      'Last: ${DateFormat('dd MMM').format(lastTransaction.date as DateTime)}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: AppTheme.getNeutralColor(context),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                ],
               ),
             ),
-            child: const Text('Sync Now'),
-          ),
-        ],
+            if (balance != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '₹${balance!.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
+                    ),
+                  ),
+                  Text(
+                    'Balance',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      color: AppTheme.getNeutralColor(context),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

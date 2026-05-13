@@ -9,6 +9,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import '../widgets/common/transaction_tag.dart';
 import '../widgets/transaction_ui_components.dart';
 
 class TransactionCard extends ConsumerStatefulWidget {
@@ -125,16 +126,19 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
                           ),
                           if (widget.transaction.source ==
                               TransactionSource.manual)
-                            _buildTag('MANUAL', theme.colorScheme.primary),
+                            TransactionTag(
+                              label: 'MANUAL',
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           if (isHistorical)
-                            _buildTag(
-                              'HISTORICAL',
-                              AppTheme.getNeutralColor(context),
+                            TransactionTag(
+                              label: 'HISTORICAL',
+                              color: AppTheme.getNeutralColor(context),
                             ),
                           if (widget.transaction.category != null)
-                            _buildTag(
-                              widget.transaction.category!.name.toUpperCase(),
-                              widget.transaction.category!.color != null
+                            TransactionTag(
+                              label: widget.transaction.category!.name,
+                              color: widget.transaction.category!.color != null
                                   ? Color(widget.transaction.category!.color!)
                                   : theme.colorScheme.primary,
                             ),
@@ -174,26 +178,6 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTag(String label, Color color) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4.r),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 8.sp,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
         ),
       ),
     );

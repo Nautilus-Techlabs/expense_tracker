@@ -8,6 +8,9 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
 import '../providers/transaction_notifier.dart';
+import '../widgets/common/app_choice_chip.dart';
+import '../widgets/common/app_primary_button.dart';
+import '../widgets/common/app_section_label.dart';
 import '../widgets/transaction_ui_components.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
@@ -309,7 +312,7 @@ class _DetailedTransactionScreenState
                         ],
                       ),
                       SizedBox(height: 20.h),
-                      _buildInputLabel('Payment Method'),
+                      AppSectionLabel(text: 'Payment Method'),
                       SizedBox(height: 8.h),
                       DropdownButtonFormField<PaymentMethod>(
                         initialValue: _selectedMethod,
@@ -335,7 +338,7 @@ class _DetailedTransactionScreenState
                         },
                       ),
                       SizedBox(height: 20.h),
-                      _buildInputLabel('Account Number'),
+                      AppSectionLabel(text: 'Account Number'),
                       SizedBox(height: 8.h),
                       if (existingAccounts.isNotEmpty) ...[
                         Wrap(
@@ -345,9 +348,10 @@ class _DetailedTransactionScreenState
                             final isSelected =
                                 _accountController.text == acc.account &&
                                 _bankController.text == acc.bank;
-                            return ChoiceChip(
-                              label: Text('${acc.account} (${acc.bank})'),
-                              selected: isSelected,
+                            return AppChoiceChip(
+                              label: '${acc.account} (${acc.bank})',
+                              isSelected: isSelected,
+                              color: AppTheme.getExpenseColor(context),
                               onSelected: (selected) {
                                 if (selected) {
                                   setState(() {
@@ -356,28 +360,6 @@ class _DetailedTransactionScreenState
                                   });
                                 }
                               },
-                              selectedColor: AppTheme.getExpenseColor(
-                                context,
-                              ).withAlpha(40),
-                              labelStyle: TextStyle(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? AppTheme.getExpenseColor(context)
-                                    : Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall?.color,
-                              ),
-                              backgroundColor:
-                                  AppTheme.getSurfaceSecondaryColor(context),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.r),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? AppTheme.getExpenseColor(context)
-                                      : Colors.transparent,
-                                ),
-                              ),
                             );
                           }).toList(),
                         ),
@@ -394,7 +376,7 @@ class _DetailedTransactionScreenState
                         ).copyWith(hintText: 'e.g. X1234'),
                       ),
                       SizedBox(height: 20.h),
-                      _buildInputLabel('Bank Name'),
+                      AppSectionLabel(text: 'Bank Name'),
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _bankController,
@@ -407,7 +389,7 @@ class _DetailedTransactionScreenState
                         ).copyWith(hintText: 'e.g. HDFC Bank'),
                       ),
                       SizedBox(height: 20.h),
-                      _buildInputLabel('Description (Optional)'),
+                      AppSectionLabel(text: 'Description (Optional)'),
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _descriptionController,
@@ -421,27 +403,11 @@ class _DetailedTransactionScreenState
                         ).copyWith(hintText: 'Add a brief note...'),
                       ),
                       SizedBox(height: 24.h),
-                      SizedBox(
-                        width: double.infinity,
+                      AppPrimaryButton(
+                        label: 'Verify & Save',
+                        onPressed: _handleVerify,
+                        backgroundColor: AppTheme.getExpenseColor(context),
                         height: 54.h,
-                        child: ElevatedButton(
-                          onPressed: _handleVerify,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.getExpenseColor(context),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16.r),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            'Verify & Save',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -744,17 +710,6 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildInputLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 11.sp,
-        fontWeight: FontWeight.w600,
-        color: AppTheme.getNeutralColor(context),
-      ),
-    );
-  }
-
   InputDecoration _inputDecoration(bool isDark) {
     return InputDecoration(
       filled: true,
@@ -960,48 +915,22 @@ class _DetailedTransactionScreenState
             spacing: 8.w,
             runSpacing: 8.h,
             children: [
-              ChoiceChip(
-                label: const Text('Uncategorized'),
-                selected: _selectedCategoryId == null,
+              AppChoiceChip(
+                label: 'Uncategorized',
+                isSelected: _selectedCategoryId == null,
                 onSelected: (selected) {
                   if (selected) setState(() => _selectedCategoryId = null);
                 },
-                showCheckmark: false,
-                selectedColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withAlpha(40),
-                backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
-                labelStyle: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.bold,
-                  color: _selectedCategoryId == null
-                      ? Theme.of(context).colorScheme.primary
-                      : AppTheme.getNeutralColor(context),
-                ),
               ),
               ...categories.map((cat) {
                 final isSelected = _selectedCategoryId == cat.id;
                 final catColor = cat.color != null
                     ? Color(cat.color!)
                     : Theme.of(context).colorScheme.primary;
-                return ChoiceChip(
-                  label: Text(cat.name),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) setState(() => _selectedCategoryId = cat.id);
-                  },
-                  showCheckmark: false,
-                  selectedColor: Theme.of(
-                    context,
-                  ).colorScheme.primary.withAlpha(40),
-                  backgroundColor: AppTheme.getSurfaceSecondaryColor(context),
-                  labelStyle: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected
-                        ? catColor
-                        : AppTheme.getNeutralColor(context),
-                  ),
+                return AppChoiceChip(
+                  label: cat.name,
+                  isSelected: isSelected,
+                  color: catColor,
                   avatar: Icon(
                     UIHelpers.getCategoryIcon(cat.icon),
                     size: 14.sp,
@@ -1009,6 +938,9 @@ class _DetailedTransactionScreenState
                         ? catColor
                         : AppTheme.getNeutralColor(context),
                   ),
+                  onSelected: (selected) {
+                    if (selected) setState(() => _selectedCategoryId = cat.id);
+                  },
                 );
               }),
             ],
