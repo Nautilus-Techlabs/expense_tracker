@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+
 class Transaction {
   final double? amount;
   final String? type;
@@ -9,7 +11,14 @@ class Transaction {
   final String? templateName;
   final int score;
 
-  Transaction({this.amount, this.type, this.account, this.merchant, this.templateName, required this.score});
+  Transaction({
+    this.amount,
+    this.type,
+    this.account,
+    this.merchant,
+    this.templateName,
+    required this.score,
+  });
 }
 
 void main() {
@@ -18,8 +27,9 @@ void main() {
   final Map<String, dynamic> root = jsonDecode(jsonStr);
   final List<dynamic> banks = root['banks'];
 
-  const sms = 'Rs.40,000.00 credited to HSBC A/c XX1234 on 02-Apr-25. Avl Bal Rs.71,250.00.';
-  print('📨 SMS: $sms\n');
+  const sms =
+      'Rs.40,000.00 credited to HSBC A/c XX1234 on 02-Apr-25. Avl Bal Rs.71,250.00.';
+  debugPrint('📨 SMS: $sms\n');
 
   final List<Transaction> matches = [];
 
@@ -61,24 +71,28 @@ void main() {
         if (account != null) score += 15;
         score += (100 - (priority as int));
 
-        matches.add(Transaction(
-          amount: amount,
-          type: type,
-          account: account,
-          merchant: merchant,
-          templateName: '$bankName -> ${tmpl['name']}',
-          score: score,
-        ));
+        matches.add(
+          Transaction(
+            amount: amount,
+            type: type,
+            account: account,
+            merchant: merchant,
+            templateName: '$bankName -> ${tmpl['name']}',
+            score: score,
+          ),
+        );
       }
     }
   }
 
   matches.sort((a, b) => b.score.compareTo(a.score));
 
-  print('--- Potential Matches (Sorted by Score) ---');
+  debugPrint('--- Potential Matches (Sorted by Score) ---');
   for (var m in matches) {
-    print('[Score ${m.score}] ${m.templateName}');
-    print('   Type: ${m.type}, Amount: ${m.amount}, Account: ${m.account}, Merchant: ${m.merchant}');
-    print('');
+    debugPrint('[Score ${m.score}] ${m.templateName}');
+    debugPrint(
+      '   Type: ${m.type}, Amount: ${m.amount}, Account: ${m.account}, Merchant: ${m.merchant}',
+    );
+    debugPrint('');
   }
 }

@@ -1,14 +1,20 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../domain/entities/transaction.dart';
+import '../providers/history_filter_provider.dart';
 import '../providers/transaction_notifier.dart';
 import '../providers/transaction_state.dart';
-import '../providers/history_filter_provider.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/modern_filter_chips.dart';
 import '../widgets/shimmer_loading.dart';
@@ -30,6 +36,90 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportToCsv(List<Transaction> transactions) async {
+    // Export only transactions that contain raw SMS
+    final filtered = transactions.where((t) => t.rawSms != null).toList();
+
+    if (filtered.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No parsed transactions found to export'),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final List<List<dynamic>> rows = [];
+
+      // CSV Header
+      rows.add([
+        'Date',
+        'Amount',
+        'Type',
+        'Bank',
+        'Account',
+        'Method',
+        'Category',
+        'Merchant',
+        'Description',
+        'Verified',
+        'Raw SMS',
+      ]);
+
+      // CSV Data
+      for (final t in filtered) {
+        rows.add([
+          DateFormat('dd-MMM-yyyy HH:mm:ss').format(t.date),
+          t.amount.toStringAsFixed(2),
+          t.type.name.toUpperCase(),
+          t.bankName,
+          t.account ?? '',
+          t.method.name.toUpperCase(),
+          t.category?.name ?? '',
+          t.merchant ?? '',
+          t.description ?? '',
+          t.isVerified ? 'Yes' : 'No',
+          t.rawSms ?? '',
+        ]);
+      }
+
+      // Convert to CSV
+      final csvData = csv.encoder.convert(rows);
+
+      // Add UTF-8 BOM for Excel compatibility
+      final csvWithBom = '\uFEFF$csvData';
+
+      // File name
+      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final directory = await getTemporaryDirectory();
+      final path = '${directory.path}/transactions_export_$timestamp.csv';
+      final file = File(path);
+
+      await file.writeAsString(csvWithBom, encoding: utf8);
+
+      // Share file
+      if (mounted) {
+        await Share.shareXFiles(
+          [XFile(path)],
+          subject: 'Expense Tracker CSV Export',
+          text: 'Exported transaction data in CSV format.',
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('CSV Export Error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
+    }
   }
 
   @override
@@ -59,6 +149,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           'Transactions',
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => _exportToCsv(transactions),
+            icon: Icon(Icons.file_download_outlined, size: 22.sp),
+            tooltip: 'Export to CSV',
+          ),
+          SizedBox(width: 8.w),
+        ],
       ),
       body: Column(
         children: [
@@ -179,7 +277,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ),
 
           // 2. Filters
-          ModernFilterBar(state: state, filters: historyFilters, controller: ref.read(historyFilterProvider.notifier)),
+          ModernFilterBar(
+            state: state,
+            filters: historyFilters,
+            controller: ref.read(historyFilterProvider.notifier),
+          ),
 
           // 3. Transactions List
           Expanded(
@@ -275,9 +377,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 
-  void _showFilterSheet(
-    BuildContext context,
-  ) {
+  void _showFilterSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

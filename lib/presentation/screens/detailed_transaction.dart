@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/ui_helpers.dart';
@@ -195,6 +197,57 @@ class _DetailedTransactionScreenState
         context.pop();
       }
     }
+  }
+
+  Future<void> _reportError() async {
+    final t = widget.transaction;
+    final body = StringBuffer();
+    body.writeln('Hi,');
+    body.writeln('\nPlease share the process error details.');
+    body.writeln(
+      '\n(Instruction: You can change the account number, name of the person (merchant), or amount below if needed, as this is the most important information.)',
+    );
+    body.writeln('\n--- Transaction Details ---');
+    body.writeln('Amount: ₹${t.amount.toStringAsFixed(2)}');
+    body.writeln('Type: ${t.type.name.toUpperCase()}');
+    body.writeln('Status: ${t.isVerified ? "Verified" : "Unverified"}');
+    body.writeln('Bank: ${t.bankName}');
+    body.writeln('Account: ${t.account ?? "N/A"}');
+    body.writeln('Method: ${t.method.name.toUpperCase()}');
+    body.writeln('Date: ${DateFormat('dd MMM yyyy, hh:mm a').format(t.date)}');
+    body.writeln('Category: ${t.category?.name ?? "N/A"}');
+    body.writeln('Merchant: ${t.merchant ?? "N/A"}');
+    body.writeln('Description: ${t.description ?? "N/A"}');
+    body.writeln('\n--- Raw SMS Message ---');
+    body.writeln(t.rawSms ?? 'Manual Entry (No SMS)');
+
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'hi@nautilustechlabs.com',
+      query: encodeQueryParameters({
+        'subject': 'Transaction Incorrect Error Report',
+        'body': body.toString(),
+      }),
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch email client')),
+        );
+      }
+    }
+  }
+
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
   }
 
   @override
@@ -522,6 +575,35 @@ class _DetailedTransactionScreenState
                             color: AppTheme.getNeutralColor(context),
                           ),
                         ),
+                        const Spacer(),
+                        if (widget.transaction.rawSms != null)
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: widget.transaction.rawSms!),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text(
+                                    'Message copied to clipboard',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.copy_rounded,
+                              size: 16.sp,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            tooltip: 'Copy Message',
+                          ),
                       ],
                     ),
                   ),
@@ -545,6 +627,24 @@ class _DetailedTransactionScreenState
                         color: Theme.of(context).textTheme.bodySmall?.color,
                         fontStyle: FontStyle.italic,
                         fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _reportError,
+                      icon: Icon(Icons.email_outlined, size: 16.sp),
+                      label: Text(
+                        'Report processing error (via email)',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.getExpenseColor(context),
                       ),
                     ),
                   ),
