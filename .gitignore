@@ -37,7 +37,6 @@ migrate_working_dir/
 *.iws
 
 # Sensitive/Debug Data
-*.txt
 *.log
 test/failures.txt
 test/out.txt

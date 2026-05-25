@@ -154,7 +154,7 @@ class TransactionController extends Notifier<TransactionState> {
       final fetched = await _smsService.syncTransactions(
         forceAll: false,
         db: ref.read(databaseProvider),
-        forceSampleData: true,
+        forceSampleData: false,
       );
 
       bool hasRealDataInResult = fetched.any((t) => !t.isSample);

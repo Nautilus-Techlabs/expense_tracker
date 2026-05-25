@@ -1,9 +1,11 @@
+import 'package:expense_tracker/domain/parsers/flutter_parser_initializer.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/utils/app_logger.dart';
+import '../services/tflite_model_service.dart';
 import '../data/local/app_database.dart';
 import '../data/sample_data.dart';
 import 'entities/transaction.dart';
@@ -15,6 +17,21 @@ class SmsService {
   final SmsParserEngine _parser = SmsParserEngine();
 
   SmsService();
+
+  static Future<void> initialize() async {
+    await FlutterParserInitializer.initialize();
+  }
+
+  static List<SampleSms> get sampleData => sampleSms;
+
+  static Future<Transaction?> parseSmsToTransaction(
+    String body, {
+    String? sender,
+    DateTime? fallbackDate,
+  }) async {
+    final parser = SmsParserEngine();
+    return parser.tryParse(body, sender: sender, fallbackDate: fallbackDate);
+  }
 
   Future<DateTime?> getLastSyncDate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -144,10 +161,23 @@ class SmsService {
 
     AppLogger.i("Successfully parsed ${transactions.length} transactions.");
 
-    // 6. Log unsupported messages
+    // 6. Run AI model on each raw SMS and attach label as description
+    final modelService = TfliteModelService();
+    // init() is called lazily inside classifySms, no need to call explicitly
+    final List<List<String>> aiLabels = await Future.wait(
+      filteredMessages.map((msg) => modelService.classifySms(msg.body ?? "")),
+    );
+    for (int i = 0; i < transactions.length && i < aiLabels.length; i++) {
+      final label = aiLabels[i].isNotEmpty ? aiLabels[i][0] : null;
+      if (label != null) {
+        transactions[i] = transactions[i].copyWith(description: () => label);
+      }
+    }
+
+    // 7. Log unsupported messages
     _logUnsupported(filteredMessages, transactions, db);
 
-    // 7. Update last sync date
+    // 8. Update last sync date
     if (filteredMessages.isNotEmpty) {
       final newestDate = filteredMessages
           .map((m) => m.date ?? DateTime(2000))
