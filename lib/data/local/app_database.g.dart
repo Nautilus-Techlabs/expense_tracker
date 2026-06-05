@@ -482,6 +482,17 @@ class $TransactionsTable extends Transactions
       'REFERENCES categories (id)',
     ),
   );
+  static const VerificationMeta _senderIdMeta = const VerificationMeta(
+    'senderId',
+  );
+  @override
+  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
+    'sender_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -500,6 +511,7 @@ class $TransactionsTable extends Transactions
     description,
     source,
     categoryId,
+    senderId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -603,6 +615,12 @@ class $TransactionsTable extends Transactions
         categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
       );
     }
+    if (data.containsKey('sender_id')) {
+      context.handle(
+        _senderIdMeta,
+        senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta),
+      );
+    }
     return context;
   }
 
@@ -682,6 +700,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}category_id'],
       ),
+      senderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_id'],
+      ),
     );
   }
 
@@ -718,6 +740,7 @@ class TransactionEntry extends DataClass
   final String? description;
   final TransactionSource source;
   final int? categoryId;
+  final String? senderId;
   const TransactionEntry({
     required this.id,
     required this.amount,
@@ -735,6 +758,7 @@ class TransactionEntry extends DataClass
     this.description,
     required this.source,
     this.categoryId,
+    this.senderId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -781,6 +805,9 @@ class TransactionEntry extends DataClass
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<int>(categoryId);
     }
+    if (!nullToAbsent || senderId != null) {
+      map['sender_id'] = Variable<String>(senderId);
+    }
     return map;
   }
 
@@ -816,6 +843,9 @@ class TransactionEntry extends DataClass
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
+      senderId: senderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(senderId),
     );
   }
 
@@ -847,6 +877,7 @@ class TransactionEntry extends DataClass
         serializer.fromJson<String>(json['source']),
       ),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
+      senderId: serializer.fromJson<String?>(json['senderId']),
     );
   }
   @override
@@ -875,6 +906,7 @@ class TransactionEntry extends DataClass
         $TransactionsTable.$convertersource.toJson(source),
       ),
       'categoryId': serializer.toJson<int?>(categoryId),
+      'senderId': serializer.toJson<String?>(senderId),
     };
   }
 
@@ -895,6 +927,7 @@ class TransactionEntry extends DataClass
     Value<String?> description = const Value.absent(),
     TransactionSource? source,
     Value<int?> categoryId = const Value.absent(),
+    Value<String?> senderId = const Value.absent(),
   }) => TransactionEntry(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -914,6 +947,7 @@ class TransactionEntry extends DataClass
     description: description.present ? description.value : this.description,
     source: source ?? this.source,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    senderId: senderId.present ? senderId.value : this.senderId,
   );
   TransactionEntry copyWithCompanion(TransactionsCompanion data) {
     return TransactionEntry(
@@ -943,6 +977,7 @@ class TransactionEntry extends DataClass
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
+      senderId: data.senderId.present ? data.senderId.value : this.senderId,
     );
   }
 
@@ -964,7 +999,8 @@ class TransactionEntry extends DataClass
           ..write('isSample: $isSample, ')
           ..write('description: $description, ')
           ..write('source: $source, ')
-          ..write('categoryId: $categoryId')
+          ..write('categoryId: $categoryId, ')
+          ..write('senderId: $senderId')
           ..write(')'))
         .toString();
   }
@@ -987,6 +1023,7 @@ class TransactionEntry extends DataClass
     description,
     source,
     categoryId,
+    senderId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1007,7 +1044,8 @@ class TransactionEntry extends DataClass
           other.isSample == this.isSample &&
           other.description == this.description &&
           other.source == this.source &&
-          other.categoryId == this.categoryId);
+          other.categoryId == this.categoryId &&
+          other.senderId == this.senderId);
 }
 
 class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
@@ -1027,6 +1065,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
   final Value<String?> description;
   final Value<TransactionSource> source;
   final Value<int?> categoryId;
+  final Value<String?> senderId;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -1044,6 +1083,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     this.description = const Value.absent(),
     this.source = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.senderId = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1062,6 +1102,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     this.description = const Value.absent(),
     this.source = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.senderId = const Value.absent(),
   }) : amount = Value(amount),
        type = Value(type),
        date = Value(date),
@@ -1084,6 +1125,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Expression<String>? description,
     Expression<String>? source,
     Expression<int>? categoryId,
+    Expression<String>? senderId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1102,6 +1144,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       if (description != null) 'description': description,
       if (source != null) 'source': source,
       if (categoryId != null) 'category_id': categoryId,
+      if (senderId != null) 'sender_id': senderId,
     });
   }
 
@@ -1122,6 +1165,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     Value<String?>? description,
     Value<TransactionSource>? source,
     Value<int?>? categoryId,
+    Value<String?>? senderId,
   }) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -1140,6 +1184,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
       description: description ?? this.description,
       source: source ?? this.source,
       categoryId: categoryId ?? this.categoryId,
+      senderId: senderId ?? this.senderId,
     );
   }
 
@@ -1200,6 +1245,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
     }
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
+    }
     return map;
   }
 
@@ -1221,7 +1269,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntry> {
           ..write('isSample: $isSample, ')
           ..write('description: $description, ')
           ..write('source: $source, ')
-          ..write('categoryId: $categoryId')
+          ..write('categoryId: $categoryId, ')
+          ..write('senderId: $senderId')
           ..write(')'))
         .toString();
   }
@@ -2198,6 +2247,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> description,
       Value<TransactionSource> source,
       Value<int?> categoryId,
+      Value<String?> senderId,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -2217,6 +2267,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> description,
       Value<TransactionSource> source,
       Value<int?> categoryId,
+      Value<String?> senderId,
     });
 
 final class $$TransactionsTableReferences
@@ -2331,6 +2382,11 @@ class $$TransactionsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CategoriesTableFilterComposer get categoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2439,6 +2495,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2525,6 +2586,9 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<TransactionSource, String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
 
+  GeneratedColumn<String> get senderId =>
+      $composableBuilder(column: $table.senderId, builder: (column) => column);
+
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2593,6 +2657,7 @@ class $$TransactionsTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<TransactionSource> source = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
+                Value<String?> senderId = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -2610,6 +2675,7 @@ class $$TransactionsTableTableManager
                 description: description,
                 source: source,
                 categoryId: categoryId,
+                senderId: senderId,
               ),
           createCompanionCallback:
               ({
@@ -2629,6 +2695,7 @@ class $$TransactionsTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<TransactionSource> source = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
+                Value<String?> senderId = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -2646,6 +2713,7 @@ class $$TransactionsTableTableManager
                 description: description,
                 source: source,
                 categoryId: categoryId,
+                senderId: senderId,
               ),
           withReferenceMapper: (p0) => p0
               .map(

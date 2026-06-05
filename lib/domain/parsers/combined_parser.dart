@@ -32,6 +32,9 @@ class CombinedParser extends BankParser {
         result = _markUnverified(result);
       }
     }
+    if (result != null && sender != null) {
+      result = result.copyWith(senderId: () => sender);
+    }
     return result;
   }
 

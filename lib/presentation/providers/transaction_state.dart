@@ -206,7 +206,7 @@ class TransactionState {
 
     // 1. Add accounts from transactions
     for (final t in allTransactions) {
-      if (t.isVerified && t.account != null && t.account!.isNotEmpty) {
+      if (t.account != null && t.account!.isNotEmpty) {
         // Normalize for uniqueness check
         final normalizedAcc = normalizeAccount(t.account);
         final normalizedKey = "${t.bankName}_$normalizedAcc";
@@ -251,7 +251,7 @@ class TransactionState {
   List<String> getAvailableBanks() {
     final banks =
         allTransactions
-            .where((t) => t.isVerified)
+            .where((t) => t.isVerified || (t.account != null && t.account!.isNotEmpty))
             .map((t) => t.bankName)
             .toSet()
             .toList()
@@ -260,7 +260,7 @@ class TransactionState {
   }
 
   bool hasUnsupportedTransactions() {
-    return allTransactions.any((t) => !t.isVerified);
+    return allTransactions.any((t) => !t.isVerified && (t.account == null || t.account!.isEmpty));
   }
 
   List<PaymentMethod> getAvailableMethods() {

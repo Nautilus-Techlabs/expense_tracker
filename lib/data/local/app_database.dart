@@ -30,6 +30,7 @@ class Transactions extends Table {
       textEnum<TransactionSource>().withDefault(const Constant('sms'))();
   IntColumn get categoryId =>
       integer().nullable().references(Categories, #id)();
+  TextColumn get senderId => text().nullable()();
 }
 
 @DataClassName('CategoryEntry')
@@ -67,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -104,6 +105,9 @@ class AppDatabase extends _$AppDatabase {
                 ),
               );
             }
+          }
+          if (from < 3) {
+            await m.addColumn(transactions, transactions.senderId);
           }
         },
       );

@@ -113,15 +113,18 @@ final filteredTransactionsProvider = Provider<List<Transaction>>((ref) {
     bool matchesBank = true;
     if (filters.selectedBank != null) {
       if (filters.selectedBank == 'unsupported') {
-        matchesBank = !t.isVerified;
+        matchesBank = !t.isVerified && (t.account == null || t.account!.isEmpty);
       } else {
         final normalizedSelected = TransactionState.normalizeAccount(
           filters.selectedBank,
         );
-        final matchesName = t.isVerified && t.bankName == filters.selectedBank;
+        final hasAccount = t.account != null && t.account!.isNotEmpty;
+        final isKnown = t.isVerified || hasAccount;
+
+        final matchesName = isKnown && t.bankName == filters.selectedBank;
         final matchesAcc =
-            t.isVerified &&
-            t.account != null &&
+            isKnown &&
+            hasAccount &&
             TransactionState.normalizeAccount(t.account) == normalizedSelected;
         matchesBank = matchesName || matchesAcc;
       }

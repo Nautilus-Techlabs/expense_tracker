@@ -48,6 +48,7 @@ class Transaction {
   final TransactionSource source;
   final int? categoryId;
   final Category? category;
+  final String? senderId;
 
   Transaction({
     required this.amount,
@@ -67,6 +68,7 @@ class Transaction {
     this.source = TransactionSource.sms,
     this.categoryId,
     this.category,
+    this.senderId,
   });
 
   Map<String, dynamic> toMap() {
@@ -87,6 +89,7 @@ class Transaction {
       'description': description,
       'source': source.name,
       'categoryId': categoryId,
+      'senderId': senderId,
     };
   }
 
@@ -111,6 +114,7 @@ class Transaction {
       source: TransactionSource.fromString(map['source'] ?? 'sms'),
       categoryId: map['categoryId'],
       category: map['category'] != null ? Category.fromMap(map['category']) : null,
+      senderId: map['senderId'],
     );
   }
 
@@ -128,6 +132,7 @@ class Transaction {
     TransactionSource? source,
     int? Function()? categoryId,
     Category? Function()? category,
+    String? Function()? senderId,
   }) {
     return Transaction(
       id: id ?? this.id,
@@ -148,12 +153,13 @@ class Transaction {
       source: source ?? this.source,
       categoryId: categoryId != null ? categoryId() : this.categoryId,
       category: category != null ? category() : this.category,
+      senderId: senderId != null ? senderId() : this.senderId,
     );
   }
 
 
   @override
   String toString() {
-    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, source: $source, isSample: $isSample, desc: $description)';
+    return 'Transaction(amount: $amount, type: $type, method: $method, bank: $bankName, source: $source, isSample: $isSample, desc: $description, senderId: $senderId)';
   }
 }

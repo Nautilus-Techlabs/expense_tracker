@@ -619,15 +619,31 @@ class _DetailedTransactionScreenState
                         color: AppTheme.getBorderColor(context),
                       ),
                     ),
-                    child: Text(
-                      widget.transaction.rawSms ?? 'Manual Entry (No SMS)',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        height: 1.6,
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                        fontStyle: FontStyle.italic,
-                        fontFamily: 'monospace',
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.transaction.senderId != null) ...[
+                          Text(
+                            'Sender: ${widget.transaction.senderId!}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+                        Text(
+                          widget.transaction.rawSms ?? 'Manual Entry (No SMS)',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            height: 1.6,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                            fontStyle: FontStyle.italic,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 12.h),

@@ -116,7 +116,7 @@ class _BankDetailTransactionsScreenState
                 : state.getAvailableBanks().contains(widget.bankName)
                 ? state.allTransactions
                       .where(
-                        (t) => t.bankName == widget.bankName && t.isVerified,
+                        (t) => t.bankName == widget.bankName && (t.isVerified || (t.account != null && t.account!.isNotEmpty)),
                       )
                       .map((t) => t.account)
                       .toSet()
