@@ -1,3 +1,9 @@
 -keep class org.tensorflow.lite.** { *; }
 -keep class org.tensorflow.lite.gpu.** { *; }
 -dontwarn org.tensorflow.lite.**
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-keep class com.nt.expensetracker.** { *; }
+-dontwarn io.flutter.embedding.**
+-keep class * extends io.flutter.embedding.android.FlutterFragmentActivity { *; }
+-keep class * extends io.flutter.embedding.android.FlutterActivity { *; }

@@ -56,6 +56,12 @@ class AppConstants {
     "win",
     "promo",
     "use code",
+    "mandate",
+    "consolidated charges",
+    "hold for",
+    "we have received payment",
+    "credited to beneficiary",
+    "using a bank-specific app",
   ];
 
   /// Common senders that should be ignored entirely as they are not banks
@@ -207,7 +213,7 @@ class AppConstants {
 
   /// Regex pattern for account number fallback extraction
   static const String accountFallbackPattern =
-      r'(?:A/c\s*(?:no\.?)?\s*|Acct?\s*(?:No\.?)?\s*|Savings\s*No\s*|ending\s*|[\*X]{2,})[\s\.]*([X\*]*\d{4})';
+      r'(?:\bA/c\s*(?:no\.?)?\s*|\bAcct?\s*(?:No\.?)?\s*|\bSavings\s*No\s*|\bending\s*|[\*X]{2,})[\s\.]*([X\*]*\d{4})';
 
   static String getBankLogo(String bankName) {
     final name = bankName.toLowerCase();

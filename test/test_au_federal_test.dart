@@ -20,12 +20,8 @@ void main() {
       print('SENDER: \${s.sender}');
       print('BODY: \${s.body}');
       final tx = service.parseSmsToTransaction(s);
-      if (tx != null) {
-        matched++;
-        print('PARSED: \${tx.type} | Amount: \${tx.amount} | Merchant: \${tx.merchant} | Bank: \${tx.bankName}');
-      } else {
-        print('PARSED: NULL');
-      }
+      matched++;
+      print('PARSED: \${tx.type} | Amount: \${tx.amount} | Merchant: \${tx.merchant} | Bank: \${tx.bankName}');
     }
     print('\\nMatched \$matched out of \${targetSamples.length} AU/Federal samples');
   });

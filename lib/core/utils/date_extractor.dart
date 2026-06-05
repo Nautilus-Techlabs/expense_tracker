@@ -38,6 +38,12 @@ class DateExtractor {
       r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\s+(\d{1,2}),\s+(\d{4})\b',
       caseSensitive: false,
     ),
+
+    // Formats like "June 10,2020" or "August 12, 2020"
+    RegExp(
+      r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?,?\s*(\d{2,4})\b',
+      caseSensitive: false,
+    ),
   ];
 
   static DateTime? extract(String sms) {
