@@ -49,7 +49,6 @@ class TransactionState {
     this.categories = const [],
   });
 
-
   // Global (Unfiltered) Summary Data - For Dashboard
 
   double get totalGlobalCredit {
@@ -114,8 +113,6 @@ class TransactionState {
     return map['${bank}_${normalizeAccount(acc)}'];
   }
 
-  /// Strict check for whether a transaction should be included in balances.
-  /// Option C: Orphaned transactions (no account) are completely excluded.
   bool isAfterOpening(Transaction t, [Map<String, OpeningBalance>? map]) {
     if (t.account == null || t.account!.isEmpty) {
       return false; // Orphaned = excluded
@@ -173,7 +170,6 @@ class TransactionState {
     return accountTotal;
   }
 
-
   // Latest 10 Unfiltered Transactions - For Dashboard Global Preview
   List<Transaction> get latestTransactions {
     // 1. Get the 10 most recent transactions by date
@@ -199,22 +195,26 @@ class TransactionState {
     return latest10;
   }
 
-
   List<BankAccount> getUniqueAccounts() {
-    final seen = <String>{};
-    final accounts = <BankAccount>[];
+    final Map<String, BankAccount> byNormAcc = {};
 
     // 1. Add accounts from transactions
     for (final t in allTransactions) {
       if (t.account != null && t.account!.isNotEmpty) {
-        // Normalize for uniqueness check
-        final normalizedAcc = normalizeAccount(t.account);
-        final normalizedKey = "${t.bankName}_$normalizedAcc";
+        final normAcc = normalizeAccount(t.account);
+        if (normAcc.isEmpty) continue;
 
-        if (!seen.contains(normalizedKey)) {
-          seen.add(normalizedKey);
-          accounts.add(
-            BankAccount(bankName: t.bankName, accountNumber: t.account!),
+        final existing = byNormAcc[normAcc];
+        if (existing == null) {
+          byNormAcc[normAcc] = BankAccount(
+            bankName: t.bankName,
+            accountNumber: t.account!,
+          );
+        } else if (existing.bankName.startsWith('Bank:') &&
+            !t.bankName.startsWith('Bank:')) {
+          byNormAcc[normAcc] = BankAccount(
+            bankName: t.bankName,
+            accountNumber: t.account!,
           );
         }
       }
@@ -222,17 +222,25 @@ class TransactionState {
 
     // 2. Add accounts from opening balances that might not have transactions yet
     for (final ob in openingBalances) {
-      final normalizedAcc = normalizeAccount(ob.accountNumber);
-      final normalizedKey = "${ob.bankName}_$normalizedAcc";
+      final normAcc = normalizeAccount(ob.accountNumber);
+      if (normAcc.isEmpty) continue;
 
-      if (!seen.contains(normalizedKey)) {
-        seen.add(normalizedKey);
-        accounts.add(
-          BankAccount(bankName: ob.bankName, accountNumber: ob.accountNumber),
+      final existing = byNormAcc[normAcc];
+      if (existing == null) {
+        byNormAcc[normAcc] = BankAccount(
+          bankName: ob.bankName,
+          accountNumber: ob.accountNumber,
+        );
+      } else if (existing.bankName.startsWith('Bank:') &&
+          !ob.bankName.startsWith('Bank:')) {
+        byNormAcc[normAcc] = BankAccount(
+          bankName: ob.bankName,
+          accountNumber: ob.accountNumber,
         );
       }
     }
 
+    final accounts = byNormAcc.values.toList();
     accounts.sort((a, b) => a.bankName.compareTo(b.bankName));
     return accounts;
   }
@@ -251,7 +259,10 @@ class TransactionState {
   List<String> getAvailableBanks() {
     final banks =
         allTransactions
-            .where((t) => t.isVerified || (t.account != null && t.account!.isNotEmpty))
+            .where(
+              (t) =>
+                  t.isVerified || (t.account != null && t.account!.isNotEmpty),
+            )
             .map((t) => t.bankName)
             .toSet()
             .toList()
@@ -260,7 +271,9 @@ class TransactionState {
   }
 
   bool hasUnsupportedTransactions() {
-    return allTransactions.any((t) => !t.isVerified && (t.account == null || t.account!.isEmpty));
+    return allTransactions.any(
+      (t) => !t.isVerified && (t.account == null || t.account!.isEmpty),
+    );
   }
 
   List<PaymentMethod> getAvailableMethods() {

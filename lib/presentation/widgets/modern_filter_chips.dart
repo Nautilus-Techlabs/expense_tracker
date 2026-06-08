@@ -66,7 +66,8 @@ class _AccountChips extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.only(left: 8.w),
               child: _FilterChip(
-                label: acc.accountNumber,
+                label: acc.bankName,
+                sublabel: acc.accountNumber,
                 isSelected: filters.selectedBank == acc.accountNumber,
                 onTap: () => controller.setBankFilter(acc.accountNumber),
                 logo: logoUrl,
@@ -205,6 +206,7 @@ class _DateRangeSelector extends StatelessWidget {
 
 class _FilterChip extends StatelessWidget {
   final String label;
+  final String? sublabel;
   final bool isSelected;
   final VoidCallback onTap;
   final String? logo;
@@ -214,6 +216,7 @@ class _FilterChip extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.sublabel,
     this.logo,
     this.icon,
   });
@@ -270,13 +273,32 @@ class _FilterChip extends StatelessWidget {
               ),
               UIHelpers.horizontalSpace(8),
             ],
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : inactiveTextColor,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                fontSize: 13.sp,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : inactiveTextColor,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    fontSize: 13.sp,
+                  ),
+                ),
+                if (sublabel != null) ...[
+                  SizedBox(height: 1.h),
+                  Text(
+                    sublabel!,
+                    style: TextStyle(
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.75)
+                          : inactiveTextColor.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10.sp,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
