@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,7 +9,6 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -121,7 +121,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Center(
                     child: Text(
                       "No transactions yet.",
-                      style: AppTexts.bodyMedium,
+                      style: AppTexts.bodyMedium.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
                     ),
                   )
                 else
@@ -280,6 +284,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     '80%',
                     style: AppTexts.bodySmall.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                 ],
@@ -366,7 +373,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('June budget', style: AppTexts.headingMedium),
+              Text(
+                'June budget',
+                style: AppTexts.headingMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
+                ),
+              ),
               Text(
                 '₹32,000 / ₹40,000',
                 style: AppTexts.bodyMedium.copyWith(
@@ -509,7 +523,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           UIHelpers.verticalSpace(12),
           Text(
             subtitle,
-            style: AppTexts.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+            style: AppTexts.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
+            ),
           ),
         ],
       ),

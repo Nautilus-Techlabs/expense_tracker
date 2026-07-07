@@ -1,12 +1,11 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_router.dart';
 import '../../../../core/widgets/primary_button.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -58,47 +57,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
-  Future<void> _handlePermission() async {
-    final status = await Permission.sms.request();
-    if (status.isGranted) {
-      _navigateToHome();
-    } else if (status.isPermanentlyDenied) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Permission Required"),
-            content: const Text(
-              "SMS permission is essential for the app to function. Please enable it in settings.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => context.pop(),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () {
-                  openAppSettings();
-                  context.pop();
-                },
-                child: const Text("Settings"),
-              ),
-            ],
-          ),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("SMS permission is required to continue."),
-            backgroundColor: AppColors.expense,
-          ),
-        );
-      }
-    }
-  }
-
   void _navigateToHome() {
     context.go(AppRouter.transactions);
   }
@@ -108,7 +66,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -118,14 +78,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (index) => setState(() => _currentPage = index),
                 itemCount: _pages.length,
                 itemBuilder: (context, index) {
-                  return _OnboardingPage(
-                    data: _pages[index],
-                    isDark: isDark,
-                  );
+                  return _OnboardingPage(data: _pages[index], isDark: isDark);
                 },
               ),
             ),
-            
+
             // Bottom Controls
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
@@ -145,7 +102,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: _currentPage == index
                               ? AppColors.primary
-                              : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                              : (isDark
+                                    ? AppColors.borderDark
+                                    : AppColors.borderLight),
                           borderRadius: BorderRadius.circular(3.r),
                         ),
                       ),
@@ -155,13 +114,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                   // CTA Button
                   PrimaryButton(
-                    text: _currentPage == _pages.length - 1 ? "Grant Permission" : "Continue",
+                    text: _currentPage == _pages.length - 1
+                        ? "Grant Permission"
+                        : "Continue",
                     onPressed: _currentPage == _pages.length - 1
-                        ? _handlePermission
+                        ? _navigateToHome
                         : () => _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            ),
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          ),
                   ),
 
                   // Skip Button (only show if not on last page)
@@ -176,14 +137,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Text(
                         "Skip",
                         style: TextStyle(
-                          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                          color: isDark
+                              ? AppColors.textMutedDark
+                              : AppColors.textMutedLight,
                           fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
                         ),
                       ),
                     ),
                   ] else ...[
-                    UIHelpers.verticalSpace(16.h + 48), // Maintain layout height when skip button is hidden
+                    UIHelpers.verticalSpace(
+                      16.h + 48,
+                    ), // Maintain layout height when skip button is hidden
                   ],
                 ],
               ),
@@ -211,10 +176,7 @@ class _OnboardingPage extends StatelessWidget {
   final OnboardingData data;
   final bool isDark;
 
-  const _OnboardingPage({
-    required this.data,
-    required this.isDark,
-  });
+  const _OnboardingPage({required this.data, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -239,13 +201,15 @@ class _OnboardingPage extends StatelessWidget {
               child: Icon(
                 data.icon,
                 size: 80.w,
-                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                color: isDark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMutedLight,
               ),
             ),
           ),
-          
+
           UIHelpers.verticalSpace(48),
-          
+
           // Headline (Playfair Display equivalent)
           Text(
             data.title,
@@ -254,15 +218,17 @@ class _OnboardingPage extends StatelessWidget {
               color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
             ),
           ),
-          
+
           UIHelpers.verticalSpace(16),
-          
+
           // Subline (Inter)
           Text(
             data.description,
             textAlign: TextAlign.center,
             style: AppTexts.bodyMedium.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               height: 1.5,
             ),
           ),
