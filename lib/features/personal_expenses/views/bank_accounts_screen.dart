@@ -5,13 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_router.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/ui_helpers.dart';
+import '../../../core/constants/app_constants.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../viewmodels/transaction_state.dart';
 import '../widgets/common/bank_logo_avatar.dart';
-import '../widgets/common/app_gradient_balance_card.dart';
-import '../widgets/empty_state_view.dart';
 
 class BankAccountsScreen extends ConsumerWidget {
   const BankAccountsScreen({super.key});
@@ -20,134 +17,188 @@ class BankAccountsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final accounts = state.getUniqueAccounts();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // Header with total balance card
-            _buildHeader(context, state),
-
-            // Bank account list
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: controller.syncTransactions,
-                color: Theme.of(context).colorScheme.primary,
-                child: accounts.isEmpty
-                    ? EmptyStateView(
-                        icon: Icons.account_balance_outlined,
-                        title: 'No Bank Accounts Detected',
-                        message: 'Sync your SMS to see your accounts',
-                        actionLabel: 'Sync Now',
-                        onRetry: controller.syncTransactions,
-                      )
-                    : _buildBankList(context, state, accounts),
+        child: RefreshIndicator(
+          onRefresh: controller.syncTransactions,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // ── Header ──
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
+                  child: Text(
+                    'Accounts',
+                    style: AppTexts.displayMedium.copyWith(
+                      color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                      fontSize: 32.sp,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              // ── Total Balance Card ──
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(24.r),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total Balance',
+                          style: AppTexts.bodyMedium.copyWith(
+                            color: Colors.white.withAlpha(180),
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          '₹${state.globalBalance.toStringAsFixed(0)}',
+                          style: AppTexts.displayLarge.copyWith(
+                            color: Colors.white,
+                            fontSize: 36.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        Row(
+                          children: [
+                            _buildBalanceStat(
+                              label: 'Income',
+                              value: '₹${state.totalGlobalCredit.toStringAsFixed(0)}',
+                              icon: Icons.arrow_upward_rounded,
+                            ),
+                            SizedBox(width: 24.w),
+                            _buildBalanceStat(
+                              label: 'Expenses',
+                              value: '₹${state.totalGlobalDebit.toStringAsFixed(0)}',
+                              icon: Icons.arrow_downward_rounded,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+
+              // ── Section Label ──
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Text(
+                    'YOUR ACCOUNTS',
+                    style: AppTexts.bodySmall.copyWith(
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 12.h)),
+
+              // ── Account List ──
+              if (accounts.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.account_balance_outlined, size: 48.sp,
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                        SizedBox(height: 16.h),
+                        Text(
+                          'No bank accounts detected yet.\nSync your SMS to get started.',
+                          style: AppTexts.bodyMedium.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final account = accounts[index];
+                      final balance = state.getAccountBalance(account.bankName, account.accountNumber);
+
+                      // Get last transaction date for this account
+                      final accountTxs = state.allTransactions.where(
+                        (t) => t.bankName == account.bankName && t.account == account.accountNumber,
+                      ).toList();
+                      final lastTx = accountTxs.isNotEmpty
+                          ? accountTxs.reduce((a, b) => a.date.isAfter(b.date) ? a : b)
+                          : null;
+
+                      return _AccountCard(
+                        account: account,
+                        balance: balance,
+                        lastTxDate: lastTx?.date,
+                        isDark: isDark,
+                      );
+                    },
+                    childCount: accounts.length,
+                  ),
+                ),
+
+              SliverPadding(padding: EdgeInsets.only(bottom: 100.h)),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, TransactionState state) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Accounts',
-            style: TextStyle(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              letterSpacing: -1,
-            ),
-          ),
-          UIHelpers.verticalSpace(16),
-          AppGradientBalanceCard(
-            balance: state.globalBalance,
-            trailing: Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.account_balance_rounded,
-                color: Colors.white,
-                size: 30.sp,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBankList(
-    BuildContext context,
-    TransactionState state,
-    List<BankAccount> accounts,
-  ) {
-    // Pre-group transactions by account key for O(1) per card lookup
-    final txByAccount = <String, List<dynamic>>{};
-    for (final t in state.allTransactions) {
-      final key = '${t.bankName}|${t.account}';
-      txByAccount.putIfAbsent(key, () => []).add(t);
-    }
-
-    return ListView.builder(
-      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h),
-      physics: const BouncingScrollPhysics(),
-      itemCount: accounts.length,
-      itemBuilder: (context, index) {
-        final account = accounts[index];
-        final key = '${account.bankName}|${account.accountNumber}';
-        final bankTransactions = txByAccount[key] ?? [];
-
-        final currentBalance = state.getAccountBalance(
-          account.bankName,
-          account.accountNumber,
-        );
-
-        final lastTransaction = bankTransactions.isNotEmpty
-            ? bankTransactions.reduce(
-                (a, b) =>
-                    (a.date as DateTime).isAfter(b.date as DateTime) ? a : b,
-              )
-            : null;
-
-        return _BankAccountCard(
-          account: account,
-          balance: currentBalance,
-          lastTransaction: lastTransaction,
-        );
-      },
+  Widget _buildBalanceStat({required String label, required String value, required IconData icon}) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white.withAlpha(200), size: 16.sp),
+        SizedBox(width: 6.w),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: AppTexts.bodySmall.copyWith(color: Colors.white.withAlpha(180))),
+            Text(value, style: AppTexts.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _BankAccountCard extends StatelessWidget {
+class _AccountCard extends StatelessWidget {
   final BankAccount account;
   final double? balance;
-  final dynamic lastTransaction;
+  final DateTime? lastTxDate;
+  final bool isDark;
 
-  const _BankAccountCard({
+  const _AccountCard({
     required this.account,
+    required this.isDark,
     this.balance,
-    this.lastTransaction,
+    this.lastTxDate,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: () => context.push(
         AppRouter.bankTransactions,
@@ -157,75 +208,72 @@ class _BankAccountCard extends StatelessWidget {
         },
       ),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16.h),
+        margin: EdgeInsets.fromLTRB(24.w, 0, 24.w, 12.h),
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: isDark ? AppTheme.surfaceElevatedDark : Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
-          border: Border.all(color: AppTheme.getBorderColor(context), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: isDark ? AppColors.cardDark : Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
         ),
         child: Row(
           children: [
+            // Bank logo / avatar
             BankLogoAvatar(
               bankName: account.bankName,
               size: 24,
-              fallbackColor: colorScheme.primary,
+              fallbackColor: AppColors.primary,
             ),
-            UIHelpers.horizontalSpace(16),
+            SizedBox(width: 16.w),
+
+            // Bank name + last activity
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     account.displayName,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : AppTheme.textPrimaryLight,
+                    style: AppTexts.bodyLarge.copyWith(
+                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (lastTransaction != null)
-                    Text(
-                      'Last: ${DateFormat('dd MMM').format(lastTransaction.date as DateTime)}',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppTheme.getNeutralColor(context),
-                        fontWeight: FontWeight.w500,
-                      ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    lastTxDate != null
+                        ? 'Last activity ${DateFormat('dd MMM').format(lastTxDate!)}'
+                        : 'No transactions yet',
+                    style: AppTexts.bodySmall.copyWith(
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     ),
+                  ),
                 ],
               ),
+            ),
+
+            // Balance + chevron
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  balance != null ? '₹${balance!.toStringAsFixed(0)}' : '—',
+                  style: AppTexts.bodyLarge.copyWith(
+                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  'Balance',
+                  style: AppTexts.bodySmall.copyWith(
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    fontSize: 10.sp,
+                  ),
+                ),
+              ],
             ),
-            if (balance != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '₹${balance!.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).textTheme.titleLarge?.color,
-                    ),
-                  ),
-                  Text(
-                    'Balance',
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      color: AppTheme.getNeutralColor(context),
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
+            SizedBox(width: 8.w),
+            Icon(Icons.chevron_right_rounded, size: 20.sp,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
           ],
         ),
       ),

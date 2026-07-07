@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/widgets/primary_button.dart';
-import '../../../core/widgets/custom_text_field.dart';
 import '../../../domain/entities/transaction.dart';
 import '../viewmodels/detailed_transaction_viewmodel.dart';
 
@@ -30,7 +28,6 @@ class _DetailedTransactionScreenState
   @override
   void initState() {
     super.initState();
-    // Seed the viewmodel as soon as the widget is inserted into the tree
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(detailedTransactionViewModelProvider.notifier)
@@ -42,12 +39,16 @@ class _DetailedTransactionScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(detailedTransactionViewModelProvider);
     final vm = ref.read(detailedTransactionViewModelProvider.notifier);
-
-    final isManual = widget.transaction.source == TransactionSource.manual;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDebit = widget.transaction.type == TransactionType.debit;
+    final amountColor = isDebit ? AppColors.expense : AppColors.income;
 
-    // Listen for errors and show snackbars
-    ref.listen<DetailedTransactionState>(detailedTransactionViewModelProvider, (previous, next) {
+    // Detect if it belongs to a Circle
+    // TODO: Replace with real circleId check once Circle feature is built
+    final bool isCircleTransaction = widget.transaction.description?.startsWith('circle:') ?? false;
+
+    ref.listen<DetailedTransactionState>(
+        detailedTransactionViewModelProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -63,228 +64,474 @@ class _DetailedTransactionScreenState
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            size: 20.sp,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          state.isEditing ? 'Edit Transaction' : 'Transaction Details',
+          'Transaction detail',
           style: AppTexts.heading.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        actions: [
-          if (!state.isEditing && !widget.transaction.isSample) ...[
-            if (isManual)
-              IconButton(
-                icon: Icon(Icons.delete_outline_rounded, size: 22.sp, color: AppColors.expense),
-                onPressed: () => _handleDelete(context, vm),
-              ),
-            IconButton(
-              icon: Icon(Icons.edit_rounded, size: 22.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
-              onPressed: vm.toggleEditing,
-            ),
-          ] else if (state.isEditing)
-            TextButton(
-              onPressed: () async {
-                final success = await vm.saveTransaction();
-                if (success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Changes saved successfully!'), backgroundColor: AppColors.income),
-                  );
-                }
-              },
-              child: Text(
-                'Save',
-                style: AppTexts.bodyMedium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          SizedBox(width: 8.w),
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            if (widget.heroTag != null)
-              Hero(tag: widget.heroTag!, child: _buildAmountCard(context, state, vm, isDark))
-            else
-              _buildAmountCard(context, state, vm, isDark),
-            
-            SizedBox(height: 24.h),
+            SizedBox(height: 32.h),
 
-            if (state.isEditing) ...[
-              _buildEditForm(context, state, vm, isDark),
-            ] else ...[
-              _buildDetails(context, state, isManual, isDark),
-            ]
+            // ── Hero Icon ──
+            _buildHeroIcon(isCircleTransaction, amountColor),
+            SizedBox(height: 20.h),
+
+            // ── Merchant Name ──
+            Text(
+              state.merchant.isNotEmpty ? state.merchant : 'Unknown',
+              style: AppTexts.displayMedium.copyWith(
+                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                fontSize: 26.sp,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8.h),
+
+            // ── Amount ──
+            Text(
+              '₹${state.amount}',
+              style: AppTexts.displayLarge.copyWith(
+                color: amountColor,
+                fontSize: 40.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(height: 8.h),
+
+            // ── Subtitle: Category · Type · Date ──
+            Text(
+              _buildSubtitle(state),
+              style: AppTexts.bodyMedium.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
+            ),
+            SizedBox(height: 32.h),
+
+            // ── Details Card ──
+            _buildDetailsCard(context, state, isCircleTransaction, isDark),
+            SizedBox(height: 16.h),
+
+            // ── Split Details Card (only for Circle transactions) ──
+            if (isCircleTransaction)
+              _buildSplitDetailsCard(context, isDark),
+            SizedBox(height: 32.h),
+
+            // ── Action Buttons ──
+            _buildActionButtons(context, vm, isDark),
+            SizedBox(height: 40.h),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAmountCard(BuildContext context, DetailedTransactionState state, DetailedTransactionViewModel vm, bool isDark) {
-    final isDebit = widget.transaction.type == TransactionType.debit;
-    final semanticColor = isDebit ? AppColors.expense : AppColors.income;
-    final semanticBg = isDebit ? AppColors.expenseBg : AppColors.incomeBg;
+  Widget _buildHeroIcon(bool isCircleTransaction, Color amountColor) {
+    final bgColor = isCircleTransaction ? AppColors.income : amountColor;
+    final icon = isCircleTransaction
+        ? Icons.group_rounded
+        : _getCategoryIcon();
+
+    return Hero(
+      tag: widget.heroTag ?? 'tx_detail_${widget.transaction.id}',
+      child: Container(
+        width: 80.w,
+        height: 80.w,
+        decoration: BoxDecoration(
+          color: bgColor,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 36.sp),
+      ),
+    );
+  }
+
+  Widget _buildDetailsCard(BuildContext context, DetailedTransactionState state, bool isCircleTransaction, bool isDark) {
+    final cardColor = isDark ? AppColors.cardDark : Colors.white;
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
 
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
       decoration: BoxDecoration(
-        color: semanticBg,
-        borderRadius: BorderRadius.circular(28.r),
-        border: Border.all(color: semanticColor.withAlpha(isDark ? 150 : 80), width: 1.5),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
-          if (state.isEditing)
-            CustomTextField(
-              label: 'Merchant',
-              controller: TextEditingController(text: state.merchant)..selection = TextSelection.collapsed(offset: state.merchant.length),
-              onChanged: (val) => vm.updateField(merchant: val),
-            )
-          else
-            Text(
-              state.merchant.isNotEmpty ? state.merchant : 'Unknown Merchant',
-              style: AppTexts.displaySmall.copyWith(color: semanticColor, fontWeight: FontWeight.w800),
-              textAlign: TextAlign.center,
+          _buildDetailRow(
+            icon: Icons.calendar_today_outlined,
+            label: 'Date',
+            value: _formatDate(widget.transaction.date),
+            isDark: isDark,
+            showDivider: true,
+          ),
+          _buildDetailRow(
+            icon: Icons.account_balance_outlined,
+            label: 'Account',
+            value: state.bankName.isNotEmpty ? state.bankName : 'N/A',
+            isDark: isDark,
+            showDivider: true,
+          ),
+          if (!isCircleTransaction) ...[
+            _buildDetailRow(
+              icon: Icons.label_outline_rounded,
+              label: 'Category',
+              value: widget.transaction.category?.name ?? 'Uncategorized',
+              isDark: isDark,
+              showDivider: true,
             ),
-          
-          SizedBox(height: 16.h),
-          
-          if (state.isEditing)
-            CustomTextField(
-              label: 'Amount',
-              keyboardType: TextInputType.number,
-              controller: TextEditingController(text: state.amount)..selection = TextSelection.collapsed(offset: state.amount.length),
-              onChanged: (val) => vm.updateField(amount: val),
-            )
-          else
-            Text(
-              '₹ ${state.amount}',
-              style: AppTexts.displayLarge.copyWith(color: semanticColor, fontWeight: FontWeight.w900),
+            _buildDetailRow(
+              icon: Icons.edit_outlined,
+              label: 'Note',
+              value: state.description.isNotEmpty ? state.description : '—',
+              isDark: isDark,
+              showDivider: true,
             ),
+          ],
+          _buildDetailRow(
+            icon: Icons.circle_outlined,
+            label: 'Circle',
+            value: 'Not part of any circle',
+            valueColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            isItalic: true,
+            isDark: isDark,
+            showDivider: false,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildEditForm(BuildContext context, DetailedTransactionState state, DetailedTransactionViewModel vm, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomTextField(
-          label: 'Account Number',
-          hint: 'e.g. X1234',
-          controller: TextEditingController(text: state.account)..selection = TextSelection.collapsed(offset: state.account.length),
-          onChanged: (val) => vm.updateField(account: val),
-        ),
-        SizedBox(height: 16.h),
-        CustomTextField(
-          label: 'Bank Name',
-          hint: 'e.g. HDFC Bank',
-          controller: TextEditingController(text: state.bankName)..selection = TextSelection.collapsed(offset: state.bankName.length),
-          onChanged: (val) => vm.updateField(bankName: val),
-        ),
-        SizedBox(height: 16.h),
-        CustomTextField(
-          label: 'Description',
-          hint: 'Add a brief note...',
-          maxLines: 3,
-          controller: TextEditingController(text: state.description)..selection = TextSelection.collapsed(offset: state.description.length),
-          onChanged: (val) => vm.updateField(description: val),
-        ),
-        SizedBox(height: 24.h),
-        PrimaryButton(
-          text: 'Save Changes',
-          isLoading: state.isSaving,
-          onPressed: () => vm.saveTransaction(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetails(BuildContext context, DetailedTransactionState state, bool isManual, bool isDark) {
-    return Column(
-      children: [
-        _buildInfoRow(context, 'Bank Name', state.bankName, Icons.store_rounded),
-        SizedBox(height: 12.h),
-        _buildInfoRow(context, 'Account Number', state.account.isEmpty ? 'N/A' : state.account, Icons.tag_rounded),
-        SizedBox(height: 12.h),
-        _buildInfoRow(context, 'Payment Method', state.method.name.toUpperCase(), Icons.credit_card_rounded),
-        SizedBox(height: 12.h),
-        _buildInfoRow(context, 'Date', DateFormat('dd MMM yyyy, hh:mm a').format(widget.transaction.date), Icons.calendar_today_rounded),
-        SizedBox(height: 12.h),
-        if (state.description.isNotEmpty)
-          _buildInfoRow(context, 'Description', state.description, Icons.notes_rounded),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.cardDark : AppColors.cardLight;
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required bool isDark,
+    required bool showDivider,
+    Color? valueColor,
+    bool isItalic = false,
+  }) {
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-    
+    final labelColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final resolvedValueColor = valueColor ?? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight);
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          child: Row(
+            children: [
+              Icon(icon, size: 22.sp, color: labelColor),
+              SizedBox(width: 14.w),
+              Text(
+                label,
+                style: AppTexts.bodyMedium.copyWith(
+                  color: labelColor,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const Spacer(),
+              Flexible(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.right,
+                  style: AppTexts.bodyMedium.copyWith(
+                    color: resolvedValueColor,
+                    fontWeight: FontWeight.w600,
+                    fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (showDivider)
+          Divider(height: 1, thickness: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+      ],
+    );
+  }
+
+  Widget _buildSplitDetailsCard(BuildContext context, bool isDark) {
+    final cardColor = isDark ? AppColors.cardDark : Colors.white;
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+
+    // Mock split data for UI demo
+    final splits = [
+      _SplitPerson(initials: 'RK', name: 'You (paid)', amount: 3600, share: 1200, color: AppColors.primary, status: 'Paid'),
+      _SplitPerson(initials: 'AM', name: 'Amit', amount: 1200, share: 1200, color: AppColors.expense, status: 'Pending'),
+      _SplitPerson(initials: 'PR', name: 'Priya', amount: 1200, share: 1200, color: const Color(0xFF7C3AED), status: 'Settled'),
+    ];
+
     return Container(
-      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 24.sp),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: AppTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  value,
-                  style: AppTexts.bodyLarge.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
+            child: Text(
+              'Split details',
+              style: AppTexts.bodyLarge.copyWith(
+                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                fontWeight: FontWeight.w700,
+                fontSize: 17.sp,
+              ),
             ),
-          )
+          ),
+          ...splits.map((split) => _buildSplitRow(split, isDark, splits.last == split)),
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
+            child: Text(
+              'Total recovered: ₹1,200 of ₹2,400',
+              style: AppTexts.bodySmall.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildSplitRow(_SplitPerson split, bool isDark, bool isLast) {
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+
+    Color statusColor;
+    Color statusBgColor;
+    switch (split.status) {
+      case 'Paid':
+        statusColor = Colors.white;
+        statusBgColor = AppColors.primary;
+        break;
+      case 'Pending':
+        statusColor = Colors.white;
+        statusBgColor = AppColors.expense;
+        break;
+      case 'Settled':
+        statusColor = Colors.white;
+        statusBgColor = AppColors.income;
+        break;
+      default:
+        statusColor = Colors.white;
+        statusBgColor = AppColors.primary;
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+          child: Row(
+            children: [
+              // Avatar
+              Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: BoxDecoration(color: split.color, shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Text(
+                  split.initials,
+                  style: AppTexts.bodySmall.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13.sp,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              // Name
+              Expanded(
+                child: Text(
+                  split.name,
+                  style: AppTexts.bodyMedium.copyWith(
+                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              // Amount + status
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    split.status == 'Paid'
+                        ? '₹${split.amount.toStringAsFixed(0)}'
+                        : 'Owes ₹${split.share.toStringAsFixed(0)}',
+                    style: AppTexts.bodyMedium.copyWith(
+                      color: split.status == 'Paid'
+                          ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                          : AppColors.expense,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (split.status == 'Paid')
+                    Text(
+                      'Your share: ₹${split.share.toStringAsFixed(0)}',
+                      style: AppTexts.bodySmall.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        fontSize: 11.sp,
+                      ),
+                    ),
+                ],
+              ),
+              SizedBox(width: 10.w),
+              // Status badge
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                decoration: BoxDecoration(
+                  color: statusBgColor,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Text(
+                  split.status,
+                  style: AppTexts.bodySmall.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(height: 1, thickness: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, DetailedTransactionViewModel vm, bool isDark) {
+    return Row(
+      children: [
+        // Edit button (outlined, dark green)
+        Expanded(
+          child: OutlinedButton(
+            onPressed: vm.toggleEditing,
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppColors.primary, width: 1.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+            ),
+            child: Text(
+              'Edit transaction',
+              style: AppTexts.bodyMedium.copyWith(
+                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16.w),
+        // Delete button (outlined, terracotta)
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => _handleDelete(context, vm),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppColors.expense, width: 1.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+            ),
+            child: Text(
+              'Delete',
+              style: AppTexts.bodyMedium.copyWith(
+                color: AppColors.expense,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _buildSubtitle(DetailedTransactionState state) {
+    final category = widget.transaction.category?.name ?? 'Uncategorized';
+    final type = widget.transaction.type == TransactionType.debit ? 'Expense' : 'Income';
+    final when = _timeLabel(widget.transaction.date);
+    return '$category · $type · $when';
+  }
+
+  String _timeLabel(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final d = DateTime(date.year, date.month, date.day);
+
+    if (d == today) return 'Today';
+    if (d == yesterday) return 'Yesterday';
+    return DateFormat('dd MMM').format(date);
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final d = DateTime(date.year, date.month, date.day);
+    final prefix = d == today ? 'Today, ' : '';
+    return '$prefix${DateFormat('dd MMM yyyy').format(date)}';
+  }
+
+  IconData _getCategoryIcon() {
+    final icon = widget.transaction.category?.icon ?? '';
+    switch (icon) {
+      case 'food':
+        return Icons.restaurant_rounded;
+      case 'home':
+        return Icons.home_rounded;
+      case 'phone':
+        return Icons.phone_iphone_rounded;
+      case 'salary':
+        return Icons.work_rounded;
+      case 'transport':
+        return Icons.directions_car_rounded;
+      default:
+        return Icons.receipt_long_rounded;
+    }
   }
 
   Future<void> _handleDelete(BuildContext context, DetailedTransactionViewModel vm) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.cardDark
+            : AppColors.cardLight,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         title: Text('Delete Transaction', style: AppTexts.heading),
-        content: Text('Are you sure you want to delete this manual transaction?', style: AppTexts.bodyMedium),
+        content: Text(
+          'Are you sure you want to delete this transaction? This cannot be undone.',
+          style: AppTexts.bodyMedium,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: AppTexts.bodyMedium),
+            child: Text('Cancel', style: AppTexts.bodyMedium.copyWith(color: AppColors.primary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.expense,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            ),
             child: Text('Delete', style: AppTexts.bodyMedium.copyWith(color: Colors.white)),
           ),
         ],
@@ -298,4 +545,23 @@ class _DetailedTransactionScreenState
       }
     }
   }
+}
+
+// Helper model for split person
+class _SplitPerson {
+  final String initials;
+  final String name;
+  final double amount;
+  final double share;
+  final Color color;
+  final String status; // 'Paid', 'Pending', 'Settled'
+
+  const _SplitPerson({
+    required this.initials,
+    required this.name,
+    required this.amount,
+    required this.share,
+    required this.color,
+    required this.status,
+  });
 }

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,7 +8,6 @@ import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import '../../../../domain/entities/transaction.dart';
-import '../viewmodels/transaction_notifier.dart';
 
 class TransactionCard extends ConsumerWidget {
   final Transaction transaction;
@@ -88,10 +88,24 @@ class TransactionCard extends ConsumerWidget {
               ),
             ),
             
-            // Amount
-            Text(
-              '₹${transaction.amount.toStringAsFixed(0)}',
-              style: isDebit ? AppTexts.amountExpense : AppTexts.amountIncome,
+            // Amount & Bank
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '₹${transaction.amount.toStringAsFixed(0)}',
+                  style: isDebit ? AppTexts.amountExpense : AppTexts.amountIncome,
+                ),
+                if (transaction.bankName.isNotEmpty) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    transaction.bankName,
+                    style: AppTexts.bodySmall.copyWith(
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),

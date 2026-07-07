@@ -1,25 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:csv/csv.dart';
-import 'package:expense_tracker/core/theme/app_theme.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
-import 'package:expense_tracker/domain/entities/transaction.dart';
-import 'package:expense_tracker/features/personal_expenses/viewmodels/transaction_notifier.dart';
-import 'package:expense_tracker/features/personal_expenses/viewmodels/history_filter_provider.dart';
-import 'package:expense_tracker/features/personal_expenses/viewmodels/transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
-import '../widgets/empty_state_view.dart';
-import '../widgets/modern_filter_chips.dart';
-import '../widgets/shimmer_loading.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../domain/entities/transaction.dart';
+import '../../../../domain/entities/category.dart';
+import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
-import '../widgets/transaction_filter_sheet.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -30,175 +19,298 @@ class TransactionListScreen extends ConsumerStatefulWidget {
 }
 
 class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  int _selectedMonthIndex = 5; // Default to 'Jun' for this mockup
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _exportToCsv(List<Transaction> transactions) async {
-    // Export only transactions that contain raw SMS
-    final filtered = transactions.where((t) => t.rawSms != null).toList();
-
-    if (filtered.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No parsed transactions found to export'),
-          ),
-        );
-      }
-      return;
-    }
-
-    try {
-      final List<List<dynamic>> rows = [];
-
-      // CSV Header
-      rows.add([
-        'Date',
-        'Amount',
-        'Type',
-        'Bank',
-        'Account',
-        'Method',
-        'Category',
-        'Merchant',
-        'Description',
-        'Verified',
-        'Raw SMS',
-      ]);
-
-      // CSV Data
-      for (final t in filtered) {
-        rows.add([
-          DateFormat('dd-MMM-yyyy HH:mm:ss').format(t.date),
-          t.amount.toStringAsFixed(2),
-          t.type.name.toUpperCase(),
-          t.bankName,
-          t.account ?? '',
-          t.method.name.toUpperCase(),
-          t.category?.name ?? '',
-          t.merchant ?? '',
-          t.description ?? '',
-          t.isVerified ? 'Yes' : 'No',
-          t.rawSms ?? '',
-        ]);
-      }
-
-      // Convert to CSV
-      final csvData = csv.encoder.convert(rows);
-
-      // Add UTF-8 BOM for Excel compatibility
-      final csvWithBom = '\uFEFF$csvData';
-
-      // File name
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final directory = await getTemporaryDirectory();
-      final path = '${directory.path}/transactions_export_$timestamp.csv';
-      final file = File(path);
-
-      await file.writeAsString(csvWithBom, encoding: utf8);
-
-      // Share file
-      if (mounted) {
-        await Share.shareXFiles(
-          [XFile(path)],
-          subject: 'Expense Tracker CSV Export',
-          text: 'Exported transaction data in CSV format.',
-        );
-      }
-    } catch (e, stackTrace) {
-      debugPrint('CSV Export Error: $e');
-      debugPrintStack(stackTrace: stackTrace);
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
-      }
-    }
-  }
+  final List<String> _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    final historyFilters = ref.watch(historyFilterProvider);
     final controller = ref.read(transactionProvider.notifier);
-    final filteredTransactions = ref.watch(filteredTransactionsProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Simple local search filter
-    final searchQuery = _searchController.text.toLowerCase();
-    final transactions = filteredTransactions.where((t) {
-      if (searchQuery.isEmpty) return true;
-      final merchant = (t.merchant ?? '').toLowerCase();
-      final desc = (t.description ?? '').toLowerCase();
-      return merchant.contains(searchQuery) || desc.contains(searchQuery);
-    }).toList();
+    // For mockup purposes, we'll use a hardcoded list to demonstrate the UI
+    final today = DateTime.now();
+    final yesterday = today.subtract(const Duration(days: 1));
+    final twoDaysAgo = today.subtract(const Duration(days: 2));
+
+    final transactions = [
+      Transaction(
+        id: 1,
+        amount: 450,
+        type: TransactionType.debit,
+        date: today,
+        method: PaymentMethod.upi,
+        merchant: 'Swiggy',
+        bankName: 'HDFC Bank',
+        category: const Category(id: 1, name: 'Food & Dining', icon: 'food'),
+        isVerified: true,
+      ),
+      Transaction(
+        id: 2,
+        amount: 45000,
+        type: TransactionType.credit,
+        date: yesterday,
+        method: PaymentMethod.neft,
+        merchant: 'Salary',
+        bankName: 'SBI Account',
+        category: const Category(id: 2, name: 'Income', icon: 'salary'),
+        isVerified: true,
+      ),
+      Transaction(
+        id: 3,
+        amount: 12000,
+        type: TransactionType.debit,
+        date: twoDaysAgo,
+        method: PaymentMethod.upi,
+        merchant: 'Rent',
+        bankName: 'HDFC Bank',
+        category: const Category(id: 3, name: 'Housing', icon: 'home'),
+        isVerified: true,
+      ),
+      Transaction(
+        id: 4,
+        amount: 299,
+        type: TransactionType.debit,
+        date: twoDaysAgo,
+        method: PaymentMethod.upi,
+        merchant: 'Jio',
+        bankName: 'Paytm Wallet',
+        category: const Category(id: 4, name: 'Utilities', icon: 'phone'),
+        isVerified: true,
+      ),
+      Transaction(
+        id: 5,
+        amount: 380,
+        type: TransactionType.debit,
+        date: twoDaysAgo,
+        method: PaymentMethod.upi,
+        merchant: 'Zomato',
+        bankName: 'ICICI Bank',
+        category: const Category(id: 1, name: 'Food & Dining', icon: 'food'),
+        isVerified: true,
+      ),
+      Transaction(
+        id: 6,
+        amount: 8000,
+        type: TransactionType.credit,
+        date: twoDaysAgo,
+        method: PaymentMethod.neft,
+        merchant: 'Freelance',
+        bankName: 'SBI Account',
+        category: const Category(id: 2, name: 'Income', icon: 'salary'),
+        isVerified: true,
+      ),
+    ];
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.bgDark : AppTheme.bgLight,
-      appBar: AppBar(
-        backgroundColor: isDark ? AppTheme.bgDark : Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Transactions',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _exportToCsv(transactions),
-            icon: Icon(Icons.file_download_outlined, size: 22.sp),
-            tooltip: 'Export to CSV',
-          ),
-          SizedBox(width: 8.w),
-        ],
-      ),
-      body: Column(
-        children: [
-          // 1. Search Bar
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    height: 52.h,
-                    decoration: BoxDecoration(
-                      color: isDark ? AppTheme.surfaceDark : Colors.white,
-                      borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.white.withAlpha(10)
-                            : AppTheme.borderLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: controller.syncTransactions,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // 1. Header (Transactions + Icons)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 16.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Transactions',
+                        style: AppTexts.displayMedium.copyWith(
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.primary,
+                          fontSize: 32.sp,
+                        ),
                       ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.filter_alt_outlined,
+                            size: 28.sp,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
+                          ),
+                          SizedBox(width: 16.w),
+                          Icon(
+                            Icons.search_rounded,
+                            size: 28.sp,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 2. Month Selector
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 48.h,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    itemCount: _months.length,
+                    itemBuilder: (context, index) {
+                      final isSelected = index == _selectedMonthIndex;
+                      return GestureDetector(
+                        onTap: () =>
+                            setState(() => _selectedMonthIndex = index),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w,
+                            vertical: 8.h,
+                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _months[index],
+                            style: AppTexts.bodyMedium.copyWith(
+                              color: isSelected
+                                  ? Colors.white
+                                  : (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight),
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // 3. Summary Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 24.h,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 20.h,
+                      horizontal: 24.w,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.cardDark
+                          : const Color(
+                              0xFFF0F0E9,
+                            ), // Slightly darker cream for contrast in light mode
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: isDark
+                          ? Border.all(color: AppColors.borderDark)
+                          : null,
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.search_rounded,
-                          color: AppTheme.getNeutralColor(context),
-                          size: 20.sp,
-                        ),
-                        UIHelpers.horizontalSpace(12),
                         Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) => setState(() {}),
-                            style: TextStyle(fontSize: 14.sp),
-                            decoration: InputDecoration(
-                              hintText: 'Search transactions...',
-                              hintStyle: TextStyle(
-                                color: AppTheme.getNeutralColor(context),
-                                fontSize: 14.sp,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Income',
+                                style: AppTexts.bodyMedium.copyWith(
+                                  color: isDark
+                                      ? AppColors.textPrimaryDark
+                                      : AppColors.textPrimaryLight,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                              border: InputBorder.none,
-                              isDense: true,
+                              SizedBox(height: 4.h),
+                              Row(
+                                children: [
+                                  Text(
+                                    '₹${state.totalGlobalCredit.toStringAsFixed(0)}',
+                                    style: AppTexts.amountIncome.copyWith(
+                                      fontSize: 20.sp,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Icon(
+                                    Icons.arrow_upward_rounded,
+                                    size: 16.sp,
+                                    color: AppColors.income,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 1.w,
+                          height: 40.h,
+                          color: isDark
+                              ? AppColors.borderDark
+                              : AppColors.borderLight,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 24.w),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Expense',
+                                  style: AppTexts.bodyMedium.copyWith(
+                                    color: isDark
+                                        ? AppColors.textPrimaryDark
+                                        : AppColors.textPrimaryLight,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '₹${state.totalGlobalDebit.toStringAsFixed(0)}',
+                                      style: AppTexts.amountExpense.copyWith(
+                                        fontSize: 20.sp,
+                                      ),
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Icon(
+                                      Icons.arrow_downward_rounded,
+                                      size: 16.sp,
+                                      color: AppColors.expense,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -206,160 +318,91 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     ),
                   ),
                 ),
-                UIHelpers.horizontalSpace(12),
-                // Filter Button
-                GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    _showFilterSheet(context);
-                  },
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(14.w),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF1E293B)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(16.r),
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withAlpha(10)
-                                : AppTheme.borderLight,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.tune_rounded,
-                          color: historyFilters.activeFiltersCount > 0
-                              ? Theme.of(context).colorScheme.primary
-                              : AppTheme.getNeutralColor(context),
-                          size: 22.sp,
-                        ),
-                      ),
-                      if (historyFilters.activeFiltersCount > 0)
-                        Positioned(
-                          right: -4.w,
-                          top: -4.h,
-                          child: Container(
-                            padding: EdgeInsets.all(6.r),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFF0F172A)
-                                    : Colors.white,
-                                width: 2,
-                              ),
-                            ),
-                            constraints: BoxConstraints(
-                              minWidth: 18.w,
-                              minHeight: 18.h,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${historyFilters.activeFiltersCount}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 2. Filters
-          ModernFilterBar(
-            state: state,
-            filters: historyFilters,
-            controller: ref.read(historyFilterProvider.notifier),
-          ),
-
-          // 3. Transactions List
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: controller.syncTransactions,
-              color: Theme.of(context).colorScheme.primary,
-              child: _buildListContent(state, controller, transactions),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListContent(
-    TransactionState state,
-    TransactionController controller,
-    List<Transaction> transactions,
-  ) {
-    if (state.isLoading && transactions.isEmpty) {
-      return const ShimmerLoading();
-    }
-
-    if (transactions.isEmpty) {
-      return EmptyStateView(onRetry: controller.syncTransactions);
-    }
-
-    // Group transactions by date
-    final groupedTransactions = _groupTransactionsByDate(transactions);
-
-    return ListView.builder(
-      padding: EdgeInsets.only(bottom: 100.h),
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
-      itemCount: groupedTransactions.length,
-      itemBuilder: (context, index) {
-        final group = groupedTransactions[index];
-
-        if (group is String) {
-          return Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 12.h),
-            child: Text(
-              group.toUpperCase(),
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.getNeutralColor(context),
-                letterSpacing: 0.5,
               ),
-            ),
-          );
-        } else {
-          final t = group as Transaction;
-          return TransactionCard(
-            key: ValueKey('list_${t.id ?? t.rawSms}'),
-            transaction: t,
-            heroTag: 'hero_list_${t.id ?? t.rawSms}',
-          );
-        }
-      },
+
+              // 4. Transactions List
+              if (transactions.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      "No transactions for this month.",
+                      style: AppTexts.bodyMedium.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                ..._buildGroupedList(transactions, isDark),
+
+              SliverPadding(padding: EdgeInsets.only(bottom: 100.h)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  List<dynamic> _groupTransactionsByDate(List<Transaction> transactions) {
-    final List<dynamic> grouped = [];
+  List<Widget> _buildGroupedList(List<Transaction> transactions, bool isDark) {
+    final List<Widget> slivers = [];
     String? lastDate;
 
-    // Transactions are assumed to be sorted by date descending
     for (final t in transactions) {
       final dateStr = _formatDateHeader(t.date);
+
+      // If it's a new date, add a header
       if (dateStr != lastDate) {
-        grouped.add(dateStr);
+        slivers.add(
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 8.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dateStr,
+                    style: AppTexts.bodyMedium.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(
+                    height: 1.h,
+                    color: isDark
+                        ? AppColors.borderDark
+                        : AppColors.borderLight,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
         lastDate = dateStr;
       }
-      grouped.add(t);
+
+      // Add the transaction card
+      slivers.add(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: TransactionCard(
+              key: ValueKey('list_${t.id ?? t.rawSms}'),
+              transaction: t,
+              showDate: false,
+              heroTag: 'hero_list_${t.id ?? t.rawSms}',
+            ),
+          ),
+        ),
+      );
     }
-    return grouped;
+
+    return slivers;
   }
 
   String _formatDateHeader(DateTime date) {
@@ -369,20 +412,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final tDate = DateTime(date.year, date.month, date.day);
 
     if (tDate == today) {
-      return "Today, ${DateFormat('MMM dd, yyyy').format(date)}";
+      return "Today";
     } else if (tDate == yesterday) {
-      return "Yesterday, ${DateFormat('MMM dd, yyyy').format(date)}";
+      return "Yesterday";
     } else {
-      return DateFormat('EEEE, MMM dd, yyyy').format(date);
+      return DateFormat('dd MMM').format(date);
     }
-  }
-
-  void _showFilterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const TransactionFilterSheet(),
-    );
   }
 }

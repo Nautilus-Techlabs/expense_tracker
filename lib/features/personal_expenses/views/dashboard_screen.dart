@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
@@ -23,7 +24,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: controller.syncTransactions,
@@ -45,32 +48,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Text(
                           'Good morning,',
                           style: AppTexts.bodyMedium.copyWith(
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
                         Text(
                           'Rahul', // In real app, fetch from profile
                           style: AppTexts.displaySmall.copyWith(
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.all(4.w),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.borderLight, // Using light border for both as per design
-                          width: 1,
+                    GestureDetector(
+                      onTap: () => context.push(AppRouter.profile),
+                      child: Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors
+                                .borderLight, // Using light border for both as per design
+                            width: 1,
+                          ),
                         ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 24.r,
-                        backgroundColor: AppColors.primary,
-                        child: Text(
-                          'RK',
-                          style: AppTexts.bodyLarge.copyWith(color: Colors.white),
+                        child: CircleAvatar(
+                          radius: 24.r,
+                          backgroundColor: AppColors.primary,
+                          child: Text(
+                            'RK',
+                            style: AppTexts.bodyLarge.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -79,7 +92,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 SizedBox(height: 32.h),
 
                 // 2. Total Balance Card
-                _buildTotalBalanceCard(state.globalBalance, state.totalGlobalCredit, state.totalGlobalDebit, isDark),
+                _buildTotalBalanceCard(
+                  state.globalBalance,
+                  state.totalGlobalCredit,
+                  state.totalGlobalDebit,
+                  isDark,
+                ),
                 SizedBox(height: 16.h),
 
                 // 3. Budget Card
@@ -90,23 +108,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   'Today',
                   style: AppTexts.headingMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                 ),
                 SizedBox(height: 16.h),
 
                 // 5. Transactions List (Just take up to 3 for now)
                 if (state.allTransactions.isEmpty)
-                  Center(child: Text("No transactions yet.", style: AppTexts.bodyMedium))
+                  Center(
+                    child: Text(
+                      "No transactions yet.",
+                      style: AppTexts.bodyMedium,
+                    ),
+                  )
                 else
-                  ...state.latestTransactions.take(3).map((tx) => TransactionCard(
-                        transaction: tx,
-                        showDate: false,
-                        heroTag: 'dash_${tx.id ?? tx.rawSms}',
-                      )),
-                
+                  ...state.latestTransactions
+                      .take(3)
+                      .map(
+                        (tx) => TransactionCard(
+                          transaction: tx,
+                          showDate: false,
+                          heroTag: 'dash_${tx.id ?? tx.rawSms}',
+                        ),
+                      ),
+
                 SizedBox(height: 8.h),
-                
+
                 // 6. See all transactions
                 Align(
                   alignment: Alignment.centerRight,
@@ -120,12 +149,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Text(
                           'See all transactions',
                           style: AppTexts.bodyMedium.copyWith(
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         SizedBox(width: 4.w),
-                        Icon(Icons.arrow_forward_rounded, size: 16.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 16.sp,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.primary,
+                        ),
                       ],
                     ),
                   ),
@@ -139,12 +176,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 // 8. Mini Stats (Top Spend / This Week)
                 Row(
                   children: [
-                    Expanded(child: _buildMiniStatCard('Top spend', 'Rent • ₹12,000', isDark)),
+                    Expanded(
+                      child: _buildMiniStatCard(
+                        'Top spend',
+                        'Rent • ₹12,000',
+                        isDark,
+                      ),
+                    ),
                     SizedBox(width: 16.w),
-                    Expanded(child: _buildMiniStatCard('This week', '₹4,200 spent', isDark)),
+                    Expanded(
+                      child: _buildMiniStatCard(
+                        'This week',
+                        '₹4,200 spent',
+                        isDark,
+                      ),
+                    ),
                   ],
                 ),
-                
+
                 SizedBox(height: 100.h), // Bottom padding for FAB and Nav
               ],
             ),
@@ -154,13 +203,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildTotalBalanceCard(double balance, double income, double expense, bool isDark) {
+  Widget _buildTotalBalanceCard(
+    double balance,
+    double income,
+    double expense,
+    bool isDark,
+  ) {
     return Container(
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : AppColors.cardLight,
         borderRadius: BorderRadius.circular(32.r),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +230,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Total balance',
                     style: AppTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -184,11 +242,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Text(
                         '₹${balance.toStringAsFixed(0)}',
                         style: AppTexts.displayMedium.copyWith(
-                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       SizedBox(width: 8.w),
-                      Icon(Icons.visibility_outlined, size: 20.sp, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                      Icon(
+                        Icons.visibility_outlined,
+                        size: 20.sp,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
                     ],
                   ),
                 ],
@@ -203,13 +269,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: CircularProgressIndicator(
                       value: 0.8,
                       strokeWidth: 6.w,
-                      backgroundColor: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      backgroundColor: isDark
+                          ? AppColors.borderDark
+                          : AppColors.borderLight,
                       color: AppColors.primary,
                     ),
                   ),
                   Text(
                     '80%',
-                    style: AppTexts.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                    style: AppTexts.bodySmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -225,13 +295,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Income',
                     style: AppTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   Row(
                     children: [
-                      Icon(Icons.arrow_upward_rounded, size: 16.sp, color: AppColors.income),
+                      Icon(
+                        Icons.arrow_upward_rounded,
+                        size: 16.sp,
+                        color: AppColors.income,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         '₹${income.toStringAsFixed(0)}',
@@ -247,13 +323,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Expense',
                     style: AppTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   Row(
                     children: [
-                      Icon(Icons.arrow_downward_rounded, size: 16.sp, color: AppColors.expense),
+                      Icon(
+                        Icons.arrow_downward_rounded,
+                        size: 16.sp,
+                        color: AppColors.expense,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         '₹${expense.toStringAsFixed(0)}',
@@ -287,7 +369,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Text(
                 '₹32,000 / ₹40,000',
                 style: AppTexts.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -298,7 +382,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: LinearProgressIndicator(
               value: 0.8,
               minHeight: 8.h,
-              backgroundColor: isDark ? AppColors.borderDark : AppColors.borderLight,
+              backgroundColor: isDark
+                  ? AppColors.borderDark
+                  : AppColors.borderLight,
               color: AppColors.primary,
             ),
           ),
@@ -326,13 +412,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'You are owed',
                     style: AppTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     '₹2,400',
-                    style: AppTexts.amountIncome.copyWith(fontSize: 20.sp), // Slightly smaller than Large
+                    style: AppTexts.amountIncome.copyWith(
+                      fontSize: 20.sp,
+                    ), // Slightly smaller than Large
                   ),
                 ],
               ),
@@ -347,7 +437,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'You owe',
                     style: AppTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   SizedBox(height: 4.h),
@@ -363,7 +455,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           SizedBox(height: 24.h),
           GestureDetector(
             onTap: () {
-              ref.read(navigationIndexProvider.notifier).state = 2; // Go to circles
+              ref.read(navigationIndexProvider.notifier).state =
+                  2; // Go to circles
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -371,12 +464,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   'View circles',
                   style: AppTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(width: 4.w),
-                Icon(Icons.arrow_forward_rounded, size: 16.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16.sp,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                ),
               ],
             ),
           ),
@@ -391,7 +490,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +500,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Text(
             title,
             style: AppTexts.bodyMedium.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ),
           SizedBox(height: 12.h),

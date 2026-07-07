@@ -7,13 +7,16 @@ import '../../../core/navigation_provider.dart';
 import 'circles_screen.dart';
 import 'dashboard_screen.dart';
 import 'reports_screen.dart';
+import 'settings_screen.dart';
 import 'transaction_list_screen.dart';
-import 'add_transaction_screen.dart'; // Add transaction is now a bottom sheet, but we might just show modal from here.
+import 'add_transaction_screen.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
-  final List<Widget> _screens = const [
+  // Index map (skipping FAB at position 2):
+  // 0 → Home, 1 → Transactions, [FAB], 2 → Circles, 3 → Reports, 4 → Profile
+  static const _screens = [
     DashboardScreen(),
     TransactionListScreen(),
     CirclesScreen(),
@@ -21,22 +24,11 @@ class MainScreen extends ConsumerWidget {
   ];
 
   void _showAddTransactionBottomSheet(BuildContext context) {
-    // In Phase 3, AddTransactionScreen will be a bottom sheet.
-    // For now, we can show a placeholder or navigate.
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark 
-              ? AppColors.backgroundDark 
-              : AppColors.backgroundLight,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        ),
-        child: const Center(child: Text("Add Transaction Bottom Sheet")),
-      ),
+      builder: (context) => const AddTransactionBottomSheet(),
     );
   }
 
@@ -48,13 +40,13 @@ class MainScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: IndexedStack(
-        index: selectedIndex > 1 ? selectedIndex - 1 : selectedIndex, // Adjusted for the FAB hole
+        index: selectedIndex,
         children: _screens,
       ),
       floatingActionButton: Container(
         height: 56.w,
         width: 56.w,
-        margin: EdgeInsets.only(top: 30.h), // Push down to overlap nav bar properly
+        margin: EdgeInsets.only(top: 30.h),
         child: FloatingActionButton(
           onPressed: () => _showAddTransactionBottomSheet(context),
           backgroundColor: AppColors.primary,
@@ -68,7 +60,8 @@ class MainScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCustomNavBar(BuildContext context, WidgetRef ref, bool isDark, int selectedIndex) {
+  Widget _buildCustomNavBar(
+      BuildContext context, WidgetRef ref, bool isDark, int selectedIndex) {
     return BottomAppBar(
       color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       elevation: 0,
@@ -79,7 +72,7 @@ class MainScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight, 
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
               width: 1,
             ),
           ),
@@ -87,7 +80,7 @@ class MainScreen extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Left side
+            // Left side: Home + Transactions
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -97,21 +90,23 @@ class MainScreen extends ConsumerWidget {
                     activeIcon: Icons.home_rounded,
                     label: 'Home',
                     isSelected: selectedIndex == 0,
-                    onTap: () => ref.read(navigationIndexProvider.notifier).state = 0,
+                    onTap: () =>
+                        ref.read(navigationIndexProvider.notifier).state = 0,
                   ),
                   _NavBarItem(
                     icon: Icons.account_balance_wallet_outlined,
                     activeIcon: Icons.account_balance_wallet_rounded,
                     label: 'Transactions',
                     isSelected: selectedIndex == 1,
-                    onTap: () => ref.read(navigationIndexProvider.notifier).state = 1,
+                    onTap: () =>
+                        ref.read(navigationIndexProvider.notifier).state = 1,
                   ),
                 ],
               ),
             ),
             // Center space for FAB
-            SizedBox(width: 48.w),
-            // Right side
+            SizedBox(width: 56.w),
+            // Right side: Circles + Reports + Profile
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -121,14 +116,16 @@ class MainScreen extends ConsumerWidget {
                     activeIcon: Icons.group_rounded,
                     label: 'Circles',
                     isSelected: selectedIndex == 2,
-                    onTap: () => ref.read(navigationIndexProvider.notifier).state = 2,
+                    onTap: () =>
+                        ref.read(navigationIndexProvider.notifier).state = 2,
                   ),
                   _NavBarItem(
                     icon: Icons.bar_chart_outlined,
                     activeIcon: Icons.bar_chart_rounded,
                     label: 'Reports',
                     isSelected: selectedIndex == 3,
-                    onTap: () => ref.read(navigationIndexProvider.notifier).state = 3,
+                    onTap: () =>
+                        ref.read(navigationIndexProvider.notifier).state = 3,
                   ),
                 ],
               ),

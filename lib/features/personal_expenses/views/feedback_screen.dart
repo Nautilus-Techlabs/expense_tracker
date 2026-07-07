@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/ui_helpers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/primary_button.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -15,7 +15,10 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   final TextEditingController _feedbackController = TextEditingController();
+  String _selectedType = 'Suggestion';
   bool _isSending = false;
+
+  final List<String> _feedbackTypes = ['Bug Report', 'Suggestion', 'Feature Request', 'Other'];
 
   @override
   void dispose() {
@@ -27,52 +30,47 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final feedbackText = _feedbackController.text.trim();
     if (feedbackText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your feedback or suggestion')),
+        const SnackBar(content: Text('Please enter your feedback')),
       );
       return;
     }
 
     setState(() => _isSending = true);
 
-    final Uri emailLaunchUri = Uri(
+    final Uri emailUri = Uri(
       scheme: 'mailto',
       path: 'hi@nautilustechlabs.com',
-      query: encodeQueryParameters(<String, String>{
-        'subject': 'Expense Lite Feedback / Suggestion',
+      query: _encodeQuery({
+        'subject': 'Finia App – $_selectedType',
         'body': feedbackText,
       }),
     );
 
     try {
-      if (await canLaunchUrl(emailLaunchUri)) {
-        await launchUrl(emailLaunchUri);
-        if (mounted) {
-          context.pop();
-        }
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+        if (mounted) context.pop();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open email client. Please email us at hi@nautilustechlabs.com')),
+            const SnackBar(
+              content: Text('Could not open email client. Please email us at hi@nautilustechlabs.com'),
+            ),
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-      }
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
-  String? encodeQueryParameters(Map<String, String> params) {
+  String _encodeQuery(Map<String, String> params) {
     return params.entries
-        .map((MapEntry<String, String> e) =>
-            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
         .join('&');
   }
 
@@ -81,102 +79,169 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.bgDark : AppTheme.bgLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Feedback & Suggestions'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            size: 20.sp,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+          ),
           onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'Feedback',
+          style: AppTexts.heading.copyWith(
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            fontSize: 18.sp,
+          ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'How can we improve?',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w800,
-                color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimaryLight,
-                letterSpacing: -0.5,
+            SizedBox(height: 32.h),
+
+            // ── Icon ──
+            Center(
+              child: Container(
+                width: 72.w,
+                height: 72.w,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(20),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.feedback_outlined, size: 34.sp, color: AppColors.primary),
               ),
             ),
-            UIHelpers.verticalSpace(12),
-            Text(
-              'Share your thoughts, report a bug, or suggest a new feature. Your feedback helps us make Expense Lite better for everyone.',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight,
-                height: 1.5,
+            SizedBox(height: 20.h),
+
+            // ── Title & Subtitle ──
+            Center(
+              child: Text(
+                'How can we improve?',
+                style: AppTexts.displayMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  fontSize: 24.sp,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
-            UIHelpers.verticalSpace(32),
+            SizedBox(height: 8.h),
+            Center(
+              child: Text(
+                'Share your thoughts, report a bug or suggest a new feature.',
+                style: AppTexts.bodyMedium.copyWith(
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 36.h),
+
+            // ── Type Selector ──
+            Text(
+              'Type',
+              style: AppTexts.bodySmall.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: _feedbackTypes.map((type) {
+                final isSelected = _selectedType == type;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedType = type),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary : Colors.transparent,
+                      borderRadius: BorderRadius.circular(24.r),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                      ),
+                    ),
+                    child: Text(
+                      type,
+                      style: AppTexts.bodySmall.copyWith(
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 24.h),
+
+            // ── Message ──
+            Text(
+              'Message',
+              style: AppTexts.bodySmall.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            SizedBox(height: 10.h),
             Container(
               decoration: BoxDecoration(
-                color: isDark ? AppTheme.surfaceDark : Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
+                color: isDark ? AppColors.cardDark : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
-                  color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: TextField(
                 controller: _feedbackController,
-                maxLines: 10,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimaryLight,
+                maxLines: 8,
+                style: AppTexts.bodyMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Type your message here...',
-                  hintStyle: TextStyle(
-                    color: isDark ? AppTheme.textTertiaryDark : AppTheme.textTertiaryLight,
+                  hintStyle: AppTexts.bodyMedium.copyWith(
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                   contentPadding: EdgeInsets.all(20.w),
                   border: InputBorder.none,
                 ),
               ),
             ),
-            UIHelpers.verticalSpace(40),
-            SizedBox(
-              width: double.infinity,
-              height: 56.h,
-              child: ElevatedButton(
-                onPressed: _isSending ? null : _sendFeedback,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryLight,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  elevation: 0,
+            SizedBox(height: 36.h),
+
+            // ── Submit Button ──
+            PrimaryButton(
+              text: 'Send Feedback',
+              isLoading: _isSending,
+              onPressed: _sendFeedback,
+            ),
+            SizedBox(height: 16.h),
+
+            // ── Email fallback ──
+            Center(
+              child: Text(
+                'Or email us at hi@nautilustechlabs.com',
+                style: AppTexts.bodySmall.copyWith(
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
-                child: _isSending
-                    ? SizedBox(
-                        height: 24.h,
-                        width: 24.h,
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        'Send Feedback',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
               ),
             ),
+            SizedBox(height: 40.h),
           ],
         ),
       ),

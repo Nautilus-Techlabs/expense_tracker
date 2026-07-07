@@ -29,14 +29,7 @@ class TransactionIcon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(transactionProvider);
     final iconSize = size ?? 22.sp;
-    // Resolve bank logo path from state config map, then fall back to constants
-    String logoPath = '';
-    if (bankName != null) {
-      logoPath =
-          state.bankLogos[bankName!] ?? AppConstants.getBankLogo(bankName!);
-    }
 
     Widget iconWidget;
 

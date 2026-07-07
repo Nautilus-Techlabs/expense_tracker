@@ -8,6 +8,8 @@ import '../../features/personal_expenses/views/bank_detail_transactions_screen.d
 import '../../features/personal_expenses/views/detailed_transaction.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
+import '../../features/personal_expenses/views/circle_details_screen.dart';
+import '../../features/personal_expenses/views/settings_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -16,6 +18,8 @@ class AppRouter {
   static const String transactionDetail = '/transaction-detail';
   static const String bankTransactions = '/bank-transactions';
   static const String feedback = '/feedback';
+  static const String circleDetails = '/circle-details';
+  static const String profile = '/profile';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -65,6 +69,17 @@ class AppRouter {
       GoRoute(
         path: feedback,
         builder: (context, state) => const FeedbackScreen(),
+      ),
+      GoRoute(
+        path: circleDetails,
+        builder: (context, state) {
+          final circleName = state.extra as String? ?? 'Circle Details';
+          return CircleDetailsScreen(circleName: circleName);
+        },
+      ),
+      GoRoute(
+        path: profile,
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
