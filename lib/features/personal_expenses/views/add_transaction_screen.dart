@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../domain/entities/transaction.dart';
 import '../viewmodels/transaction_notifier.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
@@ -77,7 +78,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 12.h),
+          UIHelpers.verticalSpace(12),
           // Drag Handle
           Center(
             child: Container(
@@ -89,7 +90,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               ),
             ),
           ),
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
           
           // Title & Close Button
           Row(
@@ -108,7 +109,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               ),
             ],
           ),
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
 
           // Segmented Control (Expense / Income / Withdrawal)
           Container(
@@ -131,7 +132,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 40.h),
+                  UIHelpers.verticalSpace(40),
                   
                   // Amount Input
                   Center(
@@ -157,7 +158,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       ],
                     ),
                   ),
-                  SizedBox(height: 40.h),
+                  UIHelpers.verticalSpace(40),
 
                   // Categories
                   Wrap(
@@ -167,7 +168,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       setState(() => _selectedCategory = c);
                     }, isDark)).toList(),
                   ),
-                  SizedBox(height: 32.h),
+                  UIHelpers.verticalSpace(32),
 
                   // Accounts
                   Wrap(
@@ -177,7 +178,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       setState(() => _selectedAccount = a);
                     }, isDark)).toList(),
                   ),
-                  SizedBox(height: 32.h),
+                  UIHelpers.verticalSpace(32),
 
                   // Date Row
                   _buildInputRow(
@@ -227,7 +228,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       ],
                     ),
                   ),
-                  SizedBox(height: 24.h), // Bottom padding before button
+                  UIHelpers.verticalSpace(24), // Bottom padding before button
                 ],
               ),
             ),
@@ -238,7 +239,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
             text: 'Save transaction',
             onPressed: _submit,
           ),
-          SizedBox(height: 32.h),
+          UIHelpers.verticalSpace(32),
         ],
       ),
     );
@@ -313,7 +314,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
       child: Row(
         children: [
           Icon(icon, size: 24.sp, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
-          SizedBox(width: 16.w),
+          UIHelpers.horizontalSpace(16),
           Expanded(child: child),
         ],
       ),

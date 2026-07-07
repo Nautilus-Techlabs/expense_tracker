@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../widgets/set_opening_balance_sheet.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -21,11 +21,11 @@ class SettingsScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // ── Header ──
               Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 24.w, 16.h),
                 child: Row(
                   children: [
                     IconButton(
@@ -35,8 +35,6 @@ class SettingsScreen extends ConsumerWidget {
                         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                       ),
                       onPressed: () => context.pop(),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.centerLeft,
                     ),
                     Expanded(
                       child: Text(
@@ -44,8 +42,8 @@ class SettingsScreen extends ConsumerWidget {
                         style: AppTexts.displayMedium.copyWith(
                           color: isDark
                               ? AppColors.textPrimaryDark
-                              : AppColors.primary,
-                          fontSize: 32.sp,
+                              : AppColors.textPrimaryLight,
+                          fontSize: 28.sp,
                         ),
                       ),
                     ),
@@ -53,149 +51,178 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
 
-              // ── Profile Card ──
+              // ── Profile Avatar & Info ──
+              UIHelpers.verticalSpace(16),
+              Container(
+                width: 72.w,
+                height: 72.w,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'RK',
+                  style: AppTexts.displayMedium.copyWith(
+                    color: Colors.white,
+                    fontSize: 24.sp,
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(16),
+              Text(
+                'Rahul Kumar',
+                style: AppTexts.displayMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
+                  fontSize: 20.sp,
+                ),
+              ),
+              UIHelpers.verticalSpace(4),
+              Text(
+                'rahul@gmail.com',
+                style: AppTexts.bodyMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+              UIHelpers.verticalSpace(12),
+              GestureDetector(
+                onTap: () {},
+                child: Text(
+                  'Edit profile',
+                  style: AppTexts.bodySmall.copyWith(
+                    color: isDark ? const Color(0xFFA3C2A4) : AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(32),
+
+              // ── Stats Section (Accounts / Circles) ──
+              Container(
+                color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF6F6F0),
+                padding: EdgeInsets.symmetric(vertical: 24.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'ACCOUNTS',
+                            style: AppTexts.bodySmall.copyWith(
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          Text(
+                            '4',
+                            style: AppTexts.displayMedium.copyWith(
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
+                              fontSize: 18.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40.h,
+                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'CIRCLES',
+                            style: AppTexts.bodySmall.copyWith(
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          Text(
+                            '3',
+                            style: AppTexts.displayMedium.copyWith(
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
+                              fontSize: 18.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              UIHelpers.verticalSpace(32),
+
+              // ── List Sections ──
+              _buildSectionHeader('PREFERENCES', isDark),
+              _buildListItem(icon: Icons.notifications_none_rounded, title: 'Notifications', isDark: isDark),
+              _buildListItem(icon: Icons.dark_mode_outlined, title: 'Appearance', trailingText: isDark ? 'Dark' : 'Light', isDark: isDark),
+              _buildListItem(icon: Icons.lock_outline_rounded, title: 'Privacy & Security', isDark: isDark),
+              
+              UIHelpers.verticalSpace(16),
+              _buildSectionHeader('FINANCE', isDark),
+              _buildListItem(icon: Icons.track_changes_rounded, title: 'Monthly budget', trailingText: '₹40,000', isDark: isDark),
+              _buildListItem(icon: Icons.account_balance_wallet_outlined, title: 'Accounts', isDark: isDark),
+              _buildListItem(icon: Icons.local_offer_outlined, title: 'Categories', isDark: isDark),
+
+              UIHelpers.verticalSpace(16),
+              _buildSectionHeader('CIRCLES', isDark),
+              _buildListItem(icon: Icons.group_outlined, title: 'My circles', isDark: isDark),
+              _buildListItem(icon: Icons.notifications_active_outlined, title: 'Circle notifications', isDark: isDark),
+
+              UIHelpers.verticalSpace(16),
+              _buildSectionHeader('DATA', isDark),
+              _buildListItem(icon: Icons.download_rounded, title: 'Export data', trailingText: 'CSV / PDF', isDark: isDark),
+              _buildListItem(icon: Icons.sync_rounded, title: 'Sync status', trailingText: 'Last synced: 2 min ago', isDark: isDark),
+
+              UIHelpers.verticalSpace(16),
+              _buildSectionHeader('SUPPORT', isDark),
+              _buildListItem(icon: Icons.help_outline_rounded, title: 'Help & FAQ', isDark: isDark),
+              _buildListItem(icon: Icons.star_border_rounded, title: 'Rate Finia', isDark: isDark),
+              _buildListItem(icon: Icons.info_outline_rounded, title: 'About', trailingText: 'v1.0.0', isDark: isDark),
+
+              UIHelpers.verticalSpace(48),
+
+              // ── Log Out Button ──
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Container(
-                  padding: EdgeInsets.all(20.w),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.cardDark : Colors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: isDark
-                          ? AppColors.borderDark
-                          : AppColors.borderLight,
+                child: OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: isDark ? const Color(0xFF333333) : const Color(0xFFE5E5E5)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.r),
+                    ),
+                    minimumSize: Size(double.infinity, 56.h),
+                  ),
+                  child: Text(
+                    'Log out',
+                    style: AppTexts.bodyMedium.copyWith(
+                      color: AppColors.expense,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      // Avatar
-                      Container(
-                        width: 60.w,
-                        height: 60.w,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'RK',
-                          style: AppTexts.bodyLarge.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Rahul Kumar',
-                              style: AppTexts.bodyLarge.copyWith(
-                                color: isDark
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.textPrimaryLight,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18.sp,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              'rahul@example.com',
-                              style: AppTexts.bodySmall.copyWith(
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 20.sp,
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ],
-                  ),
                 ),
               ),
-              SizedBox(height: 32.h),
-
-              // ── Settings Section ──
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Text(
-                  'Settings',
-                  style: AppTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              SizedBox(height: 12.h),
-              _buildGroup(context, isDark, [
-                _SettingItem(
-                  icon: Icons.account_balance_outlined,
-                  title: 'Opening Balances',
-                  subtitle: 'Set initial balances for your accounts',
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => const SetOpeningBalanceSheet(),
-                  ),
-                ),
-                _SettingItem(
-                  icon: Icons.notifications_none_rounded,
-                  title: 'Notifications',
-                  subtitle: 'Configure SMS sync alerts',
-                ),
-                _SettingItem(
-                  icon: Icons.security_rounded,
-                  title: 'Privacy & Security',
-                  subtitle: 'Biometric lock and data privacy',
-                ),
-              ]),
-              SizedBox(height: 24.h),
-
-              // ── Support Section ──
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Text(
-                  'Support',
-                  style: AppTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              SizedBox(height: 12.h),
-              _buildGroup(context, isDark, [
-                _SettingItem(
-                  icon: Icons.feedback_outlined,
-                  title: 'Feedback & Suggestions',
-                  subtitle: 'Help us improve the app',
-                  onTap: () => context.push('/feedback'),
-                ),
-                _SettingItem(
-                  icon: Icons.help_outline_rounded,
-                  title: 'Help & Support',
-                  subtitle: 'FAQs and contact support',
-                ),
-              ]),
-              SizedBox(height: 100.h),
+              UIHelpers.verticalSpace(64),
             ],
           ),
         ),
@@ -203,119 +230,77 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroup(
-    BuildContext context,
-    bool isDark,
-    List<_SettingItem> items,
-  ) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24.w),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
-        ),
-      ),
-      child: Column(
-        children: items.asMap().entries.map((e) {
-          final index = e.key;
-          final item = e.value;
-          final isLast = index == items.length - 1;
-          return _buildRow(context, isDark, item, isLast);
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildRow(
-    BuildContext context,
-    bool isDark,
-    _SettingItem item,
-    bool isLast,
-  ) {
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-
-    return Column(
-      children: [
-        InkWell(
-          onTap: item.onTap ?? () {},
-          borderRadius: isLast
-              ? BorderRadius.vertical(bottom: Radius.circular(20.r))
-              : BorderRadius.zero,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-            child: Row(
-              children: [
-                Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Icon(item.icon, size: 20.sp, color: AppColors.primary),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: AppTexts.bodyMedium.copyWith(
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        item.subtitle,
-                        style: AppTexts.bodySmall.copyWith(
-                          color: isDark
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20.sp,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
-              ],
+  Widget _buildSectionHeader(String title, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: AppTexts.bodySmall.copyWith(
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
             ),
           ),
-        ),
-        if (!isLast)
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: borderColor,
-            indent: 20.w,
-            endIndent: 20.w,
+          UIHelpers.horizontalSpace(16),
+          Expanded(
+            child: Container(
+              height: 1,
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
           ),
-      ],
+        ],
+      ),
     );
   }
-}
 
-class _SettingItem {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  const _SettingItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-  });
+  Widget _buildListItem({
+    required IconData icon,
+    required String title,
+    String? trailingText,
+    required bool isDark,
+  }) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 24.sp,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            ),
+            UIHelpers.horizontalSpace(16),
+            Expanded(
+              child: Text(
+                title,
+                style: AppTexts.bodyMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (trailingText != null) ...[
+              Text(
+                trailingText,
+                style: AppTexts.bodySmall.copyWith(
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  fontSize: 11.sp,
+                ),
+              ),
+              UIHelpers.horizontalSpace(8),
+            ],
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 16.sp,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

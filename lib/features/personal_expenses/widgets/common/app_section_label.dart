@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class AppSectionLabel extends StatelessWidget {
   final String text;
@@ -25,7 +26,7 @@ class AppSectionLabel extends StatelessWidget {
               size: 14.sp,
               color: colorScheme.onSurface.withValues(alpha: 0.4),
             ),
-            SizedBox(width: 6.w),
+            UIHelpers.horizontalSpace(6),
           ],
           Text(
             text,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../../../core/theme/app_theme.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DateTimePickerRow extends StatelessWidget {
   final DateTime selectedDate;
@@ -71,7 +72,7 @@ class DateTimePickerRow extends StatelessWidget {
             colorScheme: colorScheme,
           ),
         ),
-        SizedBox(width: 16.w),
+        UIHelpers.horizontalSpace(16),
         Expanded(
           child: _PickerButton(
             label: DateFormat('hh:mm a').format(selectedDate),
@@ -113,7 +114,7 @@ class _PickerButton extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 18.sp, color: colorScheme.primary),
-            SizedBox(width: 8.w),
+            UIHelpers.horizontalSpace(8),
             Expanded(
               child: Text(
                 label,

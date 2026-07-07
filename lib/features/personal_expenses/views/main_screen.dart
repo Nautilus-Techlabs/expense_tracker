@@ -7,9 +7,9 @@ import '../../../core/navigation_provider.dart';
 import 'circles_screen.dart';
 import 'dashboard_screen.dart';
 import 'reports_screen.dart';
-import 'settings_screen.dart';
 import 'transaction_list_screen.dart';
 import 'add_transaction_screen.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -105,7 +105,7 @@ class MainScreen extends ConsumerWidget {
               ),
             ),
             // Center space for FAB
-            SizedBox(width: 56.w),
+            UIHelpers.horizontalSpace(56),
             // Right side: Circles + Reports + Profile
             Expanded(
               child: Row(
@@ -170,7 +170,7 @@ class _NavBarItem extends StatelessWidget {
             color: isSelected ? activeColor : inactiveColor,
             size: 24.sp,
           ),
-          SizedBox(height: 4.h),
+          UIHelpers.verticalSpace(4),
           Text(
             label,
             style: AppTexts.navLabel.copyWith(

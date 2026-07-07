@@ -286,7 +286,7 @@ class _FilterChip extends StatelessWidget {
                   ),
                 ),
                 if (sublabel != null) ...[
-                  SizedBox(height: 1.h),
+                  UIHelpers.verticalSpace(1),
                   Text(
                     sublabel!,
                     style: TextStyle(

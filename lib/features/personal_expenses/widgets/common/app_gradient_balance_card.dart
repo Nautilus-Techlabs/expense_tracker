@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_theme.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class AppGradientBalanceCard extends StatelessWidget {
   final double balance;
@@ -61,7 +62,7 @@ class AppGradientBalanceCard extends StatelessWidget {
               ?trailing,
             ],
           ),
-          SizedBox(height: 8.h),
+          UIHelpers.verticalSpace(8),
           Text(
             '₹${balance.toStringAsFixed(2)}',
             style: TextStyle(

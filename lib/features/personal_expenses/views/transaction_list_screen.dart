@@ -9,6 +9,7 @@ import '../../../../domain/entities/transaction.dart';
 import '../../../../domain/entities/category.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -152,7 +153,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                 ? AppColors.textPrimaryDark
                                 : AppColors.primary,
                           ),
-                          SizedBox(width: 16.w),
+                          UIHelpers.horizontalSpace(16),
                           Icon(
                             Icons.search_rounded,
                             size: 28.sp,
@@ -251,7 +252,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              SizedBox(height: 4.h),
+                              UIHelpers.verticalSpace(4),
                               Row(
                                 children: [
                                   Text(
@@ -260,7 +261,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                       fontSize: 20.sp,
                                     ),
                                   ),
-                                  SizedBox(width: 4.w),
+                                  UIHelpers.horizontalSpace(4),
                                   Icon(
                                     Icons.arrow_upward_rounded,
                                     size: 16.sp,
@@ -293,7 +294,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                SizedBox(height: 4.h),
+                                UIHelpers.verticalSpace(4),
                                 Row(
                                   children: [
                                     Text(
@@ -302,7 +303,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                         fontSize: 20.sp,
                                       ),
                                     ),
-                                    SizedBox(width: 4.w),
+                                    UIHelpers.horizontalSpace(4),
                                     Icon(
                                       Icons.arrow_downward_rounded,
                                       size: 16.sp,
@@ -371,7 +372,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  UIHelpers.verticalSpace(8),
                   Container(
                     height: 1.h,
                     color: isDark

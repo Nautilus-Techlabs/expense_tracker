@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -150,7 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 32.h),
+                  UIHelpers.verticalSpace(32),
 
                   // CTA Button
                   PrimaryButton(
@@ -165,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                   // Skip Button (only show if not on last page)
                   if (_currentPage < _pages.length - 1) ...[
-                    SizedBox(height: 16.h),
+                    UIHelpers.verticalSpace(16),
                     TextButton(
                       onPressed: () => _pageController.animateToPage(
                         _pages.length - 1,
@@ -182,7 +183,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ),
                   ] else ...[
-                    SizedBox(height: 16.h + 48.h), // Maintain layout height when skip button is hidden
+                    UIHelpers.verticalSpace(16.h + 48), // Maintain layout height when skip button is hidden
                   ],
                 ],
               ),
@@ -243,7 +244,7 @@ class _OnboardingPage extends StatelessWidget {
             ),
           ),
           
-          SizedBox(height: 48.h),
+          UIHelpers.verticalSpace(48),
           
           // Headline (Playfair Display equivalent)
           Text(
@@ -254,7 +255,7 @@ class _OnboardingPage extends StatelessWidget {
             ),
           ),
           
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           
           // Subline (Inter)
           Text(

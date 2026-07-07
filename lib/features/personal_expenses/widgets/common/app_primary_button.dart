@@ -58,7 +58,7 @@ class AppPrimaryButton extends StatelessWidget {
                 children: [
                   if (icon != null) ...[
                     Icon(icon, size: 20.sp),
-                    SizedBox(width: 8.w),
+                    UIHelpers.horizontalSpace(8),
                   ],
                   Text(
                     label,

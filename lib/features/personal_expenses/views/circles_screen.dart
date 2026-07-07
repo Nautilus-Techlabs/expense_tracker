@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 // ─── Data Models (local, until a real backend is wired up) ────────────────────
 
@@ -107,7 +108,7 @@ class CirclesScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 24.h),
+                    UIHelpers.verticalSpace(24),
 
                     // ── Header ──────────────────────────────────────────
                     Padding(
@@ -128,17 +129,17 @@ class CirclesScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    UIHelpers.verticalSpace(20),
 
                     // ── Owed / Owe Summary ───────────────────────────────
                     _SummaryBanner(isDark: isDark),
-                    SizedBox(height: 24.h),
+                    UIHelpers.verticalSpace(24),
 
                     // ── Circle Cards ─────────────────────────────────────
                     ..._circles.map(
                       (c) => _CircleCard(circle: c, isDark: isDark),
                     ),
-                    SizedBox(height: 16.h),
+                    UIHelpers.verticalSpace(16),
                   ],
                 ),
               ),
@@ -259,7 +260,7 @@ class _SummaryBanner extends StatelessWidget {
                   size: 16.sp,
                   color: AppColors.income,
                 ),
-                SizedBox(width: 6.w),
+                UIHelpers.horizontalSpace(6),
                 Text(
                   'YOU ARE OWED ₹2,400',
                   style: AppTexts.bodySmall.copyWith(
@@ -270,7 +271,7 @@ class _SummaryBanner extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 4.h),
+            UIHelpers.verticalSpace(4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -279,7 +280,7 @@ class _SummaryBanner extends StatelessWidget {
                   size: 16.sp,
                   color: AppColors.expense,
                 ),
-                SizedBox(width: 6.w),
+                UIHelpers.horizontalSpace(6),
                 Text(
                   'YOU OWE ₹800',
                   style: AppTexts.bodySmall.copyWith(
@@ -334,7 +335,7 @@ class _CircleCard extends StatelessWidget {
                 _MemberAvatarStack(members: circle.members),
               ],
             ),
-            SizedBox(height: 12.h),
+            UIHelpers.verticalSpace(12),
 
             // ── Name + chevron ──
             Row(
@@ -360,7 +361,7 @@ class _CircleCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 4.h),
+            UIHelpers.verticalSpace(4),
 
             // ── Member count ──
             Row(
@@ -372,7 +373,7 @@ class _CircleCard extends StatelessWidget {
                       ? AppColors.textSecondaryDark
                       : AppColors.textSecondaryLight,
                 ),
-                SizedBox(width: 6.w),
+                UIHelpers.horizontalSpace(6),
                 Text(
                   '${circle.members.length} members',
                   style: AppTexts.bodySmall.copyWith(
@@ -383,7 +384,7 @@ class _CircleCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            UIHelpers.verticalSpace(20),
 
             // ── Amount stats ──
             if (isOneTime) ...[
@@ -397,7 +398,7 @@ class _CircleCard extends StatelessWidget {
                         ? AppColors.textPrimaryDark
                         : AppColors.textPrimaryLight,
                   ),
-                  SizedBox(width: 32.w),
+                  UIHelpers.horizontalSpace(32),
                   _StatColumn(
                     label: 'Pending',
                     value: '₹${circle.pending!.toStringAsFixed(0)}',
@@ -406,7 +407,7 @@ class _CircleCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16.h),
+              UIHelpers.verticalSpace(16),
               // Settlement progress
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -431,7 +432,7 @@ class _CircleCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 8.h),
+              UIHelpers.verticalSpace(8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4.r),
                 child: LinearProgressIndicator(
@@ -456,7 +457,7 @@ class _CircleCard extends StatelessWidget {
                         ? AppColors.textPrimaryDark
                         : AppColors.textPrimaryLight,
                   ),
-                  SizedBox(width: 32.w),
+                  UIHelpers.horizontalSpace(32),
                   if (circle.yourShare != null)
                     _StatColumn(
                       label: 'Your share',
@@ -476,12 +477,12 @@ class _CircleCard extends StatelessWidget {
                 ],
               ),
               if (circle.lastActivity.isNotEmpty) ...[
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
                 Divider(
                   height: 1,
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,
                 ),
-                SizedBox(height: 12.h),
+                UIHelpers.verticalSpace(12),
                 Row(
                   children: [
                     Icon(
@@ -493,7 +494,7 @@ class _CircleCard extends StatelessWidget {
                           ? AppColors.textSecondaryDark
                           : AppColors.textSecondaryLight,
                     ),
-                    SizedBox(width: 6.w),
+                    UIHelpers.horizontalSpace(6),
                     Text(
                       'Last activity: ${circle.lastActivity}',
                       style: AppTexts.bodySmall.copyWith(
@@ -659,7 +660,7 @@ class _StatColumn extends StatelessWidget {
                 : AppColors.textSecondaryLight,
           ),
         ),
-        SizedBox(height: 4.h),
+        UIHelpers.verticalSpace(4),
         Text(
           value,
           style: AppTexts.bodyLarge.copyWith(

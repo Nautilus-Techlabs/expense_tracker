@@ -9,6 +9,7 @@ import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/notification_service.dart';
 import '../viewmodels/transaction_notifier.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -94,7 +95,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 24.h),
+            UIHelpers.verticalSpace(24),
             Text(
               'Finia',
               style: AppTexts.displayLarge.copyWith(

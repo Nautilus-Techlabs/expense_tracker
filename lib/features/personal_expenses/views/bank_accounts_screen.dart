@@ -9,6 +9,7 @@ import '../../../core/constants/app_constants.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../viewmodels/transaction_state.dart';
 import '../widgets/common/bank_logo_avatar.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class BankAccountsScreen extends ConsumerWidget {
   const BankAccountsScreen({super.key});
@@ -62,7 +63,7 @@ class BankAccountsScreen extends ConsumerWidget {
                             color: Colors.white.withAlpha(180),
                           ),
                         ),
-                        SizedBox(height: 8.h),
+                        UIHelpers.verticalSpace(8),
                         Text(
                           '₹${state.globalBalance.toStringAsFixed(0)}',
                           style: AppTexts.displayLarge.copyWith(
@@ -71,7 +72,7 @@ class BankAccountsScreen extends ConsumerWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        SizedBox(height: 16.h),
+                        UIHelpers.verticalSpace(16),
                         Row(
                           children: [
                             _buildBalanceStat(
@@ -79,7 +80,7 @@ class BankAccountsScreen extends ConsumerWidget {
                               value: '₹${state.totalGlobalCredit.toStringAsFixed(0)}',
                               icon: Icons.arrow_upward_rounded,
                             ),
-                            SizedBox(width: 24.w),
+                            UIHelpers.horizontalSpace(24),
                             _buildBalanceStat(
                               label: 'Expenses',
                               value: '₹${state.totalGlobalDebit.toStringAsFixed(0)}',
@@ -92,7 +93,7 @@ class BankAccountsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+              SliverToBoxAdapter(child: UIHelpers.verticalSpace(32)),
 
               // ── Section Label ──
               SliverToBoxAdapter(
@@ -108,7 +109,7 @@ class BankAccountsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              SliverToBoxAdapter(child: SizedBox(height: 12.h)),
+              SliverToBoxAdapter(child: UIHelpers.verticalSpace(12)),
 
               // ── Account List ──
               if (accounts.isEmpty)
@@ -120,7 +121,7 @@ class BankAccountsScreen extends ConsumerWidget {
                       children: [
                         Icon(Icons.account_balance_outlined, size: 48.sp,
                             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
-                        SizedBox(height: 16.h),
+                        UIHelpers.verticalSpace(16),
                         Text(
                           'No bank accounts detected yet.\nSync your SMS to get started.',
                           style: AppTexts.bodyMedium.copyWith(
@@ -171,7 +172,7 @@ class BankAccountsScreen extends ConsumerWidget {
     return Row(
       children: [
         Icon(icon, color: Colors.white.withAlpha(200), size: 16.sp),
-        SizedBox(width: 6.w),
+        UIHelpers.horizontalSpace(6),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -223,7 +224,7 @@ class _AccountCard extends StatelessWidget {
               size: 24,
               fallbackColor: AppColors.primary,
             ),
-            SizedBox(width: 16.w),
+            UIHelpers.horizontalSpace(16),
 
             // Bank name + last activity
             Expanded(
@@ -237,7 +238,7 @@ class _AccountCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Text(
                     lastTxDate != null
                         ? 'Last activity ${DateFormat('dd MMM').format(lastTxDate!)}'
@@ -261,7 +262,7 @@ class _AccountCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                UIHelpers.verticalSpace(2),
                 Text(
                   'Balance',
                   style: AppTexts.bodySmall.copyWith(
@@ -271,7 +272,7 @@ class _AccountCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(width: 8.w),
+            UIHelpers.horizontalSpace(8),
             Icon(Icons.chevron_right_rounded, size: 20.sp,
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
           ],

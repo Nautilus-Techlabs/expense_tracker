@@ -61,7 +61,7 @@ class TransactionCard extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 16.w),
+            UIHelpers.horizontalSpace(16),
             
             // Details
             Expanded(
@@ -77,7 +77,7 @@ class TransactionCard extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Text(
                     _getSubtitle(),
                     style: AppTexts.bodySmall.copyWith(
@@ -97,7 +97,7 @@ class TransactionCard extends ConsumerWidget {
                   style: isDebit ? AppTexts.amountExpense : AppTexts.amountIncome,
                 ),
                 if (transaction.bankName.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Text(
                     transaction.bankName,
                     style: AppTexts.bodySmall.copyWith(

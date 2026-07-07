@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/primary_button.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -105,7 +106,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 32.h),
+            UIHelpers.verticalSpace(32),
 
             // ── Icon ──
             Center(
@@ -116,10 +117,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   color: AppColors.primary.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.feedback_outlined, size: 34.sp, color: AppColors.primary),
+                child: Icon(Icons.feedback_outlined, size: 34.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
               ),
             ),
-            SizedBox(height: 20.h),
+            UIHelpers.verticalSpace(20),
 
             // ── Title & Subtitle ──
             Center(
@@ -132,7 +133,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 8.h),
+            UIHelpers.verticalSpace(8),
             Center(
               child: Text(
                 'Share your thoughts, report a bug or suggest a new feature.',
@@ -143,7 +144,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 36.h),
+            UIHelpers.verticalSpace(36),
 
             // ── Type Selector ──
             Text(
@@ -154,7 +155,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-            SizedBox(height: 10.h),
+            UIHelpers.verticalSpace(10),
             Wrap(
               spacing: 8.w,
               runSpacing: 8.h,
@@ -186,7 +187,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 24.h),
+            UIHelpers.verticalSpace(24),
 
             // ── Message ──
             Text(
@@ -197,7 +198,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-            SizedBox(height: 10.h),
+            UIHelpers.verticalSpace(10),
             Container(
               decoration: BoxDecoration(
                 color: isDark ? AppColors.cardDark : Colors.white,
@@ -222,7 +223,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 36.h),
+            UIHelpers.verticalSpace(36),
 
             // ── Submit Button ──
             PrimaryButton(
@@ -230,7 +231,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               isLoading: _isSending,
               onPressed: _sendFeedback,
             ),
-            SizedBox(height: 16.h),
+            UIHelpers.verticalSpace(16),
 
             // ── Email fallback ──
             Center(
@@ -241,7 +242,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 40.h),
+            UIHelpers.verticalSpace(40),
           ],
         ),
       ),

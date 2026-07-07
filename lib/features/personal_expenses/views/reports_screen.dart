@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_constants.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key});
@@ -45,7 +46,7 @@ class ReportsScreen extends StatelessWidget {
                             size: 20.sp,
                             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                           ),
-                          SizedBox(width: 8.w),
+                          UIHelpers.horizontalSpace(8),
                           Text(
                             'Jun 2024',
                             style: AppTexts.bodyMedium.copyWith(
@@ -53,7 +54,7 @@ class ReportsScreen extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(width: 8.w),
+                          UIHelpers.horizontalSpace(8),
                           Icon(
                             Icons.chevron_right_rounded,
                             size: 20.sp,
@@ -93,19 +94,19 @@ class ReportsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 32.h),
+              UIHelpers.verticalSpace(32),
 
               // ── Monthly Trend Card ──
               _MonthlyTrendCard(isDark: isDark),
-              SizedBox(height: 16.h),
+              UIHelpers.verticalSpace(16),
 
               // ── Spending Breakdown Card ──
               _SpendingBreakdownCard(isDark: isDark),
-              SizedBox(height: 16.h),
+              UIHelpers.verticalSpace(16),
 
               // ── By Account Card ──
               _ByAccountCard(isDark: isDark),
-              SizedBox(height: 120.h), // Bottom padding for nav bar
+              UIHelpers.verticalSpace(120), // Bottom padding for nav bar
             ],
           ),
         ),
@@ -140,7 +141,7 @@ class _StatItem extends StatelessWidget {
             letterSpacing: 0.8,
           ),
         ),
-        SizedBox(height: 8.h),
+        UIHelpers.verticalSpace(8),
         Text(
           amount,
           style: AppTexts.displayMedium.copyWith(
@@ -178,7 +179,7 @@ class _MonthlyTrendCard extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 32.h),
+          UIHelpers.verticalSpace(32),
           SizedBox(
             height: 150.h,
             child: Row(
@@ -194,12 +195,12 @@ class _MonthlyTrendCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _LegendItem(color: AppColors.income, label: 'Income', isDark: isDark),
-              SizedBox(width: 24.w),
+              UIHelpers.horizontalSpace(24),
               _LegendItem(color: AppColors.expense, label: 'Expense', isDark: isDark),
             ],
           ),
@@ -240,7 +241,7 @@ class _BarGroup extends StatelessWidget {
               height: 120.h * incomePercent,
               color: incomeColor,
             ),
-            SizedBox(width: 4.w),
+            UIHelpers.horizontalSpace(4),
             Container(
               width: 8.w,
               height: 120.h * expensePercent,
@@ -248,7 +249,7 @@ class _BarGroup extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12.h),
+        UIHelpers.verticalSpace(12),
         Text(
           label,
           style: AppTexts.bodySmall.copyWith(
@@ -279,7 +280,7 @@ class _LegendItem extends StatelessWidget {
           height: 8.w,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        SizedBox(width: 6.w),
+        UIHelpers.horizontalSpace(6),
         Text(
           label,
           style: AppTexts.bodySmall.copyWith(
@@ -323,7 +324,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 32.h),
+          UIHelpers.verticalSpace(32),
 
           // Donut Chart
           Center(
@@ -369,20 +370,20 @@ class _SpendingBreakdownCard extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 32.h),
+          UIHelpers.verticalSpace(32),
 
           // List Items
           _BreakdownItem(color: rentColor, label: 'Rent', amount: '₹12,000', percentage: '37%', isDark: isDark),
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           _BreakdownItem(color: foodColor, label: 'Food', amount: '₹8,000', percentage: '25%', isDark: isDark),
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           _BreakdownItem(color: transportColor, label: 'Transport', amount: '₹3,000', percentage: '9%', isDark: isDark),
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           _BreakdownItem(color: healthColor, label: 'Health', amount: '₹2,000', percentage: '6%', isDark: isDark),
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           _BreakdownItem(color: othersColor, label: 'Others', amount: '₹7,000', percentage: '23%', isDark: isDark),
 
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
           Center(
             child: InkWell(
               onTap: () {},
@@ -396,7 +397,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(width: 4.w),
+                  UIHelpers.horizontalSpace(4),
                   Icon(
                     Icons.arrow_forward_rounded,
                     size: 16.sp,
@@ -436,7 +437,7 @@ class _BreakdownItem extends StatelessWidget {
           height: 8.w,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        SizedBox(width: 12.w),
+        UIHelpers.horizontalSpace(12),
         Text(
           label,
           style: AppTexts.bodyMedium.copyWith(
@@ -481,7 +482,7 @@ class _ByAccountCard extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
           
           // Header Row
           Row(
@@ -531,7 +532,7 @@ class _ByAccountCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          UIHelpers.verticalSpace(16),
           
           // List Items
           _AccountRow(
@@ -542,7 +543,7 @@ class _ByAccountCard extends StatelessWidget {
             net: '₹10,500',
             isDark: isDark,
           ),
-          SizedBox(height: 20.h),
+          UIHelpers.verticalSpace(20),
           _AccountRow(
             icon: Icons.account_balance_wallet_rounded,
             name: 'SBI\nAccount',
@@ -551,7 +552,7 @@ class _ByAccountCard extends StatelessWidget {
             net: '₹5,000',
             isDark: isDark,
           ),
-          SizedBox(height: 20.h),
+          UIHelpers.verticalSpace(20),
           _AccountRow(
             icon: Icons.payments_rounded,
             name: 'Cash',
@@ -606,7 +607,7 @@ class _AccountRow extends StatelessWidget {
                   color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 ),
               ),
-              SizedBox(width: 8.w),
+              UIHelpers.horizontalSpace(8),
               Expanded(
                 child: Text(
                   name,

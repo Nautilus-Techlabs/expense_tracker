@@ -8,6 +8,7 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -89,7 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 32.h),
+                UIHelpers.verticalSpace(32),
 
                 // 2. Total Balance Card
                 _buildTotalBalanceCard(
@@ -98,11 +99,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   state.totalGlobalDebit,
                   isDark,
                 ),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
 
                 // 3. Budget Card
                 _buildBudgetCard(isDark),
-                SizedBox(height: 32.h),
+                UIHelpers.verticalSpace(32),
 
                 // 4. Today's Transactions Header
                 Text(
@@ -113,7 +114,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         : AppColors.textPrimaryLight,
                   ),
                 ),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
 
                 // 5. Transactions List (Just take up to 3 for now)
                 if (state.allTransactions.isEmpty)
@@ -134,7 +135,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
 
-                SizedBox(height: 8.h),
+                UIHelpers.verticalSpace(8),
 
                 // 6. See all transactions
                 Align(
@@ -155,7 +156,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(width: 4.w),
+                        UIHelpers.horizontalSpace(4),
                         Icon(
                           Icons.arrow_forward_rounded,
                           size: 16.sp,
@@ -167,11 +168,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
 
                 // 7. Circles / Owed Card
                 _buildCirclesCard(isDark),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
 
                 // 8. Mini Stats (Top Spend / This Week)
                 Row(
@@ -183,7 +184,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         isDark,
                       ),
                     ),
-                    SizedBox(width: 16.w),
+                    UIHelpers.horizontalSpace(16),
                     Expanded(
                       child: _buildMiniStatCard(
                         'This week',
@@ -194,7 +195,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
 
-                SizedBox(height: 100.h), // Bottom padding for FAB and Nav
+                UIHelpers.verticalSpace(100), // Bottom padding for FAB and Nav
               ],
             ),
           ),
@@ -235,7 +236,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           : AppColors.textSecondaryLight,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  UIHelpers.verticalSpace(8),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -247,7 +248,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               : AppColors.textPrimaryLight,
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      UIHelpers.horizontalSpace(8),
                       Icon(
                         Icons.visibility_outlined,
                         size: 20.sp,
@@ -285,7 +286,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: 32.h),
+          UIHelpers.verticalSpace(32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -300,7 +301,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           : AppColors.textSecondaryLight,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Row(
                     children: [
                       Icon(
@@ -308,7 +309,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         size: 16.sp,
                         color: AppColors.income,
                       ),
-                      SizedBox(width: 4.w),
+                      UIHelpers.horizontalSpace(4),
                       Text(
                         '₹${income.toStringAsFixed(0)}',
                         style: AppTexts.amountIncome,
@@ -328,7 +329,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           : AppColors.textSecondaryLight,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Row(
                     children: [
                       Icon(
@@ -336,7 +337,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         size: 16.sp,
                         color: AppColors.expense,
                       ),
-                      SizedBox(width: 4.w),
+                      UIHelpers.horizontalSpace(4),
                       Text(
                         '₹${expense.toStringAsFixed(0)}',
                         style: AppTexts.amountExpense,
@@ -345,7 +346,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ],
               ),
-              SizedBox(width: 24.w), // Spacer to push left
+              UIHelpers.horizontalSpace(24), // Spacer to push left
             ],
           ),
         ],
@@ -376,7 +377,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          UIHelpers.verticalSpace(12),
           ClipRRect(
             borderRadius: BorderRadius.circular(4.r),
             child: LinearProgressIndicator(
@@ -417,7 +418,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           : AppColors.textSecondaryLight,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Text(
                     '₹2,400',
                     style: AppTexts.amountIncome.copyWith(
@@ -442,17 +443,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           : AppColors.textSecondaryLight,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  UIHelpers.verticalSpace(4),
                   Text(
                     '₹800',
                     style: AppTexts.amountExpense.copyWith(fontSize: 20.sp),
                   ),
                 ],
               ),
-              SizedBox(width: 24.w),
+              UIHelpers.horizontalSpace(24),
             ],
           ),
-          SizedBox(height: 24.h),
+          UIHelpers.verticalSpace(24),
           GestureDetector(
             onTap: () {
               ref.read(navigationIndexProvider.notifier).state =
@@ -470,7 +471,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(width: 4.w),
+                UIHelpers.horizontalSpace(4),
                 Icon(
                   Icons.arrow_forward_rounded,
                   size: 16.sp,
@@ -505,7 +506,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   : AppColors.textSecondaryLight,
             ),
           ),
-          SizedBox(height: 12.h),
+          UIHelpers.verticalSpace(12),
           Text(
             subtitle,
             style: AppTexts.bodyLarge.copyWith(fontWeight: FontWeight.w600),

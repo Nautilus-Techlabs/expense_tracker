@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/primary_button.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class CircleDetailsScreen extends StatelessWidget {
   final String circleName;
@@ -47,7 +48,7 @@ class CircleDetailsScreen extends StatelessWidget {
             ),
             onPressed: () {},
           ),
-          SizedBox(width: 8.w),
+          UIHelpers.horizontalSpace(8),
         ],
       ),
       body: Stack(
@@ -68,11 +69,11 @@ class CircleDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 24.h),
+                UIHelpers.verticalSpace(24),
 
                 // ── Summary Card ──
                 _SummaryCard(isDark: isDark),
-                SizedBox(height: 32.h),
+                UIHelpers.verticalSpace(32),
 
                 // ── Members Section ──
                 Row(
@@ -98,7 +99,7 @@ class CircleDetailsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
                 _MemberCard(
                   initials: 'RK',
                   name: 'Rajesh Kumar',
@@ -131,7 +132,7 @@ class CircleDetailsScreen extends StatelessWidget {
                   showRemind: false,
                   avatarTextColor: isDark ? Colors.white : AppColors.primary,
                 ),
-                SizedBox(height: 32.h),
+                UIHelpers.verticalSpace(32),
 
                 // ── Transactions Section ──
                 Text(
@@ -142,7 +143,7 @@ class CircleDetailsScreen extends StatelessWidget {
                     letterSpacing: 0.8,
                   ),
                 ),
-                SizedBox(height: 16.h),
+                UIHelpers.verticalSpace(16),
                 Container(
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.cardDark : Colors.white,
@@ -192,7 +193,7 @@ class CircleDetailsScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              SizedBox(width: 4.w),
+                              UIHelpers.horizontalSpace(4),
                               Icon(
                                 Icons.arrow_forward_rounded,
                                 size: 16.sp,
@@ -205,7 +206,7 @@ class CircleDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 120.h), // Padding for bottom button
+                UIHelpers.verticalSpace(120), // Padding for bottom button
               ],
             ),
           ),
@@ -273,7 +274,7 @@ class _SummaryCard extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 8.h),
+          UIHelpers.verticalSpace(8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -284,7 +285,7 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: 24.sp,
                 ),
               ),
-              SizedBox(width: 8.w),
+              UIHelpers.horizontalSpace(8),
               Text(
                 '₹7,200',
                 style: AppTexts.displayMedium.copyWith(
@@ -295,7 +296,7 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20.h),
+          UIHelpers.verticalSpace(20),
           // Progress bar
           Stack(
             children: [
@@ -317,7 +318,7 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          UIHelpers.verticalSpace(12),
           // Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -332,7 +333,7 @@ class _SummaryCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  UIHelpers.horizontalSpace(6),
                   Text(
                     '₹3,600 settled',
                     style: AppTexts.bodySmall.copyWith(
@@ -352,7 +353,7 @@ class _SummaryCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  UIHelpers.horizontalSpace(6),
                   Text(
                     '₹3,600 pending',
                     style: AppTexts.bodySmall.copyWith(
@@ -427,7 +428,7 @@ class _MemberCard extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          UIHelpers.horizontalSpace(16),
 
           // Name and Subtext
           Expanded(
@@ -443,7 +444,7 @@ class _MemberCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    UIHelpers.horizontalSpace(8),
                     // Badge
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
@@ -463,7 +464,7 @@ class _MemberCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 4.h),
+                UIHelpers.verticalSpace(4),
                 Text(
                   subtext,
                   style: AppTexts.bodySmall.copyWith(
@@ -480,7 +481,7 @@ class _MemberCard extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.borderDark),
+                  side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -490,14 +491,14 @@ class _MemberCard extends StatelessWidget {
                 child: Text(
                   'Remind',
                   style: AppTexts.bodySmall.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               )
             else
               IconButton(
-                icon: Icon(Icons.notifications_none_rounded, color: AppColors.primary, size: 24.sp),
+                icon: Icon(Icons.notifications_none_rounded, color: isDark ? AppColors.textPrimaryDark : AppColors.primary, size: 24.sp),
                 onPressed: () {},
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -544,7 +545,7 @@ class _TransactionTile extends StatelessWidget {
               size: 20.sp,
             ),
           ),
-          SizedBox(width: 16.w),
+          UIHelpers.horizontalSpace(16),
 
           // Details
           Expanded(
@@ -558,7 +559,7 @@ class _TransactionTile extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                UIHelpers.verticalSpace(4),
                 Text(
                   subtitle,
                   style: AppTexts.bodySmall.copyWith(

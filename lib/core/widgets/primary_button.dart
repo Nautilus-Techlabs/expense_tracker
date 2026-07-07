@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../constants/app_constants.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -73,7 +74,7 @@ class PrimaryButton extends StatelessWidget {
             size: 20.sp,
             color: isOutlined ? AppColors.primary : Colors.white,
           ),
-          SizedBox(width: 8.w),
+          UIHelpers.horizontalSpace(8),
         ],
         Text(
           text,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../constants/app_constants.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -42,7 +43,7 @@ class CustomTextField extends StatelessWidget {
                 : AppColors.textSecondaryDark,
           ),
         ),
-        SizedBox(height: 6.h),
+        UIHelpers.verticalSpace(6),
         TextFormField(
           controller: controller,
           obscureText: obscureText,

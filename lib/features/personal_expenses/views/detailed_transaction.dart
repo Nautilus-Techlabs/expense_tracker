@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../domain/entities/transaction.dart';
 import '../viewmodels/detailed_transaction_viewmodel.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final Transaction transaction;
@@ -87,11 +88,11 @@ class _DetailedTransactionScreenState
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            SizedBox(height: 32.h),
+            UIHelpers.verticalSpace(32),
 
             // ── Hero Icon ──
             _buildHeroIcon(isCircleTransaction, amountColor),
-            SizedBox(height: 20.h),
+            UIHelpers.verticalSpace(20),
 
             // ── Merchant Name ──
             Text(
@@ -103,7 +104,7 @@ class _DetailedTransactionScreenState
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8.h),
+            UIHelpers.verticalSpace(8),
 
             // ── Amount ──
             Text(
@@ -114,7 +115,7 @@ class _DetailedTransactionScreenState
                 fontWeight: FontWeight.w800,
               ),
             ),
-            SizedBox(height: 8.h),
+            UIHelpers.verticalSpace(8),
 
             // ── Subtitle: Category · Type · Date ──
             Text(
@@ -123,20 +124,20 @@ class _DetailedTransactionScreenState
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
-            SizedBox(height: 32.h),
+            UIHelpers.verticalSpace(32),
 
             // ── Details Card ──
             _buildDetailsCard(context, state, isCircleTransaction, isDark),
-            SizedBox(height: 16.h),
+            UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
             if (isCircleTransaction)
               _buildSplitDetailsCard(context, isDark),
-            SizedBox(height: 32.h),
+            UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
             _buildActionButtons(context, vm, isDark),
-            SizedBox(height: 40.h),
+            UIHelpers.verticalSpace(40),
           ],
         ),
       ),
@@ -239,7 +240,7 @@ class _DetailedTransactionScreenState
           child: Row(
             children: [
               Icon(icon, size: 22.sp, color: labelColor),
-              SizedBox(width: 14.w),
+              UIHelpers.horizontalSpace(14),
               Text(
                 label,
                 style: AppTexts.bodyMedium.copyWith(
@@ -358,7 +359,7 @@ class _DetailedTransactionScreenState
                   ),
                 ),
               ),
-              SizedBox(width: 12.w),
+              UIHelpers.horizontalSpace(12),
               // Name
               Expanded(
                 child: Text(
@@ -394,7 +395,7 @@ class _DetailedTransactionScreenState
                     ),
                 ],
               ),
-              SizedBox(width: 10.w),
+              UIHelpers.horizontalSpace(10),
               // Status badge
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
@@ -428,7 +429,7 @@ class _DetailedTransactionScreenState
           child: OutlinedButton(
             onPressed: vm.toggleEditing,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppColors.primary, width: 1.5),
+              side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.primary, width: 1.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
               padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
@@ -441,7 +442,7 @@ class _DetailedTransactionScreenState
             ),
           ),
         ),
-        SizedBox(width: 16.w),
+        UIHelpers.horizontalSpace(16),
         // Delete button (outlined, terracotta)
         Expanded(
           child: OutlinedButton(
@@ -524,7 +525,9 @@ class _DetailedTransactionScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: AppTexts.bodyMedium.copyWith(color: AppColors.primary)),
+            child: Text('Cancel', style: AppTexts.bodyMedium.copyWith(
+              color: Theme.of(context).brightness == Brightness.dark ? AppColors.textPrimaryDark : AppColors.primary
+            )),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
