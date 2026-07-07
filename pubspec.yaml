@@ -36,24 +36,21 @@ dependencies:
   cupertino_icons: ^1.0.9
   intl: ^0.20.2
   shared_preferences: ^2.5.5
-  flutter_sms_inbox: ^1.0.4
-  permission_handler: ^12.0.1
+  permission_handler: ^12.0.3
   flutter_screenutil: ^5.9.3
   shimmer: ^3.0.0
-  flutter_riverpod: ^3.3.1
-  drift: ^2.33.0
-  tflite_flutter: ^0.12.1
-
-  path_provider: ^2.1.5
+  flutter_riverpod: ^3.3.2
+  drift: ^2.34.0
+  path_provider: ^2.1.6
   path: ^1.9.1
-  go_router: ^17.2.3
+  go_router: ^17.3.0
   logger: ^2.7.0
-  flutter_svg: ^2.2.4
-  flutter_local_notifications: ^21.0.0
+  flutter_svg: ^2.3.0
+  flutter_local_notifications: ^22.0.1
   timezone: ^0.11.0
-  flutter_timezone: ^5.0.2
+  flutter_timezone: ^5.1.0
   url_launcher: ^6.3.2
-  showcaseview: ^5.0.2
+  showcaseview: ^5.1.0
   csv: ^8.0.0
   share_plus: ^13.1.0
 
@@ -70,7 +67,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
-  drift_dev: ^2.32.1
+  drift_dev: ^2.34.0
   build_runner: ^2.15.0
 
   test: any
@@ -98,10 +95,6 @@ flutter:
     - assets/bank_configs.json
     - assets/images/
     - assets/bank_logos/
-    - assets/model/model_int8_tf.tflite
-    - assets/model/tokenizer.json
-    - assets/model/label_mappings.json
-    - assets/model/tokenizer_config.json
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

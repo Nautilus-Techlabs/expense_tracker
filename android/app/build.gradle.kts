@@ -58,6 +58,11 @@ android {
     }
 }
 
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert", module = "litert-gpu")
+    exclude(group = "com.google.ai.edge.litert", module = "litert-gpu-api")
+}
+
 flutter {
     source = "../.."
 }

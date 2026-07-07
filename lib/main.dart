@@ -5,14 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'domain/parsers/flutter_parser_initializer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ CRITICAL: Initialize the Bank Parser Engine
-  // Without this, the app doesn't know how to read your bank SMS.
-  await FlutterParserInitializer.initialize();
+  // Parser engine initialization removed.
 
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([

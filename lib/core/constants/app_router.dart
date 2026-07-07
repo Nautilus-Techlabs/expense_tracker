@@ -1,13 +1,13 @@
+import 'package:expense_tracker/features/personal_expenses/views/onboarding_screen.dart';
+import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/transaction.dart';
-import '../../presentation/screens/bank_detail_transactions_screen.dart';
-import '../../presentation/screens/detailed_transaction.dart';
-import '../../presentation/screens/main_screen.dart';
-import '../../presentation/screens/onboarding_screen.dart';
-import '../../presentation/screens/splash_screen.dart';
-import '../../presentation/screens/feedback_screen.dart';
+import '../../features/personal_expenses/views/bank_detail_transactions_screen.dart';
+import '../../features/personal_expenses/views/detailed_transaction.dart';
+import '../../features/personal_expenses/views/feedback_screen.dart';
+import '../../features/personal_expenses/views/main_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
