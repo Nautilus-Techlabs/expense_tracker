@@ -53,3 +53,4 @@ app.*.symbols
 
 # FVM Version Cache
 .fvm/
+/lib/core/utils/secrets.dart

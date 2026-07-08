@@ -20,6 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
+  final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
@@ -33,7 +34,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void _onSubmit() {
     if (_isPhoneTab) {
       // Phone → OTP screen
-      context.push(AppRouter.verifyOtp, extra: '+91 ${_phoneController.text.trim()}');
+      context.push(
+        AppRouter.verifyOtp,
+        extra: '+91 ${_phoneController.text.trim()}',
+      );
     } else {
       // Email → dashboard
       context.go(AppRouter.transactions);
@@ -44,8 +48,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final cardBg = isDark ? AppColors.cardDark : Colors.white;
 
@@ -61,7 +69,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               padding: EdgeInsets.only(left: 8.w, top: 8.h),
               child: IconButton(
                 onPressed: () => context.pop(),
-                icon: Icon(Icons.arrow_back_rounded, size: 24.sp, color: textPrimary),
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 24.sp,
+                  color: textPrimary,
+                ),
                 alignment: Alignment.centerLeft,
               ),
             ),
@@ -69,7 +81,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -86,7 +99,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     UIHelpers.verticalSpace(6),
                     Text(
                       'Enter your details to get started',
-                      style: context.appTexts.bodyMedium.copyWith(color: textSecondary),
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: textSecondary,
+                      ),
                     ),
                     UIHelpers.verticalSpace(32),
 
@@ -108,9 +123,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderColor: borderColor,
                       ),
                     ] else ...[
-                      Text('Email',
-                          style: context.appTexts.bodySmall.copyWith(
-                              color: textSecondary, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Name',
+                        style: context.appTexts.bodySmall.copyWith(
+                          color: textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      UIHelpers.verticalSpace(8),
+                      AuthInputField(
+                        controller: _nameController,
+                        hint: 'Enter your full name',
+                        keyboardType: TextInputType.name,
+                        isDark: isDark,
+                        cardBg: cardBg,
+                        borderColor: borderColor,
+                      ),
+                      UIHelpers.verticalSpace(20),
+                      Text(
+                        'Email',
+                        style: context.appTexts.bodySmall.copyWith(
+                          color: textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       UIHelpers.verticalSpace(8),
                       AuthInputField(
                         controller: _emailController,
@@ -121,9 +157,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderColor: borderColor,
                       ),
                       UIHelpers.verticalSpace(20),
-                      Text('Password',
-                          style: context.appTexts.bodySmall.copyWith(
-                              color: textSecondary, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Password',
+                        style: context.appTexts.bodySmall.copyWith(
+                          color: textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       UIHelpers.verticalSpace(8),
                       AuthInputField(
                         controller: _passwordController,
@@ -133,8 +173,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         cardBg: cardBg,
                         borderColor: borderColor,
                         suffix: GestureDetector(
-                          onTap: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
+                          onTap: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                           child: Icon(
                             _obscurePassword
                                 ? Icons.visibility_outlined
@@ -163,7 +204,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       child: RichText(
                         text: TextSpan(
-                          style: context.appTexts.bodySmall.copyWith(color: textSecondary),
+                          style: context.appTexts.bodySmall.copyWith(
+                            color: textSecondary,
+                          ),
                           children: [
                             const TextSpan(text: 'Already have an account? '),
                             TextSpan(

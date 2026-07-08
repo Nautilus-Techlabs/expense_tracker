@@ -1,7 +1,9 @@
+import 'package:expense_tracker/core/utils/secrets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -10,6 +12,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Parser engine initialization removed.
+
+  await Supabase.initialize(
+    url: AppSecrets.apiUrl,
+    publishableKey: AppSecrets.publishableKey,
+  );
 
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([

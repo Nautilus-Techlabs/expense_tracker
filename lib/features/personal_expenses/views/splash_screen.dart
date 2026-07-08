@@ -1,13 +1,13 @@
 import 'dart:async';
+
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/services/notification_service.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import '../../../../core/constants/app_router.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -26,7 +26,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void _navigateToWelcome() async {
     if (!mounted) return;
     // Initialize notification service (no SMS permission check)
-    await NotificationService.instance.initialize();
+    // await NotificationService.instance.initialize();
     if (mounted) {
       context.go(AppRouter.welcome);
     }
@@ -37,7 +37,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -74,7 +76,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             Text(
               'Finia',
               style: context.appTexts.displayLarge.copyWith(
-                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight,
               ),
             ),
           ],
