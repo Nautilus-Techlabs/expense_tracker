@@ -1,8 +1,12 @@
 import 'package:either_dart/either.dart';
 import 'package:expense_tracker/core/error/failure.dart';
+import 'package:expense_tracker/core/utils/app_logger.dart';
 import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
 import 'package:expense_tracker/features/auth/model/user_model.dart';
 import 'package:expense_tracker/features/auth/model/user_payload.dart';
+import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseHelper {
@@ -110,9 +114,59 @@ class SupabaseHelper {
           .single();
 
       final userModel = UserModel.fromJson(insertResponse);
+      AppLogger.i('User created successfully: $userModel');
       return Right(userModel);
     } catch (e) {
+      AppLogger.e('Error creating user: $e');
       return Left(Failure('Error Creating User: $e'));
+    }
+  }
+
+  Future<Either<Failure, List<CategoryModel>>> fetchAllCategories() async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableCategories)
+          .select();
+      final categories = response
+          .map((json) => CategoryModel.fromJson(json))
+          .toList();
+      return Right(categories);
+    } catch (e) {
+      return Left(Failure('Error fetching categories: $e'));
+    }
+  }
+
+  Future<Either<Failure, List<TransactionModel>>> fetchAllTransactions(
+    String userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .select()
+          .eq('user_id', userId);
+      final transactions = response
+          .map((json) => TransactionModel.fromJson(json))
+          .toList();
+      return Right(transactions);
+    } catch (e) {
+      return Left(Failure('Error fetching transactions: $e'));
+    }
+  }
+
+  Future<Either<Failure, List<AccountModel>>> fetchAllAccounts(
+    String userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableAccounts)
+          .select()
+          .eq('user_id', userId);
+      final accounts = response
+          .map((json) => AccountModel.fromJson(json))
+          .toList();
+      return Right(accounts);
+    } catch (e) {
+      return Left(Failure('Error fetching accounts: $e'));
     }
   }
 }

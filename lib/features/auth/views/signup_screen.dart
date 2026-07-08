@@ -1,3 +1,4 @@
+import 'package:expense_tracker/features/auth/model/user_payload.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
     } else {
       // Email → dashboard
-      context.go(AppRouter.transactions);
+      final data = UserPayload(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: '+91 ${_phoneController.text.trim()}',
+        password: _passwordController.text.trim(),
+      );
+      // SupabaseHelper().createUser(data);
+      context.push(AppRouter.transactions);
     }
   }
 
