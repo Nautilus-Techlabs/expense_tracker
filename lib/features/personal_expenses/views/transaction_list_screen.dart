@@ -137,7 +137,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     children: [
                       Text(
                         'Transactions',
-                        style: AppTexts.displayMedium.copyWith(
+                        style: context.appTexts.displayMedium.copyWith(
                           color: isDark
                               ? AppColors.textPrimaryDark
                               : AppColors.primary,
@@ -196,7 +196,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           alignment: Alignment.center,
                           child: Text(
                             _months[index],
-                            style: AppTexts.bodyMedium.copyWith(
+                            style: context.appTexts.bodyMedium.copyWith(
                               color: isSelected
                                   ? Colors.white
                                   : (isDark
@@ -245,7 +245,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                             children: [
                               Text(
                                 'Income',
-                                style: AppTexts.bodyMedium.copyWith(
+                                style: context.appTexts.bodyMedium.copyWith(
                                   color: isDark
                                       ? AppColors.textPrimaryDark
                                       : AppColors.textPrimaryLight,
@@ -257,7 +257,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                 children: [
                                   Text(
                                     '₹${state.totalGlobalCredit.toStringAsFixed(0)}',
-                                    style: AppTexts.amountIncome.copyWith(
+                                    style: context.appTexts.amountIncome.copyWith(
                                       fontSize: 20.sp,
                                     ),
                                   ),
@@ -287,7 +287,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                               children: [
                                 Text(
                                   'Expense',
-                                  style: AppTexts.bodyMedium.copyWith(
+                                  style: context.appTexts.bodyMedium.copyWith(
                                     color: isDark
                                         ? AppColors.textPrimaryDark
                                         : AppColors.textPrimaryLight,
@@ -299,7 +299,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                   children: [
                                     Text(
                                       '₹${state.totalGlobalDebit.toStringAsFixed(0)}',
-                                      style: AppTexts.amountExpense.copyWith(
+                                      style: context.appTexts.amountExpense.copyWith(
                                         fontSize: 20.sp,
                                       ),
                                     ),
@@ -328,7 +328,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   child: Center(
                     child: Text(
                       "No transactions for this month.",
-                      style: AppTexts.bodyMedium.copyWith(
+                      style: context.appTexts.bodyMedium.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark
                             : AppColors.textSecondaryLight,
@@ -365,7 +365,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 children: [
                   Text(
                     dateStr,
-                    style: AppTexts.bodyMedium.copyWith(
+                    style: context.appTexts.bodyMedium.copyWith(
                       color: isDark
                           ? AppColors.textSecondaryDark
                           : AppColors.textSecondaryLight,

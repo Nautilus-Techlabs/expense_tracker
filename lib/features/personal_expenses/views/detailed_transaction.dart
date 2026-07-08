@@ -76,7 +76,7 @@ class _DetailedTransactionScreenState
         ),
         title: Text(
           'Transaction detail',
-          style: AppTexts.heading.copyWith(
+          style: context.appTexts.heading.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
@@ -97,7 +97,7 @@ class _DetailedTransactionScreenState
             // ── Merchant Name ──
             Text(
               state.merchant.isNotEmpty ? state.merchant : 'Unknown',
-              style: AppTexts.displayMedium.copyWith(
+              style: context.appTexts.displayMedium.copyWith(
                 color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                 fontSize: 26.sp,
                 fontWeight: FontWeight.w700,
@@ -109,7 +109,7 @@ class _DetailedTransactionScreenState
             // ── Amount ──
             Text(
               '₹${state.amount}',
-              style: AppTexts.displayLarge.copyWith(
+              style: context.appTexts.displayLarge.copyWith(
                 color: amountColor,
                 fontSize: 40.sp,
                 fontWeight: FontWeight.w800,
@@ -120,7 +120,7 @@ class _DetailedTransactionScreenState
             // ── Subtitle: Category · Type · Date ──
             Text(
               _buildSubtitle(state),
-              style: AppTexts.bodyMedium.copyWith(
+              style: context.appTexts.bodyMedium.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
@@ -243,7 +243,7 @@ class _DetailedTransactionScreenState
               UIHelpers.horizontalSpace(14),
               Text(
                 label,
-                style: AppTexts.bodyMedium.copyWith(
+                style: context.appTexts.bodyMedium.copyWith(
                   color: labelColor,
                   fontWeight: FontWeight.w400,
                 ),
@@ -253,7 +253,7 @@ class _DetailedTransactionScreenState
                 child: Text(
                   value,
                   textAlign: TextAlign.right,
-                  style: AppTexts.bodyMedium.copyWith(
+                  style: context.appTexts.bodyMedium.copyWith(
                     color: resolvedValueColor,
                     fontWeight: FontWeight.w600,
                     fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
@@ -293,7 +293,7 @@ class _DetailedTransactionScreenState
             padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
             child: Text(
               'Split details',
-              style: AppTexts.bodyLarge.copyWith(
+              style: context.appTexts.bodyLarge.copyWith(
                 color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 fontWeight: FontWeight.w700,
                 fontSize: 17.sp,
@@ -305,7 +305,7 @@ class _DetailedTransactionScreenState
             padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
             child: Text(
               'Total recovered: ₹1,200 of ₹2,400',
-              style: AppTexts.bodySmall.copyWith(
+              style: context.appTexts.bodySmall.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
@@ -352,7 +352,7 @@ class _DetailedTransactionScreenState
                 alignment: Alignment.center,
                 child: Text(
                   split.initials,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                     fontSize: 13.sp,
@@ -364,7 +364,7 @@ class _DetailedTransactionScreenState
               Expanded(
                 child: Text(
                   split.name,
-                  style: AppTexts.bodyMedium.copyWith(
+                  style: context.appTexts.bodyMedium.copyWith(
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                     fontWeight: FontWeight.w500,
                   ),
@@ -378,7 +378,7 @@ class _DetailedTransactionScreenState
                     split.status == 'Paid'
                         ? '₹${split.amount.toStringAsFixed(0)}'
                         : 'Owes ₹${split.share.toStringAsFixed(0)}',
-                    style: AppTexts.bodyMedium.copyWith(
+                    style: context.appTexts.bodyMedium.copyWith(
                       color: split.status == 'Paid'
                           ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
                           : AppColors.expense,
@@ -388,7 +388,7 @@ class _DetailedTransactionScreenState
                   if (split.status == 'Paid')
                     Text(
                       'Your share: ₹${split.share.toStringAsFixed(0)}',
-                      style: AppTexts.bodySmall.copyWith(
+                      style: context.appTexts.bodySmall.copyWith(
                         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         fontSize: 11.sp,
                       ),
@@ -405,7 +405,7 @@ class _DetailedTransactionScreenState
                 ),
                 child: Text(
                   split.status,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: statusColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 11.sp,
@@ -435,7 +435,7 @@ class _DetailedTransactionScreenState
             ),
             child: Text(
               'Edit transaction',
-              style: AppTexts.bodyMedium.copyWith(
+              style: context.appTexts.bodyMedium.copyWith(
                 color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
@@ -454,7 +454,7 @@ class _DetailedTransactionScreenState
             ),
             child: Text(
               'Delete',
-              style: AppTexts.bodyMedium.copyWith(
+              style: context.appTexts.bodyMedium.copyWith(
                 color: AppColors.expense,
                 fontWeight: FontWeight.w600,
               ),
@@ -517,15 +517,15 @@ class _DetailedTransactionScreenState
             ? AppColors.cardDark
             : AppColors.cardLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-        title: Text('Delete Transaction', style: AppTexts.heading),
+        title: Text('Delete Transaction', style: context.appTexts.heading),
         content: Text(
           'Are you sure you want to delete this transaction? This cannot be undone.',
-          style: AppTexts.bodyMedium,
+          style: context.appTexts.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: AppTexts.bodyMedium.copyWith(
+            child: Text('Cancel', style: context.appTexts.bodyMedium.copyWith(
               color: Theme.of(context).brightness == Brightness.dark ? AppColors.textPrimaryDark : AppColors.primary
             )),
           ),
@@ -535,7 +535,7 @@ class _DetailedTransactionScreenState
               backgroundColor: AppColors.expense,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
             ),
-            child: Text('Delete', style: AppTexts.bodyMedium.copyWith(color: Colors.white)),
+            child: Text('Delete', style: context.appTexts.bodyMedium.copyWith(color: Colors.white)),
           ),
         ],
       ),

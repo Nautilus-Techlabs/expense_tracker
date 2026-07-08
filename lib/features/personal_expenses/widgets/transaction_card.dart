@@ -70,7 +70,7 @@ class TransactionCard extends ConsumerWidget {
                 children: [
                   Text(
                     _getTitle(),
-                    style: AppTexts.bodyLarge.copyWith(
+                    style: context.appTexts.bodyLarge.copyWith(
                       color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                       fontWeight: FontWeight.w500,
                     ),
@@ -80,7 +80,7 @@ class TransactionCard extends ConsumerWidget {
                   UIHelpers.verticalSpace(4),
                   Text(
                     _getSubtitle(),
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     ),
                   ),
@@ -94,13 +94,13 @@ class TransactionCard extends ConsumerWidget {
               children: [
                 Text(
                   '₹${transaction.amount.toStringAsFixed(0)}',
-                  style: isDebit ? AppTexts.amountExpense : AppTexts.amountIncome,
+                  style: isDebit ? context.appTexts.amountExpense : context.appTexts.amountIncome,
                 ),
                 if (transaction.bankName.isNotEmpty) ...[
                   UIHelpers.verticalSpace(4),
                   Text(
                     transaction.bankName,
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     ),
                   ),

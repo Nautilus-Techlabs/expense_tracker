@@ -98,7 +98,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
             children: [
               Text(
                 'Add transaction',
-                style: AppTexts.displayMedium.copyWith(
+                style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                   fontSize: 28.sp,
                 ),
@@ -140,15 +140,15 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('₹ ', style: AppTexts.displayLarge.copyWith(color: color, fontSize: 48.sp)),
+                        Text('₹ ', style: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp)),
                         IntrinsicWidth(
                           child: TextField(
                             controller: _amountController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            style: AppTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
+                            style: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
                             decoration: InputDecoration(
                               hintText: '0',
-                              hintStyle: AppTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
+                              hintStyle: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
                               border: InputBorder.none,
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -185,7 +185,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     icon: Icons.calendar_today_outlined,
                     child: Text(
                       'Today, ${DateFormat('dd MMM').format(_selectedDate)}',
-                      style: AppTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                      style: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
                     ),
                     isDark: isDark,
                   ),
@@ -195,10 +195,10 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     icon: Icons.edit_outlined,
                     child: TextField(
                       controller: _noteController,
-                      style: AppTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                      style: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
                       decoration: InputDecoration(
                         hintText: 'Add a note (optional)',
-                        hintStyle: AppTexts.bodyLarge.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                        hintStyle: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -215,7 +215,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       children: [
                         Text(
                           'Add to a Circle?',
-                          style: AppTexts.bodyLarge.copyWith(
+                          style: context.appTexts.bodyLarge.copyWith(
                             color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                             fontWeight: FontWeight.w500,
                           ),
@@ -263,7 +263,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
           alignment: Alignment.center,
           child: Text(
             title,
-            style: AppTexts.bodyMedium.copyWith(
+            style: context.appTexts.bodyMedium.copyWith(
               color: isSelected 
                   ? Colors.white 
                   : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
@@ -289,7 +289,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
         ),
         child: Text(
           label,
-          style: AppTexts.bodyMedium.copyWith(
+          style: context.appTexts.bodyMedium.copyWith(
             color: isSelected 
                 ? Colors.white 
                 : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),

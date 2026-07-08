@@ -173,7 +173,7 @@ class _NavBarItem extends StatelessWidget {
           UIHelpers.verticalSpace(4),
           Text(
             label,
-            style: AppTexts.navLabel.copyWith(
+            style: context.appTexts.navLabel.copyWith(
               color: isSelected ? activeColor : inactiveColor,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),

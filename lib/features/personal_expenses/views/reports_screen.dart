@@ -27,7 +27,7 @@ class ReportsScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Reports',
-                      style: AppTexts.displayMedium.copyWith(
+                      style: context.appTexts.displayMedium.copyWith(
                         color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                         fontSize: 32.sp,
                       ),
@@ -49,7 +49,7 @@ class ReportsScreen extends StatelessWidget {
                           UIHelpers.horizontalSpace(8),
                           Text(
                             'Jun 2024',
-                            style: AppTexts.bodyMedium.copyWith(
+                            style: context.appTexts.bodyMedium.copyWith(
                               color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                               fontWeight: FontWeight.w600,
                             ),
@@ -135,7 +135,7 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           title,
-          style: AppTexts.bodySmall.copyWith(
+          style: context.appTexts.bodySmall.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.8,
@@ -144,7 +144,7 @@ class _StatItem extends StatelessWidget {
         UIHelpers.verticalSpace(8),
         Text(
           amount,
-          style: AppTexts.displayMedium.copyWith(
+          style: context.appTexts.displayMedium.copyWith(
             color: color,
             fontSize: 22.sp,
           ),
@@ -173,7 +173,7 @@ class _MonthlyTrendCard extends StatelessWidget {
         children: [
           Text(
             'MONTHLY TREND',
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -252,7 +252,7 @@ class _BarGroup extends StatelessWidget {
         UIHelpers.verticalSpace(12),
         Text(
           label,
-          style: AppTexts.bodySmall.copyWith(
+          style: context.appTexts.bodySmall.copyWith(
             color: isCurrentMonth
                 ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
                 : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
@@ -283,7 +283,7 @@ class _LegendItem extends StatelessWidget {
         UIHelpers.horizontalSpace(6),
         Text(
           label,
-          style: AppTexts.bodySmall.copyWith(
+          style: context.appTexts.bodySmall.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
@@ -318,7 +318,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
         children: [
           Text(
             'SPENDING BREAKDOWN',
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -352,14 +352,14 @@ class _SpendingBreakdownCard extends StatelessWidget {
                       children: [
                         Text(
                           '₹32k / ₹40k',
-                          style: AppTexts.displayMedium.copyWith(
+                          style: context.appTexts.displayMedium.copyWith(
                             color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                             fontSize: 18.sp,
                           ),
                         ),
                         Text(
                           'spent',
-                          style: AppTexts.bodySmall.copyWith(
+                          style: context.appTexts.bodySmall.copyWith(
                             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                           ),
                         ),
@@ -392,7 +392,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
                 children: [
                   Text(
                     'View all categories',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -440,7 +440,7 @@ class _BreakdownItem extends StatelessWidget {
         UIHelpers.horizontalSpace(12),
         Text(
           label,
-          style: AppTexts.bodyMedium.copyWith(
+          style: context.appTexts.bodyMedium.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
             fontWeight: FontWeight.w500,
           ),
@@ -448,7 +448,7 @@ class _BreakdownItem extends StatelessWidget {
         const Spacer(),
         Text(
           '$amount ($percentage)',
-          style: AppTexts.bodyMedium.copyWith(
+          style: context.appTexts.bodyMedium.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
@@ -476,7 +476,7 @@ class _ByAccountCard extends StatelessWidget {
         children: [
           Text(
             'BY ACCOUNT',
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -491,7 +491,7 @@ class _ByAccountCard extends StatelessWidget {
                 flex: 3,
                 child: Text(
                   'Account Name',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -501,7 +501,7 @@ class _ByAccountCard extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   'Inflow',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -512,7 +512,7 @@ class _ByAccountCard extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   'Outflow',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -523,7 +523,7 @@ class _ByAccountCard extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   'Net',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -611,7 +611,7 @@ class _AccountRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -624,7 +624,7 @@ class _AccountRow extends StatelessWidget {
           flex: 2,
           child: Text(
             inflow,
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: AppColors.income,
             ),
             textAlign: TextAlign.right,
@@ -634,7 +634,7 @@ class _AccountRow extends StatelessWidget {
           flex: 2,
           child: Text(
             outflow,
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: AppColors.expense,
             ),
             textAlign: TextAlign.right,
@@ -644,7 +644,7 @@ class _AccountRow extends StatelessWidget {
           flex: 2,
           child: Text(
             net,
-            style: AppTexts.bodyMedium.copyWith(
+            style: context.appTexts.bodyMedium.copyWith(
               color: isNegativeNet ? AppColors.expense : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
               fontWeight: FontWeight.w700,
             ),

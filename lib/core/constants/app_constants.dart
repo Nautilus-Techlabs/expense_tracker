@@ -545,126 +545,137 @@ abstract class AppThemeData {
 // TEXT STYLES
 // ─────────────────────────────────────────
 
-abstract class AppTexts {
+extension AppTextsExtension on BuildContext {
+  AppTexts get appTexts => AppTexts(this);
+}
+
+class AppTexts {
+  final BuildContext context;
+  AppTexts(this.context);
+
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _textPrimary => _isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+  Color get _textMuted => _isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+
   // ── Display / Hero amounts (Playfair Display equivalent)
   // Note: Register 'PlayfairDisplay' in pubspec.yaml fonts
   // Use for: balance amounts, transaction amounts, screen headings
 
-  static const TextStyle displayLarge = TextStyle(
+  TextStyle get displayLarge => TextStyle(
     fontFamily: 'PlayfairDisplay',
     fontSize: 36,
     fontWeight: FontWeight.w500,
     letterSpacing: -1.0,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
-  static const TextStyle displayMedium = TextStyle(
+  TextStyle get displayMedium => TextStyle(
     fontFamily: 'PlayfairDisplay',
     fontSize: 28,
     fontWeight: FontWeight.w500,
     letterSpacing: -0.5,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
-  static const TextStyle displaySmall = TextStyle(
+  TextStyle get displaySmall => TextStyle(
     fontFamily: 'PlayfairDisplay',
     fontSize: 22,
     fontWeight: FontWeight.w500,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
   // ── Headings (Inter)
   // Use for: screen titles, section headings, card titles
 
-  static const TextStyle heading = TextStyle(
+  TextStyle get heading => TextStyle(
     fontFamily: 'Inter',
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
     letterSpacing: -0.3,
   );
 
-  static const TextStyle headingMedium = TextStyle(
+  TextStyle get headingMedium => TextStyle(
     fontFamily: 'Inter',
     fontSize: 18,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
-  static const TextStyle headingSmall = TextStyle(
+  TextStyle get headingSmall => TextStyle(
     fontFamily: 'Inter',
     fontSize: 16,
     fontWeight: FontWeight.w500,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
   // ── Body (Inter)
   // Use for: transaction names, account names, form labels
 
-  static const TextStyle bodyLarge = TextStyle(
+  TextStyle get bodyLarge => TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  TextStyle get bodyMedium => TextStyle(
     fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  TextStyle get bodySmall => TextStyle(
     fontFamily: 'Inter',
     fontSize: 13,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimaryLight,
+    color: _textPrimary,
   );
 
   // ── Captions and labels
   // Use for: category names under transactions, section labels, muted info
 
-  static const TextStyle caption = TextStyle(
+  TextStyle get caption => TextStyle(
     fontFamily: 'Inter',
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    color: AppColors.textMutedLight,
+    color: _textMuted,
   );
 
-  static const TextStyle captionBold = TextStyle(
+  TextStyle get captionBold => TextStyle(
     fontFamily: 'Inter',
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: AppColors.textMutedLight,
+    color: _textMuted,
   );
 
-  static const TextStyle label = TextStyle(
+  TextStyle get label => TextStyle(
     fontFamily: 'Inter',
     fontSize: 11,
     fontWeight: FontWeight.w500,
-    color: AppColors.textMutedLight,
+    color: _textMuted,
     letterSpacing: 0.6,
   );
 
   // ── Amounts — use these for all money values
   // Color is set here, do not override in widgets
 
-  static const TextStyle amountIncome = TextStyle(
+  TextStyle get amountIncome => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
     color: AppColors.income,
   );
 
-  static const TextStyle amountExpense = TextStyle(
+  TextStyle get amountExpense => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
     color: AppColors.expense,
   );
 
-  static const TextStyle amountLargeIncome = TextStyle(
+  TextStyle get amountLargeIncome => const TextStyle(
     fontFamily: 'PlayfairDisplay',
     fontSize: 32,
     fontWeight: FontWeight.w500,
@@ -672,7 +683,7 @@ abstract class AppTexts {
     letterSpacing: -0.5,
   );
 
-  static const TextStyle amountLargeExpense = TextStyle(
+  TextStyle get amountLargeExpense => const TextStyle(
     fontFamily: 'PlayfairDisplay',
     fontSize: 32,
     fontWeight: FontWeight.w500,
@@ -682,14 +693,14 @@ abstract class AppTexts {
 
   // ── Navigation labels
 
-  static const TextStyle navLabel = TextStyle(
+  TextStyle get navLabel => TextStyle(
     fontFamily: 'Inter',
     fontSize: 10,
     fontWeight: FontWeight.w500,
-    color: AppColors.textMutedLight,
+    color: _textMuted,
   );
 
-  static const TextStyle navLabelActive = TextStyle(
+  TextStyle get navLabelActive => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 10,
     fontWeight: FontWeight.w500,
@@ -698,21 +709,21 @@ abstract class AppTexts {
 
   // ── Buttons
 
-  static const TextStyle buttonPrimary = TextStyle(
+  TextStyle get buttonPrimary => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
 
-  static const TextStyle buttonSecondary = TextStyle(
+  TextStyle get buttonSecondary => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
     color: AppColors.primary,
   );
 
-  static const TextStyle buttonDanger = TextStyle(
+  TextStyle get buttonDanger => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 15,
     fontWeight: FontWeight.w500,
@@ -721,7 +732,7 @@ abstract class AppTexts {
 
   // ── Links
 
-  static const TextStyle link = TextStyle(
+  TextStyle get link => const TextStyle(
     fontFamily: 'Inter',
     fontSize: 13,
     fontWeight: FontWeight.w500,

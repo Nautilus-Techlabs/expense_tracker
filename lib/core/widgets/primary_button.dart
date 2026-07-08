@@ -31,7 +31,7 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.r),
           ),
         ),
-        child: _buildChild(),
+        child: _buildChild(context),
       );
     }
 
@@ -46,11 +46,11 @@ class PrimaryButton extends StatelessWidget {
         ),
         elevation: 0,
       ),
-      child: _buildChild(),
+      child: _buildChild(context),
     );
   }
 
-  Widget _buildChild() {
+  Widget _buildChild(BuildContext context) {
     if (isLoading) {
       return SizedBox(
         height: 20.h,
@@ -78,7 +78,7 @@ class PrimaryButton extends StatelessWidget {
         ],
         Text(
           text,
-          style: AppTexts.heading.copyWith(
+          style: context.appTexts.heading.copyWith(
             fontSize: 16.sp,
             color: isOutlined ? AppColors.primary : Colors.white,
             fontWeight: FontWeight.w600,

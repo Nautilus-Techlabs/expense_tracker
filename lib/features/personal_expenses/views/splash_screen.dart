@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/notification_service.dart';
-import '../viewmodels/transaction_notifier.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -22,37 +20,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(milliseconds: 2500), _navigateToHome);
+    Timer(const Duration(milliseconds: 2500), _navigateToWelcome);
   }
 
-  void _navigateToHome() async {
+  void _navigateToWelcome() async {
     if (!mounted) return;
-
-    // Check SMS permissions
-    final status = await Permission.sms.status;
-    final bool isGranted = status.isGranted;
-
-    // Request notification permission after SMS check
+    // Initialize notification service (no SMS permission check)
     await NotificationService.instance.initialize();
-
-    if (isGranted) {
-      // Ensure data is loaded (it should have started in transactionProvider's build)
-      // We wait for isLoading to become false
-      bool isLoading = ref.read(transactionProvider).isLoading;
-      if (isLoading) {
-        // Wait until it's not loading anymore (or timeout after 5 more seconds)
-        int retries = 0;
-        while (mounted &&
-            ref.read(transactionProvider).isLoading &&
-            retries < 50) {
-          await Future.delayed(const Duration(milliseconds: 100));
-          retries++;
-        }
-      }
-    }
-
     if (mounted) {
-      context.go(isGranted ? AppRouter.transactions : AppRouter.onboarding);
+      context.go(AppRouter.welcome);
     }
   }
 
@@ -66,7 +42,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Simple Logo Presentation
             Container(
               width: 140.w,
               height: 140.w,
@@ -83,7 +58,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               ),
               child: ClipOval(
                 child: Image.asset(
-                  'assets/images/logo.png', 
+                  'assets/images/logo.png',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Icon(
@@ -98,7 +73,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             UIHelpers.verticalSpace(24),
             Text(
               'Finia',
-              style: AppTexts.displayLarge.copyWith(
+              style: context.appTexts.displayLarge.copyWith(
                 color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
               ),
             ),

@@ -36,7 +36,7 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTexts.bodyMedium.copyWith(
+          style: context.appTexts.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: Theme.of(context).brightness == Brightness.light
                 ? AppColors.textSecondaryLight
@@ -51,7 +51,7 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           onChanged: onChanged,
           maxLines: maxLines,
-          style: AppTexts.bodyLarge.copyWith(
+          style: context.appTexts.bodyLarge.copyWith(
             color: Theme.of(context).brightness == Brightness.light
                 ? AppColors.textPrimaryLight
                 : AppColors.textPrimaryDark,

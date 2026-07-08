@@ -1,4 +1,7 @@
-import 'package:expense_tracker/features/personal_expenses/views/onboarding_screen.dart';
+import 'package:expense_tracker/features/auth/views/otp_screen.dart';
+import 'package:expense_tracker/features/auth/views/signin_screen.dart';
+import 'package:expense_tracker/features/auth/views/signup_screen.dart';
+import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
 import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +16,10 @@ import '../../features/personal_expenses/views/settings_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
-  static const String onboarding = '/onboarding';
+  static const String welcome = '/welcome';
+  static const String signin = '/signin';
+  static const String signup = '/signup';
+  static const String verifyOtp = '/verify-otp';
   static const String transactions = '/transactions';
   static const String transactionDetail = '/transaction-detail';
   static const String bankTransactions = '/bank-transactions';
@@ -25,9 +31,15 @@ class AppRouter {
     initialLocation: splash,
     routes: [
       GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
+      GoRoute(path: welcome, builder: (context, state) => const WelcomeScreen()),
+      GoRoute(path: signin, builder: (context, state) => const SignInScreen()),
+      GoRoute(path: signup, builder: (context, state) => const SignUpScreen()),
       GoRoute(
-        path: onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        path: verifyOtp,
+        builder: (context, state) {
+          final phone = state.extra as String? ?? '+91 XXXXXXXXXX';
+          return OtpScreen(phoneNumber: phone);
+        },
       ),
       GoRoute(
         path: transactions,
@@ -46,7 +58,6 @@ class AppRouter {
               heroTag: extra['heroTag'] as String?,
             );
           }
-          // Fallback if extra is null or invalid
           return Scaffold(
             body: Center(child: Text('Invalid transaction data')),
           );

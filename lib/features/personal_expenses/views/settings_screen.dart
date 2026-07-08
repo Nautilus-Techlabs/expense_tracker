@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Profile',
-                        style: AppTexts.displayMedium.copyWith(
+                        style: context.appTexts.displayMedium.copyWith(
                           color: isDark
                               ? AppColors.textPrimaryDark
                               : AppColors.textPrimaryLight,
@@ -63,7 +63,7 @@ class SettingsScreen extends ConsumerWidget {
                 alignment: Alignment.center,
                 child: Text(
                   'RK',
-                  style: AppTexts.displayMedium.copyWith(
+                  style: context.appTexts.displayMedium.copyWith(
                     color: Colors.white,
                     fontSize: 24.sp,
                   ),
@@ -72,7 +72,7 @@ class SettingsScreen extends ConsumerWidget {
               UIHelpers.verticalSpace(16),
               Text(
                 'Rahul Kumar',
-                style: AppTexts.displayMedium.copyWith(
+                style: context.appTexts.displayMedium.copyWith(
                   color: isDark
                       ? AppColors.textPrimaryDark
                       : AppColors.textPrimaryLight,
@@ -82,7 +82,7 @@ class SettingsScreen extends ConsumerWidget {
               UIHelpers.verticalSpace(4),
               Text(
                 'rahul@gmail.com',
-                style: AppTexts.bodyMedium.copyWith(
+                style: context.appTexts.bodyMedium.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
                       : AppColors.textSecondaryLight,
@@ -93,7 +93,7 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () {},
                 child: Text(
                   'Edit profile',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? const Color(0xFFA3C2A4) : AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -112,7 +112,7 @@ class SettingsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'ACCOUNTS',
-                            style: AppTexts.bodySmall.copyWith(
+                            style: context.appTexts.bodySmall.copyWith(
                               color: isDark
                                   ? AppColors.textSecondaryDark
                                   : AppColors.textSecondaryLight,
@@ -124,7 +124,7 @@ class SettingsScreen extends ConsumerWidget {
                           UIHelpers.verticalSpace(8),
                           Text(
                             '4',
-                            style: AppTexts.displayMedium.copyWith(
+                            style: context.appTexts.displayMedium.copyWith(
                               color: isDark
                                   ? AppColors.textPrimaryDark
                                   : AppColors.textPrimaryLight,
@@ -144,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'CIRCLES',
-                            style: AppTexts.bodySmall.copyWith(
+                            style: context.appTexts.bodySmall.copyWith(
                               color: isDark
                                   ? AppColors.textSecondaryDark
                                   : AppColors.textSecondaryLight,
@@ -156,7 +156,7 @@ class SettingsScreen extends ConsumerWidget {
                           UIHelpers.verticalSpace(8),
                           Text(
                             '3',
-                            style: AppTexts.displayMedium.copyWith(
+                            style: context.appTexts.displayMedium.copyWith(
                               color: isDark
                                   ? AppColors.textPrimaryDark
                                   : AppColors.textPrimaryLight,
@@ -172,32 +172,32 @@ class SettingsScreen extends ConsumerWidget {
               UIHelpers.verticalSpace(32),
 
               // ── List Sections ──
-              _buildSectionHeader('PREFERENCES', isDark),
-              _buildListItem(icon: Icons.notifications_none_rounded, title: 'Notifications', isDark: isDark),
-              _buildListItem(icon: Icons.dark_mode_outlined, title: 'Appearance', trailingText: isDark ? 'Dark' : 'Light', isDark: isDark),
-              _buildListItem(icon: Icons.lock_outline_rounded, title: 'Privacy & Security', isDark: isDark),
+              _buildSectionHeader(context, 'PREFERENCES', isDark),
+              _buildListItem(context: context, icon: Icons.notifications_none_rounded, title: 'Notifications', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.dark_mode_outlined, title: 'Appearance', trailingText: isDark ? 'Dark' : 'Light', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.lock_outline_rounded, title: 'Privacy & Security', isDark: isDark),
               
               UIHelpers.verticalSpace(16),
-              _buildSectionHeader('FINANCE', isDark),
-              _buildListItem(icon: Icons.track_changes_rounded, title: 'Monthly budget', trailingText: '₹40,000', isDark: isDark),
-              _buildListItem(icon: Icons.account_balance_wallet_outlined, title: 'Accounts', isDark: isDark),
-              _buildListItem(icon: Icons.local_offer_outlined, title: 'Categories', isDark: isDark),
+              _buildSectionHeader(context, 'FINANCE', isDark),
+              _buildListItem(context: context, icon: Icons.track_changes_rounded, title: 'Monthly budget', trailingText: '₹40,000', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.account_balance_wallet_outlined, title: 'Accounts', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.local_offer_outlined, title: 'Categories', isDark: isDark),
 
               UIHelpers.verticalSpace(16),
-              _buildSectionHeader('CIRCLES', isDark),
-              _buildListItem(icon: Icons.group_outlined, title: 'My circles', isDark: isDark),
-              _buildListItem(icon: Icons.notifications_active_outlined, title: 'Circle notifications', isDark: isDark),
+              _buildSectionHeader(context, 'CIRCLES', isDark),
+              _buildListItem(context: context, icon: Icons.group_outlined, title: 'My circles', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.notifications_active_outlined, title: 'Circle notifications', isDark: isDark),
 
               UIHelpers.verticalSpace(16),
-              _buildSectionHeader('DATA', isDark),
-              _buildListItem(icon: Icons.download_rounded, title: 'Export data', trailingText: 'CSV / PDF', isDark: isDark),
-              _buildListItem(icon: Icons.sync_rounded, title: 'Sync status', trailingText: 'Last synced: 2 min ago', isDark: isDark),
+              _buildSectionHeader(context, 'DATA', isDark),
+              _buildListItem(context: context, icon: Icons.download_rounded, title: 'Export data', trailingText: 'CSV / PDF', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.sync_rounded, title: 'Sync status', trailingText: 'Last synced: 2 min ago', isDark: isDark),
 
               UIHelpers.verticalSpace(16),
-              _buildSectionHeader('SUPPORT', isDark),
-              _buildListItem(icon: Icons.help_outline_rounded, title: 'Help & FAQ', isDark: isDark),
-              _buildListItem(icon: Icons.star_border_rounded, title: 'Rate Finia', isDark: isDark),
-              _buildListItem(icon: Icons.info_outline_rounded, title: 'About', trailingText: 'v1.0.0', isDark: isDark),
+              _buildSectionHeader(context, 'SUPPORT', isDark),
+              _buildListItem(context: context, icon: Icons.help_outline_rounded, title: 'Help & FAQ', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.star_border_rounded, title: 'Rate Finia', isDark: isDark),
+              _buildListItem(context: context, icon: Icons.info_outline_rounded, title: 'About', trailingText: 'v1.0.0', isDark: isDark),
 
               UIHelpers.verticalSpace(48),
 
@@ -215,7 +215,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     'Log out',
-                    style: AppTexts.bodyMedium.copyWith(
+                    style: context.appTexts.bodyMedium.copyWith(
                       color: AppColors.expense,
                       fontWeight: FontWeight.w600,
                     ),
@@ -230,14 +230,14 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title, bool isDark) {
+  Widget _buildSectionHeader(BuildContext context, String title, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
       child: Row(
         children: [
           Text(
             title,
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
@@ -257,6 +257,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildListItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     String? trailingText,
@@ -277,7 +278,7 @@ class SettingsScreen extends ConsumerWidget {
             Expanded(
               child: Text(
                 title,
-                style: AppTexts.bodyMedium.copyWith(
+                style: context.appTexts.bodyMedium.copyWith(
                   color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                   fontWeight: FontWeight.w600,
                 ),
@@ -286,7 +287,7 @@ class SettingsScreen extends ConsumerWidget {
             if (trailingText != null) ...[
               Text(
                 trailingText,
-                style: AppTexts.bodySmall.copyWith(
+                style: context.appTexts.bodySmall.copyWith(
                   color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   fontSize: 11.sp,
                 ),

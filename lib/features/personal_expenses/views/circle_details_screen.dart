@@ -34,7 +34,7 @@ class CircleDetailsScreen extends StatelessWidget {
         ),
         title: Text(
           circleName,
-          style: AppTexts.heading.copyWith(
+          style: context.appTexts.heading.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
             fontSize: 24.sp,
           ),
@@ -63,7 +63,7 @@ class CircleDetailsScreen extends StatelessWidget {
                 Center(
                   child: Text(
                     'One-time • 3 members • Created 20 Jun',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       fontWeight: FontWeight.w600,
                     ),
@@ -81,7 +81,7 @@ class CircleDetailsScreen extends StatelessWidget {
                   children: [
                     Text(
                       'MEMBERS',
-                      style: AppTexts.bodySmall.copyWith(
+                      style: context.appTexts.bodySmall.copyWith(
                         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.8,
@@ -91,7 +91,7 @@ class CircleDetailsScreen extends StatelessWidget {
                       onTap: () {},
                       child: Text(
                         '+ Invite',
-                        style: AppTexts.bodySmall.copyWith(
+                        style: context.appTexts.bodySmall.copyWith(
                           color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                           fontWeight: FontWeight.w700,
                         ),
@@ -137,7 +137,7 @@ class CircleDetailsScreen extends StatelessWidget {
                 // ── Transactions Section ──
                 Text(
                   'TRANSACTIONS',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
@@ -188,7 +188,7 @@ class CircleDetailsScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'See all transactions',
-                                style: AppTexts.bodySmall.copyWith(
+                                style: context.appTexts.bodySmall.copyWith(
                                   color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -268,7 +268,7 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Text(
             'SUMMARY',
-            style: AppTexts.bodySmall.copyWith(
+            style: context.appTexts.bodySmall.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -280,7 +280,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Text(
                 'Total spent:',
-                style: AppTexts.displayMedium.copyWith(
+                style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? AppColors.textSecondaryDark : AppColors.primary,
                   fontSize: 24.sp,
                 ),
@@ -288,7 +288,7 @@ class _SummaryCard extends StatelessWidget {
               UIHelpers.horizontalSpace(8),
               Text(
                 '₹7,200',
-                style: AppTexts.displayMedium.copyWith(
+                style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? Colors.white : AppColors.primary,
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w700,
@@ -336,7 +336,7 @@ class _SummaryCard extends StatelessWidget {
                   UIHelpers.horizontalSpace(6),
                   Text(
                     '₹3,600 settled',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textPrimaryLight,
                       fontWeight: FontWeight.w600,
                     ),
@@ -356,7 +356,7 @@ class _SummaryCard extends StatelessWidget {
                   UIHelpers.horizontalSpace(6),
                   Text(
                     '₹3,600 pending',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark ? AppColors.expense : AppColors.textSecondaryLight,
                       fontWeight: FontWeight.w600,
                     ),
@@ -421,7 +421,7 @@ class _MemberCard extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               initials,
-              style: AppTexts.bodyMedium.copyWith(
+              style: context.appTexts.bodyMedium.copyWith(
                 color: avatarTextColor ?? Colors.white,
                 fontWeight: FontWeight.w700,
                 fontSize: 16.sp,
@@ -439,7 +439,7 @@ class _MemberCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: AppTexts.bodyMedium.copyWith(
+                      style: context.appTexts.bodyMedium.copyWith(
                         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                         fontWeight: FontWeight.w600,
                       ),
@@ -454,7 +454,7 @@ class _MemberCard extends StatelessWidget {
                       ),
                       child: Text(
                         badgeText,
-                        style: AppTexts.bodySmall.copyWith(
+                        style: context.appTexts.bodySmall.copyWith(
                           color: badgeColor,
                           fontWeight: FontWeight.w700,
                           fontSize: 9.sp,
@@ -467,7 +467,7 @@ class _MemberCard extends StatelessWidget {
                 UIHelpers.verticalSpace(4),
                 Text(
                   subtext,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: subtextColor ?? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                   ),
                 ),
@@ -490,7 +490,7 @@ class _MemberCard extends StatelessWidget {
                 ),
                 child: Text(
                   'Remind',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w500,
                   ),
@@ -554,7 +554,7 @@ class _TransactionTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTexts.bodyMedium.copyWith(
+                  style: context.appTexts.bodyMedium.copyWith(
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                     fontWeight: FontWeight.w600,
                   ),
@@ -562,7 +562,7 @@ class _TransactionTile extends StatelessWidget {
                 UIHelpers.verticalSpace(4),
                 Text(
                   subtitle,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                 ),
@@ -573,7 +573,7 @@ class _TransactionTile extends StatelessWidget {
           // Amount
           Text(
             amount,
-            style: AppTexts.displayMedium.copyWith(
+            style: context.appTexts.displayMedium.copyWith(
               color: AppColors.expense,
               fontSize: 18.sp,
             ),

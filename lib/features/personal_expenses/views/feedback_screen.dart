@@ -95,7 +95,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         ),
         title: Text(
           'Feedback',
-          style: AppTexts.heading.copyWith(
+          style: context.appTexts.heading.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
             fontSize: 18.sp,
           ),
@@ -126,7 +126,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Center(
               child: Text(
                 'How can we improve?',
-                style: AppTexts.displayMedium.copyWith(
+                style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                   fontSize: 24.sp,
                 ),
@@ -137,7 +137,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Center(
               child: Text(
                 'Share your thoughts, report a bug or suggest a new feature.',
-                style: AppTexts.bodyMedium.copyWith(
+                style: context.appTexts.bodyMedium.copyWith(
                   color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   height: 1.5,
                 ),
@@ -149,7 +149,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             // ── Type Selector ──
             Text(
               'Type',
-              style: AppTexts.bodySmall.copyWith(
+              style: context.appTexts.bodySmall.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -176,7 +176,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                     child: Text(
                       type,
-                      style: AppTexts.bodySmall.copyWith(
+                      style: context.appTexts.bodySmall.copyWith(
                         color: isSelected
                             ? Colors.white
                             : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
@@ -192,7 +192,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             // ── Message ──
             Text(
               'Message',
-              style: AppTexts.bodySmall.copyWith(
+              style: context.appTexts.bodySmall.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -210,12 +210,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               child: TextField(
                 controller: _feedbackController,
                 maxLines: 8,
-                style: AppTexts.bodyMedium.copyWith(
+                style: context.appTexts.bodyMedium.copyWith(
                   color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Type your message here...',
-                  hintStyle: AppTexts.bodyMedium.copyWith(
+                  hintStyle: context.appTexts.bodyMedium.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                   contentPadding: EdgeInsets.all(20.w),
@@ -237,7 +237,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Center(
               child: Text(
                 'Or email us at hi@nautilustechlabs.com',
-                style: AppTexts.bodySmall.copyWith(
+                style: context.appTexts.bodySmall.copyWith(
                   color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),

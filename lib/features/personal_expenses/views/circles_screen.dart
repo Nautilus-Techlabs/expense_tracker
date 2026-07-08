@@ -118,7 +118,7 @@ class CirclesScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Circles',
-                            style: AppTexts.displayMedium.copyWith(
+                            style: context.appTexts.displayMedium.copyWith(
                               color: isDark
                                   ? AppColors.textPrimaryDark
                                   : AppColors.primary,
@@ -162,7 +162,7 @@ class CirclesScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'Create a new circle',
-                  style: AppTexts.bodyLarge.copyWith(
+                  style: context.appTexts.bodyLarge.copyWith(
                     color: isDark
                         ? AppColors.textPrimaryDark
                         : AppColors.primary,
@@ -219,7 +219,7 @@ class _SummaryBanner extends StatelessWidget {
                 children: [
                   Text(
                     'You are owed ₹2,400',
-                    style: AppTexts.bodyMedium.copyWith(
+                    style: context.appTexts.bodyMedium.copyWith(
                       color: AppColors.textSecondaryDark,
                     ),
                   ),
@@ -232,7 +232,7 @@ class _SummaryBanner extends StatelessWidget {
                 padding: EdgeInsets.only(left: 16.w),
                 child: Text(
                   'You owe ₹800',
-                  style: AppTexts.bodyMedium.copyWith(color: AppColors.expense),
+                  style: context.appTexts.bodyMedium.copyWith(color: AppColors.expense),
                 ),
               ),
             ),
@@ -263,7 +263,7 @@ class _SummaryBanner extends StatelessWidget {
                 UIHelpers.horizontalSpace(6),
                 Text(
                   'YOU ARE OWED ₹2,400',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: AppColors.income,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -283,7 +283,7 @@ class _SummaryBanner extends StatelessWidget {
                 UIHelpers.horizontalSpace(6),
                 Text(
                   'YOU OWE ₹800',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: AppColors.expense,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -343,7 +343,7 @@ class _CircleCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     circle.name,
-                    style: AppTexts.displayMedium.copyWith(
+                    style: context.appTexts.displayMedium.copyWith(
                       color: isDark
                           ? AppColors.textPrimaryDark
                           : AppColors.primary,
@@ -376,7 +376,7 @@ class _CircleCard extends StatelessWidget {
                 UIHelpers.horizontalSpace(6),
                 Text(
                   '${circle.members.length} members',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
                         : AppColors.textSecondaryLight,
@@ -414,7 +414,7 @@ class _CircleCard extends StatelessWidget {
                 children: [
                   Text(
                     'Settlement Progress',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark
                           ? AppColors.textSecondaryDark
                           : AppColors.textSecondaryLight,
@@ -423,7 +423,7 @@ class _CircleCard extends StatelessWidget {
                   ),
                   Text(
                     '${(circle.settlementProgress * 100).toStringAsFixed(0)}%',
-                    style: AppTexts.bodySmall.copyWith(
+                    style: context.appTexts.bodySmall.copyWith(
                       color: isDark
                           ? AppColors.textPrimaryDark
                           : AppColors.textPrimaryLight,
@@ -497,7 +497,7 @@ class _CircleCard extends StatelessWidget {
                     UIHelpers.horizontalSpace(6),
                     Text(
                       'Last activity: ${circle.lastActivity}',
-                      style: AppTexts.bodySmall.copyWith(
+                      style: context.appTexts.bodySmall.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark
                             : AppColors.textSecondaryLight,
@@ -538,7 +538,7 @@ class _TypeBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTexts.bodySmall.copyWith(
+        style: context.appTexts.bodySmall.copyWith(
           color: isOngoing
               ? AppColors.income
               : (isDark
@@ -592,7 +592,7 @@ class _MemberAvatarStack extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   e.value.initials,
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: Colors.white,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
@@ -620,7 +620,7 @@ class _MemberAvatarStack extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   '+$overflow',
-                  style: AppTexts.bodySmall.copyWith(
+                  style: context.appTexts.bodySmall.copyWith(
                     color: Colors.white,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
@@ -654,7 +654,7 @@ class _StatColumn extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTexts.bodySmall.copyWith(
+          style: context.appTexts.bodySmall.copyWith(
             color: isDark
                 ? AppColors.textSecondaryDark
                 : AppColors.textSecondaryLight,
@@ -663,7 +663,7 @@ class _StatColumn extends StatelessWidget {
         UIHelpers.verticalSpace(4),
         Text(
           value,
-          style: AppTexts.bodyLarge.copyWith(
+          style: context.appTexts.bodyLarge.copyWith(
             color: valueColor,
             fontWeight: FontWeight.w700,
             fontSize: 18.sp,

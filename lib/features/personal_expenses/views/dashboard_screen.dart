@@ -48,19 +48,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         Text(
                           'Good morning,',
-                          style: AppTexts.bodyMedium.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.textPrimaryLight,
-                          ),
+                          style: context.appTexts.bodyMedium,
                         ),
                         Text(
                           'Rahul', // In real app, fetch from profile
-                          style: AppTexts.displaySmall.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.primary,
-                          ),
+                          style: context.appTexts.displaySmall,
                         ),
                       ],
                     ),
@@ -81,7 +73,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           backgroundColor: AppColors.primary,
                           child: Text(
                             'RK',
-                            style: AppTexts.bodyLarge.copyWith(
+                            style: context.appTexts.bodyLarge.copyWith(
                               color: Colors.white,
                             ),
                           ),
@@ -108,7 +100,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 // 4. Today's Transactions Header
                 Text(
                   'Today',
-                  style: AppTexts.headingMedium.copyWith(
+                  style: context.appTexts.headingMedium.copyWith(
                     color: isDark
                         ? AppColors.textPrimaryDark
                         : AppColors.textPrimaryLight,
@@ -121,7 +113,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Center(
                     child: Text(
                       "No transactions yet.",
-                      style: AppTexts.bodyMedium.copyWith(
+                      style: context.appTexts.bodyMedium.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark
                             : AppColors.textSecondaryLight,
@@ -153,7 +145,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         Text(
                           'See all transactions',
-                          style: AppTexts.bodyMedium.copyWith(
+                          style: context.appTexts.bodyMedium.copyWith(
                             color: isDark
                                 ? AppColors.textPrimaryDark
                                 : AppColors.primary,
@@ -232,25 +224,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Total balance',
-                    style: AppTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('Total balance', style: context.appTexts.bodyMedium),
                   UIHelpers.verticalSpace(8),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         '₹${balance.toStringAsFixed(0)}',
-                        style: AppTexts.displayMedium.copyWith(
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight,
-                        ),
+                        style: context.appTexts.displayMedium,
                       ),
                       UIHelpers.horizontalSpace(8),
                       Icon(
@@ -280,15 +261,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       color: AppColors.primary,
                     ),
                   ),
-                  Text(
-                    '80%',
-                    style: AppTexts.bodySmall.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('80%', style: context.appTexts.bodySmall),
                 ],
               ),
             ],
@@ -300,14 +273,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Income',
-                    style: AppTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('Income', style: context.appTexts.bodyMedium),
                   UIHelpers.verticalSpace(4),
                   Row(
                     children: [
@@ -319,7 +285,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       UIHelpers.horizontalSpace(4),
                       Text(
                         '₹${income.toStringAsFixed(0)}',
-                        style: AppTexts.amountIncome,
+                        style: context.appTexts.amountIncome,
                       ),
                     ],
                   ),
@@ -328,14 +294,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Expense',
-                    style: AppTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('Expense', style: context.appTexts.bodyMedium),
                   UIHelpers.verticalSpace(4),
                   Row(
                     children: [
@@ -347,7 +306,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       UIHelpers.horizontalSpace(4),
                       Text(
                         '₹${expense.toStringAsFixed(0)}',
-                        style: AppTexts.amountExpense,
+                        style: context.appTexts.amountExpense,
                       ),
                     ],
                   ),
@@ -373,22 +332,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'June budget',
-                style: AppTexts.headingMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
-                ),
-              ),
-              Text(
-                '₹32,000 / ₹40,000',
-                style: AppTexts.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
-              ),
+              Text('June budget', style: context.appTexts.headingMedium),
+              Text('₹32,000 / ₹40,000', style: context.appTexts.bodyMedium),
             ],
           ),
           UIHelpers.verticalSpace(12),
@@ -424,18 +369,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'You are owed',
-                    style: AppTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('You are owed', style: context.appTexts.bodyMedium),
                   UIHelpers.verticalSpace(4),
                   Text(
                     '₹2,400',
-                    style: AppTexts.amountIncome.copyWith(
+                    style: context.appTexts.amountIncome.copyWith(
                       fontSize: 20.sp,
                     ), // Slightly smaller than Large
                   ),
@@ -449,18 +387,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'You owe',
-                    style: AppTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text('You owe', style: context.appTexts.bodyMedium),
                   UIHelpers.verticalSpace(4),
                   Text(
                     '₹800',
-                    style: AppTexts.amountExpense.copyWith(fontSize: 20.sp),
+                    style: context.appTexts.amountExpense.copyWith(
+                      fontSize: 20.sp,
+                    ),
                   ),
                 ],
               ),
@@ -478,10 +411,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               children: [
                 Text(
                   'View circles',
-                  style: AppTexts.bodyMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.primary,
+                  style: context.appTexts.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -512,22 +442,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTexts.bodyMedium.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
+          Text(title, style: context.appTexts.bodyMedium),
           UIHelpers.verticalSpace(12),
           Text(
             subtitle,
-            style: AppTexts.bodyLarge.copyWith(
+            style: context.appTexts.bodyLarge.copyWith(
               fontWeight: FontWeight.w600,
-              color: isDark
-                  ? AppColors.textPrimaryDark
-                  : AppColors.textPrimaryLight,
             ),
           ),
         ],
