@@ -81,44 +81,99 @@ class SupabaseHelper {
 
   Future<Either<Failure, UserModel>> createUser(UserPayload data) async {
     try {
-      final existingUser = await supabase
-          .from(SupabaseKeys.tableUsers)
-          .select('email')
-          .eq('email', data.email)
-          .maybeSingle();
-
-      if (existingUser != null) {
-        return Left(Failure('A user with this email already exists.'));
-      }
-
       final signUpResponse = await supabase.auth.signUp(
         password: data.password!,
         email: data.email,
       );
-      final user = signUpResponse.user;
 
+      final user = signUpResponse.user;
       if (user == null) {
-        return Left(Failure('Failed to sign up user via Supabase Auth.'));
+        return Left(Failure('Signup failed. Please try again.'));
       }
-      final userId = user.id;
 
       final insertResponse = await supabase
           .from(SupabaseKeys.tableUsers)
           .insert({
             'full_name': data.name,
-            'phone': data.phone,
             'email': data.email,
-            'auth_id': userId,
+            'auth_id': user.id,
           })
           .select()
           .single();
 
-      final userModel = UserModel.fromJson(insertResponse);
-      AppLogger.i('User created successfully: $userModel');
-      return Right(userModel);
+      return Right(UserModel.fromJson(insertResponse));
+    } on AuthException catch (e) {
+      // Supabase auth errors — email already registered etc
+      AppLogger.e('Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } on PostgrestException catch (e) {
+      // DB constraint violations — duplicate email/phone
+      AppLogger.e('DB error: ${e.message}');
+      if (e.code == '23505') {
+        return Left(Failure('An account with this email already exists.'));
+      }
+      return Left(Failure('Failed to create profile. Please try again.'));
     } catch (e) {
-      AppLogger.e('Error creating user: $e');
-      return Left(Failure('Error Creating User: $e'));
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong. Please try again.'));
+    }
+  }
+
+  Future<Either<Failure, void>> signInWithGoogle() async {
+    try {
+      await supabase.auth.signInWithOAuth(OAuthProvider.google);
+      return const Right(null);
+    } on AuthException catch (e) {
+      AppLogger.e('Google Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Unexpected Google error: $e');
+      return Left(Failure('Something went wrong with Google sign-in.'));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> signIn(
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      final user = response.user;
+      if (user == null) {
+        return Left(Failure('Sign in failed.'));
+      }
+
+      final profileResponse = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', user.id)
+          .single();
+
+      return Right(UserModel.fromJson(profileResponse));
+    } on AuthException catch (e) {
+      AppLogger.e('Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong. Please try again.'));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> fetchUserProfile(String authId) async {
+    try {
+      final profileResponse = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', authId)
+          .single();
+
+      return Right(UserModel.fromJson(profileResponse));
+    } catch (e) {
+      AppLogger.e('Error fetching profile: $e');
+      return Left(Failure('Failed to load profile.'));
     }
   }
 

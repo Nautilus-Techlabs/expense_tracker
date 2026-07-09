@@ -1,5 +1,7 @@
 import 'package:expense_tracker/features/auth/model/user_payload.dart';
+import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,47 +10,59 @@ import '../../../../core/constants/app_router.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import 'auth_widgets.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  bool _isPhoneTab = true;
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _obscurePassword = true;
 
-  final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
-  void _onSubmit() {
-    if (_isPhoneTab) {
-      // Phone → OTP screen
-      context.push(
-        AppRouter.verifyOtp,
-        extra: '+91 ${_phoneController.text.trim()}',
-      );
-    } else {
-      // Email → dashboard
-      final data = UserPayload(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phone: '+91 ${_phoneController.text.trim()}',
-        password: _passwordController.text.trim(),
-      );
-      // SupabaseHelper().createUser(data);
+  Future<void> _onSubmit() async {
+    // Email → dashboard
+    final data = UserPayload(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+    final success = await ref.read(authProvider.notifier).signUp(data);
+    if (success && mounted) {
       context.push(AppRouter.transactions);
+    } else if (mounted) {
+      final error = ref.read(authProvider).errorMessage;
+      if (error != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error)));
+      }
+    }
+  }
+
+  Future<void> _onGoogleSignIn() async {
+    final success = await ref.read(authProvider.notifier).signInWithGoogle();
+    if (success && mounted) {
+      context.push(AppRouter.transactions);
+    } else if (mounted) {
+      final error = ref.read(authProvider).errorMessage;
+      if (error != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error)));
+      }
     }
   }
 
@@ -64,6 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         : AppColors.textSecondaryLight;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final cardBg = isDark ? AppColors.cardDark : Colors.white;
+    final authState = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: bg,
@@ -113,87 +128,111 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     UIHelpers.verticalSpace(32),
 
-                    // ── Tab Toggle ──
-                    AuthTabToggle(
-                      isPhoneSelected: _isPhoneTab,
-                      isDark: isDark,
-                      onPhoneTap: () => setState(() => _isPhoneTab = true),
-                      onEmailTap: () => setState(() => _isPhoneTab = false),
-                    ),
-                    UIHelpers.verticalSpace(28),
-
                     // ── Fields ──
-                    if (_isPhoneTab) ...[
-                      AuthPhoneField(
-                        controller: _phoneController,
-                        isDark: isDark,
-                        cardBg: cardBg,
-                        borderColor: borderColor,
+                    Text(
+                      'Name',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: textSecondary,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ] else ...[
-                      Text(
-                        'Name',
-                        style: context.appTexts.bodySmall.copyWith(
+                    ),
+                    UIHelpers.verticalSpace(8),
+                    AuthInputField(
+                      controller: _nameController,
+                      hint: 'Enter your full name',
+                      keyboardType: TextInputType.name,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                    ),
+                    UIHelpers.verticalSpace(20),
+                    Text(
+                      'Email',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    UIHelpers.verticalSpace(8),
+                    AuthInputField(
+                      controller: _emailController,
+                      hint: 'Enter your email',
+                      keyboardType: TextInputType.emailAddress,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                    ),
+                    UIHelpers.verticalSpace(20),
+                    Text(
+                      'Password',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    UIHelpers.verticalSpace(8),
+                    AuthInputField(
+                      controller: _passwordController,
+                      hint: 'Create a password',
+                      obscure: _obscurePassword,
+                      isDark: isDark,
+                      cardBg: cardBg,
+                      borderColor: borderColor,
+                      suffix: GestureDetector(
+                        onTap: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
+                        child: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          size: 20.sp,
                           color: textSecondary,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      UIHelpers.verticalSpace(8),
-                      AuthInputField(
-                        controller: _nameController,
-                        hint: 'Enter your full name',
-                        keyboardType: TextInputType.name,
-                        isDark: isDark,
-                        cardBg: cardBg,
-                        borderColor: borderColor,
-                      ),
-                      UIHelpers.verticalSpace(20),
-                      Text(
-                        'Email',
-                        style: context.appTexts.bodySmall.copyWith(
-                          color: textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      UIHelpers.verticalSpace(8),
-                      AuthInputField(
-                        controller: _emailController,
-                        hint: 'Enter your email',
-                        keyboardType: TextInputType.emailAddress,
-                        isDark: isDark,
-                        cardBg: cardBg,
-                        borderColor: borderColor,
-                      ),
-                      UIHelpers.verticalSpace(20),
-                      Text(
-                        'Password',
-                        style: context.appTexts.bodySmall.copyWith(
-                          color: textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      UIHelpers.verticalSpace(8),
-                      AuthInputField(
-                        controller: _passwordController,
-                        hint: 'Create a password',
-                        obscure: _obscurePassword,
-                        isDark: isDark,
-                        cardBg: cardBg,
-                        borderColor: borderColor,
-                        suffix: GestureDetector(
-                          onTap: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
+                    ),
+                    UIHelpers.verticalSpace(32),
+
+                    // ── Social Login ──
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: borderColor)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Text(
+                            'OR',
+                            style: context.appTexts.label.copyWith(
+                              color: textSecondary,
+                            ),
                           ),
-                          child: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            size: 20.sp,
-                            color: textSecondary,
+                        ),
+                        Expanded(child: Divider(color: borderColor)),
+                      ],
+                    ),
+                    UIHelpers.verticalSpace(24),
+
+                    SizedBox(
+                      height: 56.h,
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: authState.isLoading ? null : _onGoogleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: borderColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32.r),
                           ),
                         ),
+                        child: authState.isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                                'Continue with Google',
+                                style: context.appTexts.bodyMedium.copyWith(
+                                  color: textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
@@ -234,7 +273,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 56.h,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _onSubmit,
+                      onPressed: authState.isLoading ? null : _onSubmit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
@@ -242,15 +281,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: Text(
-                        _isPhoneTab ? 'Send OTP' : 'CREATE ACCOUNT',
-                        style: context.appTexts.bodyMedium.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
+                      child: authState.isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'CREATE ACCOUNT',
+                              style: context.appTexts.bodyMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15.sp,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
                     ),
                   ),
                 ],

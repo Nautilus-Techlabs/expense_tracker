@@ -554,12 +554,10 @@ class AppTexts {
   AppTexts(this.context);
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
-  Color get _textPrimary => _isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-  Color get _textMuted => _isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
-
-  // ── Display / Hero amounts (Playfair Display equivalent)
-  // Note: Register 'PlayfairDisplay' in pubspec.yaml fonts
-  // Use for: balance amounts, transaction amounts, screen headings
+  Color get _textPrimary =>
+      _isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+  Color get _textMuted =>
+      _isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
 
   TextStyle get displayLarge => TextStyle(
     fontFamily: 'PlayfairDisplay',

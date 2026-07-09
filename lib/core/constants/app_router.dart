@@ -1,4 +1,3 @@
-import 'package:expense_tracker/features/auth/views/otp_screen.dart';
 import 'package:expense_tracker/features/auth/views/signin_screen.dart';
 import 'package:expense_tracker/features/auth/views/signup_screen.dart';
 import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
@@ -8,10 +7,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/transaction.dart';
 import '../../features/personal_expenses/views/bank_detail_transactions_screen.dart';
+import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/detailed_transaction.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
-import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
 
 class AppRouter {
@@ -31,16 +30,18 @@ class AppRouter {
     initialLocation: splash,
     routes: [
       GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
-      GoRoute(path: welcome, builder: (context, state) => const WelcomeScreen()),
-      GoRoute(path: signin, builder: (context, state) => const SignInScreen()),
-      GoRoute(path: signup, builder: (context, state) => const SignUpScreen()),
       GoRoute(
-        path: verifyOtp,
-        builder: (context, state) {
-          final phone = state.extra as String? ?? '+91 XXXXXXXXXX';
-          return OtpScreen(phoneNumber: phone);
-        },
+        path: welcome,
+        builder: (context, state) => const WelcomeScreen(),
       ),
+      GoRoute(path: signin, builder: (context, state) => const SignInScreen()),
+
+      GoRoute(
+        path: welcome,
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+
+      GoRoute(path: signup, builder: (context, state) => const SignUpScreen()),
       GoRoute(
         path: transactions,
         builder: (context, state) => const MainScreen(),

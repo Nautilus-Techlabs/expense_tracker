@@ -11,7 +11,6 @@ UserPayload _$UserPayloadFromJson(Map<String, dynamic> json) => UserPayload(
   name: json['full_name'] as String,
   email: json['email'] as String,
   password: json['password'] as String?,
-  phone: json['phone'] as String?,
 );
 
 Map<String, dynamic> _$UserPayloadToJson(UserPayload instance) =>
@@ -20,5 +19,4 @@ Map<String, dynamic> _$UserPayloadToJson(UserPayload instance) =>
       'email': instance.email,
       'password': instance.password,
       'full_name': instance.name,
-      'phone': ?instance.phone,
     };

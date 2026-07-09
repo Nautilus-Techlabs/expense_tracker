@@ -12,15 +12,12 @@ class UserPayload {
   final String? password;
   @JsonKey(name: "full_name")
   final String name;
-  @JsonKey(name: "phone", includeIfNull: false)
-  final String? phone;
 
   UserPayload({
     this.authID,
     required this.name,
     required this.email,
     this.password,
-    this.phone,
   });
 
   Map<String, dynamic> toJson() => _$UserPayloadToJson(this);

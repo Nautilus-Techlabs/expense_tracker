@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,14 +19,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(milliseconds: 2500), _navigateToWelcome);
+    Future.delayed(const Duration(milliseconds: 2500), _navigate);
   }
 
-  void _navigateToWelcome() async {
+  void _navigate() async {
     if (!mounted) return;
-    // Initialize notification service (no SMS permission check)
-    // await NotificationService.instance.initialize();
-    if (mounted) {
+
+    final user = ref.read(authProvider).user;
+    if (user != null) {
+      context.go(AppRouter.transactions);
+    } else {
       context.go(AppRouter.welcome);
     }
   }
