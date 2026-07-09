@@ -9,6 +9,7 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
+import '../../auth/viewmodels/auth_notifier.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -18,11 +19,29 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning,';
+    if (hour < 17) return 'Good afternoon,';
+    return 'Good evening,';
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
     final controller = ref.read(transactionProvider.notifier);
+    final user = ref.watch(authProvider).user;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    String initials = '??';
+    if (user != null && user.fullName.isNotEmpty) {
+      final parts = user.fullName.trim().split(' ');
+      if (parts.length > 1) {
+        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      } else if (parts[0].isNotEmpty) {
+        initials = parts[0][0].toUpperCase();
+      }
+    }
 
     return Scaffold(
       backgroundColor: isDark
@@ -47,11 +66,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Good morning,',
+                          _getGreeting(),
                           style: context.appTexts.bodyMedium,
                         ),
                         Text(
-                          'Rahul', // In real app, fetch from profile
+                          user?.fullName.split(' ').first ?? 'User',
                           style: context.appTexts.displaySmall,
                         ),
                       ],
@@ -72,7 +91,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           radius: 24.r,
                           backgroundColor: AppColors.primary,
                           child: Text(
-                            'RK',
+                            initials,
                             style: context.appTexts.bodyLarge.copyWith(
                               color: Colors.white,
                             ),

@@ -16,17 +16,24 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _timerFinished = false;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 2500), _navigate);
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (mounted) {
+        setState(() => _timerFinished = true);
+        _checkNavigation();
+      }
+    });
   }
 
-  void _navigate() async {
-    if (!mounted) return;
+  void _checkNavigation() {
+    final authState = ref.read(authProvider);
+    if (!_timerFinished || authState.isLoading) return;
 
-    final user = ref.read(authProvider).user;
-    if (user != null) {
+    if (authState.user != null) {
       context.go(AppRouter.transactions);
     } else {
       context.go(AppRouter.welcome);
@@ -35,6 +42,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch authProvider to trigger _checkNavigation when isLoading changes
+    ref.listen(authProvider, (previous, next) {
+      if (!next.isLoading) {
+        _checkNavigation();
+      }
+    });
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
