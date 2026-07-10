@@ -9,11 +9,8 @@ class DashboardHeader extends StatelessWidget {
   final double balance;
   final double income;
   final double spends;
-  final VoidCallback onSync;
   final VoidCallback onSupport;
-  final bool isLoading;
   final GlobalKey? balanceKey;
-  final GlobalKey? syncKey;
   final GlobalKey? supportKey;
 
   const DashboardHeader({
@@ -21,11 +18,8 @@ class DashboardHeader extends StatelessWidget {
     required this.balance,
     required this.income,
     required this.spends,
-    required this.onSync,
     required this.onSupport,
-    required this.isLoading,
     this.balanceKey,
-    this.syncKey,
     this.supportKey,
   });
 
@@ -89,17 +83,6 @@ class DashboardHeader extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Showcase(
-                    key: syncKey ?? GlobalKey(),
-                    title: 'Sync Transactions',
-                    description: 'Tap here to refresh your transactions from SMS.',
-                    child: _HeaderAction(
-                      icon: Icons.sync_rounded,
-                      onTap: onSync,
-                      isLoading: isLoading,
-                    ),
-                  ),
-                  UIHelpers.horizontalSpace(8),
                   Showcase(
                     key: supportKey ?? GlobalKey(),
                     title: 'Support & Feedback',

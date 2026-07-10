@@ -9,6 +9,7 @@ import 'package:expense_tracker/features/personal_expenses/models/account_model.
 import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -139,9 +140,28 @@ class SupabaseHelper {
       final transactions = response
           .map((json) => TransactionModel.fromJson(json))
           .toList();
+      AppLogger.d('Fetched transactions: ${transactions.length}');
       return Right(transactions);
     } catch (e) {
+      AppLogger.e('Error fetching transactions: $e');
       return Left(Failure('Error fetching transactions: $e'));
+    }
+  }
+
+  Future<Either<Failure, TransactionModel>> addTransactions(
+    TransactionPayload payload,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .insert(payload.toJson())
+          .select()
+          .single();
+      AppLogger.d('Inserted transactions: $response');
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error inserting transactions: $e');
+      return Left(Failure('Error inserting transactions: $e'));
     }
   }
 

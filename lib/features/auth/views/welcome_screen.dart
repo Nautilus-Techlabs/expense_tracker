@@ -13,8 +13,12 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return Scaffold(
       backgroundColor: bg,
@@ -77,7 +81,7 @@ class WelcomeScreen extends StatelessWidget {
               UIHelpers.verticalSpace(12),
               _OutlineButton(
                 label: 'Sign in',
-                onTap: () => context.push(AppRouter.signin),
+                onTap: () => context.push(AppRouter.signIn),
                 isDark: isDark,
               ),
               UIHelpers.verticalSpace(32),
@@ -157,7 +161,11 @@ class _OutlineButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool isDark;
-  const _OutlineButton({required this.label, required this.onTap, required this.isDark});
+  const _OutlineButton({
+    required this.label,
+    required this.onTap,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +185,9 @@ class _OutlineButton extends StatelessWidget {
         child: Text(
           label,
           style: context.appTexts.bodyMedium.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
             fontWeight: FontWeight.w600,
             fontSize: 16.sp,
           ),

@@ -1,103 +1,74 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../domain/entities/opening_balance.dart';
-import '../../../../domain/entities/transaction.dart';
-import '../viewmodels/transaction_state.dart';
+import '../../../data/remote/supabase/supabase_helper.dart';
+import '../../auth/viewmodels/auth_notifier.dart';
+import '../models/transaction_payload.dart';
+import 'transaction_state.dart';
 
-final transactionProvider =
-    NotifierProvider<TransactionController, TransactionState>(() {
-      return TransactionController();
-    });
+final transactionProvider = NotifierProvider<TransactionNotifier, TransactionState>(() {
+  return TransactionNotifier();
+});
 
-class TransactionController extends Notifier<TransactionState> {
+class TransactionNotifier extends Notifier<TransactionState> {
   @override
   TransactionState build() {
-    Future.microtask(() => _init());
-    return TransactionState(isLoading: true);
-  }
-
-  Future<void> _init() async {
-    try {
-      await loadCategories();
-      await loadFromStorage();
-      await syncTransactions(isStartup: true);
-    } finally {
-      state = state.copyWith(isLoading: false);
+    // Attempt to fetch transactions if user is already available
+    final user = ref.watch(authProvider).user;
+    if (user != null) {
+      Future.microtask(() => fetchTransactions());
     }
+    return TransactionState();
   }
 
-  Future<void> loadFromStorage() async {
-    // TODO: Implement with new Drift schema
-    state = state.copyWith(
-      allTransactions: [],
-      openingBalances: [],
-      isShowingSampleData: false,
+  Future<void> fetchTransactions() async {
+    final user = ref.read(authProvider).user;
+    if (user == null) return;
+
+    state = state.copyWith(isLoading: true);
+    final result = await SupabaseHelper().fetchAllTransactions(user.id);
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        isLoading: false,
+        errorMessage: () => failure.message,
+      ),
+      (transactions) {
+        transactions.sort((a, b) => b.txnDate.compareTo(a.txnDate));
+        state = state.copyWith(isLoading: false, transactions: transactions);
+      },
     );
   }
 
-  Future<void> syncTransactions({bool isStartup = false}) async {
-    // SMS Sync removed
+  // Alias for Pull-to-refresh
+  Future<void> syncTransactions() async {
+    await fetchTransactions();
   }
 
-  void setSort(TransactionSort sort) {
-    state = state.copyWith(currentSort: sort);
-  }
+  Future<bool> addTransaction(TransactionPayload payload) async {
+    final user = ref.read(authProvider).user;
+    if (user == null) return false;
 
-  Future<void> verifyTransaction({
-    required String rawSms,
-    required PaymentMethod method,
-    required String account,
-    required String bankName,
-    String? description,
-  }) async {
-    // TODO: Implement with new Drift schema
-  }
+    state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-  Future<void> updateTransactionDetails({
-    required int id,
-    required double amount,
-    required PaymentMethod method,
-    required bool isVerified,
-    String? description,
-    int? categoryId,
-    String? merchant,
-  }) async {
-    // TODO: Implement with new Drift schema
-  }
+    final result = await SupabaseHelper().addTransactions(payload);
 
-  Future<void> addManualTransaction({
-    required double amount,
-    required TransactionType type,
-    required DateTime date,
-    required PaymentMethod method,
-    String? bankName,
-    String? merchant,
-    String? account,
-    String? description,
-    int? categoryId,
-  }) async {
-    // TODO: Implement with new Drift schema
-  }
-
-  Future<void> setOpeningBalance(OpeningBalance balance) async {
-    // TODO: Implement with new Drift schema
-  }
-
-  Future<void> loadCategories() async {
-    // TODO: Implement with new Drift schema
-    state = state.copyWith(categories: []);
-  }
-
-  Future<int?> addCategory(
-    String name, {
-    String icon = 'category',
-    int? color,
-  }) async {
-    // TODO: Implement with new Drift schema
-    return null;
-  }
-
-  Future<void> deleteTransaction(int id) async {
-    // TODO: Implement with new Drift schema
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: () => failure.message,
+        );
+        return false;
+      },
+      (transaction) {
+        final newTransactions = [transaction, ...state.transactions];
+        newTransactions.sort((a, b) => b.txnDate.compareTo(a.txnDate));
+        state = state.copyWith(
+          isLoading: false,
+          transactions: newTransactions,
+        );
+        return true;
+      },
+    );
   }
 }

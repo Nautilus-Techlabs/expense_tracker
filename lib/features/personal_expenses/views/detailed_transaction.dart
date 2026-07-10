@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../domain/entities/transaction.dart';
-import '../viewmodels/detailed_transaction_viewmodel.dart';
+import '../models/transaction_model.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
-  final Transaction transaction;
+  final TransactionModel transaction;
   final String? heroTag;
 
   const DetailedTransactionScreen({
@@ -29,36 +29,32 @@ class _DetailedTransactionScreenState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(detailedTransactionViewModelProvider.notifier)
-          .init(widget.transaction);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(detailedTransactionViewModelProvider.notifier).init(widget.transaction);
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(detailedTransactionViewModelProvider);
-    final vm = ref.read(detailedTransactionViewModelProvider.notifier);
+    // final state = ref.watch(detailedTransactionViewModelProvider);
+    // final vm = ref.read(detailedTransactionViewModelProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isDebit = widget.transaction.type == TransactionType.debit;
+    final isDebit = widget.transaction.type == 'debit';
     final amountColor = isDebit ? AppColors.expense : AppColors.income;
 
-    // Detect if it belongs to a Circle
-    // TODO: Replace with real circleId check once Circle feature is built
-    final bool isCircleTransaction = widget.transaction.description?.startsWith('circle:') ?? false;
+    final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
-    ref.listen<DetailedTransactionState>(
-        detailedTransactionViewModelProvider, (previous, next) {
-      if (next.error != null && next.error != previous?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: AppColors.expense,
-          ),
-        );
-      }
-    });
+    // ref.listen<DetailedTransactionState>(
+    //     detailedTransactionViewModelProvider, (previous, next) {
+    //   if (next.error != null && next.error != previous?.error) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(
+    //         content: Text(next.error!),
+    //         backgroundColor: AppColors.expense,
+    //       ),
+    //     );
+    //   }
+    // });
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -96,7 +92,7 @@ class _DetailedTransactionScreenState
 
             // ── Merchant Name ──
             Text(
-              state.merchant.isNotEmpty ? state.merchant : 'Unknown',
+              widget.transaction.note ?? 'Unknown',
               style: context.appTexts.displayMedium.copyWith(
                 color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                 fontSize: 26.sp,
@@ -108,7 +104,7 @@ class _DetailedTransactionScreenState
 
             // ── Amount ──
             Text(
-              '₹${state.amount}',
+              '₹${widget.transaction.amount}',
               style: context.appTexts.displayLarge.copyWith(
                 color: amountColor,
                 fontSize: 40.sp,
@@ -119,7 +115,7 @@ class _DetailedTransactionScreenState
 
             // ── Subtitle: Category · Type · Date ──
             Text(
-              _buildSubtitle(state),
+              _buildSubtitle(),
               style: context.appTexts.bodyMedium.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
@@ -127,7 +123,7 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(32),
 
             // ── Details Card ──
-            _buildDetailsCard(context, state, isCircleTransaction, isDark),
+            _buildDetailsCard(context, isCircleTransaction, isDark),
             UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
@@ -136,7 +132,7 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
-            _buildActionButtons(context, vm, isDark),
+            _buildActionButtons(context, isDark),
             UIHelpers.verticalSpace(40),
           ],
         ),
@@ -164,7 +160,7 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildDetailsCard(BuildContext context, DetailedTransactionState state, bool isCircleTransaction, bool isDark) {
+  Widget _buildDetailsCard(BuildContext context, bool isCircleTransaction, bool isDark) {
     final cardColor = isDark ? AppColors.cardDark : Colors.white;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
 
@@ -179,14 +175,14 @@ class _DetailedTransactionScreenState
           _buildDetailRow(
             icon: Icons.calendar_today_outlined,
             label: 'Date',
-            value: _formatDate(widget.transaction.date),
+            value: _formatDate(widget.transaction.txnDate),
             isDark: isDark,
             showDivider: true,
           ),
           _buildDetailRow(
             icon: Icons.account_balance_outlined,
             label: 'Account',
-            value: state.bankName.isNotEmpty ? state.bankName : 'N/A',
+            value: widget.transaction.accountId,
             isDark: isDark,
             showDivider: true,
           ),
@@ -194,14 +190,14 @@ class _DetailedTransactionScreenState
             _buildDetailRow(
               icon: Icons.label_outline_rounded,
               label: 'Category',
-              value: widget.transaction.category?.name ?? 'Uncategorized',
+              value: 'Uncategorized',
               isDark: isDark,
               showDivider: true,
             ),
             _buildDetailRow(
               icon: Icons.edit_outlined,
               label: 'Note',
-              value: state.description.isNotEmpty ? state.description : '—',
+              value: widget.transaction.note ?? '—',
               isDark: isDark,
               showDivider: true,
             ),
@@ -421,13 +417,13 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, DetailedTransactionViewModel vm, bool isDark) {
+  Widget _buildActionButtons(BuildContext context, bool isDark) {
     return Row(
       children: [
         // Edit button (outlined, dark green)
         Expanded(
           child: OutlinedButton(
-            onPressed: vm.toggleEditing,
+            onPressed: () {}, // vm.toggleEditing,
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.primary, width: 1.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
@@ -446,7 +442,7 @@ class _DetailedTransactionScreenState
         // Delete button (outlined, terracotta)
         Expanded(
           child: OutlinedButton(
-            onPressed: () => _handleDelete(context, vm),
+            onPressed: () => _handleDelete(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: AppColors.expense, width: 1.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
@@ -465,10 +461,10 @@ class _DetailedTransactionScreenState
     );
   }
 
-  String _buildSubtitle(DetailedTransactionState state) {
-    final category = widget.transaction.category?.name ?? 'Uncategorized';
-    final type = widget.transaction.type == TransactionType.debit ? 'Expense' : 'Income';
-    final when = _timeLabel(widget.transaction.date);
+  String _buildSubtitle() {
+    final category = 'Uncategorized';
+    final type = widget.transaction.type == 'debit' ? 'Expense' : 'Income';
+    final when = _timeLabel(widget.transaction.txnDate);
     return '$category · $type · $when';
   }
 
@@ -492,24 +488,10 @@ class _DetailedTransactionScreenState
   }
 
   IconData _getCategoryIcon() {
-    final icon = widget.transaction.category?.icon ?? '';
-    switch (icon) {
-      case 'food':
-        return Icons.restaurant_rounded;
-      case 'home':
-        return Icons.home_rounded;
-      case 'phone':
-        return Icons.phone_iphone_rounded;
-      case 'salary':
-        return Icons.work_rounded;
-      case 'transport':
-        return Icons.directions_car_rounded;
-      default:
-        return Icons.receipt_long_rounded;
-    }
+    return Icons.receipt_long_rounded;
   }
 
-  Future<void> _handleDelete(BuildContext context, DetailedTransactionViewModel vm) async {
+  Future<void> _handleDelete(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -542,10 +524,10 @@ class _DetailedTransactionScreenState
     );
 
     if (confirmed == true && context.mounted) {
-      final success = await vm.deleteTransaction();
-      if (success && context.mounted) {
-        context.pop();
-      }
+      // final success = await vm.deleteTransaction();
+      // if (success && context.mounted) {
+      //   context.pop();
+      // }
     }
   }
 }

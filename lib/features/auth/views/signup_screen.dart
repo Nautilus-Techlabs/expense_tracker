@@ -247,7 +247,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     child: GestureDetector(
                       onTap: () {
                         context.pop();
-                        context.push(AppRouter.signin);
+                        context.push(AppRouter.signIn);
                       },
                       child: RichText(
                         text: TextSpan(

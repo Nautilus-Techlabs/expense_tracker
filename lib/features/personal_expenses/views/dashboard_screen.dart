@@ -8,6 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../viewmodels/transaction_notifier.dart';
+import '../viewmodels/account_notifier.dart';
 import '../widgets/transaction_card.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 
@@ -29,6 +30,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
+    final accountState = ref.watch(accountProvider);
     final controller = ref.read(transactionProvider.notifier);
     final user = ref.watch(authProvider).user;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -43,176 +45,183 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     }
 
+    final globalBalance = accountState.accounts.fold<double>(
+        0, (sum, account) => sum + account.balance);
+
+    final totalGlobalCredit = state.transactions
+        .where((t) => t.type == 'credit')
+        .fold<double>(0, (sum, t) => sum + t.amount);
+    
+    final totalGlobalDebit = state.transactions
+        .where((t) => t.type == 'debit')
+        .fold<double>(0, (sum, t) => sum + t.amount);
+
     return Scaffold(
       backgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: controller.syncTransactions,
-          color: AppColors.primary,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Header (Greeting + Avatar)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _getGreeting(),
-                          style: context.appTexts.bodyMedium,
-                        ),
-                        Text(
-                          user?.fullName.split(' ').first ?? 'User',
-                          style: context.appTexts.displaySmall,
-                        ),
-                      ],
-                    ),
-                    GestureDetector(
-                      onTap: () => context.push(AppRouter.profile),
-                      child: Container(
-                        padding: EdgeInsets.all(4.w),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors
-                                .borderLight, // Using light border for both as per design
-                            width: 1,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 24.r,
-                          backgroundColor: AppColors.primary,
-                          child: Text(
-                            initials,
-                            style: context.appTexts.bodyLarge.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Header (Greeting + Avatar)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGreeting(),
+                        style: context.appTexts.bodyMedium,
                       ),
-                    ),
-                  ],
-                ),
-                UIHelpers.verticalSpace(32),
-
-                // 2. Total Balance Card
-                _buildTotalBalanceCard(
-                  state.globalBalance,
-                  state.totalGlobalCredit,
-                  state.totalGlobalDebit,
-                  isDark,
-                ),
-                UIHelpers.verticalSpace(16),
-
-                // 3. Budget Card
-                _buildBudgetCard(isDark),
-                UIHelpers.verticalSpace(32),
-
-                // 4. Today's Transactions Header
-                Text(
-                  'Today',
-                  style: context.appTexts.headingMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+                      Text(
+                        user?.fullName.split(' ').first ?? 'User',
+                        style: context.appTexts.displaySmall,
+                      ),
+                    ],
                   ),
-                ),
-                UIHelpers.verticalSpace(16),
-
-                // 5. Transactions List (Just take up to 3 for now)
-                if (state.allTransactions.isEmpty)
-                  Center(
-                    child: Text(
-                      "No transactions yet.",
-                      style: context.appTexts.bodyMedium.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                  )
-                else
-                  ...state.latestTransactions
-                      .take(3)
-                      .map(
-                        (tx) => TransactionCard(
-                          transaction: tx,
-                          showDate: false,
-                          heroTag: 'dash_${tx.id ?? tx.rawSms}',
+                  GestureDetector(
+                    onTap: () => context.push(AppRouter.profile),
+                    child: Container(
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors
+                              .borderLight, // Using light border for both as per design
+                          width: 1,
                         ),
                       ),
-
-                UIHelpers.verticalSpace(8),
-
-                // 6. See all transactions
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      ref.read(navigationIndexProvider.notifier).state = 1;
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'See all transactions',
-                          style: context.appTexts.bodyMedium.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                      child: CircleAvatar(
+                        radius: 24.r,
+                        backgroundColor: AppColors.primary,
+                        child: Text(
+                          initials,
+                          style: context.appTexts.bodyLarge.copyWith(
+                            color: Colors.white,
                           ),
                         ),
-                        UIHelpers.horizontalSpace(4),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 16.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              UIHelpers.verticalSpace(32),
+
+              // 2. Total Balance Card
+              _buildTotalBalanceCard(
+                globalBalance,
+                totalGlobalCredit,
+                totalGlobalDebit,
+                isDark,
+              ),
+              UIHelpers.verticalSpace(16),
+
+              // 3. Budget Card
+              _buildBudgetCard(isDark),
+              UIHelpers.verticalSpace(32),
+
+              // 4. Today's Transactions Header
+              Text(
+                'Today',
+                style: context.appTexts.headingMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
+                ),
+              ),
+              UIHelpers.verticalSpace(16),
+
+              // 5. Transactions List (Just take up to 3 for now)
+              if (state.transactions.isEmpty)
+                Center(
+                  child: Text(
+                    "No transactions yet.",
+                    style: context.appTexts.bodyMedium.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
+                  ),
+                )
+              else
+                ...state.transactions
+                    .take(3)
+                    .map(
+                      (tx) => TransactionCard(
+                        transaction: tx,
+                        showDate: false,
+                        heroTag: 'dash_${tx.id}',
+                      ),
+                    ),
+
+              UIHelpers.verticalSpace(8),
+
+              // 6. See all transactions
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(navigationIndexProvider.notifier).state = 1;
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'See all transactions',
+                        style: context.appTexts.bodyMedium.copyWith(
                           color: isDark
                               ? AppColors.textPrimaryDark
                               : AppColors.primary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
+                      ),
+                      UIHelpers.horizontalSpace(4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16.sp,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
+                      ),
+                    ],
                   ),
                 ),
-                UIHelpers.verticalSpace(16),
+              ),
+              UIHelpers.verticalSpace(16),
 
-                // 7. Circles / Owed Card
-                _buildCirclesCard(isDark),
-                UIHelpers.verticalSpace(16),
+              // 7. Circles / Owed Card
+              _buildCirclesCard(isDark),
+              UIHelpers.verticalSpace(16),
 
-                // 8. Mini Stats (Top Spend / This Week)
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMiniStatCard(
-                        'Top spend',
-                        'Rent • ₹12,000',
-                        isDark,
-                      ),
+              // 8. Mini Stats (Top Spend / This Week)
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMiniStatCard(
+                      'Top spend',
+                      'Rent • ₹12,000',
+                      isDark,
                     ),
-                    UIHelpers.horizontalSpace(16),
-                    Expanded(
-                      child: _buildMiniStatCard(
-                        'This week',
-                        '₹4,200 spent',
-                        isDark,
-                      ),
+                  ),
+                  UIHelpers.horizontalSpace(16),
+                  Expanded(
+                    child: _buildMiniStatCard(
+                      'This week',
+                      '₹4,200 spent',
+                      isDark,
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
 
-                UIHelpers.verticalSpace(100), // Bottom padding for FAB and Nav
-              ],
-            ),
+              UIHelpers.verticalSpace(100), // Bottom padding for FAB and Nav
+            ],
           ),
         ),
       ),

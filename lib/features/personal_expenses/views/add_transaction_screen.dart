@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,33 +6,39 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../domain/entities/transaction.dart';
-import '../viewmodels/transaction_notifier.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
 
   @override
-  ConsumerState<AddTransactionBottomSheet> createState() => _AddTransactionBottomSheetState();
+  ConsumerState<AddTransactionBottomSheet> createState() =>
+      _AddTransactionBottomSheetState();
 }
 
-class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottomSheet> {
-  TransactionType _selectedType = TransactionType.debit; // 'debit' = Expense, 'credit' = Income, null = Withdrawal (mock)
+class _AddTransactionBottomSheetState
+    extends ConsumerState<AddTransactionBottomSheet> {
   String _selectedCategory = 'Food';
   String _selectedAccount = 'HDFC Savings';
   final DateTime _selectedDate = DateTime.now();
   bool _addToCircle = false;
-  
+
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
   final List<String> _categories = [
-    'Food', 'Grocery', 'Rent', 'Utilities', 'Transport', 'Entertainment'
+    'Food',
+    'Grocery',
+    'Rent',
+    'Utilities',
+    'Transport',
+    'Entertainment',
   ];
 
   final List<String> _accounts = [
-    'HDFC Savings', 'ICICI Bank', 'Wallet', 'Credit Card'
+    'HDFC Savings',
+    'ICICI Bank',
+    'Wallet',
+    'Credit Card',
   ];
 
   @override
@@ -48,15 +55,15 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
     final amount = double.tryParse(amountText);
     if (amount == null || amount <= 0) return;
 
-    await ref.read(transactionProvider.notifier).addManualTransaction(
-      amount: amount,
-      type: _selectedType,
-      date: _selectedDate,
-      method: PaymentMethod.upi, // Default for now
-      merchant: _selectedCategory, // Using category as merchant title for simplicity in UI
-      description: _noteController.text.isNotEmpty ? _noteController.text : null,
-      account: _selectedAccount,
-    );
+    // await ref.read(transactionProvider.notifier).addManualTransaction(
+    //   amount: amount,
+    //   type: _selectedType,
+    //   date: _selectedDate,
+    //   method: PaymentMethod.upi, // Default for now
+    //   merchant: _selectedCategory, // Using category as merchant title for simplicity in UI
+    //   description: _noteController.text.isNotEmpty ? _noteController.text : null,
+    //   account: _selectedAccount,
+    // );
 
     if (mounted) {
       Navigator.pop(context);
@@ -66,7 +73,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = _selectedType == TransactionType.debit ? AppColors.expense : AppColors.income;
+    final color = AppColors.expense;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
@@ -91,7 +98,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
             ),
           ),
           UIHelpers.verticalSpace(24),
-          
+
           // Title & Close Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,7 +111,13 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.close_rounded, size: 24.sp, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                icon: Icon(
+                  Icons.close_rounded,
+                  size: 24.sp,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -120,35 +133,53 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
             ),
             child: Row(
               children: [
-                _buildSegmentItem('Expense', TransactionType.debit, isDark),
-                _buildSegmentItem('Income', TransactionType.credit, isDark),
-                _buildSegmentItem('Withdrawal', null, isDark), // Mock third type
+                // _buildSegmentItem('Expense', TransactionType.debit, isDark),
+                // _buildSegmentItem('Income', TransactionType.credit, isDark),
+                // _buildSegmentItem(
+                //   'Withdrawal',
+                //   null,
+                //   isDark,
+                // ), // Mock third type
               ],
             ),
           ),
-          
+
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   UIHelpers.verticalSpace(40),
-                  
+
                   // Amount Input
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('₹ ', style: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp)),
+                        Text(
+                          '₹ ',
+                          style: context.appTexts.displayLarge.copyWith(
+                            color: color,
+                            fontSize: 48.sp,
+                          ),
+                        ),
                         IntrinsicWidth(
                           child: TextField(
                             controller: _amountController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            style: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            style: context.appTexts.displayLarge.copyWith(
+                              color: color,
+                              fontSize: 48.sp,
+                            ),
                             decoration: InputDecoration(
                               hintText: '0',
-                              hintStyle: context.appTexts.displayLarge.copyWith(color: color, fontSize: 48.sp),
+                              hintStyle: context.appTexts.displayLarge.copyWith(
+                                color: color,
+                                fontSize: 48.sp,
+                              ),
                               border: InputBorder.none,
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
@@ -164,9 +195,13 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   Wrap(
                     spacing: 8.w,
                     runSpacing: 12.h,
-                    children: _categories.map((c) => _buildChip(c, _selectedCategory == c, (val) {
-                      setState(() => _selectedCategory = c);
-                    }, isDark)).toList(),
+                    children: _categories
+                        .map(
+                          (c) => _buildChip(c, _selectedCategory == c, (val) {
+                            setState(() => _selectedCategory = c);
+                          }, isDark),
+                        )
+                        .toList(),
                   ),
                   UIHelpers.verticalSpace(32),
 
@@ -174,9 +209,13 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   Wrap(
                     spacing: 8.w,
                     runSpacing: 12.h,
-                    children: _accounts.map((a) => _buildChip(a, _selectedAccount == a, (val) {
-                      setState(() => _selectedAccount = a);
-                    }, isDark)).toList(),
+                    children: _accounts
+                        .map(
+                          (a) => _buildChip(a, _selectedAccount == a, (val) {
+                            setState(() => _selectedAccount = a);
+                          }, isDark),
+                        )
+                        .toList(),
                   ),
                   UIHelpers.verticalSpace(32),
 
@@ -185,7 +224,11 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     icon: Icons.calendar_today_outlined,
                     child: Text(
                       'Today, ${DateFormat('dd MMM').format(_selectedDate)}',
-                      style: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                      style: context.appTexts.bodyLarge.copyWith(
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
+                      ),
                     ),
                     isDark: isDark,
                   ),
@@ -195,10 +238,18 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     icon: Icons.edit_outlined,
                     child: TextField(
                       controller: _noteController,
-                      style: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                      style: context.appTexts.bodyLarge.copyWith(
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Add a note (optional)',
-                        hintStyle: context.appTexts.bodyLarge.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                        hintStyle: context.appTexts.bodyLarge.copyWith(
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                        ),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -206,7 +257,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     ),
                     isDark: isDark,
                   ),
-                  
+
                   // Add to Circle Toggle
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -216,13 +267,16 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                         Text(
                           'Add to a Circle?',
                           style: context.appTexts.bodyLarge.copyWith(
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Switch(
                           value: _addToCircle,
-                          onChanged: (val) => setState(() => _addToCircle = val),
+                          onChanged: (val) =>
+                              setState(() => _addToCircle = val),
                           activeThumbColor: AppColors.primary,
                         ),
                       ],
@@ -233,49 +287,53 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               ),
             ),
           ),
-          
+
           // Submit Button
-          PrimaryButton(
-            text: 'Save transaction',
-            onPressed: _submit,
-          ),
+          PrimaryButton(text: 'Save transaction', onPressed: _submit),
           UIHelpers.verticalSpace(32),
         ],
       ),
     );
   }
 
-  Widget _buildSegmentItem(String title, TransactionType? type, bool isDark) {
-    final isSelected = _selectedType == type && type != null;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (type != null) {
-            setState(() => _selectedType = type);
-          }
-        },
-        child: Container(
-          margin: EdgeInsets.all(4.w),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: context.appTexts.bodyMedium.copyWith(
-              color: isSelected 
-                  ? Colors.white 
-                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
-              fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildSegmentItem(String title, TransactionType? type, bool isDark) {
+  //   final isSelected = _selectedType == type && type != null;
+  //   return Expanded(
+  //     child: GestureDetector(
+  //       onTap: () {
+  //         if (type != null) {
+  //           setState(() => _selectedType = type);
+  //         }
+  //       },
+  //       child: Container(
+  //         margin: EdgeInsets.all(4.w),
+  //         decoration: BoxDecoration(
+  //           color: isSelected ? AppColors.primary : Colors.transparent,
+  //           borderRadius: BorderRadius.circular(20.r),
+  //         ),
+  //         alignment: Alignment.center,
+  //         child: Text(
+  //           title,
+  //           style: context.appTexts.bodyMedium.copyWith(
+  //             color: isSelected
+  //                 ? Colors.white
+  //                 : (isDark
+  //                       ? AppColors.textSecondaryDark
+  //                       : AppColors.textSecondaryLight),
+  //             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildChip(String label, bool isSelected, ValueChanged<bool> onSelected, bool isDark) {
+  Widget _buildChip(
+    String label,
+    bool isSelected,
+    ValueChanged<bool> onSelected,
+    bool isDark,
+  ) {
     return GestureDetector(
       onTap: () => onSelected(true),
       child: Container(
@@ -284,15 +342,19 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(24.r),
           border: Border.all(
-            color: isSelected ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.borderLight),
+            color: isSelected
+                ? AppColors.primary
+                : (isDark ? AppColors.borderDark : AppColors.borderLight),
           ),
         ),
         child: Text(
           label,
           style: context.appTexts.bodyMedium.copyWith(
-            color: isSelected 
-                ? Colors.white 
-                : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+            color: isSelected
+                ? Colors.white
+                : (isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight),
             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
           ),
         ),
@@ -300,7 +362,11 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
     );
   }
 
-  Widget _buildInputRow({required IconData icon, required Widget child, required bool isDark}) {
+  Widget _buildInputRow({
+    required IconData icon,
+    required Widget child,
+    required bool isDark,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
@@ -313,7 +379,13 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
       ),
       child: Row(
         children: [
-          Icon(icon, size: 24.sp, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+          Icon(
+            icon,
+            size: 24.sp,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
           UIHelpers.horizontalSpace(16),
           Expanded(child: child),
         ],
