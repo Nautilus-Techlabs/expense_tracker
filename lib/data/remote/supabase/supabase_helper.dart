@@ -1,4 +1,5 @@
 import 'package:either_dart/either.dart';
+import 'package:expense_tracker/core/cache/cache_manager.dart';
 import 'package:expense_tracker/core/error/failure.dart';
 import 'package:expense_tracker/core/utils/app_logger.dart';
 import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
@@ -11,6 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseHelper {
   final SupabaseClient supabase = Supabase.instance.client;
+  final CacheManager cacheManager = CacheManager();
 
   Future<Either<Failure, UserModel>> createUser(UserPayload data) async {
     try {
@@ -155,6 +157,32 @@ class SupabaseHelper {
       return Right(accounts);
     } catch (e) {
       return Left(Failure('Error fetching accounts: $e'));
+    }
+  }
+
+  Future<Either<Failure, AccountModel>> createAccount({
+    required String userId,
+    required String name,
+    required AccountType type,
+    required double balance,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableAccounts)
+          .insert({
+            'user_id': userId,
+            'name': name,
+            'type': type.name, // Assuming enum to string conversion matches DB
+            'balance': balance,
+            'opening_balance': balance,
+          })
+          .select()
+          .single();
+
+      return Right(AccountModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating account: $e');
+      return Left(Failure('Failed to create account.'));
     }
   }
 }

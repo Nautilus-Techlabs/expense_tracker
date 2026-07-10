@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/transaction.dart';
+import '../../features/personal_expenses/views/add_account_screen.dart';
 import '../../features/personal_expenses/views/bank_detail_transactions_screen.dart';
 import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/detailed_transaction.dart';
@@ -25,6 +26,7 @@ class AppRouter {
   static const String feedback = '/feedback';
   static const String circleDetails = '/circle-details';
   static const String profile = '/profile';
+  static const String addAccount = '/add-account';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -92,6 +94,10 @@ class AppRouter {
       GoRoute(
         path: profile,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: addAccount,
+        builder: (context, state) => const AddAccountScreen(),
       ),
     ],
   );

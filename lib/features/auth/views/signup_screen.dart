@@ -41,7 +41,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
     final success = await ref.read(authProvider.notifier).signUp(data);
     if (success && mounted) {
-      context.push(AppRouter.transactions);
+      context.push(AppRouter.addAccount);
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
@@ -55,7 +55,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Future<void> _onGoogleSignIn() async {
     final success = await ref.read(authProvider.notifier).signInWithGoogle();
     if (success && mounted) {
-      context.push(AppRouter.transactions);
+      context.push(AppRouter.addAccount);
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
