@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +7,6 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;
@@ -38,8 +38,10 @@ class _DetailedTransactionScreenState
     // final state = ref.watch(detailedTransactionViewModelProvider);
     // final vm = ref.read(detailedTransactionViewModelProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isDebit = widget.transaction.type == 'debit';
-    final amountColor = isDebit ? AppColors.expense : AppColors.income;
+    final isExpense =
+        widget.transaction.type == 'expense' ||
+        widget.transaction.type == 'withdrawal';
+    final amountColor = isExpense ? AppColors.expense : AppColors.income;
 
     final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
@@ -56,7 +58,9 @@ class _DetailedTransactionScreenState
     // });
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -65,14 +69,18 @@ class _DetailedTransactionScreenState
           icon: Icon(
             Icons.arrow_back_ios_rounded,
             size: 20.sp,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Transaction detail',
           style: context.appTexts.heading.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -116,7 +124,9 @@ class _DetailedTransactionScreenState
             Text(
               _buildSubtitle(),
               style: context.appTexts.bodyMedium.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
             UIHelpers.verticalSpace(32),
@@ -126,8 +136,7 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
-            if (isCircleTransaction)
-              _buildSplitDetailsCard(context, isDark),
+            if (isCircleTransaction) _buildSplitDetailsCard(context, isDark),
             UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
@@ -141,25 +150,24 @@ class _DetailedTransactionScreenState
 
   Widget _buildHeroIcon(bool isCircleTransaction, Color amountColor) {
     final bgColor = isCircleTransaction ? AppColors.income : amountColor;
-    final icon = isCircleTransaction
-        ? Icons.group_rounded
-        : _getCategoryIcon();
+    final icon = isCircleTransaction ? Icons.group_rounded : _getCategoryIcon();
 
     return Hero(
       tag: widget.heroTag ?? 'tx_detail_${widget.transaction.id}',
       child: Container(
         width: 80.w,
         height: 80.w,
-        decoration: BoxDecoration(
-          color: bgColor,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
         child: Icon(icon, color: Colors.white, size: 36.sp),
       ),
     );
   }
 
-  Widget _buildDetailsCard(BuildContext context, bool isCircleTransaction, bool isDark) {
+  Widget _buildDetailsCard(
+    BuildContext context,
+    bool isCircleTransaction,
+    bool isDark,
+  ) {
     final cardColor = isDark ? AppColors.cardDark : Colors.white;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
 
@@ -205,7 +213,9 @@ class _DetailedTransactionScreenState
             icon: Icons.circle_outlined,
             label: 'Circle',
             value: 'Not part of any circle',
-            valueColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            valueColor: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             isItalic: true,
             isDark: isDark,
             showDivider: false,
@@ -225,8 +235,12 @@ class _DetailedTransactionScreenState
     bool isItalic = false,
   }) {
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-    final labelColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-    final resolvedValueColor = valueColor ?? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight);
+    final labelColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+    final resolvedValueColor =
+        valueColor ??
+        (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight);
 
     return Column(
       children: [
@@ -259,7 +273,13 @@ class _DetailedTransactionScreenState
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: borderColor,
+            indent: 20.w,
+            endIndent: 20.w,
+          ),
       ],
     );
   }
@@ -270,9 +290,30 @@ class _DetailedTransactionScreenState
 
     // Mock split data for UI demo
     final splits = [
-      _SplitPerson(initials: 'RK', name: 'You (paid)', amount: 3600, share: 1200, color: AppColors.primary, status: 'Paid'),
-      _SplitPerson(initials: 'AM', name: 'Amit', amount: 1200, share: 1200, color: AppColors.expense, status: 'Pending'),
-      _SplitPerson(initials: 'PR', name: 'Priya', amount: 1200, share: 1200, color: const Color(0xFF7C3AED), status: 'Settled'),
+      _SplitPerson(
+        initials: 'RK',
+        name: 'You (paid)',
+        amount: 3600,
+        share: 1200,
+        color: AppColors.primary,
+        status: 'Paid',
+      ),
+      _SplitPerson(
+        initials: 'AM',
+        name: 'Amit',
+        amount: 1200,
+        share: 1200,
+        color: AppColors.expense,
+        status: 'Pending',
+      ),
+      _SplitPerson(
+        initials: 'PR',
+        name: 'Priya',
+        amount: 1200,
+        share: 1200,
+        color: const Color(0xFF7C3AED),
+        status: 'Settled',
+      ),
     ];
 
     return Container(
@@ -289,19 +330,25 @@ class _DetailedTransactionScreenState
             child: Text(
               'Split details',
               style: context.appTexts.bodyLarge.copyWith(
-                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight,
                 fontWeight: FontWeight.w700,
                 fontSize: 17.sp,
               ),
             ),
           ),
-          ...splits.map((split) => _buildSplitRow(split, isDark, splits.last == split)),
+          ...splits.map(
+            (split) => _buildSplitRow(split, isDark, splits.last == split),
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
             child: Text(
               'Total recovered: ₹1,200 of ₹2,400',
               style: context.appTexts.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
           ),
@@ -343,7 +390,10 @@ class _DetailedTransactionScreenState
               Container(
                 width: 40.w,
                 height: 40.w,
-                decoration: BoxDecoration(color: split.color, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: split.color,
+                  shape: BoxShape.circle,
+                ),
                 alignment: Alignment.center,
                 child: Text(
                   split.initials,
@@ -360,7 +410,9 @@ class _DetailedTransactionScreenState
                 child: Text(
                   split.name,
                   style: context.appTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -375,7 +427,9 @@ class _DetailedTransactionScreenState
                         : 'Owes ₹${split.share.toStringAsFixed(0)}',
                     style: context.appTexts.bodyMedium.copyWith(
                       color: split.status == 'Paid'
-                          ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                          ? (isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight)
                           : AppColors.expense,
                       fontWeight: FontWeight.w600,
                     ),
@@ -384,7 +438,9 @@ class _DetailedTransactionScreenState
                     Text(
                       'Your share: ₹${split.share.toStringAsFixed(0)}',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                         fontSize: 11.sp,
                       ),
                     ),
@@ -411,7 +467,13 @@ class _DetailedTransactionScreenState
           ),
         ),
         if (!isLast)
-          Divider(height: 1, thickness: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: borderColor,
+            indent: 20.w,
+            endIndent: 20.w,
+          ),
       ],
     );
   }
@@ -424,8 +486,13 @@ class _DetailedTransactionScreenState
           child: OutlinedButton(
             onPressed: () {}, // vm.toggleEditing,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.primary, width: 1.5),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+              side: BorderSide(
+                color: isDark ? AppColors.borderDark : AppColors.primary,
+                width: 1.5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32.r),
+              ),
               padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
             child: Text(
@@ -444,7 +511,9 @@ class _DetailedTransactionScreenState
             onPressed: () => _handleDelete(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: AppColors.expense, width: 1.5),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32.r),
+              ),
               padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
             child: Text(
@@ -462,9 +531,14 @@ class _DetailedTransactionScreenState
 
   String _buildSubtitle() {
     final category = 'Uncategorized';
-    final type = widget.transaction.type == 'debit' ? 'Expense' : 'Income';
+    String typeLabel = 'Expense';
+    if (widget.transaction.type == 'income') {
+      typeLabel = 'Income';
+    } else if (widget.transaction.type == 'withdrawal') {
+      typeLabel = 'Withdrawal';
+    }
     final when = _timeLabel(widget.transaction.txnDate);
-    return '$category · $type · $when';
+    return '$category · $typeLabel · $when';
   }
 
   String _timeLabel(DateTime date) {
@@ -497,7 +571,9 @@ class _DetailedTransactionScreenState
         backgroundColor: Theme.of(context).brightness == Brightness.dark
             ? AppColors.cardDark
             : AppColors.cardLight,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
         title: Text('Delete Transaction', style: context.appTexts.heading),
         content: Text(
           'Are you sure you want to delete this transaction? This cannot be undone.',
@@ -506,17 +582,27 @@ class _DetailedTransactionScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: context.appTexts.bodyMedium.copyWith(
-              color: Theme.of(context).brightness == Brightness.dark ? AppColors.textPrimaryDark : AppColors.primary
-            )),
+            child: Text(
+              'Cancel',
+              style: context.appTexts.bodyMedium.copyWith(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.primary,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.expense,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
             ),
-            child: Text('Delete', style: context.appTexts.bodyMedium.copyWith(color: Colors.white)),
+            child: Text(
+              'Delete',
+              style: context.appTexts.bodyMedium.copyWith(color: Colors.white),
+            ),
           ),
         ],
       ),

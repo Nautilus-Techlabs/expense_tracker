@@ -6,12 +6,12 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/category_model.dart';
 import '../models/transaction_payload.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
-import '../../auth/viewmodels/auth_notifier.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
@@ -23,13 +23,13 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
-  // Transaction type: 'debit' = Expense, 'credit' = Income
-  String _selectedType = 'debit';
+  // Transaction type: 'expense', 'income', 'withdrawal'
+  String _selectedType = 'expense';
   String? _selectedCategoryId;
   String? _selectedAccountId;
   DateTime _selectedDate = DateTime.now();
   bool _accountError = false; // shows inline error when no account selected
-  bool _amountError = false;  // shows inline error when no amount entered
+  bool _amountError = false; // shows inline error when no amount entered
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -58,7 +58,8 @@ class _AddTransactionBottomSheetState
     final amount = double.tryParse(amountText);
 
     // Run all validations first
-    final bool hasAmountError = amountText.isEmpty || amount == null || amount <= 0;
+    final bool hasAmountError =
+        amountText.isEmpty || amount == null || amount <= 0;
     final bool hasAccountError = _selectedAccountId == null;
 
     if (hasAmountError || hasAccountError) {
@@ -100,8 +101,9 @@ class _AddTransactionBottomSheetState
       isSynced: false,
     );
 
-    final success =
-        await ref.read(transactionProvider.notifier).addTransaction(payload);
+    final success = await ref
+        .read(transactionProvider.notifier)
+        .addTransaction(payload);
 
     if (success && mounted) {
       Navigator.pop(context);
@@ -118,7 +120,11 @@ class _AddTransactionBottomSheetState
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             const SizedBox(width: 10),
             Expanded(child: Text(message)),
           ],
@@ -135,8 +141,9 @@ class _AddTransactionBottomSheetState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isDebit = _selectedType == 'debit';
-    final accentColor = isDebit ? AppColors.expense : AppColors.income;
+    final isExpense =
+        _selectedType == 'expense' || _selectedType == 'withdrawal';
+    final accentColor = isExpense ? AppColors.expense : AppColors.income;
 
     final accountState = ref.watch(accountProvider);
     final categoryState = ref.watch(categoryProvider);
@@ -144,10 +151,10 @@ class _AddTransactionBottomSheetState
 
     // Filter categories by type
     final filteredCategories = categoryState.categories.where((c) {
-      if (_selectedType == 'debit') {
-        return c.type == CategoryType.expense || c.type == CategoryType.both;
-      } else {
+      if (_selectedType == 'income') {
         return c.type == CategoryType.income || c.type == CategoryType.both;
+      } else {
+        return c.type == CategoryType.expense || c.type == CategoryType.both;
       }
     }).toList();
 
@@ -201,7 +208,7 @@ class _AddTransactionBottomSheetState
           ),
           UIHelpers.verticalSpace(16),
 
-          // Expense / Income Segmented Control
+          // Expense / Income / Withdrawal Segmented Control
           Container(
             height: 48.h,
             decoration: BoxDecoration(
@@ -210,8 +217,9 @@ class _AddTransactionBottomSheetState
             ),
             child: Row(
               children: [
-                _buildSegment('Expense', 'debit', isDark),
-                _buildSegment('Income', 'credit', isDark),
+                _buildSegment('Expense', 'expense', isDark),
+                _buildSegment('Income', 'income', isDark),
+                _buildSegment('Withdraw', 'withdrawal', isDark),
               ],
             ),
           ),
@@ -234,7 +242,9 @@ class _AddTransactionBottomSheetState
                         Text(
                           '₹ ',
                           style: context.appTexts.displayLarge.copyWith(
-                            color: _amountError ? AppColors.expense : accentColor,
+                            color: _amountError
+                                ? AppColors.expense
+                                : accentColor,
                             fontSize: 48.sp,
                           ),
                         ),
@@ -246,14 +256,16 @@ class _AddTransactionBottomSheetState
                             ),
                             autofocus: false,
                             style: context.appTexts.displayLarge.copyWith(
-                              color: _amountError ? AppColors.expense : accentColor,
+                              color: _amountError
+                                  ? AppColors.expense
+                                  : accentColor,
                               fontSize: 48.sp,
                             ),
                             decoration: InputDecoration(
                               hintText: '0',
                               hintStyle: context.appTexts.displayLarge.copyWith(
-                                color: _amountError 
-                                    ? AppColors.expense.withValues(alpha: 0.5) 
+                                color: _amountError
+                                    ? AppColors.expense.withValues(alpha: 0.5)
                                     : accentColor.withValues(alpha: 0.4),
                                 fontSize: 48.sp,
                               ),
@@ -301,7 +313,11 @@ class _AddTransactionBottomSheetState
                   UIHelpers.verticalSpace(32),
 
                   // ── Account Section ──
-                  _buildSectionLabel('Account', isDark, hasError: _accountError),
+                  _buildSectionLabel(
+                    'Account',
+                    isDark,
+                    hasError: _accountError,
+                  ),
                   UIHelpers.verticalSpace(12),
                   if (accountState.isLoading)
                     _buildLoadingChips()
@@ -340,8 +356,9 @@ class _AddTransactionBottomSheetState
                     child: Text(
                       _formatDate(_selectedDate),
                       style: context.appTexts.bodyLarge.copyWith(
-                        color:
-                            isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
                       ),
                     ),
                   ),
@@ -353,8 +370,9 @@ class _AddTransactionBottomSheetState
                     child: TextField(
                       controller: _noteController,
                       style: context.appTexts.bodyLarge.copyWith(
-                        color:
-                            isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Add a note (optional)',
@@ -439,8 +457,7 @@ class _AddTransactionBottomSheetState
                   : (isDark
                         ? AppColors.textSecondaryDark
                         : AppColors.textSecondaryLight),
-              fontWeight:
-                  isSelected ? FontWeight.w600 : FontWeight.normal,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
         ),
@@ -483,7 +500,11 @@ class _AddTransactionBottomSheetState
     );
   }
 
-  Widget _buildSectionLabel(String label, bool isDark, {bool hasError = false}) {
+  Widget _buildSectionLabel(
+    String label,
+    bool isDark, {
+    bool hasError = false,
+  }) {
     return Row(
       children: [
         Text(
@@ -491,14 +512,20 @@ class _AddTransactionBottomSheetState
           style: context.appTexts.bodySmall.copyWith(
             color: hasError
                 ? AppColors.expense
-                : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                : (isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight),
             fontWeight: FontWeight.w600,
             letterSpacing: 0.8,
           ),
         ),
         if (hasError) ...[
           UIHelpers.horizontalSpace(8),
-          Icon(Icons.error_outline_rounded, size: 14.sp, color: AppColors.expense),
+          Icon(
+            Icons.error_outline_rounded,
+            size: 14.sp,
+            color: AppColors.expense,
+          ),
         ],
       ],
     );
@@ -563,7 +590,8 @@ class _AddTransactionBottomSheetState
     final d = DateTime(date.year, date.month, date.day);
     if (d == today) return 'Today, ${DateFormat('dd MMM').format(date)}';
     final yesterday = today.subtract(const Duration(days: 1));
-    if (d == yesterday) return 'Yesterday, ${DateFormat('dd MMM').format(date)}';
+    if (d == yesterday)
+      return 'Yesterday, ${DateFormat('dd MMM').format(date)}';
     return DateFormat('EEE, dd MMM yyyy').format(date);
   }
 }

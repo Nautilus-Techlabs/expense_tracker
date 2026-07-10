@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_router.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import '../models/transaction_model.dart';
 import '../viewmodels/account_notifier.dart';
@@ -24,12 +24,15 @@ class TransactionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isDebit = transaction.type == 'debit';
-    final color = isDebit ? AppColors.expense : AppColors.income;
+    final isExpense =
+        transaction.type == 'expense' || transaction.type == 'withdrawal';
+    final color = isExpense ? AppColors.expense : AppColors.income;
 
     // Resolve Account Name
     final accounts = ref.watch(accountProvider).accounts;
-    final account = accounts.where((a) => a.id == transaction.accountId).firstOrNull;
+    final account = accounts
+        .where((a) => a.id == transaction.accountId)
+        .firstOrNull;
     final accountName = account?.name ?? 'Unknown Account';
 
     return InkWell(
@@ -37,10 +40,7 @@ class TransactionCard extends ConsumerWidget {
         UIHelpers.lightImpact();
         context.push(
           AppRouter.transactionDetail,
-          extra: {
-            'transaction': transaction,
-            'heroTag': heroTag,
-          },
+          extra: {'transaction': transaction, 'heroTag': heroTag},
         );
       },
       child: Padding(
@@ -53,10 +53,7 @@ class TransactionCard extends ConsumerWidget {
               child: Container(
                 width: 48.w,
                 height: 48.w,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 child: Center(
                   child: Icon(
                     _getIconForTransaction(),
@@ -67,7 +64,7 @@ class TransactionCard extends ConsumerWidget {
               ),
             ),
             UIHelpers.horizontalSpace(16),
-            
+
             // Details
             Expanded(
               child: Column(
@@ -76,7 +73,9 @@ class TransactionCard extends ConsumerWidget {
                   Text(
                     _getTitle(),
                     style: context.appTexts.bodyLarge.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                       fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
@@ -86,26 +85,32 @@ class TransactionCard extends ConsumerWidget {
                   Text(
                     _getSubtitle(),
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             // Amount & Bank
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   '₹${transaction.amount.toStringAsFixed(0)}',
-                  style: isDebit ? context.appTexts.amountExpense : context.appTexts.amountIncome,
+                  style: isExpense
+                      ? context.appTexts.amountExpense
+                      : context.appTexts.amountIncome,
                 ),
                 UIHelpers.verticalSpace(4),
                 Text(
                   accountName,
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -120,20 +125,22 @@ class TransactionCard extends ConsumerWidget {
     if (transaction.note != null && transaction.note!.isNotEmpty) {
       return transaction.note!;
     }
-    return transaction.type == 'debit' ? 'Debit' : 'Credit';
+    if (transaction.type == 'income') return 'Income';
+    if (transaction.type == 'withdrawal') return 'Withdrawal';
+    return 'Expense';
   }
 
   String _getSubtitle() {
     // Ideally map categoryId to Category Name here if we had categoryProvider
-    return transaction.type == 'debit' ? 'Expense' : 'Income';
+    if (transaction.type == 'income') return 'Credit';
+    return 'Debit';
   }
 
   IconData _getIconForTransaction() {
     // For now, we return a generic icon based on type.
-    if (transaction.type == 'debit') {
-      return Icons.shopping_bag_outlined;
-    } else {
+    if (transaction.type == 'income') {
       return Icons.account_balance_wallet_outlined;
     }
+    return Icons.shopping_bag_outlined;
   }
 }
