@@ -80,7 +80,9 @@ class SettingsScreen extends ConsumerWidget {
       title: Text(
         label,
         style: context.appTexts.bodyMedium.copyWith(
-          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+          color: isDark
+              ? AppColors.textPrimaryDark
+              : AppColors.textPrimaryLight,
         ),
       ),
       trailing: isSelected
@@ -88,7 +90,6 @@ class SettingsScreen extends ConsumerWidget {
           : null,
     );
   }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -242,33 +243,59 @@ class SettingsScreen extends ConsumerWidget {
                           ? AppColors.borderDark
                           : AppColors.borderLight,
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            'CIRCLES',
-                            style: context.appTexts.bodySmall.copyWith(
-                              color: isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          UIHelpers.verticalSpace(8),
-                          Text(
-                            '3',
-                            style: context.appTexts.displayMedium.copyWith(
-                              color: isDark
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.textPrimaryLight,
-                              fontSize: 18.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: Column(
+                    //     children: [
+                    //       Text(
+                    //         'CIRCLES',
+                    //         style: context.appTexts.bodySmall.copyWith(
+                    //           color: isDark
+                    //               ? AppColors.textSecondaryDark
+                    //               : AppColors.textSecondaryLight,
+                    //           fontSize: 10.sp,
+                    //           fontWeight: FontWeight.w700,
+                    //           letterSpacing: 1.2,
+                    //         ),
+                    //       ),
+                    //       UIHelpers.verticalSpace(8),
+                    //       Text(
+                    //         '3',
+                    //         style: context.appTexts.displayMedium.copyWith(
+                    //           color: isDark
+                    //               ? AppColors.textPrimaryDark
+                    //               : AppColors.textPrimaryLight,
+                    //           fontSize: 18.sp,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),Expanded(
+                    //   child: Column(
+                    //     children: [
+                    //       Text(
+                    //         'CIRCLES',
+                    //         style: context.appTexts.bodySmall.copyWith(
+                    //           color: isDark
+                    //               ? AppColors.textSecondaryDark
+                    //               : AppColors.textSecondaryLight,
+                    //           fontSize: 10.sp,
+                    //           fontWeight: FontWeight.w700,
+                    //           letterSpacing: 1.2,
+                    //         ),
+                    //       ),
+                    //       UIHelpers.verticalSpace(8),
+                    //       Text(
+                    //         '3',
+                    //         style: context.appTexts.displayMedium.copyWith(
+                    //           color: isDark
+                    //               ? AppColors.textPrimaryDark
+                    //               : AppColors.textPrimaryLight,
+                    //           fontSize: 18.sp,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
