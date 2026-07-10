@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../../features/auth/model/user_model.dart';
 
 final cacheManagerProvider = Provider<CacheManager>((ref) {
@@ -11,6 +13,7 @@ class CacheManager {
   final _storage = const FlutterSecureStorage();
 
   static const String _userKey = 'user_data';
+  static const String _themeKey = 'theme_mode';
 
   Future<void> saveUser(UserModel user) async {
     final userJson = jsonEncode(user.toJson());
@@ -31,6 +34,14 @@ class CacheManager {
 
   Future<void> deleteUser() async {
     await _storage.delete(key: _userKey);
+  }
+
+  Future<void> saveThemeMode(String mode) async {
+    await _storage.write(key: _themeKey, value: mode);
+  }
+
+  Future<String?> getThemeMode() async {
+    return await _storage.read(key: _themeKey);
   }
 
   Future<void> clearAll() async {

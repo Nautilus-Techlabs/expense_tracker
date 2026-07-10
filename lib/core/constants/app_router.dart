@@ -4,9 +4,13 @@ import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
 import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/personal_expenses/models/transaction_model.dart';
+import '../../features/personal_expenses/views/accounts_settings_screen.dart';
 import '../../features/personal_expenses/views/add_account_screen.dart';
 import '../../features/personal_expenses/views/add_budget_screen.dart';
+import '../../features/personal_expenses/views/categories_settings_screen.dart';
 import '../../features/personal_expenses/views/circle_details_screen.dart';
+import '../../features/personal_expenses/views/detailed_transaction.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
@@ -23,6 +27,8 @@ class AppRouter {
   static const String feedback = '/feedback';
   static const String circleDetails = '/circle-details';
   static const String profile = '/profile';
+  static const String accountsSettings = '/profile/accounts';
+  static const String categoriesSettings = '/profile/categories';
   static const String addAccount = '/add-account';
   static const String addBudget = '/add-budget';
 
@@ -46,24 +52,14 @@ class AppRouter {
         path: transactions,
         builder: (context, state) => const MainScreen(),
       ),
-      // GoRoute(
-      //   path: transactionDetail,
-      //   builder: (context, state) {
-      //     final extra = state.extra;
-      //     if (extra is Transaction) {
-      //       return DetailedTransactionScreen(transaction: extra);
-      //     }
-      //     if (extra is Map) {
-      //       return DetailedTransactionScreen(
-      //         transaction: extra['transaction'] as Transaction,
-      //         heroTag: extra['heroTag'] as String?,
-      //       );
-      //     }
-      //     return Scaffold(
-      //       body: Center(child: Text('Invalid transaction data')),
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: transactionDetail,
+        builder: (context, state) {
+          final extra = state.extra as TransactionModel;
+          return DetailedTransactionScreen(transaction: extra);
+        },
+      ),
+
       // GoRoute(
       //   path: bankTransactions,
       //   builder: (context, state) {
@@ -92,6 +88,14 @@ class AppRouter {
       GoRoute(
         path: profile,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: accountsSettings,
+        builder: (context, state) => const AccountsSettingsScreen(),
+      ),
+      GoRoute(
+        path: categoriesSettings,
+        builder: (context, state) => const CategoriesSettingsScreen(),
       ),
       GoRoute(
         path: addAccount,

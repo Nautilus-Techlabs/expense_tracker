@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/theme/theme_notifier.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,89 @@ import '../../../core/constants/app_router.dart';
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
+  void _showThemeDialog(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.watch(themeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+        title: Text('Choose Appearance', style: context.appTexts.heading),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildThemeOption(
+              context,
+              label: 'Light',
+              icon: Icons.light_mode_outlined,
+              isSelected: currentTheme == ThemeMode.light,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.light);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+            _buildThemeOption(
+              context,
+              label: 'Dark',
+              icon: Icons.dark_mode_outlined,
+              isSelected: currentTheme == ThemeMode.dark,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.dark);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+            _buildThemeOption(
+              context,
+              label: 'System Default',
+              icon: Icons.settings_brightness_outlined,
+              isSelected: currentTheme == ThemeMode.system,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.system);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(
+        icon,
+        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+      ),
+      title: Text(
+        label,
+        style: context.appTexts.bodyMedium.copyWith(
+          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: AppColors.primary)
+          : null,
+    );
+  }
+
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = ref.watch(authProvider).user;
+    final themeMode = ref.watch(themeProvider);
 
     String initials = '??';
     if (user != null && user.fullName.isNotEmpty) {
@@ -25,6 +105,10 @@ class SettingsScreen extends ConsumerWidget {
         initials = parts[0][0].toUpperCase();
       }
     }
+
+    String themeLabel = 'System';
+    if (themeMode == ThemeMode.light) themeLabel = 'Light';
+    if (themeMode == ThemeMode.dark) themeLabel = 'Dark';
 
     return Scaffold(
       backgroundColor: isDark
@@ -192,26 +276,27 @@ class SettingsScreen extends ConsumerWidget {
 
               // ── List Sections ──
               _buildSectionHeader(context, 'PREFERENCES', isDark),
-              _buildListItem(
-                context: context,
-                icon: Icons.notifications_none_rounded,
-                title: 'Notifications',
-                isDark: isDark,
-              ),
+              // _buildListItem(
+              //   context: context,
+              //   icon: Icons.notifications_none_rounded,
+              //   title: 'Notifications',
+              //   isDark: isDark,
+              // ),
               _buildListItem(
                 context: context,
                 icon: Icons.dark_mode_outlined,
                 title: 'Appearance',
-                trailingText: isDark ? 'Dark' : 'Light',
+                trailingText: themeLabel,
                 isDark: isDark,
-              ),
-              _buildListItem(
-                context: context,
-                icon: Icons.lock_outline_rounded,
-                title: 'Privacy & Security',
-                isDark: isDark,
+                onTap: () => _showThemeDialog(context, ref),
               ),
 
+              // _buildListItem(
+              //   context: context,
+              //   icon: Icons.lock_outline_rounded,
+              //   title: 'Privacy & Security',
+              //   isDark: isDark,
+              // ),
               UIHelpers.verticalSpace(16),
               _buildSectionHeader(context, 'FINANCE', isDark),
               _buildListItem(
@@ -226,12 +311,14 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.account_balance_wallet_outlined,
                 title: 'Accounts',
                 isDark: isDark,
+                onTap: () => context.push(AppRouter.accountsSettings),
               ),
               _buildListItem(
                 context: context,
                 icon: Icons.local_offer_outlined,
                 title: 'Categories',
                 isDark: isDark,
+                onTap: () => context.push(AppRouter.categoriesSettings),
               ),
 
               // UIHelpers.verticalSpace(16),
@@ -359,9 +446,10 @@ class SettingsScreen extends ConsumerWidget {
     required String title,
     String? trailingText,
     required bool isDark,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
         child: Row(

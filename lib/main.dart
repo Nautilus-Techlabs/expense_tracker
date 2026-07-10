@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
 
+import 'core/theme/theme_notifier.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -27,11 +29,13 @@ void main() async {
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }
 
-class ExpenseTrackerApp extends StatelessWidget {
+class ExpenseTrackerApp extends ConsumerWidget {
   const ExpenseTrackerApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
     return ScreenUtilInit(
       designSize: const Size(390, 844),
       minTextAdapt: true,
@@ -49,7 +53,7 @@ class ExpenseTrackerApp extends StatelessWidget {
           darkTheme: AppTheme.dark,
 
           // System Theme Mode
-          themeMode: ThemeMode.system,
+          themeMode: themeMode,
         );
       },
     );

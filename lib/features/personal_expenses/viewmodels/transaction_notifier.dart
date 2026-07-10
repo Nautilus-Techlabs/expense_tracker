@@ -71,4 +71,59 @@ class TransactionNotifier extends Notifier<TransactionState> {
       },
     );
   }
+
+  Future<bool> updateTransaction({
+    required String transactionId,
+    required Map<String, dynamic> updates,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: () => null);
+
+    final result = await SupabaseHelper().updateTransaction(
+      transactionId: transactionId,
+      updates: updates,
+    );
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: () => failure.message,
+        );
+        return false;
+      },
+      (updatedTransaction) {
+        final updatedList = state.transactions.map((t) {
+          return t.id == transactionId ? updatedTransaction : t;
+        }).toList();
+        updatedList.sort((a, b) => b.txnDate.compareTo(a.txnDate));
+        state = state.copyWith(isLoading: false, transactions: updatedList);
+        return true;
+      },
+    );
+  }
+
+  Future<bool> deleteTransaction(String transactionId) async {
+    state = state.copyWith(isLoading: true, errorMessage: () => null);
+
+    final result = await SupabaseHelper().deleteTransaction(
+      transactionId: transactionId,
+    );
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: () => failure.message,
+        );
+        return false;
+      },
+      (_) {
+        final filtered = state.transactions
+            .where((t) => t.id != transactionId)
+            .toList();
+        state = state.copyWith(isLoading: false, transactions: filtered);
+        return true;
+      },
+    );
+  }
 }

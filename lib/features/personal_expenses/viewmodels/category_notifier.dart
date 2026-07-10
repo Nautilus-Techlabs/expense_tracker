@@ -32,4 +32,39 @@ class CategoryNotifier extends Notifier<CategoryState> {
       },
     );
   }
+
+  Future<bool> addCategory({
+    required String name,
+    required String type, // 'expense', 'income', 'both'
+    required String icon,
+    required String color,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: () => null);
+
+    final result = await SupabaseHelper().createCategory(
+      name: name,
+      type: type,
+      icon: icon,
+      color: color,
+    );
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: () => failure.message,
+        );
+        return false;
+      },
+      (newCategory) {
+        final currentCategories = List.of(state.categories);
+        currentCategories.add(newCategory);
+        state = state.copyWith(
+          isLoading: false,
+          categories: currentCategories,
+        );
+        return true;
+      },
+    );
+  }
 }

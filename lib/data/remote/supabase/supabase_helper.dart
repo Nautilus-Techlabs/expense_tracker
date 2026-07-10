@@ -165,6 +165,23 @@ class SupabaseHelper {
     }
   }
 
+  Future<Either<Failure, TransactionModel>> editTransaction(
+    TransactionPayload payload,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .update(payload.toJson())
+          .select()
+          .single();
+      AppLogger.d('Edited transactions: $response');
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error editing transactions: $e');
+      return Left(Failure('Error editing transactions: $e'));
+    }
+  }
+
   Future<Either<Failure, List<AccountModel>>> fetchAllAccounts(
     String userId,
   ) async {
@@ -283,6 +300,64 @@ class SupabaseHelper {
     } catch (e) {
       AppLogger.e('Error updating monthly budget: $e');
       return Left(Failure('Error updating monthly budget: $e'));
+    }
+  }
+
+  Future<Either<Failure, CategoryModel>> createCategory({
+    required String name,
+    required String type, // 'expense', 'income', 'both'
+    required String icon,
+    required String color,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableCategories)
+          .insert({'name': name, 'type': type, 'icon': icon, 'color': color})
+          .select()
+          .single();
+
+      return Right(CategoryModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating category: $e');
+      return Left(Failure('Failed to create category.'));
+    }
+  }
+
+  Future<Either<Failure, TransactionModel>> updateTransaction({
+    required String transactionId,
+    required Map<String, dynamic> updates,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .update(updates)
+          .eq('id', transactionId)
+          .select()
+          .single();
+
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error updating transaction: $e');
+      return Left(Failure('Failed to update transaction.'));
+    }
+  }
+
+  Future<Either<Failure, void>> deleteTransaction({
+    required String transactionId,
+  }) async {
+    try {
+      await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .update({
+            'is_deleted': true,
+            'deleted_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', transactionId);
+
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error deleting transaction: $e');
+      return Left(Failure('Failed to delete transaction.'));
     }
   }
 }

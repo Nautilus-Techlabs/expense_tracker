@@ -38,10 +38,7 @@ class TransactionCard extends ConsumerWidget {
     return InkWell(
       onTap: () {
         UIHelpers.lightImpact();
-        context.push(
-          AppRouter.transactionDetail,
-          extra: {'transaction': transaction, 'heroTag': heroTag},
-        );
+        context.push(AppRouter.transactionDetail, extra: transaction);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -132,8 +129,8 @@ class TransactionCard extends ConsumerWidget {
 
   String _getSubtitle() {
     // Ideally map categoryId to Category Name here if we had categoryProvider
-    if (transaction.type == 'income') return 'Credit';
-    return 'Debit';
+    if (transaction.type == 'income') return 'Income';
+    return 'Expense';
   }
 
   IconData _getIconForTransaction() {

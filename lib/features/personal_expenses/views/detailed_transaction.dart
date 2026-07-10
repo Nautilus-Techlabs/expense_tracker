@@ -7,6 +7,9 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
+import '../viewmodels/transaction_notifier.dart';
+import '../viewmodels/category_notifier.dart';
+import '../viewmodels/account_notifier.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;
@@ -25,37 +28,28 @@ class DetailedTransactionScreen extends ConsumerStatefulWidget {
 
 class _DetailedTransactionScreenState
     extends ConsumerState<DetailedTransactionScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   ref.read(detailedTransactionViewModelProvider.notifier).init(widget.transaction);
-    // });
-  }
+  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
-    // final state = ref.watch(detailedTransactionViewModelProvider);
-    // final vm = ref.read(detailedTransactionViewModelProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isExpense =
-        widget.transaction.type == 'expense' ||
-        widget.transaction.type == 'withdrawal';
+    final isExpense = widget.transaction.type == 'expense' || widget.transaction.type == 'withdrawal';
     final amountColor = isExpense ? AppColors.expense : AppColors.income;
-
     final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
-    // ref.listen<DetailedTransactionState>(
-    //     detailedTransactionViewModelProvider, (previous, next) {
-    //   if (next.error != null && next.error != previous?.error) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(
-    //         content: Text(next.error!),
-    //         backgroundColor: AppColors.expense,
-    //       ),
-    //     );
-    //   }
-    // });
+    // Resolve category name
+    final categories = ref.watch(categoryProvider).categories;
+    final category = categories
+        .where((c) => c.id == widget.transaction.categoryId)
+        .firstOrNull;
+    final categoryName = category?.name ?? 'Uncategorized';
+
+    // Resolve account name
+    final accounts = ref.watch(accountProvider).accounts;
+    final account = accounts
+        .where((a) => a.id == widget.transaction.accountId)
+        .firstOrNull;
+    final accountName = account?.name ?? 'Unknown Account';
 
     return Scaffold(
       backgroundColor: isDark
@@ -122,7 +116,7 @@ class _DetailedTransactionScreenState
 
             // ── Subtitle: Category · Type · Date ──
             Text(
-              _buildSubtitle(),
+              _buildSubtitle(categoryName),
               style: context.appTexts.bodyMedium.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -132,7 +126,7 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(32),
 
             // ── Details Card ──
-            _buildDetailsCard(context, isCircleTransaction, isDark),
+            _buildDetailsCard(context, isCircleTransaction, isDark, accountName, categoryName),
             UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
@@ -167,6 +161,8 @@ class _DetailedTransactionScreenState
     BuildContext context,
     bool isCircleTransaction,
     bool isDark,
+    String accountName,
+    String categoryName,
   ) {
     final cardColor = isDark ? AppColors.cardDark : Colors.white;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
@@ -189,7 +185,7 @@ class _DetailedTransactionScreenState
           _buildDetailRow(
             icon: Icons.account_balance_outlined,
             label: 'Account',
-            value: widget.transaction.accountId,
+            value: accountName,
             isDark: isDark,
             showDivider: true,
           ),
@@ -197,7 +193,7 @@ class _DetailedTransactionScreenState
             _buildDetailRow(
               icon: Icons.label_outline_rounded,
               label: 'Category',
-              value: 'Uncategorized',
+              value: categoryName,
               isDark: isDark,
               showDivider: true,
             ),
@@ -210,13 +206,9 @@ class _DetailedTransactionScreenState
             ),
           ],
           _buildDetailRow(
-            icon: Icons.circle_outlined,
-            label: 'Circle',
-            value: 'Not part of any circle',
-            valueColor: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-            isItalic: true,
+            icon: Icons.swap_vert_rounded,
+            label: 'Type',
+            value: widget.transaction.type[0].toUpperCase() + widget.transaction.type.substring(1),
             isDark: isDark,
             showDivider: false,
           ),
@@ -288,203 +280,34 @@ class _DetailedTransactionScreenState
     final cardColor = isDark ? AppColors.cardDark : Colors.white;
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
 
-    // Mock split data for UI demo
-    final splits = [
-      _SplitPerson(
-        initials: 'RK',
-        name: 'You (paid)',
-        amount: 3600,
-        share: 1200,
-        color: AppColors.primary,
-        status: 'Paid',
-      ),
-      _SplitPerson(
-        initials: 'AM',
-        name: 'Amit',
-        amount: 1200,
-        share: 1200,
-        color: AppColors.expense,
-        status: 'Pending',
-      ),
-      _SplitPerson(
-        initials: 'PR',
-        name: 'Priya',
-        amount: 1200,
-        share: 1200,
-        color: const Color(0xFF7C3AED),
-        status: 'Settled',
-      ),
-    ];
-
     return Container(
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: borderColor),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
-            child: Text(
-              'Split details',
-              style: context.appTexts.bodyLarge.copyWith(
-                color: isDark
-                    ? AppColors.textPrimaryDark
-                    : AppColors.textPrimaryLight,
-                fontWeight: FontWeight.w700,
-                fontSize: 17.sp,
-              ),
-            ),
-          ),
-          ...splits.map(
-            (split) => _buildSplitRow(split, isDark, splits.last == split),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
-            child: Text(
-              'Total recovered: ₹1,200 of ₹2,400',
-              style: context.appTexts.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSplitRow(_SplitPerson split, bool isDark, bool isLast) {
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-
-    Color statusColor;
-    Color statusBgColor;
-    switch (split.status) {
-      case 'Paid':
-        statusColor = Colors.white;
-        statusBgColor = AppColors.primary;
-        break;
-      case 'Pending':
-        statusColor = Colors.white;
-        statusBgColor = AppColors.expense;
-        break;
-      case 'Settled':
-        statusColor = Colors.white;
-        statusBgColor = AppColors.income;
-        break;
-      default:
-        statusColor = Colors.white;
-        statusBgColor = AppColors.primary;
-    }
-
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-          child: Row(
-            children: [
-              // Avatar
-              Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: split.color,
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  split.initials,
-                  style: context.appTexts.bodySmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.sp,
-                  ),
-                ),
-              ),
-              UIHelpers.horizontalSpace(12),
-              // Name
-              Expanded(
-                child: Text(
-                  split.name,
-                  style: context.appTexts.bodyMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              // Amount + status
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    split.status == 'Paid'
-                        ? '₹${split.amount.toStringAsFixed(0)}'
-                        : 'Owes ₹${split.share.toStringAsFixed(0)}',
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: split.status == 'Paid'
-                          ? (isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.textPrimaryLight)
-                          : AppColors.expense,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (split.status == 'Paid')
-                    Text(
-                      'Your share: ₹${split.share.toStringAsFixed(0)}',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                ],
-              ),
-              UIHelpers.horizontalSpace(10),
-              // Status badge
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: statusBgColor,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  split.status,
-                  style: context.appTexts.bodySmall.copyWith(
-                    color: statusColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11.sp,
-                  ),
-                ),
-              ),
-            ],
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: Text(
+          'Circle split details coming soon.',
+          style: context.appTexts.bodyMedium.copyWith(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            fontStyle: FontStyle.italic,
           ),
         ),
-        if (!isLast)
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: borderColor,
-            indent: 20.w,
-            endIndent: 20.w,
-          ),
-      ],
+      ),
     );
   }
 
   Widget _buildActionButtons(BuildContext context, bool isDark) {
     return Row(
       children: [
-        // Edit button (outlined, dark green)
+        // Edit button
         Expanded(
           child: OutlinedButton(
-            onPressed: () {}, // vm.toggleEditing,
+            onPressed: () => _showEditSheet(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(
                 color: isDark ? AppColors.borderDark : AppColors.primary,
@@ -505,10 +328,10 @@ class _DetailedTransactionScreenState
           ),
         ),
         UIHelpers.horizontalSpace(16),
-        // Delete button (outlined, terracotta)
+        // Delete button
         Expanded(
           child: OutlinedButton(
-            onPressed: () => _handleDelete(context),
+            onPressed: _isDeleting ? null : () => _handleDelete(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: AppColors.expense, width: 1.5),
               shape: RoundedRectangleBorder(
@@ -516,21 +339,48 @@ class _DetailedTransactionScreenState
               ),
               padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
-            child: Text(
-              'Delete',
-              style: context.appTexts.bodyMedium.copyWith(
-                color: AppColors.expense,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: _isDeleting
+                ? SizedBox(
+                    height: 20.h,
+                    width: 20.h,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.expense,
+                    ),
+                  )
+                : Text(
+                    'Delete',
+                    style: context.appTexts.bodyMedium.copyWith(
+                      color: AppColors.expense,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ),
       ],
     );
   }
 
-  String _buildSubtitle() {
-    final category = 'Uncategorized';
+  void _showEditSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _EditTransactionSheet(
+        transaction: widget.transaction,
+        onSaved: (updatedTx) {
+          // The state is already updated by the notifier,
+          // but we need to pop back since the detail screen
+          // was created with the old object.
+          if (mounted) {
+            context.pop(); // pop detail screen to go back to list
+          }
+        },
+      ),
+    );
+  }
+
+  String _buildSubtitle(String categoryName) {
     String typeLabel = 'Expense';
     if (widget.transaction.type == 'income') {
       typeLabel = 'Income';
@@ -538,7 +388,7 @@ class _DetailedTransactionScreenState
       typeLabel = 'Withdrawal';
     }
     final when = _timeLabel(widget.transaction.txnDate);
-    return '$category · $typeLabel · $when';
+    return '$categoryName · $typeLabel · $when';
   }
 
   String _timeLabel(DateTime date) {
@@ -609,29 +459,444 @@ class _DetailedTransactionScreenState
     );
 
     if (confirmed == true && context.mounted) {
-      // final success = await vm.deleteTransaction();
-      // if (success && context.mounted) {
-      //   context.pop();
-      // }
+      setState(() => _isDeleting = true);
+      final success = await ref
+          .read(transactionProvider.notifier)
+          .deleteTransaction(widget.transaction.id);
+
+      if (mounted) {
+        setState(() => _isDeleting = false);
+        if (success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Transaction deleted'),
+              backgroundColor: AppColors.income,
+            ),
+          );
+          context.pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to delete transaction'),
+              backgroundColor: AppColors.expense,
+            ),
+          );
+        }
+      }
     }
   }
 }
 
-// Helper model for split person
-class _SplitPerson {
-  final String initials;
-  final String name;
-  final double amount;
-  final double share;
-  final Color color;
-  final String status; // 'Paid', 'Pending', 'Settled'
+// ─── Edit Transaction Bottom Sheet ───
+class _EditTransactionSheet extends ConsumerStatefulWidget {
+  final TransactionModel transaction;
+  final Function(TransactionModel) onSaved;
 
-  const _SplitPerson({
-    required this.initials,
-    required this.name,
-    required this.amount,
-    required this.share,
-    required this.color,
-    required this.status,
+  const _EditTransactionSheet({
+    required this.transaction,
+    required this.onSaved,
   });
+
+  @override
+  ConsumerState<_EditTransactionSheet> createState() => _EditTransactionSheetState();
+}
+
+class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
+  late TextEditingController _noteController;
+  late TextEditingController _amountController;
+  late String _selectedType;
+  String? _selectedCategoryId;
+  String? _selectedAccountId;
+  late DateTime _selectedDate;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController(text: widget.transaction.note ?? '');
+    _amountController = TextEditingController(text: widget.transaction.amount.toString());
+    _selectedType = widget.transaction.type;
+    _selectedCategoryId = widget.transaction.categoryId;
+    _selectedAccountId = widget.transaction.accountId;
+    _selectedDate = widget.transaction.txnDate;
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  Future<void> _save() async {
+    final amount = double.tryParse(_amountController.text.trim());
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Enter a valid amount'),
+          backgroundColor: AppColors.expense,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    final updates = <String, dynamic>{
+      'amount': amount,
+      'note': _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      'type': _selectedType,
+      'category_id': _selectedCategoryId,
+      'account_id': _selectedAccountId,
+      'txn_date': _selectedDate.toIso8601String(),
+    };
+
+    final success = await ref.read(transactionProvider.notifier).updateTransaction(
+          transactionId: widget.transaction.id,
+          updates: updates,
+        );
+
+    if (mounted) {
+      setState(() => _isSaving = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Transaction updated'),
+            backgroundColor: AppColors.income,
+          ),
+        );
+        context.pop(); // close sheet
+        widget.onSaved(widget.transaction); // trigger callback
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to update transaction'),
+            backgroundColor: AppColors.expense,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildTypeSegment(String label, String value, bool isDark) {
+    final isSelected = _selectedType == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedType = value),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark ? const Color(0xFF333333) : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(24.r),
+            boxShadow: isSelected && !isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: context.appTexts.bodyMedium.copyWith(
+              color: isSelected
+                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final categoryState = ref.watch(categoryProvider);
+    final accountState = ref.watch(accountProvider);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 32.h),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Grabber
+              Center(
+                child: Container(
+                  width: 48.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(24),
+
+              Text(
+                'Edit Transaction',
+                style: context.appTexts.displayMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  fontSize: 24.sp,
+                ),
+              ),
+              UIHelpers.verticalSpace(24),
+
+              // Type Selector
+              Container(
+                height: 48.h,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.cardDark : const Color(0xFFEBEBEB),
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
+                child: Row(
+                  children: [
+                    _buildTypeSegment('Expense', 'expense', isDark),
+                    _buildTypeSegment('Income', 'income', isDark),
+                    _buildTypeSegment('Withdrawal', 'withdrawal', isDark),
+                  ],
+                ),
+              ),
+              UIHelpers.verticalSpace(24),
+
+              // Amount
+              _buildLabel('Amount', isDark),
+              UIHelpers.verticalSpace(8),
+              TextField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                ),
+                decoration: _inputDecoration(isDark, 'e.g. 500'),
+              ),
+              UIHelpers.verticalSpace(20),
+
+              // Note
+              _buildLabel('Note', isDark),
+              UIHelpers.verticalSpace(8),
+              TextField(
+                controller: _noteController,
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                ),
+                decoration: _inputDecoration(isDark, 'e.g. Groceries at D-Mart'),
+              ),
+              UIHelpers.verticalSpace(20),
+
+              // Date
+              _buildLabel('Date', isDark),
+              UIHelpers.verticalSpace(8),
+              InkWell(
+                onTap: _pickDate,
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat('dd MMM yyyy').format(_selectedDate),
+                        style: context.appTexts.bodyMedium.copyWith(
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                      Icon(Icons.calendar_today_rounded, size: 18.sp,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                    ],
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(20),
+
+              // Account dropdown
+              _buildLabel('Account', isDark),
+              UIHelpers.verticalSpace(8),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.cardDark : AppColors.cardLight,
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedAccountId,
+                    isExpanded: true,
+                    dropdownColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    style: context.appTexts.bodyMedium.copyWith(
+                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    ),
+                    items: accountState.accounts.map((acc) {
+                      return DropdownMenuItem(
+                        value: acc.id,
+                        child: Text(acc.name),
+                      );
+                    }).toList(),
+                    onChanged: (val) => setState(() => _selectedAccountId = val),
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(20),
+
+              // Category dropdown
+              _buildLabel('Category', isDark),
+              UIHelpers.verticalSpace(8),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.cardDark : AppColors.cardLight,
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String?>(
+                    value: _selectedCategoryId,
+                    isExpanded: true,
+                    dropdownColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    style: context.appTexts.bodyMedium.copyWith(
+                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    ),
+                    hint: Text(
+                      'Select category',
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(
+                          'None',
+                          style: context.appTexts.bodyMedium.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      ...categoryState.categories.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat.id,
+                          child: Text(cat.name),
+                        );
+                      }),
+                    ],
+                    onChanged: (val) => setState(() => _selectedCategoryId = val),
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(40),
+
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isSaving
+                      ? SizedBox(
+                          height: 20.h,
+                          width: 20.h,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'Save Changes',
+                          style: context.appTexts.bodyMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text, bool isDark) {
+    return Text(
+      text,
+      style: context.appTexts.bodySmall.copyWith(
+        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(bool isDark, String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: context.appTexts.bodyMedium.copyWith(
+        color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+            .withValues(alpha: 0.5),
+      ),
+      filled: true,
+      fillColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        borderSide: BorderSide(color: AppColors.primary),
+      ),
+    );
+  }
 }

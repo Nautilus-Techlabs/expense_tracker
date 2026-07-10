@@ -126,7 +126,7 @@ class DashboardHeader extends StatelessWidget {
             children: [
               Expanded(
                 child: _SummaryIndicator(
-                  label: 'Credit',
+                  label: 'Income',
                   amount: income,
                   icon: Icons.south_west_rounded,
                   color: AppTheme.getIncomeColor(context),
@@ -135,7 +135,7 @@ class DashboardHeader extends StatelessWidget {
               UIHelpers.horizontalSpace(16),
               Expanded(
                 child: _SummaryIndicator(
-                  label: 'Debit',
+                  label: 'Expense',
                   amount: spends,
                   icon: Icons.north_east_rounded,
                   color: AppTheme.getExpenseColor(context),

@@ -23,7 +23,7 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
-  // Transaction type: 'expense', 'income', 'withdrawal'
+  // Transaction type: 'expense', 'income'
   String _selectedType = 'expense';
   String? _selectedCategoryId;
   String? _selectedAccountId;
@@ -141,8 +141,7 @@ class _AddTransactionBottomSheetState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isExpense =
-        _selectedType == 'expense' || _selectedType == 'withdrawal';
+    final isExpense = _selectedType == 'expense';
     final accentColor = isExpense ? AppColors.expense : AppColors.income;
 
     final accountState = ref.watch(accountProvider);
@@ -151,10 +150,10 @@ class _AddTransactionBottomSheetState
 
     // Filter categories by type
     final filteredCategories = categoryState.categories.where((c) {
-      if (_selectedType == 'income') {
-        return c.type == CategoryType.income || c.type == CategoryType.both;
-      } else {
+      if (_selectedType == 'expense') {
         return c.type == CategoryType.expense || c.type == CategoryType.both;
+      } else {
+        return c.type == CategoryType.income || c.type == CategoryType.both;
       }
     }).toList();
 
@@ -208,7 +207,7 @@ class _AddTransactionBottomSheetState
           ),
           UIHelpers.verticalSpace(16),
 
-          // Expense / Income / Withdrawal Segmented Control
+          // Expense / Income Segmented Control
           Container(
             height: 48.h,
             decoration: BoxDecoration(
@@ -219,7 +218,6 @@ class _AddTransactionBottomSheetState
               children: [
                 _buildSegment('Expense', 'expense', isDark),
                 _buildSegment('Income', 'income', isDark),
-                _buildSegment('Withdraw', 'withdrawal', isDark),
               ],
             ),
           ),
