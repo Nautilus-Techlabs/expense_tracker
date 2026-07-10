@@ -13,11 +13,11 @@ CategoryModel _$CategoryModelFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       icon: json['icon'] as String,
       color: json['color'] as String,
-      type: $enumDecode(_$TypeEnumMap, json['type']),
+      type: $enumDecode(_$CategoryTypeEnumMap, json['type']),
       isSystem: json['is_system'] as bool,
       isProtected: json['is_protected'] as bool,
       isActive: json['is_active'] as bool,
-      createdAt: $enumDecode(_$CreatedAtEnumMap, json['created_at']),
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
@@ -27,20 +27,15 @@ Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
       'name': instance.name,
       'icon': instance.icon,
       'color': instance.color,
-      'type': _$TypeEnumMap[instance.type]!,
+      'type': _$CategoryTypeEnumMap[instance.type]!,
       'is_system': instance.isSystem,
       'is_protected': instance.isProtected,
       'is_active': instance.isActive,
-      'created_at': _$CreatedAtEnumMap[instance.createdAt]!,
+      'created_at': instance.createdAt.toIso8601String(),
     };
 
-const _$TypeEnumMap = {
-  Type.BOTH: 'both',
-  Type.EXPENSE: 'expense',
-  Type.INCOME: 'income',
-};
-
-const _$CreatedAtEnumMap = {
-  CreatedAt.THE_202607061059084590900: '2026-07-06 10:59:08.45909+00',
-  CreatedAt.THE_2026070610593133884800: '2026-07-06 10:59:31.338848+00',
+const _$CategoryTypeEnumMap = {
+  CategoryType.both: 'both',
+  CategoryType.expense: 'expense',
+  CategoryType.income: 'income',
 };

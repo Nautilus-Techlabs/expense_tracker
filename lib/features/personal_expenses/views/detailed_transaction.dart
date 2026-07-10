@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;

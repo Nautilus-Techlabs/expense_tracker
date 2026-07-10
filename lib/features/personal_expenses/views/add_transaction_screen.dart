@@ -6,6 +6,12 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../models/category_model.dart';
+import '../models/transaction_payload.dart';
+import '../viewmodels/account_notifier.dart';
+import '../viewmodels/category_notifier.dart';
+import '../viewmodels/transaction_notifier.dart';
+import '../../auth/viewmodels/auth_notifier.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
@@ -17,29 +23,16 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
-  String _selectedCategory = 'Food';
-  String _selectedAccount = 'HDFC Savings';
-  final DateTime _selectedDate = DateTime.now();
-  bool _addToCircle = false;
+  // Transaction type: 'debit' = Expense, 'credit' = Income
+  String _selectedType = 'debit';
+  String? _selectedCategoryId;
+  String? _selectedAccountId;
+  DateTime _selectedDate = DateTime.now();
+  bool _accountError = false; // shows inline error when no account selected
+  bool _amountError = false;  // shows inline error when no amount entered
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-
-  final List<String> _categories = [
-    'Food',
-    'Grocery',
-    'Rent',
-    'Utilities',
-    'Transport',
-    'Entertainment',
-  ];
-
-  final List<String> _accounts = [
-    'HDFC Savings',
-    'ICICI Bank',
-    'Wallet',
-    'Credit Card',
-  ];
 
   @override
   void dispose() {
@@ -48,35 +41,118 @@ class _AddTransactionBottomSheetState
     super.dispose();
   }
 
-  void _submit() async {
-    final amountText = _amountController.text.trim();
-    if (amountText.isEmpty) return;
-
-    final amount = double.tryParse(amountText);
-    if (amount == null || amount <= 0) return;
-
-    // await ref.read(transactionProvider.notifier).addManualTransaction(
-    //   amount: amount,
-    //   type: _selectedType,
-    //   date: _selectedDate,
-    //   method: PaymentMethod.upi, // Default for now
-    //   merchant: _selectedCategory, // Using category as merchant title for simplicity in UI
-    //   description: _noteController.text.isNotEmpty ? _noteController.text : null,
-    //   account: _selectedAccount,
-    // );
-
-    if (mounted) {
-      Navigator.pop(context);
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
     }
+  }
+
+  Future<void> _submit() async {
+    final amountText = _amountController.text.trim();
+    final amount = double.tryParse(amountText);
+
+    // Run all validations first
+    final bool hasAmountError = amountText.isEmpty || amount == null || amount <= 0;
+    final bool hasAccountError = _selectedAccountId == null;
+
+    if (hasAmountError || hasAccountError) {
+      setState(() {
+        _amountError = hasAmountError;
+        _accountError = hasAccountError;
+      });
+      if (hasAmountError) {
+        _showError('Please enter a valid amount.');
+      } else if (hasAccountError) {
+        _showError('Please select an account to continue.');
+      }
+      return;
+    }
+
+    // Clear errors
+    setState(() {
+      _amountError = false;
+      _accountError = false;
+    });
+
+    final user = ref.read(authProvider).user;
+    if (user == null) return;
+
+    final payload = TransactionPayload(
+      userId: user.id,
+      accountId: _selectedAccountId!,
+      categoryId: _selectedCategoryId,
+      type: _selectedType,
+      amount: amount,
+      note: _noteController.text.trim().isNotEmpty
+          ? _noteController.text.trim()
+          : null,
+      txnDate: _selectedDate,
+      isCircleTransaction: false,
+      isReimbursement: false,
+      isCreditCardTxn: false,
+      isDeleted: false,
+      isSynced: false,
+    );
+
+    final success =
+        await ref.read(transactionProvider.notifier).addTransaction(payload);
+
+    if (success && mounted) {
+      Navigator.pop(context);
+    } else if (!success && mounted) {
+      final error = ref.read(transactionProvider).errorMessage;
+      _showError(error ?? 'Failed to save transaction. Try again.');
+    }
+  }
+
+  void _showError(String message) {
+    // Use rootScaffoldMessenger so the SnackBar appears above the bottom sheet
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: AppColors.expense,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = AppColors.expense;
+    final isDebit = _selectedType == 'debit';
+    final accentColor = isDebit ? AppColors.expense : AppColors.income;
+
+    final accountState = ref.watch(accountProvider);
+    final categoryState = ref.watch(categoryProvider);
+    final txState = ref.watch(transactionProvider);
+
+    // Filter categories by type
+    final filteredCategories = categoryState.categories.where((c) {
+      if (_selectedType == 'debit') {
+        return c.type == CategoryType.expense || c.type == CategoryType.both;
+      } else {
+        return c.type == CategoryType.income || c.type == CategoryType.both;
+      }
+    }).toList();
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: MediaQuery.of(context).size.height * 0.92,
       decoration: BoxDecoration(
         color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
@@ -86,6 +162,7 @@ class _AddTransactionBottomSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           UIHelpers.verticalSpace(12),
+
           // Drag Handle
           Center(
             child: Container(
@@ -99,7 +176,7 @@ class _AddTransactionBottomSheetState
           ),
           UIHelpers.verticalSpace(24),
 
-          // Title & Close Button
+          // Title & Close
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -107,7 +184,7 @@ class _AddTransactionBottomSheetState
                 'Add transaction',
                 style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
-                  fontSize: 28.sp,
+                  fontSize: 26.sp,
                 ),
               ),
               IconButton(
@@ -122,9 +199,9 @@ class _AddTransactionBottomSheetState
               ),
             ],
           ),
-          UIHelpers.verticalSpace(24),
+          UIHelpers.verticalSpace(16),
 
-          // Segmented Control (Expense / Income / Withdrawal)
+          // Expense / Income Segmented Control
           Container(
             height: 48.h,
             decoration: BoxDecoration(
@@ -133,25 +210,22 @@ class _AddTransactionBottomSheetState
             ),
             child: Row(
               children: [
-                // _buildSegmentItem('Expense', TransactionType.debit, isDark),
-                // _buildSegmentItem('Income', TransactionType.credit, isDark),
-                // _buildSegmentItem(
-                //   'Withdrawal',
-                //   null,
-                //   isDark,
-                // ), // Mock third type
+                _buildSegment('Expense', 'debit', isDark),
+                _buildSegment('Income', 'credit', isDark),
               ],
             ),
           ),
+          UIHelpers.verticalSpace(4),
 
           Expanded(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  UIHelpers.verticalSpace(40),
+                  UIHelpers.verticalSpace(32),
 
-                  // Amount Input
+                  // ── Amount Input ──
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -160,7 +234,7 @@ class _AddTransactionBottomSheetState
                         Text(
                           '₹ ',
                           style: context.appTexts.displayLarge.copyWith(
-                            color: color,
+                            color: _amountError ? AppColors.expense : accentColor,
                             fontSize: 48.sp,
                           ),
                         ),
@@ -170,14 +244,17 @@ class _AddTransactionBottomSheetState
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
+                            autofocus: false,
                             style: context.appTexts.displayLarge.copyWith(
-                              color: color,
+                              color: _amountError ? AppColors.expense : accentColor,
                               fontSize: 48.sp,
                             ),
                             decoration: InputDecoration(
                               hintText: '0',
                               hintStyle: context.appTexts.displayLarge.copyWith(
-                                color: color,
+                                color: _amountError 
+                                    ? AppColors.expense.withValues(alpha: 0.5) 
+                                    : accentColor.withValues(alpha: 0.4),
                                 fontSize: 48.sp,
                               ),
                               border: InputBorder.none,
@@ -191,57 +268,93 @@ class _AddTransactionBottomSheetState
                   ),
                   UIHelpers.verticalSpace(40),
 
-                  // Categories
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 12.h,
-                    children: _categories
-                        .map(
-                          (c) => _buildChip(c, _selectedCategory == c, (val) {
-                            setState(() => _selectedCategory = c);
-                          }, isDark),
-                        )
-                        .toList(),
-                  ),
+                  // ── Category Section ──
+                  _buildSectionLabel('Category', isDark),
+                  UIHelpers.verticalSpace(12),
+                  if (categoryState.isLoading)
+                    _buildLoadingChips()
+                  else if (filteredCategories.isEmpty)
+                    Text(
+                      'No categories available.',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 10.h,
+                      children: filteredCategories
+                          .map(
+                            (cat) => _buildChip(
+                              label: cat.name,
+                              isSelected: _selectedCategoryId == cat.id,
+                              onTap: () =>
+                                  setState(() => _selectedCategoryId = cat.id),
+                              isDark: isDark,
+                            ),
+                          )
+                          .toList(),
+                    ),
                   UIHelpers.verticalSpace(32),
 
-                  // Accounts
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 12.h,
-                    children: _accounts
-                        .map(
-                          (a) => _buildChip(a, _selectedAccount == a, (val) {
-                            setState(() => _selectedAccount = a);
-                          }, isDark),
-                        )
-                        .toList(),
-                  ),
+                  // ── Account Section ──
+                  _buildSectionLabel('Account', isDark, hasError: _accountError),
+                  UIHelpers.verticalSpace(12),
+                  if (accountState.isLoading)
+                    _buildLoadingChips()
+                  else if (accountState.accounts.isEmpty)
+                    Text(
+                      'No accounts found. Please add an account first.',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 10.h,
+                      children: accountState.accounts
+                          .map(
+                            (acc) => _buildChip(
+                              label: acc.name,
+                              isSelected: _selectedAccountId == acc.id,
+                              onTap: () =>
+                                  setState(() => _selectedAccountId = acc.id),
+                              isDark: isDark,
+                            ),
+                          )
+                          .toList(),
+                    ),
                   UIHelpers.verticalSpace(32),
 
-                  // Date Row
+                  // ── Date Row ──
                   _buildInputRow(
                     icon: Icons.calendar_today_outlined,
+                    isDark: isDark,
+                    onTap: _pickDate,
                     child: Text(
-                      'Today, ${DateFormat('dd MMM').format(_selectedDate)}',
+                      _formatDate(_selectedDate),
                       style: context.appTexts.bodyLarge.copyWith(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.primary,
+                        color:
+                            isDark ? AppColors.textPrimaryDark : AppColors.primary,
                       ),
                     ),
-                    isDark: isDark,
                   ),
 
-                  // Note Row
+                  // ── Note Row ──
                   _buildInputRow(
                     icon: Icons.edit_outlined,
+                    isDark: isDark,
                     child: TextField(
                       controller: _noteController,
                       style: context.appTexts.bodyLarge.copyWith(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.primary,
+                        color:
+                            isDark ? AppColors.textPrimaryDark : AppColors.primary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Add a note (optional)',
@@ -255,88 +368,96 @@ class _AddTransactionBottomSheetState
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    isDark: isDark,
                   ),
 
-                  // Add to Circle Toggle
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Add to a Circle?',
-                          style: context.appTexts.bodyLarge.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Switch(
-                          value: _addToCircle,
-                          onChanged: (val) =>
-                              setState(() => _addToCircle = val),
-                          activeThumbColor: AppColors.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  UIHelpers.verticalSpace(24), // Bottom padding before button
+                  // ── Add to Circle Toggle (HIDDEN for now) ──
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(vertical: 24.h),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: [
+                  //       Text(
+                  //         'Add to a Circle?',
+                  //         style: context.appTexts.bodyLarge.copyWith(
+                  //           color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  //           fontWeight: FontWeight.w500,
+                  //         ),
+                  //       ),
+                  //       Switch(
+                  //         value: _addToCircle,
+                  //         onChanged: (val) => setState(() => _addToCircle = val),
+                  //         activeThumbColor: AppColors.primary,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  UIHelpers.verticalSpace(32),
                 ],
               ),
             ),
           ),
 
-          // Submit Button
-          PrimaryButton(text: 'Save transaction', onPressed: _submit),
-          UIHelpers.verticalSpace(32),
+          // ── Submit Button ──
+          Center(
+            child: SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                text: 'Save transaction',
+                isLoading: txState.isLoading,
+                onPressed: _submit,
+              ),
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 24.h),
         ],
       ),
     );
   }
 
-  // Widget _buildSegmentItem(String title, TransactionType? type, bool isDark) {
-  //   final isSelected = _selectedType == type && type != null;
-  //   return Expanded(
-  //     child: GestureDetector(
-  //       onTap: () {
-  //         if (type != null) {
-  //           setState(() => _selectedType = type);
-  //         }
-  //       },
-  //       child: Container(
-  //         margin: EdgeInsets.all(4.w),
-  //         decoration: BoxDecoration(
-  //           color: isSelected ? AppColors.primary : Colors.transparent,
-  //           borderRadius: BorderRadius.circular(20.r),
-  //         ),
-  //         alignment: Alignment.center,
-  //         child: Text(
-  //           title,
-  //           style: context.appTexts.bodyMedium.copyWith(
-  //             color: isSelected
-  //                 ? Colors.white
-  //                 : (isDark
-  //                       ? AppColors.textSecondaryDark
-  //                       : AppColors.textSecondaryLight),
-  //             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  // ── Helpers ──
 
-  Widget _buildChip(
-    String label,
-    bool isSelected,
-    ValueChanged<bool> onSelected,
-    bool isDark,
-  ) {
+  Widget _buildSegment(String label, String type, bool isDark) {
+    final isSelected = _selectedType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() {
+          _selectedType = type;
+          _selectedCategoryId = null; // reset category on type change
+        }),
+        child: Container(
+          margin: EdgeInsets.all(4.w),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: context.appTexts.bodyMedium.copyWith(
+              color: isSelected
+                  ? Colors.white
+                  : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight),
+              fontWeight:
+                  isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
     return GestureDetector(
-      onTap: () => onSelected(true),
-      child: Container(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
@@ -362,12 +483,51 @@ class _AddTransactionBottomSheetState
     );
   }
 
+  Widget _buildSectionLabel(String label, bool isDark, {bool hasError = false}) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: context.appTexts.bodySmall.copyWith(
+            color: hasError
+                ? AppColors.expense
+                : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
+        if (hasError) ...[
+          UIHelpers.horizontalSpace(8),
+          Icon(Icons.error_outline_rounded, size: 14.sp, color: AppColors.expense),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildLoadingChips() {
+    return Wrap(
+      spacing: 8.w,
+      children: List.generate(
+        4,
+        (i) => Container(
+          width: 72.w,
+          height: 36.h,
+          decoration: BoxDecoration(
+            color: Colors.grey.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildInputRow({
     required IconData icon,
     required Widget child,
     required bool isDark,
+    VoidCallback? onTap,
   }) {
-    return Container(
+    final row = Container(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         border: Border(
@@ -391,5 +551,19 @@ class _AddTransactionBottomSheetState
         ],
       ),
     );
+    if (onTap != null) {
+      return GestureDetector(onTap: onTap, child: row);
+    }
+    return row;
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final d = DateTime(date.year, date.month, date.day);
+    if (d == today) return 'Today, ${DateFormat('dd MMM').format(date)}';
+    final yesterday = today.subtract(const Duration(days: 1));
+    if (d == yesterday) return 'Yesterday, ${DateFormat('dd MMM').format(date)}';
+    return DateFormat('EEE, dd MMM yyyy').format(date);
   }
 }

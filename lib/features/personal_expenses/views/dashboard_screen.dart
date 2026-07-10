@@ -31,7 +31,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
     final accountState = ref.watch(accountProvider);
-    final controller = ref.read(transactionProvider.notifier);
     final user = ref.watch(authProvider).user;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

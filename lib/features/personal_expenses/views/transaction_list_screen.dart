@@ -38,7 +38,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    final controller = ref.read(transactionProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final transactions = state.transactions;
