@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/transaction.dart';
 import '../../features/personal_expenses/views/add_account_screen.dart';
+import '../../features/personal_expenses/views/add_budget_screen.dart';
 import '../../features/personal_expenses/views/bank_detail_transactions_screen.dart';
 import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/detailed_transaction.dart';
@@ -27,6 +28,7 @@ class AppRouter {
   static const String circleDetails = '/circle-details';
   static const String profile = '/profile';
   static const String addAccount = '/add-account';
+  static const String addBudget = '/add-budget';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -98,6 +100,10 @@ class AppRouter {
       GoRoute(
         path: addAccount,
         builder: (context, state) => const AddAccountScreen(),
+      ),
+      GoRoute(
+        path: addBudget,
+        builder: (context, state) => const AddBudgetScreen(),
       ),
     ],
   );

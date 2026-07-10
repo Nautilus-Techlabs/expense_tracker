@@ -6,8 +6,10 @@ import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
 import 'package:expense_tracker/features/auth/model/user_model.dart';
 import 'package:expense_tracker/features/auth/model/user_payload.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseHelper {
@@ -183,6 +185,84 @@ class SupabaseHelper {
     } catch (e) {
       AppLogger.e('Error creating account: $e');
       return Left(Failure('Failed to create account.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> createMonthlyBudget({
+    required String userId,
+    required double amount,
+    required DateTime month,
+  }) async {
+    try {
+      final dateString =
+          "${month.year}-${month.month.toString().padLeft(2, '0')}-01";
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .insert({'user_id': userId, 'amount': amount, 'month': dateString})
+          .select()
+          .single();
+      final payload = {
+        'user_id': userId,
+        'amount': amount,
+        'month': dateString,
+      };
+      debugPrint(
+        'PAYLOAD TYPES: ${payload.map((k, v) => MapEntry(k, v.runtimeType))}',
+      );
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating monthly budget: $e');
+      return Left(Failure('Failed to create monthly budget.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> fetchMonthlyBudget({
+    required String userId,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final dateString =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-01";
+
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .select()
+          .eq('user_id', userId)
+          .eq('month', dateString)
+          .maybeSingle();
+
+      if (response == null) {
+        return Left(Failure('No budget set for this month.'));
+      }
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error fetching monthly budget: $e');
+      return Left(Failure('Failed to fetch monthly budget.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> updateMonthlyBudget({
+    required String userId,
+    required double amount,
+    required DateTime month,
+  }) async {
+    try {
+      final dateString =
+          "${month.year}-${month.month.toString().padLeft(2, '0')}-01";
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .update({'amount': amount})
+          .eq('user_id', userId)
+          .eq('month', dateString)
+          .select()
+          .single();
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error updating monthly budget: $e');
+      return Left(Failure('Error updating monthly budget: $e'));
     }
   }
 }

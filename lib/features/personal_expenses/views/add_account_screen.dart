@@ -52,7 +52,7 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
         .createAccount(name: name, type: _selectedType, balance: balance);
 
     if (success && mounted) {
-      context.go(AppRouter.transactions);
+      context.go(AppRouter.addBudget);
     } else if (mounted) {
       final error = ref.read(accountProvider).errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
