@@ -1,113 +1,232 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/constants/app_constants.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 
-class ReportsScreen extends StatelessWidget {
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/report_notifier.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../core/constants/app_constants.dart';
+import '../models/reports_model.dart' as model;
+
+class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
+
+  @override
+  ConsumerState<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends ConsumerState<ReportsScreen> {
+  late DateTime _startDate;
+  late DateTime _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _startDate = DateTime(now.year, now.month, 1);
+    _endDate = DateTime(now.year, now.month + 1, 0);
+
+    Future.microtask(() => _fetchData());
+  }
+
+  void _fetchData() {
+    ref
+        .read(reportProvider.notifier)
+        .fetchReports(startDate: _startDate, endDate: _endDate);
+  }
+
+  void _previousMonth() {
+    setState(() {
+      _startDate = DateTime(_startDate.year, _startDate.month - 1, 1);
+      _endDate = DateTime(_startDate.year, _startDate.month + 1, 0);
+    });
+    _fetchData();
+  }
+
+  void _nextMonth() {
+    setState(() {
+      _startDate = DateTime(_startDate.year, _startDate.month + 1, 1);
+      _endDate = DateTime(_startDate.year, _startDate.month + 1, 0);
+    });
+    _fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final reportState = ref.watch(reportProvider);
+    final report = reportState.report;
+
+    if (reportState.isLoading) {
+      return Scaffold(
+        backgroundColor: isDark
+            ? AppColors.backgroundDark
+            : AppColors.backgroundLight,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (reportState.errorMessage != null && report == null) {
+      return Scaffold(
+        backgroundColor: isDark
+            ? AppColors.backgroundDark
+            : AppColors.backgroundLight,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(reportState.errorMessage!),
+              UIHelpers.verticalSpace(16),
+              ElevatedButton(onPressed: _fetchData, child: const Text('Retry')),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final monthYear = DateFormat('MMM yyyy').format(_startDate);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header ──
-              Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Reports',
-                      style: context.appTexts.displayMedium.copyWith(
-                        color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
-                        fontSize: 32.sp,
+        child: RefreshIndicator(
+          onRefresh: () async => _fetchData(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Header ──
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Reports',
+                        style: context.appTexts.displayMedium.copyWith(
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.primary,
+                          fontSize: 32.sp,
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.cardDark : AppColors.borderLight,
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.chevron_left_rounded,
-                            size: 20.sp,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                          ),
-                          UIHelpers.horizontalSpace(8),
-                          Text(
-                            'Jun 2024',
-                            style: context.appTexts.bodyMedium.copyWith(
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                              fontWeight: FontWeight.w600,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.cardDark
+                              : AppColors.borderLight,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: _previousMonth,
+                              child: Icon(
+                                Icons.chevron_left_rounded,
+                                size: 20.sp,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
                             ),
-                          ),
-                          UIHelpers.horizontalSpace(8),
-                          Icon(
-                            Icons.chevron_right_rounded,
-                            size: 20.sp,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                          ),
-                        ],
+                            UIHelpers.horizontalSpace(8),
+                            Text(
+                              monthYear,
+                              style: context.appTexts.bodyMedium.copyWith(
+                                color: isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimaryLight,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            UIHelpers.horizontalSpace(8),
+                            GestureDetector(
+                              onTap: _nextMonth,
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                size: 20.sp,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // ── Top Stats ──
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _StatItem(
-                      title: 'INCOME',
-                      amount: '₹45,000',
-                      color: AppColors.income,
-                      isDark: isDark,
+                if (report != null) ...[
+                  // ── Top Stats ──
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _StatItem(
+                          title: 'INCOME',
+                          amount: '₹${report.summary.income}',
+                          color: AppColors.income,
+                          isDark: isDark,
+                        ),
+                        _StatItem(
+                          title: 'EXPENSE',
+                          amount: '₹${report.summary.expense}',
+                          color: AppColors.expense,
+                          isDark: isDark,
+                        ),
+                        _StatItem(
+                          title: 'NET',
+                          amount:
+                              '${report.summary.net >= 0 ? '+' : ''}₹${report.summary.net}',
+                          color: report.summary.net >= 0
+                              ? AppColors.income
+                              : AppColors.expense,
+                          isDark: isDark,
+                        ),
+                      ],
                     ),
-                    _StatItem(
-                      title: 'EXPENSE',
-                      amount: '₹32,000',
-                      color: AppColors.expense,
-                      isDark: isDark,
+                  ),
+                  UIHelpers.verticalSpace(32),
+
+                  // ── Monthly Trend Card ──
+                  _MonthlyTrendCard(trend: report.trend, isDark: isDark),
+                  UIHelpers.verticalSpace(16),
+
+                  // ── Spending Breakdown Card ──
+                  _SpendingBreakdownCard(
+                    breakdown: report.spendingBreakdown,
+                    isDark: isDark,
+                  ),
+                  UIHelpers.verticalSpace(16),
+
+                  // ── By Account Card ──
+                  _ByAccountCard(
+                    summary: report.accountSummary,
+                    isDark: isDark,
+                  ),
+                ] else
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Text('No data available for this period'),
                     ),
-                    _StatItem(
-                      title: 'NET',
-                      amount: '+₹13,000',
-                      color: AppColors.income,
-                      isDark: isDark,
-                    ),
-                  ],
-                ),
-              ),
-              UIHelpers.verticalSpace(32),
+                  ),
 
-              // ── Monthly Trend Card ──
-              _MonthlyTrendCard(isDark: isDark),
-              UIHelpers.verticalSpace(16),
-
-              // ── Spending Breakdown Card ──
-              _SpendingBreakdownCard(isDark: isDark),
-              UIHelpers.verticalSpace(16),
-
-              // ── By Account Card ──
-              _ByAccountCard(isDark: isDark),
-              UIHelpers.verticalSpace(120), // Bottom padding for nav bar
-            ],
+                UIHelpers.verticalSpace(120), // Bottom padding for nav bar
+              ],
+            ),
           ),
         ),
       ),
@@ -136,7 +255,9 @@ class _StatItem extends StatelessWidget {
         Text(
           title,
           style: context.appTexts.bodySmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.8,
           ),
@@ -155,18 +276,27 @@ class _StatItem extends StatelessWidget {
 }
 
 class _MonthlyTrendCard extends StatelessWidget {
+  final model.Trend trend;
   final bool isDark;
-  const _MonthlyTrendCard({required this.isDark});
+  const _MonthlyTrendCard({required this.trend, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
+    // Find max value for scaling
+    int maxVal = 1;
+    for (var p in trend.points) {
+      maxVal = math.max(maxVal, math.max(p.income, p.expense));
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +304,9 @@ class _MonthlyTrendCard extends StatelessWidget {
           Text(
             'MONTHLY TREND',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -185,23 +317,33 @@ class _MonthlyTrendCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _BarGroup(label: 'Jan', incomePercent: 0.5, expensePercent: 0.35, isDark: isDark),
-                _BarGroup(label: 'Feb', incomePercent: 0.6, expensePercent: 0.45, isDark: isDark),
-                _BarGroup(label: 'Mar', incomePercent: 0.55, expensePercent: 0.5, isDark: isDark),
-                _BarGroup(label: 'Apr', incomePercent: 0.8, expensePercent: 0.4, isDark: isDark),
-                _BarGroup(label: 'May', incomePercent: 0.75, expensePercent: 0.55, isDark: isDark),
-                _BarGroup(label: 'Jun', incomePercent: 0.9, expensePercent: 0.7, isDark: isDark, isCurrentMonth: true),
-              ],
+              children: trend.points.map((p) {
+                return _BarGroup(
+                  label: p.label,
+                  incomePercent: p.income / maxVal,
+                  expensePercent: p.expense / maxVal,
+                  isDark: isDark,
+                  isCurrentMonth:
+                      p.label == DateFormat('MMM').format(DateTime.now()),
+                );
+              }).toList(),
             ),
           ),
           UIHelpers.verticalSpace(24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _LegendItem(color: AppColors.income, label: 'Income', isDark: isDark),
+              _LegendItem(
+                color: AppColors.income,
+                label: 'Income',
+                isDark: isDark,
+              ),
               UIHelpers.horizontalSpace(24),
-              _LegendItem(color: AppColors.expense, label: 'Expense', isDark: isDark),
+              _LegendItem(
+                color: AppColors.expense,
+                label: 'Expense',
+                isDark: isDark,
+              ),
             ],
           ),
         ],
@@ -227,8 +369,12 @@ class _BarGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final incomeColor = isCurrentMonth ? AppColors.income : AppColors.income.withAlpha(isDark ? 100 : 80);
-    final expenseColor = isCurrentMonth ? AppColors.expense : AppColors.expense.withAlpha(isDark ? 100 : 80);
+    final incomeColor = isCurrentMonth
+        ? AppColors.income
+        : AppColors.income.withAlpha(isDark ? 100 : 80);
+    final expenseColor = isCurrentMonth
+        ? AppColors.expense
+        : AppColors.expense.withAlpha(isDark ? 100 : 80);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -254,8 +400,12 @@ class _BarGroup extends StatelessWidget {
           label,
           style: context.appTexts.bodySmall.copyWith(
             color: isCurrentMonth
-                ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                ? (isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight)
+                : (isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight),
             fontWeight: isCurrentMonth ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
@@ -269,7 +419,11 @@ class _LegendItem extends StatelessWidget {
   final String label;
   final bool isDark;
 
-  const _LegendItem({required this.color, required this.label, required this.isDark});
+  const _LegendItem({
+    required this.color,
+    required this.label,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +438,9 @@ class _LegendItem extends StatelessWidget {
         Text(
           label,
           style: context.appTexts.bodySmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
       ],
@@ -293,25 +449,21 @@ class _LegendItem extends StatelessWidget {
 }
 
 class _SpendingBreakdownCard extends StatelessWidget {
+  final model.SpendingBreakdown breakdown;
   final bool isDark;
-  const _SpendingBreakdownCard({required this.isDark});
+  const _SpendingBreakdownCard({required this.breakdown, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    // Colors matching the design
-    final rentColor = AppColors.expense;
-    final foodColor = AppColors.income;
-    final transportColor = const Color(0xFF2A5934); // Dark Green
-    final healthColor = const Color(0xFFA3C2A4); // Light Green
-    final othersColor = const Color(0xFF8D8D8D); // Grey
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +471,9 @@ class _SpendingBreakdownCard extends StatelessWidget {
           Text(
             'SPENDING BREAKDOWN',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -336,13 +490,19 @@ class _SpendingBreakdownCard extends StatelessWidget {
                   CustomPaint(
                     size: Size(160.w, 160.w),
                     painter: _DonutChartPainter(
-                      segments: [
-                        _Segment(value: 37, color: rentColor),
-                        _Segment(value: 25, color: foodColor),
-                        _Segment(value: 9, color: transportColor),
-                        _Segment(value: 6, color: healthColor),
-                        _Segment(value: 23, color: othersColor),
-                      ],
+                      segments: breakdown.categories.map((c) {
+                        // Parse color string to Color object
+                        Color color = Colors.grey;
+                        try {
+                          color = Color(
+                            int.parse(c.color.replaceFirst('#', '0xFF')),
+                          );
+                        } catch (e) {}
+                        return _Segment(
+                          value: c.percentage.toDouble(),
+                          color: color,
+                        );
+                      }).toList(),
                       strokeWidth: 16.w,
                     ),
                   ),
@@ -351,16 +511,20 @@ class _SpendingBreakdownCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '₹32k / ₹40k',
+                          '₹${breakdown.totalSpent}',
                           style: context.appTexts.displayMedium.copyWith(
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.primary,
                             fontSize: 18.sp,
                           ),
                         ),
                         Text(
                           'spent',
                           style: context.appTexts.bodySmall.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -373,17 +537,26 @@ class _SpendingBreakdownCard extends StatelessWidget {
           UIHelpers.verticalSpace(32),
 
           // List Items
-          _BreakdownItem(color: rentColor, label: 'Rent', amount: '₹12,000', percentage: '37%', isDark: isDark),
-          UIHelpers.verticalSpace(16),
-          _BreakdownItem(color: foodColor, label: 'Food', amount: '₹8,000', percentage: '25%', isDark: isDark),
-          UIHelpers.verticalSpace(16),
-          _BreakdownItem(color: transportColor, label: 'Transport', amount: '₹3,000', percentage: '9%', isDark: isDark),
-          UIHelpers.verticalSpace(16),
-          _BreakdownItem(color: healthColor, label: 'Health', amount: '₹2,000', percentage: '6%', isDark: isDark),
-          UIHelpers.verticalSpace(16),
-          _BreakdownItem(color: othersColor, label: 'Others', amount: '₹7,000', percentage: '23%', isDark: isDark),
+          ...breakdown.categories.map((c) {
+            Color color = Colors.grey;
+            try {
+              color = Color(int.parse(c.color.replaceFirst('#', '0xFF')));
+            } catch (e) {
+              debugPrint('Error parsing color: $e');
+            }
+            return Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: _BreakdownItem(
+                color: color,
+                label: c.name,
+                amount: '₹${c.amount}',
+                percentage: '${c.percentage}%',
+                isDark: isDark,
+              ),
+            );
+          }),
 
-          UIHelpers.verticalSpace(24),
+          UIHelpers.verticalSpace(8),
           Center(
             child: InkWell(
               onTap: () {},
@@ -393,7 +566,9 @@ class _SpendingBreakdownCard extends StatelessWidget {
                   Text(
                     'View all categories',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -401,7 +576,9 @@ class _SpendingBreakdownCard extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward_rounded,
                     size: 16.sp,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.primary,
                   ),
                 ],
               ),
@@ -441,7 +618,9 @@ class _BreakdownItem extends StatelessWidget {
         Text(
           label,
           style: context.appTexts.bodyMedium.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -449,7 +628,9 @@ class _BreakdownItem extends StatelessWidget {
         Text(
           '$amount ($percentage)',
           style: context.appTexts.bodyMedium.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
       ],
@@ -458,8 +639,9 @@ class _BreakdownItem extends StatelessWidget {
 }
 
 class _ByAccountCard extends StatelessWidget {
+  final model.AccountSummary summary;
   final bool isDark;
-  const _ByAccountCard({required this.isDark});
+  const _ByAccountCard({required this.summary, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -469,7 +651,9 @@ class _ByAccountCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,13 +661,15 @@ class _ByAccountCard extends StatelessWidget {
           Text(
             'BY ACCOUNT',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
           ),
           UIHelpers.verticalSpace(24),
-          
+
           // Header Row
           Row(
             children: [
@@ -492,7 +678,9 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Account Name',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -502,7 +690,9 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Inflow',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -513,7 +703,9 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Outflow',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -524,7 +716,9 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Net',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -533,35 +727,24 @@ class _ByAccountCard extends StatelessWidget {
             ],
           ),
           UIHelpers.verticalSpace(16),
-          
+
           // List Items
-          _AccountRow(
-            icon: Icons.account_balance_rounded,
-            name: 'HDFC\nSavings',
-            inflow: '₹35,000',
-            outflow: '₹24,500',
-            net: '₹10,500',
-            isDark: isDark,
-          ),
-          UIHelpers.verticalSpace(20),
-          _AccountRow(
-            icon: Icons.account_balance_wallet_rounded,
-            name: 'SBI\nAccount',
-            inflow: '₹10,000',
-            outflow: '₹5,000',
-            net: '₹5,000',
-            isDark: isDark,
-          ),
-          UIHelpers.verticalSpace(20),
-          _AccountRow(
-            icon: Icons.payments_rounded,
-            name: 'Cash',
-            inflow: '₹0',
-            outflow: '₹2,500',
-            net: '-₹2,500',
-            isDark: isDark,
-            isNegativeNet: true,
-          ),
+          ...summary.accounts.map((acc) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: 20.h),
+              child: _AccountRow(
+                icon: acc.type == 'bank'
+                    ? Icons.account_balance_rounded
+                    : Icons.payments_rounded,
+                name: acc.name,
+                inflow: '₹${acc.income}',
+                outflow: '₹${acc.expense}',
+                net: '₹${acc.net}',
+                isDark: isDark,
+                isNegativeNet: acc.net < 0,
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -598,13 +781,17 @@ class _AccountRow extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(6.w),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F0),
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : const Color(0xFFF5F5F0),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   icon,
                   size: 16.sp,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
               ),
               UIHelpers.horizontalSpace(8),
@@ -612,7 +799,9 @@ class _AccountRow extends StatelessWidget {
                 child: Text(
                   name,
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -624,9 +813,7 @@ class _AccountRow extends StatelessWidget {
           flex: 2,
           child: Text(
             inflow,
-            style: context.appTexts.bodySmall.copyWith(
-              color: AppColors.income,
-            ),
+            style: context.appTexts.bodySmall.copyWith(color: AppColors.income),
             textAlign: TextAlign.right,
           ),
         ),
@@ -645,7 +832,11 @@ class _AccountRow extends StatelessWidget {
           child: Text(
             net,
             style: context.appTexts.bodyMedium.copyWith(
-              color: isNegativeNet ? AppColors.expense : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+              color: isNegativeNet
+                  ? AppColors.expense
+                  : (isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight),
               fontWeight: FontWeight.w700,
             ),
             textAlign: TextAlign.right,
@@ -656,10 +847,8 @@ class _AccountRow extends StatelessWidget {
   }
 }
 
-// ── Donut Chart Custom Painter ──
-
 class _Segment {
-  final double value; // percentage
+  final double value;
   final Color color;
   _Segment({required this.value, required this.color});
 }
@@ -675,7 +864,7 @@ class _DonutChartPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
 
-    double startAngle = -math.pi / 2; // Start from top
+    double startAngle = -math.pi / 2;
 
     for (var segment in segments) {
       final sweepAngle = (segment.value / 100) * 2 * math.pi;
@@ -693,8 +882,7 @@ class _DonutChartPainter extends CustomPainter {
         paint,
       );
 
-      // Add a tiny gap between segments
-      startAngle += sweepAngle + 0.02; 
+      startAngle += sweepAngle + 0.02;
     }
   }
 

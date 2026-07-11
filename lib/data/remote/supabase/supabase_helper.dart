@@ -8,6 +8,7 @@ import 'package:expense_tracker/features/auth/model/user_payload.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/reports_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
 import 'package:flutter/cupertino.dart';
@@ -358,6 +359,36 @@ class SupabaseHelper {
     } catch (e) {
       AppLogger.e('Error deleting transaction: $e');
       return Left(Failure('Failed to delete transaction.'));
+    }
+  }
+
+  Future<Either<Failure, ReportModel>> fetchUserReports({
+    required String userId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String groupBy,
+    required bool fillGaps,
+    required int topCategories,
+    required bool includeZeroAcc,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetReports,
+        params: {
+          "p_user_id": userId,
+          "p_start_date": startDate.toIso8601String(),
+          "p_end_date": endDate.toIso8601String(),
+          "p_group_by": groupBy,
+          "p_fill_gaps": fillGaps,
+          "p_top_categories": topCategories,
+          "p_include_zero_accounts": includeZeroAcc,
+        },
+      );
+      final report = ReportModel.fromJson(response);
+      return Right(report);
+    } catch (e) {
+      AppLogger.e('Error fetching user reports: $e');
+      return Left(Failure('Failed to fetch user reports.'));
     }
   }
 }

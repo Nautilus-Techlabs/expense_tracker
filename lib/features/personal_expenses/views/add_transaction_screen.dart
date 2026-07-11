@@ -588,8 +588,9 @@ class _AddTransactionBottomSheetState
     final d = DateTime(date.year, date.month, date.day);
     if (d == today) return 'Today, ${DateFormat('dd MMM').format(date)}';
     final yesterday = today.subtract(const Duration(days: 1));
-    if (d == yesterday)
+    if (d == yesterday) {
       return 'Yesterday, ${DateFormat('dd MMM').format(date)}';
+    }
     return DateFormat('EEE, dd MMM yyyy').format(date);
   }
 }

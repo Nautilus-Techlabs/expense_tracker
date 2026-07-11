@@ -157,8 +157,7 @@ class _HeaderAction extends StatelessWidget {
   const _HeaderAction({
     required this.icon,
     required this.onTap,
-    this.isLoading = false,
-  });
+  }) : isLoading = false;
 
   @override
   Widget build(BuildContext context) {

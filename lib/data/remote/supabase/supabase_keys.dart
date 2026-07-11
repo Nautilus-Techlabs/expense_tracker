@@ -9,7 +9,7 @@ class SupabaseKeys {
   static const String tableMonthlyBudgets = 'user_monthly_budget';
 
   // RPC functions
-  static const String rpcGetTransactions = 'get_transactions';
+  static const String rpcGetReports = 'get_reports';
 
   // Common Columns
   static const String colId = 'id';
