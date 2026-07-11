@@ -313,7 +313,7 @@ class _MonthlyTrendCard extends StatelessWidget {
           ),
           UIHelpers.verticalSpace(32),
           SizedBox(
-            height: 150.h,
+            height: 170.h,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
