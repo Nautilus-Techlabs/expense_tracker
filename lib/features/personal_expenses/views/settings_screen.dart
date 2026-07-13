@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/theme/theme_notifier.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/budget_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final user = ref.watch(authProvider).user;
     final themeMode = ref.watch(themeProvider);
     final budget = ref.watch(budgetProvider).budget;
+    final accountsCount = ref.watch(accountProvider).accounts.length;
 
     String initials = '??';
     if (user != null && user.fullName.isNotEmpty) {
@@ -154,7 +156,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           UIHelpers.verticalSpace(8),
                           Text(
-                            '4',
+                            accountsCount.toString(),
                             style: context.appTexts.displayMedium.copyWith(
                               color: isDark
                                   ? AppColors.textPrimaryDark
