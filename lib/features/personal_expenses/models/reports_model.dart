@@ -118,7 +118,7 @@ class Category {
   @JsonKey(name: "amount")
   int amount;
   @JsonKey(name: "percentage")
-  int percentage;
+  double percentage;
   @JsonKey(name: "category_id")
   String categoryId;
 

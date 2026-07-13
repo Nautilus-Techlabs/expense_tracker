@@ -166,7 +166,7 @@ class _CategoryBreakdownScreenState
 class _CategoryListItem extends StatelessWidget {
   final String name;
   final int amount;
-  final int percentage;
+  final double percentage;
   final Color color;
   final String icon;
   final bool isDark;
@@ -220,7 +220,7 @@ class _CategoryListItem extends StatelessWidget {
                     ),
                     UIHelpers.verticalSpace(4),
                     Text(
-                      '$percentage% of total spending',
+                      '${percentage.toStringAsFixed(2)} % of total spending',
                       style: context.appTexts.bodySmall.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark

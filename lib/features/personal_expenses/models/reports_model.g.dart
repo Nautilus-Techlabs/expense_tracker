@@ -88,7 +88,7 @@ Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
   name: json['name'] as String,
   color: json['color'] as String,
   amount: (json['amount'] as num).toInt(),
-  percentage: (json['percentage'] as num).toInt(),
+  percentage: (json['percentage'] as num).toDouble(),
   categoryId: json['category_id'] as String,
 );
 
