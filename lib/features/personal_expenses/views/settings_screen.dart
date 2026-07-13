@@ -1,101 +1,30 @@
 import 'package:expense_tracker/core/theme/theme_notifier.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/budget_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
-  void _showThemeDialog(BuildContext context, WidgetRef ref) {
-    final currentTheme = ref.watch(themeProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
-        title: Text('Choose Appearance', style: context.appTexts.heading),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThemeOption(
-              context,
-              label: 'Light',
-              icon: Icons.light_mode_outlined,
-              isSelected: currentTheme == ThemeMode.light,
-              onTap: () {
-                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.light);
-                Navigator.pop(context);
-              },
-              isDark: isDark,
-            ),
-            _buildThemeOption(
-              context,
-              label: 'Dark',
-              icon: Icons.dark_mode_outlined,
-              isSelected: currentTheme == ThemeMode.dark,
-              onTap: () {
-                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.dark);
-                Navigator.pop(context);
-              },
-              isDark: isDark,
-            ),
-            _buildThemeOption(
-              context,
-              label: 'System Default',
-              icon: Icons.settings_brightness_outlined,
-              isSelected: currentTheme == ThemeMode.system,
-              onTap: () {
-                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.system);
-                Navigator.pop(context);
-              },
-              isDark: isDark,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeOption(
-    BuildContext context, {
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-    required bool isDark,
-  }) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(
-        icon,
-        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-      ),
-      title: Text(
-        label,
-        style: context.appTexts.bodyMedium.copyWith(
-          color: isDark
-              ? AppColors.textPrimaryDark
-              : AppColors.textPrimaryLight,
-        ),
-      ),
-      trailing: isSelected
-          ? const Icon(Icons.check_circle, color: AppColors.primary)
-          : null,
-    );
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = ref.watch(authProvider).user;
     final themeMode = ref.watch(themeProvider);
+    final budget = ref.watch(budgetProvider).budget;
 
     String initials = '??';
     if (user != null && user.fullName.isNotEmpty) {
@@ -330,8 +259,9 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.track_changes_rounded,
                 title: 'Monthly budget',
-                trailingText: '₹40,000',
+                trailingText: '₹${budget?.amount.toStringAsFixed(0) ?? '0'}',
                 isDark: isDark,
+                onTap: () => _showBudgetDialog(context, ref),
               ),
               _buildListItem(
                 context: context,
@@ -436,6 +366,164 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showBudgetDialog(BuildContext context, WidgetRef ref) {
+    final budgetState = ref.read(budgetProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final controller = TextEditingController(
+      text: budgetState.budget?.amount.toStringAsFixed(0) ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+        title: Text('Monthly Budget', style: context.appTexts.heading),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Set your spending limit for ${DateFormat('MMMM').format(DateTime.now())}. This helps you stay on track with your financial goals.',
+              style: context.appTexts.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
+            ),
+            UIHelpers.verticalSpace(16),
+            TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              style: context.appTexts.bodyMedium.copyWith(
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Enter amount',
+                prefixText: '₹ ',
+                prefixStyle: context.appTexts.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: context.appTexts.bodyMedium.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final amount = double.tryParse(controller.text) ?? 0.0;
+              if (amount > 0) {
+                await ref
+                    .read(budgetProvider.notifier)
+                    .createOrUpdateBudget(
+                      amount: amount,
+                      month: DateTime.now(),
+                    );
+                if (context.mounted) Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              minimumSize: const Size(80, 40),
+            ),
+            child: Text('Update', style: context.appTexts.buttonPrimary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showThemeDialog(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.watch(themeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+        title: Text('Choose Appearance', style: context.appTexts.heading),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildThemeOption(
+              context,
+              label: 'Light',
+              icon: Icons.light_mode_outlined,
+              isSelected: currentTheme == ThemeMode.light,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.light);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+            _buildThemeOption(
+              context,
+              label: 'Dark',
+              icon: Icons.dark_mode_outlined,
+              isSelected: currentTheme == ThemeMode.dark,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.dark);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+            _buildThemeOption(
+              context,
+              label: 'System Default',
+              icon: Icons.settings_brightness_outlined,
+              isSelected: currentTheme == ThemeMode.system,
+              onTap: () {
+                ref.read(themeProvider.notifier).setThemeMode(ThemeMode.system);
+                Navigator.pop(context);
+              },
+              isDark: isDark,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(
+        icon,
+        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+      ),
+      title: Text(
+        label,
+        style: context.appTexts.bodyMedium.copyWith(
+          color: isDark
+              ? AppColors.textPrimaryDark
+              : AppColors.textPrimaryLight,
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: AppColors.primary)
+          : null,
     );
   }
 

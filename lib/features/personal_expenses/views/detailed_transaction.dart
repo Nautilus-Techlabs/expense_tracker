@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,9 +8,9 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
-import '../viewmodels/transaction_notifier.dart';
-import '../viewmodels/category_notifier.dart';
 import '../viewmodels/account_notifier.dart';
+import '../viewmodels/category_notifier.dart';
+import '../viewmodels/transaction_notifier.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;
@@ -33,7 +34,9 @@ class _DetailedTransactionScreenState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isExpense = widget.transaction.type == 'expense' || widget.transaction.type == 'withdrawal';
+    final isExpense =
+        widget.transaction.type == 'expense' ||
+        widget.transaction.type == 'withdrawal';
     final amountColor = isExpense ? AppColors.expense : AppColors.income;
     final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
@@ -126,7 +129,13 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(32),
 
             // ── Details Card ──
-            _buildDetailsCard(context, isCircleTransaction, isDark, accountName, categoryName),
+            _buildDetailsCard(
+              context,
+              isCircleTransaction,
+              isDark,
+              accountName,
+              categoryName,
+            ),
             UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
@@ -208,7 +217,9 @@ class _DetailedTransactionScreenState
           _buildDetailRow(
             icon: Icons.swap_vert_rounded,
             label: 'Type',
-            value: widget.transaction.type[0].toUpperCase() + widget.transaction.type.substring(1),
+            value:
+                widget.transaction.type[0].toUpperCase() +
+                widget.transaction.type.substring(1),
             isDark: isDark,
             showDivider: false,
           ),
@@ -498,7 +509,8 @@ class _EditTransactionSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_EditTransactionSheet> createState() => _EditTransactionSheetState();
+  ConsumerState<_EditTransactionSheet> createState() =>
+      _EditTransactionSheetState();
 }
 
 class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
@@ -513,8 +525,12 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
   @override
   void initState() {
     super.initState();
-    _noteController = TextEditingController(text: widget.transaction.note ?? '');
-    _amountController = TextEditingController(text: widget.transaction.amount.toString());
+    _noteController = TextEditingController(
+      text: widget.transaction.note ?? '',
+    );
+    _amountController = TextEditingController(
+      text: widget.transaction.amount.toString(),
+    );
     _selectedType = widget.transaction.type;
     _selectedCategoryId = widget.transaction.categoryId;
     _selectedAccountId = widget.transaction.accountId;
@@ -554,16 +570,21 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
 
     setState(() => _isSaving = true);
 
-    final updates = <String, dynamic>{
-      'amount': amount,
-      'note': _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
-      'type': _selectedType,
-      'category_id': _selectedCategoryId,
-      'account_id': _selectedAccountId,
-      'txn_date': _selectedDate.toIso8601String(),
-    };
+    final updates = TransactionPayload(
+      userId: widget.transaction.userId,
+      amount: amount,
+      note: _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim(),
+      type: _selectedType,
+      categoryId: _selectedCategoryId,
+      accountId: _selectedAccountId!,
+      txnDate: _selectedDate,
+    );
 
-    final success = await ref.read(transactionProvider.notifier).updateTransaction(
+    final success = await ref
+        .read(transactionProvider.notifier)
+        .updateTransaction(
           transactionId: widget.transaction.id,
           updates: updates,
         );
@@ -607,7 +628,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                       color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -616,8 +637,12 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
             label,
             style: context.appTexts.bodyMedium.copyWith(
               color: isSelected
-                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  ? (isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight)
+                  : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
@@ -633,7 +658,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
     final accountState = ref.watch(accountProvider);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -658,7 +685,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                   width: 48.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    color: isDark
+                        ? AppColors.borderDark
+                        : AppColors.borderLight,
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
@@ -668,7 +697,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
               Text(
                 'Edit Transaction',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                   fontSize: 24.sp,
                 ),
               ),
@@ -696,9 +727,13 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
               UIHelpers.verticalSpace(8),
               TextField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
                 decoration: _inputDecoration(isDark, 'e.g. 500'),
               ),
@@ -710,9 +745,14 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
               TextField(
                 controller: _noteController,
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
-                decoration: _inputDecoration(isDark, 'e.g. Groceries at D-Mart'),
+                decoration: _inputDecoration(
+                  isDark,
+                  'e.g. Groceries at D-Mart',
+                ),
               ),
               UIHelpers.verticalSpace(20),
 
@@ -723,11 +763,18 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                 onTap: _pickDate,
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 14.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.cardDark : AppColors.cardLight,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.borderDark
+                          : AppColors.borderLight,
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -735,11 +782,18 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                       Text(
                         DateFormat('dd MMM yyyy').format(_selectedDate),
                         style: context.appTexts.bodyMedium.copyWith(
-                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
-                      Icon(Icons.calendar_today_rounded, size: 18.sp,
-                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 18.sp,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
                     ],
                   ),
                 ),
@@ -755,15 +809,23 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.cardDark : AppColors.cardLight,
                   borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.borderDark
+                        : AppColors.borderLight,
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedAccountId,
                     isExpanded: true,
-                    dropdownColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    dropdownColor: isDark
+                        ? AppColors.cardDark
+                        : AppColors.cardLight,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                     items: accountState.accounts.map((acc) {
                       return DropdownMenuItem(
@@ -771,7 +833,8 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                         child: Text(acc.name),
                       );
                     }).toList(),
-                    onChanged: (val) => setState(() => _selectedAccountId = val),
+                    onChanged: (val) =>
+                        setState(() => _selectedAccountId = val),
                   ),
                 ),
               ),
@@ -786,20 +849,30 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.cardDark : AppColors.cardLight,
                   borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.borderDark
+                        : AppColors.borderLight,
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
                     value: _selectedCategoryId,
                     isExpanded: true,
-                    dropdownColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    dropdownColor: isDark
+                        ? AppColors.cardDark
+                        : AppColors.cardLight,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                     hint: Text(
                       'Select category',
                       style: context.appTexts.bodyMedium.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                     ),
                     items: [
@@ -808,7 +881,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                         child: Text(
                           'None',
                           style: context.appTexts.bodyMedium.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -820,7 +895,8 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                         );
                       }),
                     ],
-                    onChanged: (val) => setState(() => _selectedCategoryId = val),
+                    onChanged: (val) =>
+                        setState(() => _selectedCategoryId = val),
                   ),
                 ),
               ),
@@ -869,7 +945,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
     return Text(
       text,
       style: context.appTexts.bodySmall.copyWith(
-        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+        color: isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.8,
       ),
@@ -880,18 +958,25 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
     return InputDecoration(
       hintText: hint,
       hintStyle: context.appTexts.bodyMedium.copyWith(
-        color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-            .withValues(alpha: 0.5),
+        color:
+            (isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight)
+                .withValues(alpha: 0.5),
       ),
       filled: true,
       fillColor: isDark ? AppColors.cardDark : AppColors.cardLight,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        borderSide: BorderSide(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        borderSide: BorderSide(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),

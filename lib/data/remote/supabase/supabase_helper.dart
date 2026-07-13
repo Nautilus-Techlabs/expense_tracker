@@ -326,12 +326,19 @@ class SupabaseHelper {
 
   Future<Either<Failure, TransactionModel>> updateTransaction({
     required String transactionId,
-    required Map<String, dynamic> updates,
+    required TransactionPayload updates,
   }) async {
     try {
       final response = await supabase
           .from(SupabaseKeys.tableTransactions)
-          .update(updates)
+          .update({
+            'account_id': updates.accountId,
+            'category_id': updates.categoryId,
+            'circle_id': updates.circleId,
+            'type': updates.type,
+            'amount': updates.amount,
+            'note': updates.note,
+          })
           .eq('id', transactionId)
           .select()
           .single();

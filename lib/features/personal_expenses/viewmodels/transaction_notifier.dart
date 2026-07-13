@@ -5,9 +5,10 @@ import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/transaction_payload.dart';
 import 'transaction_state.dart';
 
-final transactionProvider = NotifierProvider<TransactionNotifier, TransactionState>(() {
-  return TransactionNotifier();
-});
+final transactionProvider =
+    NotifierProvider<TransactionNotifier, TransactionState>(() {
+      return TransactionNotifier();
+    });
 
 class TransactionNotifier extends Notifier<TransactionState> {
   @override
@@ -63,10 +64,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
       (transaction) {
         final newTransactions = [transaction, ...state.transactions];
         newTransactions.sort((a, b) => b.txnDate.compareTo(a.txnDate));
-        state = state.copyWith(
-          isLoading: false,
-          transactions: newTransactions,
-        );
+        state = state.copyWith(isLoading: false, transactions: newTransactions);
         return true;
       },
     );
@@ -74,7 +72,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
 
   Future<bool> updateTransaction({
     required String transactionId,
-    required Map<String, dynamic> updates,
+    required TransactionPayload updates,
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
