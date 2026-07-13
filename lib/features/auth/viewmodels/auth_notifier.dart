@@ -126,28 +126,22 @@ class AuthNotifier extends Notifier<AuthState> {
         return false;
       },
       (_) async {
-        final supabaseUser = SupabaseHelper().supabase.auth.currentUser;
-        if (supabaseUser != null) {
-          final profileResult = await SupabaseHelper().fetchUserProfile(
-            supabaseUser.id,
-          );
-          return profileResult.fold(
-            (failure) {
-              state = state.copyWith(
-                isLoading: false,
-                errorMessage: () => failure.message,
-              );
-              return false;
-            },
-            (user) async {
-              await _cacheManager.saveUser(user);
-              state = state.copyWith(isLoading: false, user: () => user);
-              return true;
-            },
-          );
-        }
-        state = state.copyWith(isLoading: false);
-        return true;
+        final profileResult = await SupabaseHelper()
+            .fetchOrCreateGoogleProfile();
+        return profileResult.fold(
+          (failure) {
+            state = state.copyWith(
+              isLoading: false,
+              errorMessage: () => failure.message,
+            );
+            return false;
+          },
+          (user) async {
+            await _cacheManager.saveUser(user);
+            state = state.copyWith(isLoading: false, user: () => user);
+            return true;
+          },
+        );
       },
     );
   }

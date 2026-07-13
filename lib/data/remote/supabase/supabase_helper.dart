@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:either_dart/either.dart';
 import 'package:expense_tracker/core/cache/cache_manager.dart';
 import 'package:expense_tracker/core/error/failure.dart';
@@ -60,14 +62,64 @@ class SupabaseHelper {
 
   Future<Either<Failure, void>> signInWithGoogle() async {
     try {
-      await supabase.auth.signInWithOAuth(OAuthProvider.google);
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.nt.expensetracker://google-auth-callback',
+      );
+
+      // Block here until the deep link comes back and session is set
+      await supabase.auth.onAuthStateChange
+          .firstWhere((data) => data.event == AuthChangeEvent.signedIn)
+          .timeout(const Duration(seconds: 60));
+
       return const Right(null);
+    } on TimeoutException {
+      return Left(Failure('Google sign-in timed out. Please try again.'));
     } on AuthException catch (e) {
       AppLogger.e('Google Auth error: ${e.message}');
       return Left(Failure(e.message));
     } catch (e) {
       AppLogger.e('Unexpected Google error: $e');
       return Left(Failure('Something went wrong with Google sign-in.'));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> fetchOrCreateGoogleProfile() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return Left(Failure('No authenticated user found.'));
+
+    try {
+      final existing = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', user.id)
+          .maybeSingle();
+
+      if (existing != null) {
+        return Right(UserModel.fromJson(existing));
+      }
+
+      // First-time Google user — create the profile row
+      final inserted = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .insert({
+            'full_name':
+                user.userMetadata?['full_name'] ??
+                user.userMetadata?['name'] ??
+                '',
+            'email': user.email,
+            'auth_id': user.id,
+          })
+          .select()
+          .single();
+
+      return Right(UserModel.fromJson(inserted));
+    } on PostgrestException catch (e) {
+      AppLogger.e('DB error: ${e.message}');
+      return Left(Failure('Failed to load or create profile.'));
+    } catch (e) {
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong loading your profile.'));
     }
   }
 
