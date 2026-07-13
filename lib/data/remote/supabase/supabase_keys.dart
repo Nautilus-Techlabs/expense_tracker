@@ -10,6 +10,8 @@ class SupabaseKeys {
 
   // RPC functions
   static const String rpcGetReports = 'get_reports';
+  static const String rpcGetReportSpendingBreakdown =
+      'get_report_spending_breakdown';
 
   // Common Columns
   static const String colId = 'id';

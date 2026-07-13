@@ -5,9 +5,11 @@ import 'package:expense_tracker/features/personal_expenses/viewmodels/report_not
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../core/constants/app_router.dart';
 import '../models/reports_model.dart' as model;
 
 class ReportsScreen extends ConsumerStatefulWidget {
@@ -208,6 +210,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   _SpendingBreakdownCard(
                     breakdown: report.spendingBreakdown,
                     isDark: isDark,
+                    startDate: _startDate,
+                    endDate: _endDate,
                   ),
                   UIHelpers.verticalSpace(16),
 
@@ -451,7 +455,14 @@ class _LegendItem extends StatelessWidget {
 class _SpendingBreakdownCard extends StatelessWidget {
   final model.SpendingBreakdown breakdown;
   final bool isDark;
-  const _SpendingBreakdownCard({required this.breakdown, required this.isDark});
+  final DateTime startDate;
+  final DateTime endDate;
+  const _SpendingBreakdownCard({
+    required this.breakdown,
+    required this.isDark,
+    required this.startDate,
+    required this.endDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -497,7 +508,9 @@ class _SpendingBreakdownCard extends StatelessWidget {
                           color = Color(
                             int.parse(c.color.replaceFirst('#', '0xFF')),
                           );
-                        } catch (e) {}
+                        } catch (e) {
+                          debugPrint('Error parsing color: $e');
+                        }
                         return _Segment(
                           value: c.percentage.toDouble(),
                           color: color,
@@ -559,7 +572,12 @@ class _SpendingBreakdownCard extends StatelessWidget {
           UIHelpers.verticalSpace(8),
           Center(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                context.push(
+                  AppRouter.categoryBreakdown,
+                  extra: {'startDate': startDate, 'endDate': endDate},
+                );
+              },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

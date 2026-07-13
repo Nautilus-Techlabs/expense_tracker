@@ -398,4 +398,30 @@ class SupabaseHelper {
       return Left(Failure('Failed to fetch user reports.'));
     }
   }
+
+  Future<Either<Failure, SpendingBreakdown>> getSpendingBreakdown({
+    required String userId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required int topCategories,
+    required bool groupByOthers,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetReportSpendingBreakdown,
+        params: {
+          "p_user_id": userId,
+          "p_start_date": startDate.toIso8601String(),
+          "p_end_date": endDate.toIso8601String(),
+          "p_top_categories": topCategories,
+          "p_group_others": groupByOthers,
+        },
+      );
+      final report = SpendingBreakdown.fromJson(response);
+      return Right(report);
+    } catch (e) {
+      AppLogger.e('Error fetching spending breakdown: $e');
+      return Left(Failure('Failed to fetch spending breakdown.'));
+    }
+  }
 }

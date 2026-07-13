@@ -4,14 +4,15 @@ import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
 import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/personal_expenses/views/accounts_settings_screen.dart';
 import '../../features/personal_expenses/views/add_account_screen.dart';
 import '../../features/personal_expenses/views/add_budget_screen.dart';
+import '../../features/personal_expenses/views/categories_settings_screen.dart';
+import '../../features/personal_expenses/views/category_breakdown_screen.dart';
 import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
-import '../../features/personal_expenses/views/accounts_settings_screen.dart';
-import '../../features/personal_expenses/views/categories_settings_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -29,6 +30,7 @@ class AppRouter {
   static const String categoriesSettings = '/categories';
   static const String addAccount = '/add-account';
   static const String addBudget = '/add-budget';
+  static const String categoryBreakdown = '/category-breakdown';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -112,6 +114,16 @@ class AppRouter {
       GoRoute(
         path: addBudget,
         builder: (context, state) => const AddBudgetScreen(),
+      ),
+      GoRoute(
+        path: categoryBreakdown,
+        builder: (context, state) {
+          final args = state.extra as Map<String, DateTime>;
+          return CategoryBreakdownScreen(
+            startDate: args['startDate']!,
+            endDate: args['endDate']!,
+          );
+        },
       ),
     ],
   );

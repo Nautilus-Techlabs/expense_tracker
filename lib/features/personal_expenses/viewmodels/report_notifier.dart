@@ -46,4 +46,33 @@ class ReportNotifier extends Notifier<ReportState> {
           state = state.copyWith(isLoading: false, report: () => report),
     );
   }
+
+  Future<void> fetchSpendingBreakdown({
+    required DateTime startDate,
+    required DateTime endDate,
+    int topCategories = 5,
+    bool groupByOthers = false,
+  }) async {
+    final user = ref.read(authProvider).user;
+    if (user == null) return;
+
+    state = state.copyWith(isLoading: true, errorMessage: () => null);
+
+    final result = await SupabaseHelper().getSpendingBreakdown(
+      userId: user.id,
+      startDate: startDate,
+      endDate: endDate,
+      topCategories: topCategories,
+      groupByOthers: groupByOthers,
+    );
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        isLoading: false,
+        errorMessage: () => failure.message,
+      ),
+      (breakdown) =>
+          state = state.copyWith(isLoading: false, breakdown: () => breakdown),
+    );
+  }
 }
