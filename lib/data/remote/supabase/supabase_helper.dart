@@ -84,7 +84,8 @@ class SupabaseHelper {
     }
   }
 
-  Future<Either<Failure, UserModel>> fetchOrCreateGoogleProfile() async {
+  Future<Either<Failure, ({UserModel user, bool isNewUser})>>
+  fetchOrCreateGoogleProfile() async {
     final user = supabase.auth.currentUser;
     if (user == null) return Left(Failure('No authenticated user found.'));
 
@@ -96,10 +97,9 @@ class SupabaseHelper {
           .maybeSingle();
 
       if (existing != null) {
-        return Right(UserModel.fromJson(existing));
+        return Right((user: UserModel.fromJson(existing), isNewUser: false));
       }
 
-      // First-time Google user — create the profile row
       final inserted = await supabase
           .from(SupabaseKeys.tableUsers)
           .insert({
@@ -113,7 +113,7 @@ class SupabaseHelper {
           .select()
           .single();
 
-      return Right(UserModel.fromJson(inserted));
+      return Right((user: UserModel.fromJson(inserted), isNewUser: true));
     } on PostgrestException catch (e) {
       AppLogger.e('DB error: ${e.message}');
       return Left(Failure('Failed to load or create profile.'));

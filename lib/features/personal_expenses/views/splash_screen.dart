@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/data/remote/supabase/supabase_helper.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,12 +30,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
   }
 
-  void _checkNavigation() {
+  void _checkNavigation() async {
     final authState = ref.read(authProvider);
     if (!_timerFinished || authState.isLoading) return;
 
     if (authState.user != null) {
-      context.go(AppRouter.transactions);
+      final hasAccounts = await SupabaseHelper().fetchAllAccounts(
+        authState.user!.id,
+      );
+      hasAccounts.fold(
+        (failure) =>
+            context.go(AppRouter.addAccount), // fail-safe: send to setup
+        (accounts) {
+          if (accounts.isEmpty) {
+            context.go(AppRouter.addAccount);
+          } else {
+            context.go(AppRouter.transactions);
+          }
+        },
+      );
     } else {
       context.go(AppRouter.welcome);
     }

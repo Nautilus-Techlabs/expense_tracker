@@ -136,9 +136,13 @@ class AuthNotifier extends Notifier<AuthState> {
             );
             return false;
           },
-          (user) async {
-            await _cacheManager.saveUser(user);
-            state = state.copyWith(isLoading: false, user: () => user);
+          (data) async {
+            await _cacheManager.saveUser(data.user);
+            state = state.copyWith(
+              isLoading: false,
+              user: () => data.user,
+              isNewUser: data.isNewUser,
+            );
             return true;
           },
         );
