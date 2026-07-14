@@ -144,7 +144,9 @@ class _CategoryBreakdownScreenState
                         color = Color(
                           int.parse(c.color.replaceFirst('#', '0xFF')),
                         );
-                      } catch (e) {}
+                      } catch (e) {
+                        debugPrint('Error parsing color: $e');
+                      }
 
                       return _CategoryListItem(
                         name: c.name,

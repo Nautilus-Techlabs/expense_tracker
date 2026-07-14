@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/ui_helpers.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 class DashboardHeader extends StatelessWidget {
   final double balance;
@@ -81,19 +80,6 @@ class DashboardHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  Showcase(
-                    key: supportKey ?? GlobalKey(),
-                    title: 'Support & Feedback',
-                    description: 'Have a suggestion? Send us a message here!',
-                    child: _HeaderAction(
-                      icon: Icons.support_agent_rounded,
-                      onTap: onSupport,
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
           UIHelpers.verticalSpace(36),
@@ -107,21 +93,6 @@ class DashboardHeader extends StatelessWidget {
             ),
           ),
           UIHelpers.verticalSpace(4),
-          Showcase(
-            key: balanceKey ?? GlobalKey(),
-            title: 'Total Balance',
-            description: 'Your combined balance across all verified accounts.',
-            child: Text(
-              '₹${balance.toStringAsFixed(2)}',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36.sp,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -1.5,
-              ),
-            ),
-          ),
-          UIHelpers.verticalSpace(28),
           Row(
             children: [
               Expanded(
@@ -144,49 +115,6 @@ class DashboardHeader extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeaderAction extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isLoading;
-
-  const _HeaderAction({
-    required this.icon,
-    required this.onTap,
-  }) : isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading
-          ? null
-          : () {
-              UIHelpers.lightImpact();
-              onTap();
-            },
-      child: Container(
-        padding: EdgeInsets.all(8.w),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 31 / 255), // 0.12 * 255
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 26 / 255),
-          ), // 0.1 * 255
-        ),
-        child: isLoading
-            ? SizedBox(
-                width: 20.sp,
-                height: 20.sp,
-                child: const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Icon(icon, color: Colors.white, size: 20.sp),
       ),
     );
   }
@@ -235,11 +163,7 @@ class _SummaryIndicator extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 16.sp,
-            ),
+            child: Icon(icon, color: Colors.white, size: 16.sp),
           ),
           UIHelpers.horizontalSpace(12),
           Column(
