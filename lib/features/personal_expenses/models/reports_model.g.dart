@@ -55,7 +55,7 @@ Account _$AccountFromJson(Map<String, dynamic> json) => Account(
   type: json['type'] as String,
   income: (json['income'] as num).toInt(),
   expense: (json['expense'] as num).toInt(),
-  accountId: json['account_id'] as String,
+  accountId: (json['account_id'] as num).toInt(),
   currentBalance: (json['current_balance'] as num).toInt(),
 );
 
@@ -89,7 +89,7 @@ Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
   color: json['color'] as String,
   amount: (json['amount'] as num).toInt(),
   percentage: (json['percentage'] as num).toDouble(),
-  categoryId: json['category_id'] as String,
+  categoryId: (json['category_id'] as num).toInt(),
 );
 
 Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{

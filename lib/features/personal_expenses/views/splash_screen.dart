@@ -39,18 +39,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         authState.user!.id,
       );
       hasAccounts.fold(
-        (failure) =>
-            context.go(AppRouter.addAccount), // fail-safe: send to setup
+        (failure) => context.pushReplacement(AppRouter.addAccount),
         (accounts) {
           if (accounts.isEmpty) {
-            context.go(AppRouter.addAccount);
+            context.pushReplacement(AppRouter.addAccount);
           } else {
-            context.go(AppRouter.transactions);
+            context.pushReplacement(AppRouter.transactions);
           }
         },
       );
     } else {
-      context.go(AppRouter.welcome);
+      context.pushReplacement(AppRouter.welcome);
     }
   }
 

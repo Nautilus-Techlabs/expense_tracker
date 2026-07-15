@@ -15,7 +15,7 @@ enum CategoryType {
 @JsonSerializable()
 class CategoryModel {
   @JsonKey(name: 'id')
-  final String id;
+  final int id;
 
   @JsonKey(name: 'user_id')
   final dynamic userId;

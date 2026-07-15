@@ -16,10 +16,10 @@ enum AccountType {
 
 @JsonSerializable()
 class AccountModel {
-  final String id;
+  final int id;
 
   @JsonKey(name: 'user_id')
-  final String userId;
+  final int userId;
 
   final String name;
 

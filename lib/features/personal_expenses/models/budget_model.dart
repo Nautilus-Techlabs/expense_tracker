@@ -5,10 +5,10 @@ part 'budget_model.g.dart';
 @JsonSerializable()
 class UserMonthlyBudget {
   @JsonKey(name: 'id')
-  final String id;
+  final int id;
 
   @JsonKey(name: 'user_id')
-  final String userId;
+  final int userId;
 
   @JsonKey(name: 'amount')
   final double amount;

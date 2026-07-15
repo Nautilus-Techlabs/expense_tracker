@@ -143,6 +143,10 @@ class AuthInputField extends StatelessWidget {
   final bool isDark;
   final Color cardBg;
   final Color borderColor;
+  final String? Function(String?)? validator;
+  final bool enabled;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onFieldSubmitted;
 
   const AuthInputField({
     super.key,
@@ -154,6 +158,10 @@ class AuthInputField extends StatelessWidget {
     required this.isDark,
     required this.cardBg,
     required this.borderColor,
+    this.validator,
+    this.enabled = true,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -161,25 +169,33 @@ class AuthInputField extends StatelessWidget {
     final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
     final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
     return Container(
-      height: 56.h,
+      // Allow dynamic height when error text appears
+      constraints: BoxConstraints(minHeight: 56.h),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       decoration: BoxDecoration(
-        color: cardBg,
+        color: enabled ? cardBg : (isDark ? Colors.grey[850] : Colors.grey[200]),
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: borderColor),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: TextField(
+            child: TextFormField(
               controller: controller,
               obscureText: obscure,
               keyboardType: keyboardType,
+              enabled: enabled,
+              validator: validator,
+              textInputAction: textInputAction,
+              onFieldSubmitted: onFieldSubmitted,
               style: context.appTexts.bodyMedium.copyWith(color: textPrimary),
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: context.appTexts.bodyMedium.copyWith(color: textSecondary),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                errorStyle: TextStyle(height: 0.8), // Keep error text compact
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               ),
             ),
           ),

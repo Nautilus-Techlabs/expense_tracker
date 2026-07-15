@@ -4,19 +4,19 @@ part 'transaction_model.g.dart';
 
 @JsonSerializable()
 class TransactionModel {
-  final String id;
+  final int id;
 
   @JsonKey(name: 'user_id')
-  final String userId;
+  final int userId;
 
   @JsonKey(name: 'account_id')
-  final String accountId;
+  final int accountId;
 
   @JsonKey(name: 'category_id')
-  final String? categoryId;
+  final int? categoryId;
 
   @JsonKey(name: 'circle_id')
-  final String? circleId;
+  final int? circleId;
 
   @JsonKey(name: 'type')
   final String type;

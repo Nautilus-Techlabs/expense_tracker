@@ -25,8 +25,8 @@ class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
   // Transaction type: 'expense', 'income'
   String _selectedType = 'expense';
-  String? _selectedCategoryId;
-  String? _selectedAccountId;
+  int? _selectedCategoryId;
+  int? _selectedAccountId;
   DateTime _selectedDate = DateTime.now();
   bool _accountError = false; // shows inline error when no account selected
   bool _amountError = false; // shows inline error when no amount entered

@@ -183,7 +183,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, List<TransactionModel>>> fetchAllTransactions(
-    String userId,
+    int userId,
   ) async {
     try {
       final response = await supabase
@@ -236,7 +236,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, List<AccountModel>>> fetchAllAccounts(
-    String userId,
+    int userId,
   ) async {
     try {
       final response = await supabase
@@ -253,7 +253,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, AccountModel>> createAccount({
-    required String userId,
+    required int userId,
     required String name,
     required AccountType type,
     required double balance,
@@ -264,7 +264,7 @@ class SupabaseHelper {
           .insert({
             'user_id': userId,
             'name': name,
-            'type': type.name, // Assuming enum to string conversion matches DB
+            'type': type.name,
             'balance': balance,
             'opening_balance': balance,
           })
@@ -279,7 +279,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, UserMonthlyBudget>> createMonthlyBudget({
-    required String userId,
+    required int userId,
     required double amount,
     required DateTime month,
   }) async {
@@ -308,7 +308,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, UserMonthlyBudget>> fetchMonthlyBudget({
-    required String userId,
+    required int userId,
   }) async {
     try {
       final now = DateTime.now();
@@ -334,7 +334,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, UserMonthlyBudget>> updateMonthlyBudget({
-    required String userId,
+    required int userId,
     required double amount,
     required DateTime month,
   }) async {
@@ -357,6 +357,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, CategoryModel>> createCategory({
+    required int userId,
     required String name,
     required String type, // 'expense', 'income', 'both'
     required String icon,
@@ -365,7 +366,7 @@ class SupabaseHelper {
     try {
       final response = await supabase
           .from(SupabaseKeys.tableCategories)
-          .insert({'name': name, 'type': type, 'icon': icon, 'color': color})
+          .insert({'user_id': userId, 'name': name, 'type': type, 'icon': icon, 'color': color})
           .select()
           .single();
 
@@ -377,7 +378,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, TransactionModel>> updateTransaction({
-    required String transactionId,
+    required int transactionId,
     required TransactionPayload updates,
   }) async {
     try {
@@ -403,7 +404,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, void>> deleteTransaction({
-    required String transactionId,
+    required int transactionId,
   }) async {
     try {
       await supabase
@@ -422,7 +423,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, ReportModel>> fetchUserReports({
-    required String userId,
+    required int userId,
     required DateTime startDate,
     required DateTime endDate,
     required String groupBy,
@@ -452,7 +453,7 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, SpendingBreakdown>> getSpendingBreakdown({
-    required String userId,
+    required int userId,
     required DateTime startDate,
     required DateTime endDate,
     required int topCategories,

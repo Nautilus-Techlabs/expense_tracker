@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/remote/supabase/supabase_helper.dart';
+import '../../auth/viewmodels/auth_notifier.dart';
 import 'category_state.dart';
 
 final categoryProvider =
@@ -39,9 +40,13 @@ class CategoryNotifier extends Notifier<CategoryState> {
     required String icon,
     required String color,
   }) async {
+    final user = ref.read(authProvider).user;
+    if (user == null) return false;
+
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
     final result = await SupabaseHelper().createCategory(
+      userId: user.id,
       name: name,
       type: type,
       icon: icon,

@@ -71,7 +71,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
   }
 
   Future<bool> updateTransaction({
-    required String transactionId,
+    required int transactionId,
     required TransactionPayload updates,
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
@@ -100,7 +100,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
     );
   }
 
-  Future<bool> deleteTransaction(String transactionId) async {
+  Future<bool> deleteTransaction(int transactionId) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
     final result = await SupabaseHelper().deleteTransaction(

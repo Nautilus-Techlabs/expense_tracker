@@ -72,7 +72,7 @@ class Account {
   @JsonKey(name: "expense")
   int expense;
   @JsonKey(name: "account_id")
-  String accountId;
+  int accountId;
   @JsonKey(name: "current_balance")
   int currentBalance;
 
@@ -120,7 +120,7 @@ class Category {
   @JsonKey(name: "percentage")
   double percentage;
   @JsonKey(name: "category_id")
-  String categoryId;
+  int categoryId;
 
   Category({
     required this.icon,

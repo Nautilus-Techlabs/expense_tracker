@@ -517,8 +517,8 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
   late TextEditingController _noteController;
   late TextEditingController _amountController;
   late String _selectedType;
-  String? _selectedCategoryId;
-  String? _selectedAccountId;
+  int? _selectedCategoryId;
+  int? _selectedAccountId;
   late DateTime _selectedDate;
   bool _isSaving = false;
 
@@ -816,7 +816,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                   ),
                 ),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
+                  child: DropdownButton<int>(
                     value: _selectedAccountId,
                     isExpanded: true,
                     dropdownColor: isDark
@@ -828,7 +828,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                           : AppColors.textPrimaryLight,
                     ),
                     items: accountState.accounts.map((acc) {
-                      return DropdownMenuItem(
+                      return DropdownMenuItem<int>(
                         value: acc.id,
                         child: Text(acc.name),
                       );
@@ -856,7 +856,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                   ),
                 ),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String?>(
+                  child: DropdownButton<int?>(
                     value: _selectedCategoryId,
                     isExpanded: true,
                     dropdownColor: isDark
@@ -876,7 +876,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                       ),
                     ),
                     items: [
-                      DropdownMenuItem<String?>(
+                      DropdownMenuItem<int?>(
                         value: null,
                         child: Text(
                           'None',
@@ -889,7 +889,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                         ),
                       ),
                       ...categoryState.categories.map((cat) {
-                        return DropdownMenuItem(
+                        return DropdownMenuItem<int?>(
                           value: cat.id,
                           child: Text(cat.name),
                         );

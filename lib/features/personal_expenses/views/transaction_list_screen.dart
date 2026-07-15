@@ -23,7 +23,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   DateTime? _selectedMonthDate;
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedCategoryId;
+  int? _selectedCategoryId;
   DateTime? _selectedSpecificDate;
 
   @override
@@ -477,9 +477,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 }
 
 class _FilterBottomSheet extends ConsumerStatefulWidget {
-  final String? initialCategoryId;
+  final int? initialCategoryId;
   final DateTime? initialSpecificDate;
-  final Function(String? categoryId, DateTime? specificDate) onApply;
+  final Function(int? categoryId, DateTime? specificDate) onApply;
 
   const _FilterBottomSheet({
     this.initialCategoryId,
@@ -492,7 +492,7 @@ class _FilterBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
-  String? _selectedCategoryId;
+  int? _selectedCategoryId;
   DateTime? _selectedSpecificDate;
 
   @override

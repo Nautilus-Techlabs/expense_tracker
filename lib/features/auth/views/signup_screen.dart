@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/utils/ui_helpers.dart';
+import '../../../../services/validators.dart';
 import 'auth_widgets.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _obscurePassword = true;
+  final _formKey = GlobalKey<FormState>();
 
   final _emailController = TextEditingController();
   final _nameController = TextEditingController();
@@ -33,6 +35,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   Future<void> _onSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     // Email → dashboard
     final data = UserPayload(
       name: _nameController.text.trim(),
@@ -41,7 +46,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
     final success = await ref.read(authProvider.notifier).signUp(data);
     if (success && mounted) {
-      context.push(AppRouter.addAccount);
+      context.pushReplacement(AppRouter.addAccount);
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
@@ -57,9 +62,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (success && mounted) {
       final isNewUser = ref.read(authProvider).isNewUser;
       if (isNewUser) {
-        context.go(AppRouter.addAccount);
+        context.pushReplacement(AppRouter.addAccount);
       } else {
-        context.go(AppRouter.transactions);
+        context.pushReplacement(AppRouter.transactions);
       }
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
@@ -133,67 +138,84 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                     UIHelpers.verticalSpace(32),
 
-                    // ── Fields ──
-                    Text(
-                      'Name',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(8),
-                    AuthInputField(
-                      controller: _nameController,
-                      hint: 'Enter your full name',
-                      keyboardType: TextInputType.name,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                    ),
-                    UIHelpers.verticalSpace(20),
-                    Text(
-                      'Email',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(8),
-                    AuthInputField(
-                      controller: _emailController,
-                      hint: 'Enter your email',
-                      keyboardType: TextInputType.emailAddress,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                    ),
-                    UIHelpers.verticalSpace(20),
-                    Text(
-                      'Password',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(8),
-                    AuthInputField(
-                      controller: _passwordController,
-                      hint: 'Create a password',
-                      obscure: _obscurePassword,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                      suffix: GestureDetector(
-                        onTap: () => setState(
-                          () => _obscurePassword = !_obscurePassword,
-                        ),
-                        child: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 20.sp,
-                          color: textSecondary,
-                        ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _nameController,
+                            hint: 'Enter your full name',
+                            keyboardType: TextInputType.name,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateName,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          UIHelpers.verticalSpace(20),
+                          Text(
+                            'Email',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _emailController,
+                            hint: 'Enter your email',
+                            keyboardType: TextInputType.emailAddress,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateEmail,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          UIHelpers.verticalSpace(20),
+                          Text(
+                            'Password',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _passwordController,
+                            hint: 'Create a password',
+                            obscure: _obscurePassword,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validatePassword,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _onSubmit(),
+                            suffix: GestureDetector(
+                              onTap: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                              child: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                size: 20.sp,
+                                color: textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     UIHelpers.verticalSpace(32),

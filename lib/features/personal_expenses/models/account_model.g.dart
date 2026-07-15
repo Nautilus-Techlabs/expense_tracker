@@ -7,8 +7,8 @@ part of 'account_model.dart';
 // **************************************************************************
 
 AccountModel _$AccountModelFromJson(Map<String, dynamic> json) => AccountModel(
-  id: json['id'] as String,
-  userId: json['user_id'] as String,
+  id: (json['id'] as num).toInt(),
+  userId: (json['user_id'] as num).toInt(),
   name: json['name'] as String,
   type: $enumDecode(_$AccountTypeEnumMap, json['type']),
   balance: (json['balance'] as num).toDouble(),

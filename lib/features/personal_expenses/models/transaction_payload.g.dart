@@ -8,10 +8,10 @@ part of 'transaction_payload.dart';
 
 TransactionPayload _$TransactionPayloadFromJson(Map<String, dynamic> json) =>
     TransactionPayload(
-      userId: json['user_id'] as String,
-      accountId: json['account_id'] as String,
-      categoryId: json['category_id'] as String?,
-      circleId: json['circle_id'] as String?,
+      userId: (json['user_id'] as num).toInt(),
+      accountId: (json['account_id'] as num).toInt(),
+      categoryId: (json['category_id'] as num?)?.toInt(),
+      circleId: (json['circle_id'] as num?)?.toInt(),
       type: json['type'] as String,
       amount: (json['amount'] as num).toDouble(),
       note: json['note'] as String?,
@@ -20,7 +20,7 @@ TransactionPayload _$TransactionPayloadFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['txn_date'] as String),
       isCircleTransaction: json['is_circle_transaction'] as bool? ?? false,
       isReimbursement: json['is_reimbursement'] as bool? ?? false,
-      reimbursementRefId: json['reimbursement_ref_id'] as String?,
+      reimbursementRefId: (json['reimbursement_ref_id'] as num?)?.toInt(),
       isCreditCardTxn: json['is_credit_card_txn'] as bool? ?? false,
       isDeleted: json['is_deleted'] as bool? ?? false,
       deletedAt: json['deleted_at'] == null

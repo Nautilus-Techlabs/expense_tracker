@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/utils/ui_helpers.dart';
+import '../../../../services/validators.dart';
 import 'auth_widgets.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -18,6 +19,7 @@ class SignInScreen extends ConsumerStatefulWidget {
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _obscurePassword = true;
+  final _formKey = GlobalKey<FormState>();
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -30,11 +32,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   Future<void> _onSignIn() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     final success = await ref
         .read(authProvider.notifier)
         .signIn(_emailController.text.trim(), _passwordController.text.trim());
     if (success && mounted) {
-      context.go(AppRouter.transactions);
+      context.pushReplacement(AppRouter.transactions);
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
@@ -50,9 +55,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (success && mounted) {
       final isNewUser = ref.read(authProvider).isNewUser;
       if (isNewUser) {
-        context.go(AppRouter.addAccount);
+        context.pushReplacement(AppRouter.addAccount);
       } else {
-        context.go(AppRouter.transactions);
+        context.pushReplacement(AppRouter.transactions);
       }
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
@@ -126,61 +131,75 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     UIHelpers.verticalSpace(32),
 
-                    // ── Fields ──
-                    Text(
-                      'Email',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(8),
-                    AuthInputField(
-                      controller: _emailController,
-                      hint: 'Enter your email',
-                      keyboardType: TextInputType.emailAddress,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                    ),
-                    UIHelpers.verticalSpace(20),
-                    Text(
-                      'Password',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(8),
-                    AuthInputField(
-                      controller: _passwordController,
-                      hint: 'Enter your password',
-                      obscure: _obscurePassword,
-                      isDark: isDark,
-                      cardBg: cardBg,
-                      borderColor: borderColor,
-                      suffix: GestureDetector(
-                        onTap: () => setState(
-                          () => _obscurePassword = !_obscurePassword,
-                        ),
-                        child: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 20.sp,
-                          color: textSecondary,
-                        ),
-                      ),
-                    ),
-                    UIHelpers.verticalSpace(12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Forgot password?',
-                        style: context.appTexts.bodySmall.copyWith(
-                          color: textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Email',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _emailController,
+                            hint: 'Enter your email',
+                            keyboardType: TextInputType.emailAddress,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateEmail,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          UIHelpers.verticalSpace(20),
+                          Text(
+                            'Password',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _passwordController,
+                            hint: 'Enter your password',
+                            obscure: _obscurePassword,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateRequiredField,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _onSignIn(),
+                            suffix: GestureDetector(
+                              onTap: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                              child: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                size: 20.sp,
+                                color: textSecondary,
+                              ),
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Forgot password?',
+                              style: context.appTexts.bodySmall.copyWith(
+                                color: textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     UIHelpers.verticalSpace(32),

@@ -8,8 +8,8 @@ part of 'budget_model.dart';
 
 UserMonthlyBudget _$UserMonthlyBudgetFromJson(Map<String, dynamic> json) =>
     UserMonthlyBudget(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
+      id: (json['id'] as num).toInt(),
+      userId: (json['user_id'] as num).toInt(),
       amount: (json['amount'] as num).toDouble(),
       month: UserMonthlyBudget._dateFromJson(json['month'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),
