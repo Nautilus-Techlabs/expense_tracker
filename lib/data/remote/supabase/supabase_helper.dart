@@ -168,11 +168,16 @@ class SupabaseHelper {
     }
   }
 
-  Future<Either<Failure, List<CategoryModel>>> fetchAllCategories() async {
+  Future<Either<Failure, List<CategoryModel>>> fetchAllCategories({
+    required int currentUserId,
+  }) async {
     try {
       final response = await supabase
           .from(SupabaseKeys.tableCategories)
-          .select();
+          .select()
+          .or('is_system.eq.true,user_id.eq.$currentUserId')
+          .eq('is_active', true);
+
       final categories = response
           .map((json) => CategoryModel.fromJson(json))
           .toList();
@@ -366,7 +371,13 @@ class SupabaseHelper {
     try {
       final response = await supabase
           .from(SupabaseKeys.tableCategories)
-          .insert({'user_id': userId, 'name': name, 'type': type, 'icon': icon, 'color': color})
+          .insert({
+            'user_id': userId,
+            'name': name,
+            'type': type,
+            'icon': icon,
+            'color': color,
+          })
           .select()
           .single();
 

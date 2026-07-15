@@ -18,7 +18,7 @@ class CategoryModel {
   final int id;
 
   @JsonKey(name: 'user_id')
-  final dynamic userId;
+  final int? userId;
 
   @JsonKey(name: 'name')
   final String name;

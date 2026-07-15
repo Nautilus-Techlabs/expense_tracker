@@ -4,8 +4,7 @@ import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import 'category_state.dart';
 
-final categoryProvider =
-    NotifierProvider<CategoryNotifier, CategoryState>(() {
+final categoryProvider = NotifierProvider<CategoryNotifier, CategoryState>(() {
   return CategoryNotifier();
 });
 
@@ -19,7 +18,9 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
   Future<void> fetchCategories() async {
     state = state.copyWith(isLoading: true);
-    final result = await SupabaseHelper().fetchAllCategories();
+    final result = await SupabaseHelper().fetchAllCategories(
+      currentUserId: ref.read(authProvider).user!.id,
+    );
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -64,10 +65,7 @@ class CategoryNotifier extends Notifier<CategoryState> {
       (newCategory) {
         final currentCategories = List.of(state.categories);
         currentCategories.add(newCategory);
-        state = state.copyWith(
-          isLoading: false,
-          categories: currentCategories,
-        );
+        state = state.copyWith(isLoading: false, categories: currentCategories);
         return true;
       },
     );
