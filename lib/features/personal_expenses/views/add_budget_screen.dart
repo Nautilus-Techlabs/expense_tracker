@@ -46,7 +46,11 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
         .createOrUpdateBudget(amount: amount, month: _selectedMonth);
 
     if (success && mounted) {
-      context.go(AppRouter.transactions);
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(AppRouter.transactions);
+      }
     } else if (mounted) {
       final error = ref.read(budgetProvider).errorMessage;
       ScaffoldMessenger.of(
@@ -78,10 +82,12 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
           'Set Monthly Budget',
           style: context.appTexts.heading.copyWith(fontSize: 20.sp),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-          onPressed: () => context.pop(),
-        ),
+        leading: context.canPop()
+            ? IconButton(
+                icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.w),

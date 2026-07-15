@@ -52,7 +52,11 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
         .createAccount(name: name, type: _selectedType, balance: balance);
 
     if (success && mounted) {
-      context.go(AppRouter.addBudget);
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(AppRouter.addBudget);
+      }
     } else if (mounted) {
       final error = ref.read(accountProvider).errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,10 +86,12 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
           'Add Account',
           style: context.appTexts.heading.copyWith(fontSize: 20.sp),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-          onPressed: () => context.pop(),
-        ),
+        leading: context.canPop()
+            ? IconButton(
+                icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.w),

@@ -70,7 +70,7 @@ class SupabaseHelper {
       // Block here until the deep link comes back and session is set
       await supabase.auth.onAuthStateChange
           .firstWhere((data) => data.event == AuthChangeEvent.signedIn)
-          .timeout(const Duration(seconds: 60));
+          .timeout(const Duration(seconds: 10));
 
       return const Right(null);
     } on TimeoutException {

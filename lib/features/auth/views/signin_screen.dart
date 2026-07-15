@@ -39,7 +39,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         .read(authProvider.notifier)
         .signIn(_emailController.text.trim(), _passwordController.text.trim());
     if (success && mounted) {
-      context.pushReplacement(AppRouter.transactions);
+      context.go(AppRouter.transactions);
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
@@ -55,9 +55,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (success && mounted) {
       final isNewUser = ref.read(authProvider).isNewUser;
       if (isNewUser) {
-        context.pushReplacement(AppRouter.addAccount);
+        context.go(AppRouter.addAccount);
       } else {
-        context.pushReplacement(AppRouter.transactions);
+        context.go(AppRouter.transactions);
       }
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
