@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/budget_notifier.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/export_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,6 +28,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final themeMode = ref.watch(themeProvider);
     final budget = ref.watch(budgetProvider).budget;
     final accountsCount = ref.watch(accountProvider).accounts.length;
+    final exportState = ref.watch(exportProvider);
+
+    // Listen for export errors and completions
+    ref.listen(exportProvider, (prev, next) {
+      if (!context.mounted) return;
+      if (next.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(exportProvider.notifier).clearError();
+      } else if (next.exportCompleted && !(prev?.exportCompleted ?? false)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Export successful!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
 
     String initials = '??';
     if (user != null && user.fullName.isNotEmpty) {
@@ -298,17 +323,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _buildSectionHeader(context, 'DATA', isDark),
               _buildListItem(
                 context: context,
-                icon: Icons.download_rounded,
+                icon: exportState.isLoading
+                    ? Icons.hourglass_top_rounded
+                    : Icons.download_rounded,
                 title: 'Export data',
-                trailingText: 'CSV / PDF',
+                trailingText: exportState.isLoading ? 'Exporting…' : 'CSV',
                 isDark: isDark,
-              ),
-              _buildListItem(
-                context: context,
-                icon: Icons.sync_rounded,
-                title: 'Sync status',
-                trailingText: 'Last synced: 2 min ago',
-                isDark: isDark,
+                onTap: exportState.isLoading
+                    ? null
+                    : () => ref
+                          .read(exportProvider.notifier)
+                          .exportCsv(context),
               ),
 
               UIHelpers.verticalSpace(16),
