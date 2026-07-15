@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
+import '../../../services/connectivity_provider.dart';
 import '../viewmodels/budget_notifier.dart';
 
 class AddBudgetScreen extends ConsumerStatefulWidget {
@@ -31,6 +32,14 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   }
 
   Future<void> _onSave() async {
+    final isOnline = ref.read(connectivityStreamProvider).value ?? false;
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You are currently offline. Operations are disabled.')),
+      );
+      return;
+    }
+
     final amountText = _amountController.text.trim();
     final amount = double.tryParse(amountText) ?? 0.0;
 

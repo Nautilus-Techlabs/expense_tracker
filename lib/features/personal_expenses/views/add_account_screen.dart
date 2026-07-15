@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
+import '../../../services/connectivity_provider.dart';
 import '../models/account_model.dart';
 import '../viewmodels/account_notifier.dart';
 
@@ -29,6 +30,14 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
   }
 
   void _onSave() async {
+    final isOnline = ref.read(connectivityStreamProvider).value ?? false;
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You are currently offline. Operations are disabled.')),
+      );
+      return;
+    }
+
     final name = _nameController.text.trim();
     final balanceText = _balanceController.text.trim();
     final balance = double.tryParse(balanceText) ?? 0.0;

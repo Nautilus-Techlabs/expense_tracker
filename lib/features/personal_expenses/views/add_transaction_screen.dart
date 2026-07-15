@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../services/connectivity_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/category_model.dart';
 import '../models/transaction_payload.dart';
@@ -54,6 +55,12 @@ class _AddTransactionBottomSheetState
   }
 
   Future<void> _submit() async {
+    final isOnline = ref.read(connectivityStreamProvider).value ?? false;
+    if (!isOnline) {
+      _showError('You are currently offline. Operations are disabled.');
+      return;
+    }
+
     final amountText = _amountController.text.trim();
     final amount = double.tryParse(amountText);
 

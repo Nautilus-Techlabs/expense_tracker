@@ -9,6 +9,7 @@ import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 import 'core/theme/theme_notifier.dart';
+import 'core/widgets/connectivity_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +46,9 @@ class ExpenseTrackerApp extends ConsumerWidget {
           routerConfig: AppRouter.router,
           title: 'Expense Tracker',
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            return ConnectivityWrapper(child: child!);
+          },
 
           // Light Theme
           theme: AppTheme.light,
