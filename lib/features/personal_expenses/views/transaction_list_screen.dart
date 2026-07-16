@@ -8,6 +8,8 @@ import '../../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../viewmodels/category_notifier.dart';
+import '../viewmodels/transaction_filter_notifier.dart';
+import '../viewmodels/filtered_transactions_provider.dart';
 import '../widgets/transaction_card.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,17 +22,15 @@ class TransactionListScreen extends ConsumerStatefulWidget {
 }
 
 class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
-  DateTime? _selectedMonthDate;
-  bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
-  int? _selectedCategoryId;
-  DateTime? _selectedSpecificDate;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(() {
-      setState(() {});
+      ref
+          .read(transactionFilterProvider.notifier)
+          .setSearchQuery(_searchController.text);
     });
   }
 
@@ -40,46 +40,21 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     super.dispose();
   }
 
-  List<DateTime> _generateMonths(List<TransactionModel> transactions) {
-    if (transactions.isEmpty) {
-      final now = DateTime.now();
-      return [DateTime(now.year, now.month, 1)];
-    }
-    
-    DateTime oldest = transactions.first.txnDate;
-    for (var t in transactions) {
-      if (t.txnDate.isBefore(oldest)) {
-        oldest = t.txnDate;
-      }
-    }
-    
-    final now = DateTime.now();
-    List<DateTime> months = [];
-    
-    DateTime current = DateTime(oldest.year, oldest.month, 1);
-    final end = DateTime(now.year, now.month, 1);
-    
-    while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
-      months.add(current);
-      current = DateTime(current.year, current.month + 1, 1);
-    }
-    
-    return months;
-  }
 
   void _showFilterSheet() {
+    final filterState = ref.read(transactionFilterProvider);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _FilterBottomSheet(
-        initialCategoryId: _selectedCategoryId,
-        initialSpecificDate: _selectedSpecificDate,
+        initialCategoryId: filterState.selectedCategoryId,
+        initialSpecificDate: filterState.selectedSpecificDate,
         onApply: (categoryId, specificDate) {
-          setState(() {
-            _selectedCategoryId = categoryId;
-            _selectedSpecificDate = specificDate;
-          });
+          ref.read(transactionFilterProvider.notifier).setFilters(
+                categoryId: categoryId,
+                specificDate: specificDate,
+              );
         },
       ),
     );
@@ -87,47 +62,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(transactionProvider);
+    final filterState = ref.watch(transactionFilterProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final List<DateTime> months = _generateMonths(state.transactions);
-    _selectedMonthDate ??= months.last;
+    final filteredData = ref.watch(filteredTransactionsProvider);
+    final months = filteredData.availableMonths;
+    final selectedMonthDate = filterState.selectedMonthDate ?? months.last;
 
-    final String search = _searchController.text.trim().toLowerCase();
-
-    final filteredTransactions = state.transactions.where((t) {
-      if (_selectedSpecificDate == null) {
-        if (t.txnDate.year != _selectedMonthDate!.year || t.txnDate.month != _selectedMonthDate!.month) {
-          return false;
-        }
-      } else {
-        if (t.txnDate.year != _selectedSpecificDate!.year || 
-            t.txnDate.month != _selectedSpecificDate!.month ||
-            t.txnDate.day != _selectedSpecificDate!.day) {
-          return false;
-        }
-      }
-
-      if (_selectedCategoryId != null && t.categoryId != _selectedCategoryId) {
-        return false;
-      }
-
-      if (search.isNotEmpty) {
-        if (t.note == null || !t.note!.toLowerCase().contains(search)) {
-          return false;
-        }
-      }
-
-      return true;
-    }).toList();
-
-    final totalGlobalCredit = filteredTransactions
-        .where((t) => t.type == 'income')
-        .fold<double>(0, (sum, t) => sum + t.amount);
-
-    final totalGlobalDebit = filteredTransactions
-        .where((t) => t.type == 'expense' || t.type == 'withdrawal')
-        .fold<double>(0, (sum, t) => sum + t.amount);
+    final filteredTransactions = filteredData.filteredTransactions;
+    final totalGlobalCredit = filteredData.totalCredit;
+    final totalGlobalDebit = filteredData.totalDebit;
 
     return Scaffold(
       backgroundColor: isDark
@@ -160,27 +104,33 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           child: Icon(
                             Icons.filter_alt_outlined,
                             size: 28.sp,
-                            color: _selectedCategoryId != null || _selectedSpecificDate != null
+                            color: filterState.selectedCategoryId != null ||
+                                    filterState.selectedSpecificDate != null
                                 ? AppColors.expense
-                                : (isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                                : (isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.primary),
                           ),
                         ),
                         UIHelpers.horizontalSpace(16),
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              _isSearchVisible = !_isSearchVisible;
-                              if (!_isSearchVisible) {
-                                _searchController.clear();
-                              }
-                            });
+                            ref
+                                .read(transactionFilterProvider.notifier)
+                                .toggleSearchVisible();
+                            if (filterState.isSearchVisible) {
+                              // If it was visible and we're toggling it off, clear the controller
+                              _searchController.clear();
+                            }
                           },
                           child: Icon(
                             Icons.search_rounded,
                             size: 28.sp,
-                            color: _isSearchVisible
+                            color: filterState.isSearchVisible
                                 ? AppColors.expense
-                                : (isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                                : (isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.primary),
                           ),
                         ),
                       ],
@@ -190,7 +140,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               ),
             ),
 
-            if (_isSearchVisible)
+            if (filterState.isSearchVisible)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
@@ -227,15 +177,19 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   itemCount: months.length,
                   itemBuilder: (context, index) {
                     final monthDate = months[index];
-                    final isSelected = monthDate.year == _selectedMonthDate!.year && monthDate.month == _selectedMonthDate!.month;
-                    final monthString = DateFormat('MMM yyyy').format(monthDate);
-                    
+                    final isSelected = monthDate.year == selectedMonthDate.year &&
+                        monthDate.month == selectedMonthDate.month;
+                    final monthString =
+                        DateFormat('MMM yyyy').format(monthDate);
+
                     return GestureDetector(
                       onTap: () {
-                        setState(() {
-                          _selectedMonthDate = monthDate;
-                          _selectedSpecificDate = null; // clear specific date when picking a month
-                        });
+                        ref
+                            .read(transactionFilterProvider.notifier)
+                            .setMonthDate(monthDate);
+                        ref
+                            .read(transactionFilterProvider.notifier)
+                            .clearFilters(); // clear specific date when picking a month
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(

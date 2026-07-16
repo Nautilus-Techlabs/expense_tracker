@@ -155,14 +155,8 @@ class _AddTransactionBottomSheetState
     final categoryState = ref.watch(categoryProvider);
     final txState = ref.watch(transactionProvider);
 
-    // Filter categories by type
-    final filteredCategories = categoryState.categories.where((c) {
-      if (_selectedType == 'expense') {
-        return c.type == CategoryType.expense || c.type == CategoryType.both;
-      } else {
-        return c.type == CategoryType.income || c.type == CategoryType.both;
-      }
-    }).toList();
+    // Filter categories by type using provider
+    final filteredCategories = ref.watch(categoriesByTypeProvider(_selectedType));
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,

@@ -178,7 +178,6 @@ class _AddCategoryBottomSheet extends ConsumerStatefulWidget {
 class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet> {
   final _nameController = TextEditingController();
   String _selectedType = 'expense';
-  bool _isLoading = false;
   bool _nameError = false;
 
   @override
@@ -195,7 +194,6 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
     }
     setState(() {
       _nameError = false;
-      _isLoading = true;
     });
 
     final success = await ref.read(categoryProvider.notifier).addCategory(
@@ -206,7 +204,6 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
         );
 
     if (mounted) {
-      setState(() => _isLoading = false);
       if (success) {
         context.pop();
       } else {
@@ -382,7 +379,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
+                onPressed: ref.watch(categoryProvider).isLoading ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -392,7 +389,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
                   ),
                   elevation: 0,
                 ),
-                child: _isLoading
+                child: ref.watch(categoryProvider).isLoading
                     ? SizedBox(
                         height: 20.h,
                         width: 20.h,

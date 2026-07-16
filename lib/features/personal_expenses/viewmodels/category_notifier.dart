@@ -2,10 +2,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
+import '../models/category_model.dart';
 import 'category_state.dart';
 
 final categoryProvider = NotifierProvider<CategoryNotifier, CategoryState>(() {
   return CategoryNotifier();
+});
+
+final categoriesByTypeProvider = Provider.family<List<CategoryModel>, String>((ref, type) {
+  final state = ref.watch(categoryProvider);
+  return state.categories.where((c) {
+    if (type == 'expense') {
+      return c.type == CategoryType.expense || c.type == CategoryType.both;
+    } else if (type == 'income') {
+      return c.type == CategoryType.income || c.type == CategoryType.both;
+    }
+    return true; // Fallback
+  }).toList();
 });
 
 class CategoryNotifier extends Notifier<CategoryState> {
@@ -33,6 +46,15 @@ class CategoryNotifier extends Notifier<CategoryState> {
         state = state.copyWith(isLoading: false, categories: active);
       },
     );
+  }
+
+  CategoryModel? getCategoryById(int? id) {
+    if (id == null) return null;
+    try {
+      return state.categories.firstWhere((c) => c.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<bool> addCategory({

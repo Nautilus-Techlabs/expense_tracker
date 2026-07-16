@@ -37,6 +37,15 @@ class AccountNotifier extends Notifier<AccountState> {
     );
   }
 
+  AccountModel? getAccountById(int? id) {
+    if (id == null) return null;
+    try {
+      return state.accounts.firstWhere((a) => a.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<bool> createAccount({
     required String name,
     required AccountType type,

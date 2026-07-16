@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/dashboard_stats_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,10 +42,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(transactionProvider);
-    final accountState = ref.watch(accountProvider);
     final budgetState = ref.watch(budgetProvider);
     final user = ref.watch(authProvider).user;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final stats = ref.watch(dashboardStatsProvider);
 
     String initials = '??';
     if (user != null && user.fullName.isNotEmpty) {
@@ -55,52 +56,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         initials = parts[0][0].toUpperCase();
       }
     }
-
-    final globalBalance = accountState.accounts.fold<double>(
-      0,
-      (sum, account) => sum + account.balance,
-    );
-
-    final totalGlobalCredit = state.transactions
-        .where((t) => t.type == 'income')
-        .fold<double>(0, (sum, t) => sum + t.amount);
-
-    final totalGlobalDebit = state.transactions
-        .where((t) => t.type == 'expense' || t.type == 'withdrawal')
-        .fold<double>(0, (sum, t) => sum + t.amount);
-
-    // Current Month Spending for Budget calculation
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final monthlySpending = state.transactions
-        .where(
-          (t) =>
-              (t.type == 'expense' || t.type == 'withdrawal') &&
-              t.txnDate.isAfter(
-                startOfMonth.subtract(const Duration(seconds: 1)),
-              ),
-        )
-        .fold<double>(0, (sum, t) => sum + t.amount);
-
-    // This Week Spending
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final weeklySpending = state.transactions
-        .where(
-          (t) =>
-              (t.type == 'expense' || t.type == 'withdrawal') &&
-              t.txnDate.isAfter(
-                startOfWeek.subtract(const Duration(seconds: 1)),
-              ),
-        )
-        .fold<double>(0, (sum, t) => sum + t.amount);
-
-    // Top Spend
-    final topSpendTx = state.transactions
-        .where((t) => t.type == 'expense' || t.type == 'withdrawal')
-        .fold<TransactionModel?>(null, (prev, t) {
-          if (prev == null || t.amount > prev.amount) return t;
-          return prev;
-        });
 
     return Scaffold(
       backgroundColor: isDark
@@ -163,9 +118,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                 // 2. Total Balance Card
                 _buildTotalBalanceCard(
-                  globalBalance,
-                  totalGlobalCredit,
-                  totalGlobalDebit,
+                  stats.globalBalance,
+                  stats.totalGlobalCredit,
+                  stats.totalGlobalDebit,
                   isDark,
                 ),
                 UIHelpers.verticalSpace(16),
@@ -173,7 +128,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 // 3. Budget Card
                 _buildBudgetCard(
                   budgetAmount: budgetState.budget?.amount ?? 0.0,
-                  currentSpend: monthlySpending,
+                  currentSpend: stats.monthlySpending,
                   isDark: isDark,
                 ),
                 UIHelpers.verticalSpace(32),
@@ -253,8 +208,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Expanded(
                       child: _buildMiniStatCard(
                         'Top spend',
-                        topSpendTx != null
-                            ? '${topSpendTx.note ?? 'Expense'} • ₹${topSpendTx.amount.toStringAsFixed(0)}'
+                        stats.topSpendTx != null
+                            ? '${stats.topSpendTx!.note ?? 'Expense'} • ₹${stats.topSpendTx!.amount.toStringAsFixed(0)}'
                             : 'No data',
                         isDark,
                       ),
@@ -263,7 +218,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Expanded(
                       child: _buildMiniStatCard(
                         'This week',
-                        '₹${weeklySpending.toStringAsFixed(0)} spent',
+                        '₹${stats.weeklySpending.toStringAsFixed(0)} spent',
                         isDark,
                       ),
                     ),

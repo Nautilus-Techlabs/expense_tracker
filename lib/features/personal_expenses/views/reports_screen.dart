@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/personal_expenses/viewmodels/report_filter_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/report_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,38 +21,27 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
-  late DateTime _startDate;
-  late DateTime _endDate;
 
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _startDate = DateTime(now.year, now.month, 1);
-    _endDate = DateTime(now.year, now.month + 1, 0);
-
     Future.microtask(() => _fetchData());
   }
 
   void _fetchData() {
+    final filterState = ref.read(reportFilterProvider);
     ref
         .read(reportProvider.notifier)
-        .fetchReports(startDate: _startDate, endDate: _endDate);
+        .fetchReports(startDate: filterState.startDate, endDate: filterState.endDate);
   }
 
   void _previousMonth() {
-    setState(() {
-      _startDate = DateTime(_startDate.year, _startDate.month - 1, 1);
-      _endDate = DateTime(_startDate.year, _startDate.month + 1, 0);
-    });
+    ref.read(reportFilterProvider.notifier).previousMonth();
     _fetchData();
   }
 
   void _nextMonth() {
-    setState(() {
-      _startDate = DateTime(_startDate.year, _startDate.month + 1, 1);
-      _endDate = DateTime(_startDate.year, _startDate.month + 1, 0);
-    });
+    ref.read(reportFilterProvider.notifier).nextMonth();
     _fetchData();
   }
 
@@ -88,7 +78,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       );
     }
 
-    final monthYear = DateFormat('MMM yyyy').format(_startDate);
+    final filterState = ref.watch(reportFilterProvider);
+    final monthYear = DateFormat('MMM yyyy').format(filterState.startDate);
 
     return Scaffold(
       backgroundColor: isDark
@@ -210,8 +201,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   _SpendingBreakdownCard(
                     breakdown: report.spendingBreakdown,
                     isDark: isDark,
-                    startDate: _startDate,
-                    endDate: _endDate,
+                    startDate: filterState.startDate,
+                    endDate: filterState.endDate,
                   ),
                   UIHelpers.verticalSpace(16),
 

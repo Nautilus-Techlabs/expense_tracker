@@ -29,7 +29,6 @@ class DetailedTransactionScreen extends ConsumerStatefulWidget {
 
 class _DetailedTransactionScreenState
     extends ConsumerState<DetailedTransactionScreen> {
-  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +40,11 @@ class _DetailedTransactionScreenState
     final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
     // Resolve category name
-    final categories = ref.watch(categoryProvider).categories;
-    final category = categories
-        .where((c) => c.id == widget.transaction.categoryId)
-        .firstOrNull;
+    final category = ref.watch(categoryProvider.notifier).getCategoryById(widget.transaction.categoryId);
     final categoryName = category?.name ?? 'Uncategorized';
 
     // Resolve account name
-    final accounts = ref.watch(accountProvider).accounts;
-    final account = accounts
-        .where((a) => a.id == widget.transaction.accountId)
-        .firstOrNull;
+    final account = ref.watch(accountProvider.notifier).getAccountById(widget.transaction.accountId);
     final accountName = account?.name ?? 'Unknown Account';
 
     return Scaffold(
@@ -342,7 +335,7 @@ class _DetailedTransactionScreenState
         // Delete button
         Expanded(
           child: OutlinedButton(
-            onPressed: _isDeleting ? null : () => _handleDelete(context),
+            onPressed: ref.watch(transactionProvider).isLoading ? null : () => _handleDelete(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: AppColors.expense, width: 1.5),
               shape: RoundedRectangleBorder(
@@ -350,10 +343,10 @@ class _DetailedTransactionScreenState
               ),
               padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
-            child: _isDeleting
+            child: ref.watch(transactionProvider).isLoading
                 ? SizedBox(
+                    width: 20.w,
                     height: 20.h,
-                    width: 20.h,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: AppColors.expense,
@@ -380,11 +373,8 @@ class _DetailedTransactionScreenState
       builder: (sheetContext) => _EditTransactionSheet(
         transaction: widget.transaction,
         onSaved: (updatedTx) {
-          // The state is already updated by the notifier,
-          // but we need to pop back since the detail screen
-          // was created with the old object.
           if (mounted) {
-            context.pop(); // pop detail screen to go back to list
+            context.pop();
           }
         },
       ),
@@ -470,13 +460,11 @@ class _DetailedTransactionScreenState
     );
 
     if (confirmed == true && context.mounted) {
-      setState(() => _isDeleting = true);
       final success = await ref
           .read(transactionProvider.notifier)
           .deleteTransaction(widget.transaction.id);
 
       if (mounted) {
-        setState(() => _isDeleting = false);
         if (success && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -520,7 +508,6 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
   int? _selectedCategoryId;
   int? _selectedAccountId;
   late DateTime _selectedDate;
-  bool _isSaving = false;
 
   @override
   void initState() {
@@ -568,8 +555,6 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
       return;
     }
 
-    setState(() => _isSaving = true);
-
     final updates = TransactionPayload(
       userId: widget.transaction.userId,
       amount: amount,
@@ -590,7 +575,6 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
         );
 
     if (mounted) {
-      setState(() => _isSaving = false);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -598,8 +582,8 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
             backgroundColor: AppColors.income,
           ),
         );
-        context.pop(); // close sheet
-        widget.onSaved(widget.transaction); // trigger callback
+        context.pop();
+        widget.onSaved(widget.transaction);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -906,7 +890,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isSaving ? null : _save,
+                  onPressed: ref.watch(transactionProvider).isLoading ? null : _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -916,7 +900,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                     ),
                     elevation: 0,
                   ),
-                  child: _isSaving
+                  child: ref.watch(transactionProvider).isLoading
                       ? SizedBox(
                           height: 20.h,
                           width: 20.h,
