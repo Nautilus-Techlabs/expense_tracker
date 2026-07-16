@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/account_model.dart';
 import 'account_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final accountProvider = NotifierProvider<AccountNotifier, AccountState>(() {
   return AccountNotifier();
@@ -25,7 +25,7 @@ class AccountNotifier extends Notifier<AccountState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await SupabaseHelper().fetchAllAccounts(user.id);
+    final result = await ref.read(supabaseHelperProvider).fetchAllAccounts(user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -56,7 +56,7 @@ class AccountNotifier extends Notifier<AccountState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().createAccount(
+    final result = await ref.read(supabaseHelperProvider).createAccount(
       userId: user.id,
       name: name,
       type: type,

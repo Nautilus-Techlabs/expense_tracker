@@ -1,5 +1,5 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
-import 'package:expense_tracker/data/remote/supabase/supabase_helper.dart';
+
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
+import '../../../../core/theme/app_colors_extension.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -35,7 +37,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!_timerFinished || authState.isLoading) return;
 
     if (authState.user != null) {
-      final hasAccounts = await SupabaseHelper().fetchAllAccounts(
+      final hasAccounts = await ref.read(supabaseHelperProvider).fetchAllAccounts(
         authState.user!.id,
       );
       hasAccounts.fold(
@@ -62,12 +64,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
     });
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -77,7 +75,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               height: 140.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isDark ? AppColors.cardDark : AppColors.cardLight,
+                color: context.colors.card,
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withAlpha(40),
@@ -104,9 +102,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             Text(
               'Finia',
               style: context.appTexts.displayLarge.copyWith(
-                color: isDark
-                    ? AppColors.textPrimaryDark
-                    : AppColors.textPrimaryLight,
+                color: context.colors.textPrimary,
               ),
             ),
           ],

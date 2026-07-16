@@ -10,6 +10,7 @@ import 'reports_screen.dart';
 import 'transaction_list_screen.dart';
 import 'add_transaction_screen.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -34,11 +35,10 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedIndex = ref.watch(navigationIndexProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: IndexedStack(
         index: selectedIndex,
         children: _screens,
@@ -56,14 +56,14 @@ class MainScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildCustomNavBar(context, ref, isDark, selectedIndex),
+      bottomNavigationBar: _buildCustomNavBar(context, ref, selectedIndex),
     );
   }
 
   Widget _buildCustomNavBar(
-      BuildContext context, WidgetRef ref, bool isDark, int selectedIndex) {
+      BuildContext context, WidgetRef ref, int selectedIndex) {
     return BottomAppBar(
-      color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      color: context.colors.background,
       elevation: 0,
       notchMargin: 8.w,
       shape: const CircularNotchedRectangle(),
@@ -72,7 +72,7 @@ class MainScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              color: context.colors.border,
               width: 1,
             ),
           ),
@@ -154,9 +154,8 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
-    final inactiveColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+    final activeColor = context.colors.primary;
+    final inactiveColor = context.colors.textMuted;
 
     return GestureDetector(
       onTap: onTap,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../constants/app_constants.dart';
+import 'app_colors_extension.dart';
 
 class AppTheme {
   // =====================================================
@@ -73,6 +75,24 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: 'Manrope',
+
+      extensions: const <ThemeExtension<dynamic>>[
+        AppColorsExtension(
+          primary: AppColors.primary,
+          primaryLight: AppColors.primaryLight,
+          income: AppColors.income,
+          expense: AppColors.expense,
+          warning: AppColors.warning,
+          danger: AppColors.danger,
+          background: AppColors.backgroundLight,
+          card: AppColors.cardLight,
+          cardElevated: Colors.white, // No specific elevated light card in constants, use white
+          border: AppColors.borderLight,
+          textPrimary: AppColors.textPrimaryLight,
+          textSecondary: AppColors.textSecondaryLight,
+          textMuted: AppColors.textMutedLight,
+        ),
+      ],
 
       colorScheme: const ColorScheme.light(
         primary: primaryLight,
@@ -231,6 +251,24 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       fontFamily: 'Manrope',
+
+      extensions: const <ThemeExtension<dynamic>>[
+        AppColorsExtension(
+          primary: AppColors.primary,
+          primaryLight: AppColors.primaryLight,
+          income: AppColors.income,
+          expense: AppColors.expense,
+          warning: AppColors.warning,
+          danger: AppColors.danger,
+          background: AppColors.backgroundDark,
+          card: AppColors.cardDark,
+          cardElevated: AppColors.cardElevatedDark,
+          border: AppColors.borderDark,
+          textPrimary: AppColors.textPrimaryDark,
+          textSecondary: AppColors.textSecondaryDark,
+          textMuted: AppColors.textMutedDark,
+        ),
+      ],
 
       colorScheme: const ColorScheme.dark(
         primary: primaryDark,

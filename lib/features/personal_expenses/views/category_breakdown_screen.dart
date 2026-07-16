@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../viewmodels/report_notifier.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class CategoryBreakdownScreen extends ConsumerStatefulWidget {
   final DateTime startDate;
@@ -49,9 +50,7 @@ class _CategoryBreakdownScreenState
     final monthYear = DateFormat('MMM yyyy').format(widget.startDate);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         title: Text('Spending Breakdown', style: context.appTexts.heading),
         leading: IconButton(
@@ -86,9 +85,7 @@ class _CategoryBreakdownScreenState
                     Text(
                       'Categories for $monthYear',
                       style: context.appTexts.bodyMedium.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -98,12 +95,10 @@ class _CategoryBreakdownScreenState
                     Container(
                       padding: EdgeInsets.all(20.w),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.cardDark : Colors.white,
+                        color: context.colors.card,
                         borderRadius: BorderRadius.circular(20.r),
                         border: Border.all(
-                          color: isDark
-                              ? AppColors.borderDark
-                              : AppColors.borderLight,
+                          color: context.colors.border,
                         ),
                       ),
                       child: Row(
@@ -188,10 +183,10 @@ class _CategoryListItem extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -224,9 +219,7 @@ class _CategoryListItem extends StatelessWidget {
                     Text(
                       '${percentage.toStringAsFixed(2)} % of total spending',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -236,9 +229,7 @@ class _CategoryListItem extends StatelessWidget {
                 '₹$amount',
                 style: context.appTexts.bodyLarge.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ],
@@ -250,9 +241,7 @@ class _CategoryListItem extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage / 100,
               minHeight: 6.h,
-              backgroundColor: isDark
-                  ? AppColors.borderDark
-                  : AppColors.borderLight,
+              backgroundColor: context.colors.border,
               color: color,
             ),
           ),

@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../models/reports_model.dart' as model;
+import '../../../../core/theme/app_colors_extension.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -53,18 +54,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     if (reportState.isLoading) {
       return Scaffold(
-        backgroundColor: isDark
-            ? AppColors.backgroundDark
-            : AppColors.backgroundLight,
+        backgroundColor: context.colors.background,
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (reportState.errorMessage != null && report == null) {
       return Scaffold(
-        backgroundColor: isDark
-            ? AppColors.backgroundDark
-            : AppColors.backgroundLight,
+        backgroundColor: context.colors.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -82,9 +79,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final monthYear = DateFormat('MMM yyyy').format(filterState.startDate);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async => _fetchData(),
@@ -102,9 +97,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       Text(
                         'Reports',
                         style: context.appTexts.displayMedium.copyWith(
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.primary,
+                          color: context.colors.primary,
                           fontSize: 32.sp,
                         ),
                       ),
@@ -127,18 +120,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                               child: Icon(
                                 Icons.chevron_left_rounded,
                                 size: 20.sp,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
+                                color: context.colors.textSecondary,
                               ),
                             ),
                             UIHelpers.horizontalSpace(8),
                             Text(
                               monthYear,
                               style: context.appTexts.bodyMedium.copyWith(
-                                color: isDark
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.textPrimaryLight,
+                                color: context.colors.textPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -148,9 +137,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                               child: Icon(
                                 Icons.chevron_right_rounded,
                                 size: 20.sp,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
+                                color: context.colors.textSecondary,
                               ),
                             ),
                           ],
@@ -250,9 +237,7 @@ class _StatItem extends StatelessWidget {
         Text(
           title,
           style: context.appTexts.bodySmall.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+            color: context.colors.textSecondary,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.8,
           ),
@@ -287,10 +272,10 @@ class _MonthlyTrendCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -299,9 +284,7 @@ class _MonthlyTrendCard extends StatelessWidget {
           Text(
             'MONTHLY TREND',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -395,12 +378,8 @@ class _BarGroup extends StatelessWidget {
           label,
           style: context.appTexts.bodySmall.copyWith(
             color: isCurrentMonth
-                ? (isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight)
-                : (isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight),
+                ? (context.colors.textPrimary)
+                : (context.colors.textSecondary),
             fontWeight: isCurrentMonth ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
@@ -433,9 +412,7 @@ class _LegendItem extends StatelessWidget {
         Text(
           label,
           style: context.appTexts.bodySmall.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -461,10 +438,10 @@ class _SpendingBreakdownCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -473,9 +450,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
           Text(
             'SPENDING BREAKDOWN',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -517,18 +492,14 @@ class _SpendingBreakdownCard extends StatelessWidget {
                         Text(
                           '₹${breakdown.totalSpent}',
                           style: context.appTexts.displayMedium.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.primary,
+                            color: context.colors.primary,
                             fontSize: 18.sp,
                           ),
                         ),
                         Text(
                           'spent',
                           style: context.appTexts.bodySmall.copyWith(
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ],
@@ -575,9 +546,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
                   Text(
                     'View all categories',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.primary,
+                      color: context.colors.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -585,9 +554,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward_rounded,
                     size: 16.sp,
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.primary,
+                    color: context.colors.primary,
                   ),
                 ],
               ),
@@ -627,9 +594,7 @@ class _BreakdownItem extends StatelessWidget {
         Text(
           label,
           style: context.appTexts.bodyMedium.copyWith(
-            color: isDark
-                ? AppColors.textPrimaryDark
-                : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -637,9 +602,7 @@ class _BreakdownItem extends StatelessWidget {
         Text(
           '$amount ($percentage)',
           style: context.appTexts.bodyMedium.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -658,10 +621,10 @@ class _ByAccountCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -670,9 +633,7 @@ class _ByAccountCard extends StatelessWidget {
           Text(
             'BY ACCOUNT',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -687,9 +648,7 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Account Name',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -699,9 +658,7 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Inflow',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -712,9 +669,7 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Outflow',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -725,9 +680,7 @@ class _ByAccountCard extends StatelessWidget {
                 child: Text(
                   'Net',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.right,
@@ -798,9 +751,7 @@ class _AccountRow extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: 16.sp,
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: context.colors.textPrimary,
                 ),
               ),
               UIHelpers.horizontalSpace(8),
@@ -808,9 +759,7 @@ class _AccountRow extends StatelessWidget {
                 child: Text(
                   name,
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -843,9 +792,7 @@ class _AccountRow extends StatelessWidget {
             style: context.appTexts.bodyMedium.copyWith(
               color: isNegativeNet
                   ? AppColors.expense
-                  : (isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight),
+                  : (context.colors.textPrimary),
               fontWeight: FontWeight.w700,
             ),
             textAlign: TextAlign.right,

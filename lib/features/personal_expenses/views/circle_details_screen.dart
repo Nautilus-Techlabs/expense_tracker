@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/primary_button.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class CircleDetailsScreen extends StatelessWidget {
   final String circleName;
@@ -19,7 +20,7 @@ class CircleDetailsScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -28,14 +29,14 @@ class CircleDetailsScreen extends StatelessWidget {
           icon: Icon(
             Icons.arrow_back_ios_rounded,
             size: 20.sp,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           circleName,
           style: context.appTexts.heading.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+            color: context.colors.primary,
             fontSize: 24.sp,
           ),
         ),
@@ -44,7 +45,7 @@ class CircleDetailsScreen extends StatelessWidget {
             icon: Icon(
               Icons.settings_outlined,
               size: 24.sp,
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
             ),
             onPressed: () {},
           ),
@@ -64,7 +65,7 @@ class CircleDetailsScreen extends StatelessWidget {
                   child: Text(
                     'One-time • 3 members • Created 20 Jun',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -82,7 +83,7 @@ class CircleDetailsScreen extends StatelessWidget {
                     Text(
                       'MEMBERS',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.8,
                       ),
@@ -92,7 +93,7 @@ class CircleDetailsScreen extends StatelessWidget {
                       child: Text(
                         '+ Invite',
                         style: context.appTexts.bodySmall.copyWith(
-                          color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                          color: context.colors.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -138,7 +139,7 @@ class CircleDetailsScreen extends StatelessWidget {
                 Text(
                   'TRANSACTIONS',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
                   ),
@@ -146,10 +147,10 @@ class CircleDetailsScreen extends StatelessWidget {
                 UIHelpers.verticalSpace(16),
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.cardDark : Colors.white,
+                    color: context.colors.card,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color: context.colors.border,
                     ),
                   ),
                   child: Column(
@@ -161,7 +162,7 @@ class CircleDetailsScreen extends StatelessWidget {
                         amount: '₹3,600',
                         isDark: isDark,
                       ),
-                      Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                      Divider(height: 1, color: context.colors.border),
                       _TransactionTile(
                         icon: Icons.directions_car_rounded,
                         title: 'Cab to Airport',
@@ -169,7 +170,7 @@ class CircleDetailsScreen extends StatelessWidget {
                         amount: '₹1,800',
                         isDark: isDark,
                       ),
-                      Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                      Divider(height: 1, color: context.colors.border),
                       _TransactionTile(
                         icon: Icons.beach_access_rounded,
                         title: 'Beach Shack Lunch',
@@ -177,7 +178,7 @@ class CircleDetailsScreen extends StatelessWidget {
                         amount: '₹1,800',
                         isDark: isDark,
                       ),
-                      Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                      Divider(height: 1, color: context.colors.border),
                       InkWell(
                         onTap: () {},
                         borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.r)),
@@ -189,7 +190,7 @@ class CircleDetailsScreen extends StatelessWidget {
                               Text(
                                 'See all transactions',
                                 style: context.appTexts.bodySmall.copyWith(
-                                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                                  color: context.colors.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -197,7 +198,7 @@ class CircleDetailsScreen extends StatelessWidget {
                               Icon(
                                 Icons.arrow_forward_rounded,
                                 size: 16.sp,
-                                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                                color: context.colors.primary,
                               ),
                             ],
                           ),
@@ -222,13 +223,13 @@ class CircleDetailsScreen extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                  color: context.colors.background,
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      (isDark ? AppColors.backgroundDark : AppColors.backgroundLight).withAlpha(0),
-                      isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                      (context.colors.background).withAlpha(0),
+                      context.colors.background,
                     ],
                     stops: const [0.0, 0.3],
                   ),
@@ -257,10 +258,10 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -269,7 +270,7 @@ class _SummaryCard extends StatelessWidget {
           Text(
             'SUMMARY',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -402,10 +403,10 @@ class _MemberCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Row(
@@ -440,7 +441,7 @@ class _MemberCard extends StatelessWidget {
                     Text(
                       name,
                       style: context.appTexts.bodyMedium.copyWith(
-                        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        color: context.colors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -468,7 +469,7 @@ class _MemberCard extends StatelessWidget {
                 Text(
                   subtext,
                   style: context.appTexts.bodySmall.copyWith(
-                    color: subtextColor ?? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                    color: subtextColor ?? (context.colors.textSecondary),
                   ),
                 ),
               ],
@@ -481,7 +482,7 @@ class _MemberCard extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  side: BorderSide(color: context.colors.border),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -491,14 +492,14 @@ class _MemberCard extends StatelessWidget {
                 child: Text(
                   'Remind',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               )
             else
               IconButton(
-                icon: Icon(Icons.notifications_none_rounded, color: isDark ? AppColors.textPrimaryDark : AppColors.primary, size: 24.sp),
+                icon: Icon(Icons.notifications_none_rounded, color: context.colors.primary, size: 24.sp),
                 onPressed: () {},
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -555,7 +556,7 @@ class _TransactionTile extends StatelessWidget {
                 Text(
                   title,
                   style: context.appTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -563,7 +564,7 @@ class _TransactionTile extends StatelessWidget {
                 Text(
                   subtitle,
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],

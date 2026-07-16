@@ -8,6 +8,7 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../viewmodels/account_notifier.dart';
 import '../models/account_model.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class AccountsSettingsScreen extends ConsumerWidget {
   const AccountsSettingsScreen({super.key});
@@ -15,17 +16,16 @@ class AccountsSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accountState = ref.watch(accountProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_rounded,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             size: 20.sp,
           ),
           onPressed: () => context.pop(),
@@ -33,7 +33,7 @@ class AccountsSettingsScreen extends ConsumerWidget {
         title: Text(
           'Accounts',
           style: context.appTexts.displayMedium.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             fontSize: 22.sp,
           ),
         ),
@@ -47,7 +47,7 @@ class AccountsSettingsScreen extends ConsumerWidget {
                     'No accounts found.\nAdd one to get started.',
                     textAlign: TextAlign.center,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 )
@@ -58,7 +58,7 @@ class AccountsSettingsScreen extends ConsumerWidget {
                   separatorBuilder: (context, index) => UIHelpers.verticalSpace(16),
                   itemBuilder: (context, index) {
                     final account = accountState.accounts[index];
-                    return _AccountListItem(account: account, isDark: isDark);
+                    return _AccountListItem(account: account);
                   },
                 ),
       floatingActionButton: FloatingActionButton.extended(
@@ -79,9 +79,7 @@ class AccountsSettingsScreen extends ConsumerWidget {
 
 class _AccountListItem extends StatelessWidget {
   final AccountModel account;
-  final bool isDark;
-
-  const _AccountListItem({required this.account, required this.isDark});
+  const _AccountListItem({required this.account});
 
   IconData _getIcon() {
     switch (account.type) {
@@ -99,10 +97,10 @@ class _AccountListItem extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Row(
@@ -123,7 +121,7 @@ class _AccountListItem extends StatelessWidget {
                 Text(
                   account.name,
                   style: context.appTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -131,7 +129,7 @@ class _AccountListItem extends StatelessWidget {
                 Text(
                   account.type.name.toUpperCase(),
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontSize: 10.sp,
                     letterSpacing: 1.2,
                   ),
@@ -142,7 +140,7 @@ class _AccountListItem extends StatelessWidget {
           Text(
             '₹${account.balance.toStringAsFixed(0)}',
             style: context.appTexts.displaySmall.copyWith(
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: context.colors.textPrimary,
               fontSize: 16.sp,
             ),
           ),

@@ -8,11 +8,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../services/connectivity_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
-import '../models/category_model.dart';
 import '../models/transaction_payload.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
@@ -161,7 +161,7 @@ class _AddTransactionBottomSheetState
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        color: context.colors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
       ),
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -176,7 +176,7 @@ class _AddTransactionBottomSheetState
               width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),
@@ -190,7 +190,7 @@ class _AddTransactionBottomSheetState
               Text(
                 'Add transaction',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  color: context.colors.primary,
                   fontSize: 26.sp,
                 ),
               ),
@@ -198,9 +198,7 @@ class _AddTransactionBottomSheetState
                 icon: Icon(
                   Icons.close_rounded,
                   size: 24.sp,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
@@ -288,9 +286,7 @@ class _AddTransactionBottomSheetState
                     Text(
                       'No categories available.',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                       ),
                     )
                   else
@@ -324,9 +320,7 @@ class _AddTransactionBottomSheetState
                     Text(
                       'No accounts found. Please add an account first.',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                       ),
                     )
                   else
@@ -355,9 +349,7 @@ class _AddTransactionBottomSheetState
                     child: Text(
                       _formatDate(_selectedDate),
                       style: context.appTexts.bodyLarge.copyWith(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                   ),
@@ -369,16 +361,12 @@ class _AddTransactionBottomSheetState
                     child: TextField(
                       controller: _noteController,
                       style: context.appTexts.bodyLarge.copyWith(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.primary,
+                        color: context.colors.primary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Add a note (optional)',
                         hintStyle: context.appTexts.bodyLarge.copyWith(
-                          color: isDark
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
+                          color: context.colors.textSecondary,
                         ),
                         border: InputBorder.none,
                         isDense: true,
@@ -396,7 +384,7 @@ class _AddTransactionBottomSheetState
                   //       Text(
                   //         'Add to a Circle?',
                   //         style: context.appTexts.bodyLarge.copyWith(
-                  //           color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  //           color: context.colors.primary,
                   //           fontWeight: FontWeight.w500,
                   //         ),
                   //       ),
@@ -453,9 +441,7 @@ class _AddTransactionBottomSheetState
             style: context.appTexts.bodyMedium.copyWith(
               color: isSelected
                   ? Colors.white
-                  : (isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight),
+                  : (context.colors.textSecondary),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -481,7 +467,7 @@ class _AddTransactionBottomSheetState
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
-                : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                : (context.colors.border),
           ),
         ),
         child: Text(
@@ -489,9 +475,7 @@ class _AddTransactionBottomSheetState
           style: context.appTexts.bodyMedium.copyWith(
             color: isSelected
                 ? Colors.white
-                : (isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight),
+                : (context.colors.textPrimary),
             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
           ),
         ),
@@ -511,9 +495,7 @@ class _AddTransactionBottomSheetState
           style: context.appTexts.bodySmall.copyWith(
             color: hasError
                 ? AppColors.expense
-                : (isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight),
+                : (context.colors.textSecondary),
             fontWeight: FontWeight.w600,
             letterSpacing: 0.8,
           ),
@@ -558,7 +540,7 @@ class _AddTransactionBottomSheetState
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            color: context.colors.border,
             width: 1,
           ),
         ),
@@ -568,9 +550,7 @@ class _AddTransactionBottomSheetState
           Icon(
             icon,
             size: 24.sp,
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+            color: context.colors.textSecondary,
           ),
           UIHelpers.horizontalSpace(16),
           Expanded(child: child),

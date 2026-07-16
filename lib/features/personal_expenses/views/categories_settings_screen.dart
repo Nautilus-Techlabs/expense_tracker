@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../viewmodels/category_notifier.dart';
 import '../models/category_model.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class CategoriesSettingsScreen extends ConsumerWidget {
   const CategoriesSettingsScreen({super.key});
@@ -23,17 +24,16 @@ class CategoriesSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoryState = ref.watch(categoryProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_rounded,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             size: 20.sp,
           ),
           onPressed: () => context.pop(),
@@ -41,7 +41,7 @@ class CategoriesSettingsScreen extends ConsumerWidget {
         title: Text(
           'Categories',
           style: context.appTexts.displayMedium.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             fontSize: 22.sp,
           ),
         ),
@@ -55,7 +55,7 @@ class CategoriesSettingsScreen extends ConsumerWidget {
                     'No categories found.',
                     textAlign: TextAlign.center,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 )
@@ -66,7 +66,7 @@ class CategoriesSettingsScreen extends ConsumerWidget {
                   separatorBuilder: (context, index) => UIHelpers.verticalSpace(12),
                   itemBuilder: (context, index) {
                     final category = categoryState.categories[index];
-                    return _CategoryListItem(category: category, isDark: isDark);
+                    return _CategoryListItem(category: category);
                   },
                 ),
       floatingActionButton: FloatingActionButton.extended(
@@ -87,9 +87,7 @@ class CategoriesSettingsScreen extends ConsumerWidget {
 
 class _CategoryListItem extends StatelessWidget {
   final CategoryModel category;
-  final bool isDark;
-
-  const _CategoryListItem({required this.category, required this.isDark});
+  const _CategoryListItem({required this.category});
 
   IconData _getIcon() {
     // Basic mapping or default
@@ -103,13 +101,14 @@ class _CategoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Row(
@@ -130,7 +129,7 @@ class _CategoryListItem extends StatelessWidget {
                 Text(
                   category.name,
                   style: context.appTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -138,7 +137,7 @@ class _CategoryListItem extends StatelessWidget {
                 Text(
                   category.type.name.toUpperCase(),
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                     fontSize: 10.sp,
                     letterSpacing: 1.2,
                   ),
@@ -241,8 +240,8 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
             label,
             style: context.appTexts.bodyMedium.copyWith(
               color: isSelected
-                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  ? (context.colors.textPrimary)
+                  : (context.colors.textSecondary),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
@@ -261,7 +260,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+          color: context.colors.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
           boxShadow: [
             BoxShadow(
@@ -282,7 +281,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
                 width: 48.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  color: context.colors.border,
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
@@ -293,7 +292,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
             Text(
               'New Category',
               style: context.appTexts.displayMedium.copyWith(
-                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                color: context.colors.textPrimary,
                 fontSize: 24.sp,
               ),
             ),
@@ -324,7 +323,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
                   style: context.appTexts.bodySmall.copyWith(
                     color: _nameError
                         ? AppColors.expense
-                        : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                        : (context.colors.textSecondary),
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.8,
                   ),
@@ -339,22 +338,22 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
             TextField(
               controller: _nameController,
               style: context.appTexts.bodyMedium.copyWith(
-                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                color: context.colors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: 'e.g. Groceries',
                 hintStyle: context.appTexts.bodyMedium.copyWith(
-                  color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                  color: (context.colors.textSecondary)
                       .withValues(alpha: 0.5),
                 ),
                 filled: true,
-                fillColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                fillColor: context.colors.card,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.r),
                   borderSide: BorderSide(
                     color: _nameError
                         ? AppColors.expense
-                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                        : (context.colors.border),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -362,7 +361,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
                   borderSide: BorderSide(
                     color: _nameError
                         ? AppColors.expense
-                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                        : (context.colors.border),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(

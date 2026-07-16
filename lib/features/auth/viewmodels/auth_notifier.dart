@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/cache/cache_manager.dart';
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../model/user_payload.dart';
 import 'auth_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(() {
   return AuthNotifier();
@@ -29,12 +29,12 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(user: () => cachedUser, isLoading: false);
       }
 
-      final supabaseUser = SupabaseHelper().supabase.auth.currentUser;
+      final supabaseUser = ref.read(supabaseHelperProvider).supabase.auth.currentUser;
 
       if (supabaseUser != null) {
         // If we didn't have a cached user, but have a supabase user, fetch profile
         if (cachedUser == null) {
-          final result = await SupabaseHelper().fetchUserProfile(
+          final result = await ref.read(supabaseHelperProvider).fetchUserProfile(
             supabaseUser.id,
           );
           result.fold((l) => state = state.copyWith(isLoading: false), (user) {
@@ -43,7 +43,7 @@ class AuthNotifier extends Notifier<AuthState> {
           });
         } else if (cachedUser.authId != supabaseUser.id) {
           // Stale cache - fetch fresh profile
-          final result = await SupabaseHelper().fetchUserProfile(
+          final result = await ref.read(supabaseHelperProvider).fetchUserProfile(
             supabaseUser.id,
           );
           result.fold(
@@ -73,7 +73,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> signUp(UserPayload payload) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().createUser(payload);
+    final result = await ref.read(supabaseHelperProvider).createUser(payload);
 
     return result.fold(
       (failure) {
@@ -94,7 +94,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> signIn(String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().signIn(email, password);
+    final result = await ref.read(supabaseHelperProvider).signIn(email, password);
 
     return result.fold(
       (failure) {
@@ -115,7 +115,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> signInWithGoogle() async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().signInWithGoogle();
+    final result = await ref.read(supabaseHelperProvider).signInWithGoogle();
 
     return result.fold(
       (failure) {
@@ -126,7 +126,7 @@ class AuthNotifier extends Notifier<AuthState> {
         return false;
       },
       (_) async {
-        final profileResult = await SupabaseHelper()
+        final profileResult = await ref.read(supabaseHelperProvider)
             .fetchOrCreateGoogleProfile();
         return profileResult.fold(
           (failure) {
@@ -153,7 +153,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signOut() async {
     await _cacheManager.deleteUser();
     // Also sign out from Supabase if needed
-    await SupabaseHelper().supabase.auth.signOut();
+    await ref.read(supabaseHelperProvider).supabase.auth.signOut();
     state = AuthState();
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import 'report_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final reportProvider = NotifierProvider<ReportNotifier, ReportState>(() {
   return ReportNotifier();
@@ -41,7 +41,7 @@ class ReportNotifier extends Notifier<ReportState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().fetchUserReports(
+    final result = await ref.read(supabaseHelperProvider).fetchUserReports(
       userId: user.id,
       startDate: startDate,
       endDate: endDate,
@@ -80,7 +80,7 @@ class ReportNotifier extends Notifier<ReportState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().getSpendingBreakdown(
+    final result = await ref.read(supabaseHelperProvider).getSpendingBreakdown(
       userId: user.id,
       startDate: startDate,
       endDate: endDate,

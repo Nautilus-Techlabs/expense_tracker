@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 // ─── Data Models (local, until a real backend is wired up) ────────────────────
 
@@ -93,12 +94,9 @@ class CirclesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
           child: Text(
@@ -313,8 +311,8 @@ class _CircleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = isDark ? AppColors.cardDark : Colors.white;
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final cardColor = context.colors.card;
+    final borderColor = context.colors.border;
     final isOneTime = circle.type == CircleType.oneTime;
 
     return GestureDetector(
@@ -352,9 +350,7 @@ class _CircleCard extends StatelessWidget {
                   child: Text(
                     circle.name,
                     style: context.appTexts.displayMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.primary,
+                      color: context.colors.primary,
                       fontSize: 22.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -363,9 +359,7 @@ class _CircleCard extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 22.sp,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                 ),
               ],
             ),
@@ -377,17 +371,13 @@ class _CircleCard extends StatelessWidget {
                 Icon(
                   Icons.group_outlined,
                   size: 15.sp,
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                 ),
                 UIHelpers.horizontalSpace(6),
                 Text(
                   '${circle.members.length} members',
                   style: context.appTexts.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -402,9 +392,7 @@ class _CircleCard extends StatelessWidget {
                     label: 'You paid',
                     value: '₹${circle.totalAmount.toStringAsFixed(0)}',
                     isDark: isDark,
-                    valueColor: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+                    valueColor: context.colors.textPrimary,
                   ),
                   UIHelpers.horizontalSpace(32),
                   _StatColumn(
@@ -423,18 +411,14 @@ class _CircleCard extends StatelessWidget {
                   Text(
                     'Settlement Progress',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
                     '${(circle.settlementProgress * 100).toStringAsFixed(0)}%',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimaryLight,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -461,9 +445,7 @@ class _CircleCard extends StatelessWidget {
                     label: 'This month',
                     value: '₹${circle.totalAmount.toStringAsFixed(0)}',
                     isDark: isDark,
-                    valueColor: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+                    valueColor: context.colors.textPrimary,
                   ),
                   UIHelpers.horizontalSpace(32),
                   if (circle.yourShare != null)
@@ -471,9 +453,7 @@ class _CircleCard extends StatelessWidget {
                       label: 'Your share',
                       value: '₹${circle.yourShare!.toStringAsFixed(0)}',
                       isDark: isDark,
-                      valueColor: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimaryLight,
+                      valueColor: context.colors.textPrimary,
                     ),
                   if (circle.youOwe != null)
                     _StatColumn(
@@ -488,7 +468,7 @@ class _CircleCard extends StatelessWidget {
                 UIHelpers.verticalSpace(16),
                 Divider(
                   height: 1,
-                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  color: context.colors.border,
                 ),
                 UIHelpers.verticalSpace(12),
                 Row(
@@ -498,17 +478,13 @@ class _CircleCard extends StatelessWidget {
                           ? Icons.flash_on_rounded
                           : Icons.access_time_rounded,
                       size: 14.sp,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                     ),
                     UIHelpers.horizontalSpace(6),
                     Text(
                       'Last activity: ${circle.lastActivity}',
                       style: context.appTexts.bodySmall.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -541,7 +517,7 @@ class _TypeBadge extends StatelessWidget {
         border: isOngoing
             ? null
             : Border.all(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                color: context.colors.border,
               ),
       ),
       child: Text(
@@ -549,9 +525,7 @@ class _TypeBadge extends StatelessWidget {
         style: context.appTexts.bodySmall.copyWith(
           color: isOngoing
               ? AppColors.income
-              : (isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight),
+              : (context.colors.textSecondary),
           fontWeight: FontWeight.w700,
           fontSize: 10.sp,
           letterSpacing: 0.5,
@@ -663,9 +637,7 @@ class _StatColumn extends StatelessWidget {
         Text(
           label,
           style: context.appTexts.bodySmall.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+            color: context.colors.textSecondary,
           ),
         ),
         UIHelpers.verticalSpace(4),

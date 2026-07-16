@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/transaction_payload.dart';
 import 'account_notifier.dart';
 import 'budget_notifier.dart';
 import 'report_notifier.dart';
 import 'transaction_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final transactionProvider =
     NotifierProvider<TransactionNotifier, TransactionState>(() {
@@ -29,7 +29,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await SupabaseHelper().fetchAllTransactions(user.id);
+    final result = await ref.read(supabaseHelperProvider).fetchAllTransactions(user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -62,7 +62,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().addTransactions(payload);
+    final result = await ref.read(supabaseHelperProvider).addTransactions(payload);
 
     return result.fold(
       (failure) {
@@ -88,7 +88,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().updateTransaction(
+    final result = await ref.read(supabaseHelperProvider).updateTransaction(
       transactionId: transactionId,
       updates: updates,
     );
@@ -116,7 +116,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
   Future<bool> deleteTransaction(int transactionId) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().deleteTransaction(
+    final result = await ref.read(supabaseHelperProvider).deleteTransaction(
       transactionId: transactionId,
     );
 

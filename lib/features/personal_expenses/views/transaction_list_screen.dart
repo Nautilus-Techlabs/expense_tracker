@@ -6,12 +6,13 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
-import '../viewmodels/transaction_notifier.dart';
+
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_filter_notifier.dart';
 import '../viewmodels/filtered_transactions_provider.dart';
 import '../widgets/transaction_card.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -62,8 +63,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filterState = ref.watch(transactionFilterProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filterState = ref.watch(transactionFilterProvider);
 
     final filteredData = ref.watch(filteredTransactionsProvider);
     final months = filteredData.availableMonths;
@@ -74,9 +75,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final totalGlobalDebit = filteredData.totalDebit;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -91,9 +90,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     Text(
                       'Transactions',
                       style: context.appTexts.displayMedium.copyWith(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.primary,
+                        color: context.colors.primary,
                         fontSize: 32.sp,
                       ),
                     ),
@@ -107,9 +104,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                             color: filterState.selectedCategoryId != null ||
                                     filterState.selectedSpecificDate != null
                                 ? AppColors.expense
-                                : (isDark
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.primary),
+                                : (context.colors.primary),
                           ),
                         ),
                         UIHelpers.horizontalSpace(16),
@@ -128,9 +123,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                             size: 28.sp,
                             color: filterState.isSearchVisible
                                 ? AppColors.expense
-                                : (isDark
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.primary),
+                                : (context.colors.primary),
                           ),
                         ),
                       ],
@@ -147,16 +140,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   child: TextField(
                     controller: _searchController,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: context.colors.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Search notes...',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight).withValues(alpha: 0.5),
+                        color: (context.colors.textSecondary).withValues(alpha: 0.5),
                       ),
-                      prefixIcon: Icon(Icons.search, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                      prefixIcon: Icon(Icons.search, color: context.colors.textSecondary),
                       filled: true,
-                      fillColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+                      fillColor: context.colors.card,
                       contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16.w),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
@@ -209,9 +202,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           style: context.appTexts.bodyMedium.copyWith(
                             color: isSelected
                                 ? Colors.white
-                                : (isDark
-                                      ? AppColors.textSecondaryDark
-                                      : AppColors.textSecondaryLight),
+                                : (context.colors.textSecondary),
                             fontWeight: isSelected
                                 ? FontWeight.w600
                                 : FontWeight.w500,
@@ -253,9 +244,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                             Text(
                               'Income',
                               style: context.appTexts.bodyMedium.copyWith(
-                                color: isDark
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.textPrimaryLight,
+                                color: context.colors.textPrimary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -282,9 +271,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       Container(
                         width: 1.w,
                         height: 40.h,
-                        color: isDark
-                            ? AppColors.borderDark
-                            : AppColors.borderLight,
+                        color: context.colors.border,
                       ),
                       Expanded(
                         child: Padding(
@@ -295,9 +282,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                               Text(
                                 'Expense',
                                 style: context.appTexts.bodyMedium.copyWith(
-                                  color: isDark
-                                      ? AppColors.textPrimaryDark
-                                      : AppColors.textPrimaryLight,
+                                  color: context.colors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -335,9 +320,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   child: Text(
                     "No transactions found.",
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -374,18 +357,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   Text(
                     dateStr,
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
+                      color: context.colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   UIHelpers.verticalSpace(8),
                   Container(
                     height: 1.h,
-                    color: isDark
-                        ? AppColors.borderDark
-                        : AppColors.borderLight,
+                    color: context.colors.border,
                   ),
                 ],
               ),
@@ -470,13 +449,12 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categoryState = ref.watch(categoryProvider);
     
     return Container(
       padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 32.h),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        color: context.colors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
       ),
       child: Column(
@@ -489,7 +467,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
               width: 48.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -499,7 +477,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
           Text(
             'Filters',
             style: context.appTexts.displayMedium.copyWith(
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: context.colors.textPrimary,
               fontSize: 24.sp,
             ),
           ),
@@ -509,7 +487,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
           Text(
             'Specific Date',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -519,7 +497,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: BoxDecoration(
-                border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                border: Border.all(color: context.colors.border),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Row(
@@ -531,11 +509,11 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                         : 'Select Date',
                     style: context.appTexts.bodyMedium.copyWith(
                       color: _selectedSpecificDate != null
-                          ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                          : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                          ? (context.colors.textPrimary)
+                          : (context.colors.textSecondary),
                     ),
                   ),
-                  Icon(Icons.calendar_today_rounded, size: 20.sp, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  Icon(Icons.calendar_today_rounded, size: 20.sp, color: context.colors.textSecondary),
                 ],
               ),
             ),
@@ -546,7 +524,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
           Text(
             'Category',
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -568,13 +546,13 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                     color: isSelected ? AppColors.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24.r),
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                      color: isSelected ? AppColors.primary : (context.colors.border),
                     ),
                   ),
                   child: Text(
                     cat.name,
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isSelected ? Colors.white : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                      color: isSelected ? Colors.white : (context.colors.textPrimary),
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
@@ -599,13 +577,13 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                   },
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16.h),
-                    side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                    side: BorderSide(color: context.colors.border),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
                   ),
                   child: Text(
                     'Clear All',
                     style: context.appTexts.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

@@ -9,6 +9,7 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../../../services/connectivity_provider.dart';
 import '../viewmodels/budget_notifier.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class AddBudgetScreen extends ConsumerStatefulWidget {
   const AddBudgetScreen({super.key});
@@ -71,16 +72,11 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   @override
   Widget build(BuildContext context) {
     final budgetState = ref.watch(budgetProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final textPrimary = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
-    final textSecondary = isDark
-        ? AppColors.textSecondaryDark
-        : AppColors.textSecondaryLight;
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-    final cardBg = isDark ? AppColors.cardDark : Colors.white;
+    final bg = context.colors.background;
+    final textPrimary = context.colors.textPrimary;
+    final textSecondary = context.colors.textSecondary;
+    final borderColor = context.colors.border;
+    final cardBg = context.colors.card;
 
     final monthName = DateFormat('MMMM yyyy').format(_selectedMonth);
 

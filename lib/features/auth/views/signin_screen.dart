@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/providers/app_message_provider.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,9 +44,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error)));
+        ref.read(appMessageProvider.notifier).showError(error);
       }
     }
   }
@@ -62,9 +61,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     } else if (mounted) {
       final error = ref.read(authProvider).errorMessage;
       if (error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error)));
+        ref.read(appMessageProvider.notifier).showError(error);
       }
     }
   }

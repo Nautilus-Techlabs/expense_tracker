@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/category_model.dart';
 import 'category_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final categoryProvider = NotifierProvider<CategoryNotifier, CategoryState>(() {
   return CategoryNotifier();
@@ -31,7 +31,7 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
   Future<void> fetchCategories() async {
     state = state.copyWith(isLoading: true);
-    final result = await SupabaseHelper().fetchAllCategories(
+    final result = await ref.read(supabaseHelperProvider).fetchAllCategories(
       currentUserId: ref.read(authProvider).user!.id,
     );
 
@@ -68,7 +68,7 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await SupabaseHelper().createCategory(
+    final result = await ref.read(supabaseHelperProvider).createCategory(
       userId: user.id,
       name: name,
       type: type,

@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 
 import 'core/theme/theme_notifier.dart';
 import 'core/widgets/connectivity_wrapper.dart';
+import 'core/widgets/global_snackbar_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +48,9 @@ class ExpenseTrackerApp extends ConsumerWidget {
           title: 'Expense Tracker',
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
-            return ConnectivityWrapper(child: child!);
+            return GlobalSnackbarListener(
+              child: ConnectivityWrapper(child: child!),
+            );
           },
 
           // Light Theme

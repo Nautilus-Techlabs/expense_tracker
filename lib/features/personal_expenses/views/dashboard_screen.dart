@@ -10,11 +10,11 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
-import '../models/transaction_model.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/budget_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -41,10 +41,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(transactionProvider);
     final budgetState = ref.watch(budgetProvider);
     final user = ref.watch(authProvider).user;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final stats = ref.watch(dashboardStatsProvider);
 
     String initials = '??';
@@ -58,9 +58,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _onRefresh,
@@ -137,9 +135,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   'Recent Transactions',
                   style: context.appTexts.headingMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 UIHelpers.verticalSpace(16),
@@ -150,9 +146,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Text(
                       "No transactions yet.",
                       style: context.appTexts.bodyMedium.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   )
@@ -182,9 +176,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Text(
                           'See all transactions',
                           style: context.appTexts.bodyMedium.copyWith(
-                            color: isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.primary,
+                            color: context.colors.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -192,9 +184,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Icon(
                           Icons.arrow_forward_rounded,
                           size: 16.sp,
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.primary,
+                          color: context.colors.primary,
                         ),
                       ],
                     ),
@@ -243,10 +233,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(32.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -325,10 +315,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -350,9 +340,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8.h,
-              backgroundColor: isDark
-                  ? AppColors.borderDark
-                  : AppColors.borderLight,
+              backgroundColor: context.colors.border,
               color: progress > 0.9 ? AppColors.expense : AppColors.primary,
             ),
           ),
@@ -378,10 +366,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(32.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -406,7 +394,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Container(
                 height: 40.h,
                 width: 1.w,
-                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                color: context.colors.border,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,7 +431,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Icon(
                   Icons.arrow_forward_rounded,
                   size: 16.sp,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  color: context.colors.primary,
                 ),
               ],
             ),
@@ -460,7 +448,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         color: isDark ? AppColors.cardDark : AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: context.colors.border,
         ),
       ),
       child: Column(
@@ -484,7 +472,7 @@ Widget _buildCirclesCard(bool isDark, BuildContext context) {
   return Container(
     padding: EdgeInsets.all(24.w),
     decoration: BoxDecoration(
-      color: isDark ? AppColors.cardDark : AppColors.cardLight,
+      color: context.colors.card,
       borderRadius: BorderRadius.circular(32.r),
     ),
     child: Column(
@@ -509,7 +497,7 @@ Widget _buildCirclesCard(bool isDark, BuildContext context) {
             Container(
               height: 40.h,
               width: 1.w,
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              color: context.colors.border,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,7 +533,7 @@ Widget _buildCirclesCard(bool isDark, BuildContext context) {
               Icon(
                 Icons.arrow_forward_rounded,
                 size: 16.sp,
-                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                color: context.colors.primary,
               ),
             ],
           ),
@@ -567,7 +555,7 @@ Widget _buildMiniStatCard(
       color: isDark ? AppColors.cardDark : AppColors.backgroundLight,
       borderRadius: BorderRadius.circular(24.r),
       border: Border.all(
-        color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        color: context.colors.border,
       ),
     ),
     child: Column(

@@ -9,6 +9,7 @@ import '../../../core/utils/ui_helpers.dart';
 import '../../../services/connectivity_provider.dart';
 import '../models/account_model.dart';
 import '../viewmodels/account_notifier.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class AddAccountScreen extends ConsumerStatefulWidget {
   const AddAccountScreen({super.key});
@@ -76,17 +77,13 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accountState = ref.watch(accountProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final textPrimary = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
-    final textSecondary = isDark
-        ? AppColors.textSecondaryDark
-        : AppColors.textSecondaryLight;
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
-    final cardBg = isDark ? AppColors.cardDark : Colors.white;
+    final accountState = ref.watch(accountProvider);
+    final bg = context.colors.background;
+    final textPrimary = context.colors.textPrimary;
+    final textSecondary = context.colors.textSecondary;
+    final borderColor = context.colors.border;
+    final cardBg = context.colors.card;
 
     return Scaffold(
       backgroundColor: bg,
@@ -238,8 +235,8 @@ class _TypeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeColor = AppColors.primary;
-    final inactiveColor = isDark ? AppColors.cardDark : Colors.white;
-    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final inactiveColor = context.colors.card;
+    final borderColor = context.colors.border;
 
     return Expanded(
       child: GestureDetector(
@@ -261,9 +258,7 @@ class _TypeChip extends StatelessWidget {
                 icon,
                 color: isSelected
                     ? activeColor
-                    : (isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight),
+                    : (context.colors.textSecondary),
                 size: 24.sp,
               ),
               UIHelpers.verticalSpace(8),
@@ -272,9 +267,7 @@ class _TypeChip extends StatelessWidget {
                 style: context.appTexts.bodySmall.copyWith(
                   color: isSelected
                       ? activeColor
-                      : (isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight),
+                      : (context.colors.textPrimary),
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
@@ -307,12 +300,8 @@ class _InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textPrimary = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
-    final textSecondary = isDark
-        ? AppColors.textSecondaryDark
-        : AppColors.textSecondaryLight;
+    final textPrimary = context.colors.textPrimary;
+    final textSecondary = context.colors.textSecondary;
 
     return Container(
       decoration: BoxDecoration(

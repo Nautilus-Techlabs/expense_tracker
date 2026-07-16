@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -68,9 +69,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (themeMode == ThemeMode.dark) themeLabel = 'Dark';
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -86,9 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       icon: Icon(
                         Icons.arrow_back_ios_rounded,
                         size: 20.sp,
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
+                        color: context.colors.textPrimary,
                       ),
                       onPressed: () => context.pop(),
                     ),
@@ -96,9 +93,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: Text(
                         'Profile',
                         style: context.appTexts.displayMedium.copyWith(
-                          color: isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight,
+                          color: context.colors.textPrimary,
                           fontSize: 28.sp,
                         ),
                       ),
@@ -129,9 +124,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text(
                 user?.fullName ?? 'Guest User',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: context.colors.textPrimary,
                   fontSize: 20.sp,
                 ),
               ),
@@ -139,9 +132,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text(
                 user?.email ?? 'No email linked',
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                 ),
               ),
               UIHelpers.verticalSpace(12),
@@ -171,9 +162,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Text(
                             'ACCOUNTS',
                             style: context.appTexts.bodySmall.copyWith(
-                              color: isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
+                              color: context.colors.textSecondary,
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.2,
@@ -183,9 +172,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Text(
                             accountsCount.toString(),
                             style: context.appTexts.displayMedium.copyWith(
-                              color: isDark
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.textPrimaryLight,
+                              color: context.colors.textPrimary,
                               fontSize: 18.sp,
                             ),
                           ),
@@ -195,9 +182,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Container(
                       width: 1,
                       height: 40.h,
-                      color: isDark
-                          ? AppColors.borderDark
-                          : AppColors.borderLight,
+                      color: context.colors.border,
                     ),
                     // Expanded(
                     //   child: Column(
@@ -398,7 +383,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showBudgetDialog(BuildContext context, WidgetRef ref) {
     final budgetState = ref.read(budgetProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = TextEditingController(
       text: budgetState.budget?.amount.toStringAsFixed(0) ?? '',
     );
@@ -406,7 +390,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+        backgroundColor: context.colors.card,
         title: Text('Monthly Budget', style: context.appTexts.heading),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -415,9 +399,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Text(
               'Set your spending limit for ${DateFormat('MMMM').format(DateTime.now())}. This helps you stay on track with your financial goals.',
               style: context.appTexts.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+                color: context.colors.textSecondary,
               ),
             ),
             UIHelpers.verticalSpace(16),
@@ -427,9 +409,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 decimal: true,
               ),
               style: context.appTexts.bodyMedium.copyWith(
-                color: isDark
-                    ? AppColors.textPrimaryDark
-                    : AppColors.textPrimaryLight,
+                color: context.colors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: 'Enter amount',
@@ -445,9 +425,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Text(
               'Cancel',
               style: context.appTexts.bodyMedium.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+                color: context.colors.textSecondary,
               ),
             ),
           ),
@@ -482,7 +460,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+        backgroundColor: context.colors.card,
         title: Text('Choose Appearance', style: context.appTexts.heading),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -538,14 +516,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       onTap: onTap,
       leading: Icon(
         icon,
-        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+        color: context.colors.textPrimary,
       ),
       title: Text(
         label,
         style: context.appTexts.bodyMedium.copyWith(
-          color: isDark
-              ? AppColors.textPrimaryDark
-              : AppColors.textPrimaryLight,
+          color: context.colors.textPrimary,
         ),
       ),
       trailing: isSelected
@@ -562,9 +538,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Text(
             title,
             style: context.appTexts.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
@@ -574,7 +548,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Expanded(
             child: Container(
               height: 1,
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              color: context.colors.border,
             ),
           ),
         ],
@@ -599,18 +573,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Icon(
               icon,
               size: 24.sp,
-              color: isDark
-                  ? AppColors.textPrimaryDark
-                  : AppColors.textPrimaryLight,
+              color: context.colors.textPrimary,
             ),
             UIHelpers.horizontalSpace(16),
             Expanded(
               child: Text(
                 title,
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
+                  color: context.colors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -619,9 +589,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text(
                 trailingText,
                 style: context.appTexts.bodySmall.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                   fontSize: 11.sp,
                 ),
               ),
@@ -630,9 +598,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Icon(
               Icons.chevron_right_rounded,
               size: 16.sp,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+              color: context.colors.textSecondary,
             ),
           ],
         ),

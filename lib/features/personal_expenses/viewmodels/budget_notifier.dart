@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/budget_model.dart';
 import 'budget_state.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 
 final budgetProvider = NotifierProvider<BudgetNotifier, BudgetState>(() {
   return BudgetNotifier();
@@ -25,7 +25,7 @@ class BudgetNotifier extends Notifier<BudgetState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await SupabaseHelper().fetchMonthlyBudget(userId: user.id);
+    final result = await ref.read(supabaseHelperProvider).fetchMonthlyBudget(userId: user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -53,13 +53,13 @@ class BudgetNotifier extends Notifier<BudgetState> {
 
     late final Future<dynamic> resultFuture;
     if (existingBudget != null) {
-      resultFuture = SupabaseHelper().updateMonthlyBudget(
+      resultFuture = ref.read(supabaseHelperProvider).updateMonthlyBudget(
         userId: user.id,
         amount: amount,
         month: normalizedMonth,
       );
     } else {
-      resultFuture = SupabaseHelper().createMonthlyBudget(
+      resultFuture = ref.read(supabaseHelperProvider).createMonthlyBudget(
         userId: user.id,
         amount: amount,
         month: normalizedMonth,

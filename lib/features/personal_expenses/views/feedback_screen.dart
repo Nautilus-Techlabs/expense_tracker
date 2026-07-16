@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/primary_button.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -77,10 +78,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -89,14 +89,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           icon: Icon(
             Icons.arrow_back_ios_rounded,
             size: 20.sp,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Feedback',
           style: context.appTexts.heading.copyWith(
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.colors.textPrimary,
             fontSize: 18.sp,
           ),
         ),
@@ -117,7 +117,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   color: AppColors.primary.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.feedback_outlined, size: 34.sp, color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                child: Icon(Icons.feedback_outlined, size: 34.sp, color: context.colors.primary),
               ),
             ),
             UIHelpers.verticalSpace(20),
@@ -127,7 +127,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               child: Text(
                 'How can we improve?',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                  color: context.colors.primary,
                   fontSize: 24.sp,
                 ),
                 textAlign: TextAlign.center,
@@ -138,7 +138,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               child: Text(
                 'Share your thoughts, report a bug or suggest a new feature.',
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -150,7 +150,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Text(
               'Type',
               style: context.appTexts.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),
@@ -171,7 +171,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primary
-                            : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                            : (context.colors.border),
                       ),
                     ),
                     child: Text(
@@ -179,7 +179,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       style: context.appTexts.bodySmall.copyWith(
                         color: isSelected
                             ? Colors.white
-                            : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                            : (context.colors.textPrimary),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       ),
                     ),
@@ -193,7 +193,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Text(
               'Message',
               style: context.appTexts.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),
@@ -201,22 +201,22 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             UIHelpers.verticalSpace(10),
             Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.cardDark : Colors.white,
+                color: context.colors.card,
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
-                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  color: context.colors.border,
                 ),
               ),
               child: TextField(
                 controller: _feedbackController,
                 maxLines: 8,
                 style: context.appTexts.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: context.colors.textPrimary,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Type your message here...',
                   hintStyle: context.appTexts.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.colors.textSecondary,
                   ),
                   contentPadding: EdgeInsets.all(20.w),
                   border: InputBorder.none,
@@ -238,7 +238,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               child: Text(
                 'Or email us at hi@nautilustechlabs.com',
                 style: context.appTexts.bodySmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
