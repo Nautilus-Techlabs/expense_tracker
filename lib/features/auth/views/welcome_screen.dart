@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     UIHelpers.verticalSpace(20),
                     Text(
-                      'Finia',
+                      'Expense Lite',
                       style: context.appTexts.displayLarge.copyWith(
                         color: textPrimary,
                         fontSize: 36.sp,

@@ -100,7 +100,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             ),
             UIHelpers.verticalSpace(24),
             Text(
-              'Finia',
+              'Expense Lite',
               style: context.appTexts.displayLarge.copyWith(
                 color: context.colors.textPrimary,
               ),

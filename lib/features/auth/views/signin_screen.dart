@@ -121,7 +121,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     UIHelpers.verticalSpace(6),
                     Text(
-                      'Sign in to continue to Finia',
+                      'Sign in to continue to Expense Lite',
                       style: context.appTexts.bodyMedium.copyWith(
                         color: textSecondary,
                       ),

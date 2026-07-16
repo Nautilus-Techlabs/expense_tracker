@@ -16,6 +16,7 @@ import '../../features/personal_expenses/views/detailed_transaction.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
+import '../../features/personal_expenses/views/faq_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -34,6 +35,7 @@ class AppRouter {
   static const String addAccount = '/add-account';
   static const String addBudget = '/add-budget';
   static const String categoryBreakdown = '/category-breakdown';
+  static const String faq = '/faq';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -113,6 +115,10 @@ class AppRouter {
             endDate: args['endDate']!,
           );
         },
+      ),
+      GoRoute(
+        path: faq,
+        builder: (context, state) => const FaqScreen(),
       ),
     ],
   );

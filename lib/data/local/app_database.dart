@@ -2,13 +2,10 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
-
-// TODO: Define the new schema tables for the Finia design here.
-// e.g., Transactions, Circles, Members, Accounts, Categories, etc.
 
 @DriftDatabase(tables: [])
 class AppDatabase extends _$AppDatabase {
@@ -21,7 +18,7 @@ class AppDatabase extends _$AppDatabase {
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'finia_db.sqlite'));
+    final file = File(p.join(dbFolder.path, 'expense_lite_db.sqlite'));
     return NativeDatabase(file);
   });
 }

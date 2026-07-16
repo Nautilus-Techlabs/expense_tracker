@@ -45,7 +45,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
       builder: (context, child) {
         return MaterialApp.router(
           routerConfig: AppRouter.router,
-          title: 'Expense Tracker',
+          title: 'Expense Lite',
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             return GlobalSnackbarListener(

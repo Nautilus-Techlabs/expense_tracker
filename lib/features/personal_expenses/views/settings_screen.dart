@@ -10,9 +10,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -316,9 +316,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 isDark: isDark,
                 onTap: exportState.isLoading
                     ? null
-                    : () => ref
-                          .read(exportProvider.notifier)
-                          .exportCsv(context),
+                    : () =>
+                          ref.read(exportProvider.notifier).exportCsv(context),
               ),
 
               UIHelpers.verticalSpace(16),
@@ -328,22 +327,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.help_outline_rounded,
                 title: 'Help & FAQ',
                 isDark: isDark,
+                onTap: () => context.push(AppRouter.faq),
               ),
               _buildListItem(
                 context: context,
                 icon: Icons.star_border_rounded,
-                title: 'Rate Finia',
-                isDark: isDark,
-              ),
-              _buildListItem(
-                context: context,
-                icon: Icons.info_outline_rounded,
-                title: 'About',
-                trailingText: 'v1.0.0',
+                title: 'Rate Expense Lite',
                 isDark: isDark,
               ),
 
-              UIHelpers.verticalSpace(48),
+              // _buildListItem(
+              //   context: context,
+              //   icon: Icons.info_outline_rounded,
+              //   title: 'About',
+              //   trailingText: 'v1.0.0',
+              //   isDark: isDark,
+              // ),
 
               // ── Log Out Button ──
               Padding(
@@ -514,10 +513,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }) {
     return ListTile(
       onTap: onTap,
-      leading: Icon(
-        icon,
-        color: context.colors.textPrimary,
-      ),
+      leading: Icon(icon, color: context.colors.textPrimary),
       title: Text(
         label,
         style: context.appTexts.bodyMedium.copyWith(
@@ -545,12 +541,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           UIHelpers.horizontalSpace(16),
-          Expanded(
-            child: Container(
-              height: 1,
-              color: context.colors.border,
-            ),
-          ),
+          Expanded(child: Container(height: 1, color: context.colors.border)),
         ],
       ),
     );
@@ -570,11 +561,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 24.sp,
-              color: context.colors.textPrimary,
-            ),
+            Icon(icon, size: 24.sp, color: context.colors.textPrimary),
             UIHelpers.horizontalSpace(16),
             Expanded(
               child: Text(

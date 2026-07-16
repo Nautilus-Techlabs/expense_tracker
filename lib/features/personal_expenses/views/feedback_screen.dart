@@ -43,7 +43,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       scheme: 'mailto',
       path: 'hi@nautilustechlabs.com',
       query: _encodeQuery({
-        'subject': 'Finia App – $_selectedType',
+        'subject': 'Expense Lite App – $_selectedType',
         'body': feedbackText,
       }),
     );
