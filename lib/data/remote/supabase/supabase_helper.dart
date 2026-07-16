@@ -194,7 +194,8 @@ class SupabaseHelper {
       final response = await supabase
           .from(SupabaseKeys.tableTransactions)
           .select()
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .eq('is_deleted', false);
       final transactions = response
           .map((json) => TransactionModel.fromJson(json))
           .toList();

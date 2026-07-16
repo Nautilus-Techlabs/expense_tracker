@@ -9,6 +9,10 @@ final reportProvider = NotifierProvider<ReportNotifier, ReportState>(() {
 });
 
 class ReportNotifier extends Notifier<ReportState> {
+  // Cache of last-used params so refresh() can replay the last fetch.
+  Map<String, dynamic>? _lastReportParams;
+  Map<String, dynamic>? _lastBreakdownParams;
+
   @override
   ReportState build() {
     return ReportState();
@@ -24,6 +28,16 @@ class ReportNotifier extends Notifier<ReportState> {
   }) async {
     final user = ref.read(authProvider).user;
     if (user == null) return;
+
+    // Cache the params for later refresh
+    _lastReportParams = {
+      'startDate': startDate,
+      'endDate': endDate,
+      'groupBy': groupBy,
+      'fillGaps': fillGaps,
+      'topCategories': topCategories,
+      'includeZeroAcc': includeZeroAcc,
+    };
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
@@ -56,6 +70,14 @@ class ReportNotifier extends Notifier<ReportState> {
     final user = ref.read(authProvider).user;
     if (user == null) return;
 
+    // Cache the params for later refresh
+    _lastBreakdownParams = {
+      'startDate': startDate,
+      'endDate': endDate,
+      'topCategories': topCategories,
+      'groupByOthers': groupByOthers,
+    };
+
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
     final result = await SupabaseHelper().getSpendingBreakdown(
@@ -75,4 +97,28 @@ class ReportNotifier extends Notifier<ReportState> {
           state = state.copyWith(isLoading: false, breakdown: () => breakdown),
     );
   }
+
+  /// Re-fetches reports and spending breakdown using the last-used params.
+  /// Called automatically after any transaction mutation.
+  void refresh() {
+    if (_lastReportParams != null) {
+      fetchReports(
+        startDate: _lastReportParams!['startDate'] as DateTime,
+        endDate: _lastReportParams!['endDate'] as DateTime,
+        groupBy: _lastReportParams!['groupBy'] as String,
+        fillGaps: _lastReportParams!['fillGaps'] as bool,
+        topCategories: _lastReportParams!['topCategories'] as int,
+        includeZeroAcc: _lastReportParams!['includeZeroAcc'] as bool,
+      );
+    }
+    if (_lastBreakdownParams != null) {
+      fetchSpendingBreakdown(
+        startDate: _lastBreakdownParams!['startDate'] as DateTime,
+        endDate: _lastBreakdownParams!['endDate'] as DateTime,
+        topCategories: _lastBreakdownParams!['topCategories'] as int,
+        groupByOthers: _lastBreakdownParams!['groupByOthers'] as bool,
+      );
+    }
+  }
 }
+

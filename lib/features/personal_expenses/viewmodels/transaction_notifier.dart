@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/remote/supabase/supabase_helper.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/transaction_payload.dart';
+import 'account_notifier.dart';
+import 'budget_notifier.dart';
+import 'report_notifier.dart';
 import 'transaction_state.dart';
 
 final transactionProvider =
@@ -45,6 +48,14 @@ class TransactionNotifier extends Notifier<TransactionState> {
     await fetchTransactions();
   }
 
+  /// Re-fetches accounts, budget and reports after any mutation so all screens
+  /// (dashboard, accounts list, budget tracker, reports) stay in sync.
+  void _refreshDependentProviders() {
+    ref.read(accountProvider.notifier).fetchAccounts();
+    ref.read(budgetProvider.notifier).fetchBudget();
+    ref.read(reportProvider.notifier).refresh();
+  }
+
   Future<bool> addTransaction(TransactionPayload payload) async {
     final user = ref.read(authProvider).user;
     if (user == null) return false;
@@ -65,6 +76,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
         final newTransactions = [transaction, ...state.transactions];
         newTransactions.sort((a, b) => b.txnDate.compareTo(a.txnDate));
         state = state.copyWith(isLoading: false, transactions: newTransactions);
+        _refreshDependentProviders();
         return true;
       },
     );
@@ -95,6 +107,7 @@ class TransactionNotifier extends Notifier<TransactionState> {
         }).toList();
         updatedList.sort((a, b) => b.txnDate.compareTo(a.txnDate));
         state = state.copyWith(isLoading: false, transactions: updatedList);
+        _refreshDependentProviders();
         return true;
       },
     );
@@ -120,8 +133,10 @@ class TransactionNotifier extends Notifier<TransactionState> {
             .where((t) => t.id != transactionId)
             .toList();
         state = state.copyWith(isLoading: false, transactions: filtered);
+        _refreshDependentProviders();
         return true;
       },
     );
   }
 }
+
