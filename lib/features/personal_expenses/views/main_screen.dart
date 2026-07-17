@@ -1,16 +1,16 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/navigation_provider.dart';
+import 'add_transaction_screen.dart';
 import 'circles_screen.dart';
 import 'dashboard_screen.dart';
 import 'reports_screen.dart';
 import 'transaction_list_screen.dart';
-import 'add_transaction_screen.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -39,10 +39,7 @@ class MainScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: IndexedStack(
-        index: selectedIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: selectedIndex, children: _screens),
       floatingActionButton: Container(
         height: 56.w,
         width: 56.w,
@@ -61,7 +58,10 @@ class MainScreen extends ConsumerWidget {
   }
 
   Widget _buildCustomNavBar(
-      BuildContext context, WidgetRef ref, int selectedIndex) {
+    BuildContext context,
+    WidgetRef ref,
+    int selectedIndex,
+  ) {
     return BottomAppBar(
       color: context.colors.background,
       elevation: 0,
@@ -71,10 +71,7 @@ class MainScreen extends ConsumerWidget {
         height: 60.h,
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: context.colors.border,
-              width: 1,
-            ),
+            top: BorderSide(color: context.colors.border, width: 1),
           ),
         ),
         child: Row(
