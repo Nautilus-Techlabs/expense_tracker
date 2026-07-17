@@ -1,4 +1,9 @@
+import 'dart:ui';
+
 import 'package:expense_tracker/core/utils/secrets.dart';
+import 'package:expense_tracker/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,22 +12,28 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_router.dart';
 import 'core/theme/app_theme.dart';
-
 import 'core/theme/theme_notifier.dart';
 import 'core/widgets/connectivity_wrapper.dart';
 import 'core/widgets/global_snackbar_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Parser engine initialization removed.
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   await Supabase.initialize(
     url: AppSecrets.apiUrl,
     publishableKey: AppSecrets.publishableKey,
   );
 
-  // Set preferred orientations
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
