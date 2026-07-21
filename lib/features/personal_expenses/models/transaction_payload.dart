@@ -33,18 +33,11 @@ class TransactionPayload {
 
   @JsonKey(name: 'reimbursement_ref_id')
   final int? reimbursementRefId;
-
-  @JsonKey(name: 'is_credit_card_txn')
-  final bool isCreditCardTxn;
-
   @JsonKey(name: 'is_deleted')
   final bool isDeleted;
 
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
-
-  @JsonKey(name: 'is_synced')
-  final bool isSynced;
 
   const TransactionPayload({
     required this.userId,
@@ -58,10 +51,8 @@ class TransactionPayload {
     this.isCircleTransaction = false,
     this.isReimbursement = false,
     this.reimbursementRefId,
-    this.isCreditCardTxn = false,
     this.isDeleted = false,
     this.deletedAt,
-    this.isSynced = false,
   });
 
   factory TransactionPayload.fromJson(Map<String, dynamic> json) =>

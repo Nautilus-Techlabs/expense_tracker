@@ -49,9 +49,6 @@ class AccountModel {
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
 
-  @JsonKey(name: 'is_synced')
-  final bool isSynced;
-
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
@@ -71,7 +68,7 @@ class AccountModel {
     required this.isActive,
     required this.isDeleted,
     this.deletedAt,
-    required this.isSynced,
+
     required this.createdAt,
     required this.updatedAt,
   });

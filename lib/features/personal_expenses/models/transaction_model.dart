@@ -39,17 +39,11 @@ class TransactionModel {
   @JsonKey(name: 'reimbursement_ref_id')
   final String? reimbursementRefId;
 
-  @JsonKey(name: 'is_credit_card_txn')
-  final bool isCreditCardTxn;
-
   @JsonKey(name: 'is_deleted')
   final bool isDeleted;
 
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
-
-  @JsonKey(name: 'is_synced')
-  final bool isSynced;
 
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
@@ -70,10 +64,8 @@ class TransactionModel {
     required this.isCircleTransaction,
     required this.isReimbursement,
     this.reimbursementRefId,
-    required this.isCreditCardTxn,
     required this.isDeleted,
     this.deletedAt,
-    required this.isSynced,
     required this.createdAt,
     required this.updatedAt,
   });

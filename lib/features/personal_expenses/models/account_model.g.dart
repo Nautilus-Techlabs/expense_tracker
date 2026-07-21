@@ -25,7 +25,6 @@ AccountModel _$AccountModelFromJson(Map<String, dynamic> json) => AccountModel(
   deletedAt: json['deleted_at'] == null
       ? null
       : DateTime.parse(json['deleted_at'] as String),
-  isSynced: json['is_synced'] as bool,
   createdAt: DateTime.parse(json['created_at'] as String),
   updatedAt: DateTime.parse(json['updated_at'] as String),
 );
@@ -44,7 +43,6 @@ Map<String, dynamic> _$AccountModelToJson(AccountModel instance) =>
       'is_active': instance.isActive,
       'is_deleted': instance.isDeleted,
       'deleted_at': instance.deletedAt?.toIso8601String(),
-      'is_synced': instance.isSynced,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
     };

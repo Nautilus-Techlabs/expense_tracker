@@ -20,12 +20,10 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       isCircleTransaction: json['is_circle_transaction'] as bool,
       isReimbursement: json['is_reimbursement'] as bool,
       reimbursementRefId: json['reimbursement_ref_id'] as String?,
-      isCreditCardTxn: json['is_credit_card_txn'] as bool,
       isDeleted: json['is_deleted'] as bool,
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
-      isSynced: json['is_synced'] as bool,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -44,10 +42,8 @@ Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) =>
       'is_circle_transaction': instance.isCircleTransaction,
       'is_reimbursement': instance.isReimbursement,
       'reimbursement_ref_id': instance.reimbursementRefId,
-      'is_credit_card_txn': instance.isCreditCardTxn,
       'is_deleted': instance.isDeleted,
       'deleted_at': instance.deletedAt?.toIso8601String(),
-      'is_synced': instance.isSynced,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
     };

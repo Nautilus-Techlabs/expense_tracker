@@ -1,15 +1,14 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 // ─── Data Models (local, until a real backend is wired up) ────────────────────
-
-enum CircleType { oneTime, ongoing }
 
 class CircleMember {
   final String initials;
@@ -94,89 +93,83 @@ class CirclesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
-        child: Center(
-          child: Text(
-            "Coming Soon",
-            style: context.appTexts.displayMedium.copyWith(fontSize: 20.sp),
-          ),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    UIHelpers.verticalSpace(24),
+
+                    // ── Header ──────────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Circles',
+                            style: context.appTexts.displayMedium.copyWith(
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.primary,
+                              fontSize: 32.sp,
+                            ),
+                          ),
+                          _AddButton(isDark: isDark),
+                        ],
+                      ),
+                    ),
+                    UIHelpers.verticalSpace(20),
+
+                    // ── Owed / Owe Summary ───────────────────────────────
+                    _SummaryBanner(isDark: isDark),
+                    UIHelpers.verticalSpace(24),
+
+                    // ── Circle Cards ─────────────────────────────────────
+                    ..._circles.map(
+                      (c) => _CircleCard(circle: c, isDark: isDark),
+                    ),
+                    UIHelpers.verticalSpace(16),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Create a new circle Button ───────────────────────────────
+            Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
+              child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: isDark ? AppColors.borderDark : AppColors.primary,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32.r),
+                  ),
+                  minimumSize: Size(double.infinity, 52.h),
+                ),
+                child: Text(
+                  'Create a new circle',
+                  style: context.appTexts.bodyLarge.copyWith(
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        // Column(
-        //   children: [
-        //     Expanded(
-        //       child: SingleChildScrollView(
-        //         physics: const BouncingScrollPhysics(),
-        //         child: Column(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           children: [
-        //             UIHelpers.verticalSpace(24),
-        //
-        //             // ── Header ──────────────────────────────────────────
-        //             Padding(
-        //               padding: EdgeInsets.symmetric(horizontal: 24.w),
-        //               child: Row(
-        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                 children: [
-        //                   Text(
-        //                     'Circles',
-        //                     style: context.appTexts.displayMedium.copyWith(
-        //                       color: isDark
-        //                           ? AppColors.textPrimaryDark
-        //                           : AppColors.primary,
-        //                       fontSize: 32.sp,
-        //                     ),
-        //                   ),
-        //                   _AddButton(isDark: isDark),
-        //                 ],
-        //               ),
-        //             ),
-        //             UIHelpers.verticalSpace(20),
-        //
-        //             // ── Owed / Owe Summary ───────────────────────────────
-        //             _SummaryBanner(isDark: isDark),
-        //             UIHelpers.verticalSpace(24),
-        //
-        //             // ── Circle Cards ─────────────────────────────────────
-        //             ..._circles.map(
-        //               (c) => _CircleCard(circle: c, isDark: isDark),
-        //             ),
-        //             UIHelpers.verticalSpace(16),
-        //           ],
-        //         ),
-        //       ),
-        //     ),
-        //
-        //     // ── Create a new circle Button ───────────────────────────────
-        //     Padding(
-        //       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
-        //       child: OutlinedButton(
-        //         onPressed: () {},
-        //         style: OutlinedButton.styleFrom(
-        //           side: BorderSide(
-        //             color: isDark ? AppColors.borderDark : AppColors.primary,
-        //             width: 1.5,
-        //           ),
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(32.r),
-        //           ),
-        //           minimumSize: Size(double.infinity, 52.h),
-        //         ),
-        //         child: Text(
-        //           'Create a new circle',
-        //           style: context.appTexts.bodyLarge.copyWith(
-        //             color: isDark
-        //                 ? AppColors.textPrimaryDark
-        //                 : AppColors.primary,
-        //             fontWeight: FontWeight.w500,
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
       ),
     );
   }
@@ -466,10 +459,7 @@ class _CircleCard extends StatelessWidget {
               ),
               if (circle.lastActivity.isNotEmpty) ...[
                 UIHelpers.verticalSpace(16),
-                Divider(
-                  height: 1,
-                  color: context.colors.border,
-                ),
+                Divider(height: 1, color: context.colors.border),
                 UIHelpers.verticalSpace(12),
                 Row(
                   children: [
@@ -514,18 +504,12 @@ class _TypeBadge extends StatelessWidget {
             ? AppColors.income.withAlpha(isDark ? 60 : 30)
             : (isDark ? AppColors.cardDark : const Color(0xFFF0F0E9)),
         borderRadius: BorderRadius.circular(20.r),
-        border: isOngoing
-            ? null
-            : Border.all(
-                color: context.colors.border,
-              ),
+        border: isOngoing ? null : Border.all(color: context.colors.border),
       ),
       child: Text(
         label,
         style: context.appTexts.bodySmall.copyWith(
-          color: isOngoing
-              ? AppColors.income
-              : (context.colors.textSecondary),
+          color: isOngoing ? AppColors.income : (context.colors.textSecondary),
           fontWeight: FontWeight.w700,
           fontSize: 10.sp,
           letterSpacing: 0.5,

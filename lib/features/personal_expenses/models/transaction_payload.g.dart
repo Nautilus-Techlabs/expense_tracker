@@ -21,12 +21,10 @@ TransactionPayload _$TransactionPayloadFromJson(Map<String, dynamic> json) =>
       isCircleTransaction: json['is_circle_transaction'] as bool? ?? false,
       isReimbursement: json['is_reimbursement'] as bool? ?? false,
       reimbursementRefId: (json['reimbursement_ref_id'] as num?)?.toInt(),
-      isCreditCardTxn: json['is_credit_card_txn'] as bool? ?? false,
       isDeleted: json['is_deleted'] as bool? ?? false,
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
-      isSynced: json['is_synced'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TransactionPayloadToJson(TransactionPayload instance) =>
@@ -42,8 +40,6 @@ Map<String, dynamic> _$TransactionPayloadToJson(TransactionPayload instance) =>
       'is_circle_transaction': instance.isCircleTransaction,
       'is_reimbursement': instance.isReimbursement,
       'reimbursement_ref_id': ?instance.reimbursementRefId,
-      'is_credit_card_txn': instance.isCreditCardTxn,
       'is_deleted': instance.isDeleted,
       'deleted_at': ?instance.deletedAt?.toIso8601String(),
-      'is_synced': instance.isSynced,
     };

@@ -5,18 +5,18 @@ import 'package:expense_tracker/features/personal_expenses/views/splash_screen.d
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/circle/views/circle_details_screen.dart';
 import '../../features/personal_expenses/models/transaction_model.dart';
 import '../../features/personal_expenses/views/accounts_settings_screen.dart';
 import '../../features/personal_expenses/views/add_account_screen.dart';
 import '../../features/personal_expenses/views/add_budget_screen.dart';
 import '../../features/personal_expenses/views/categories_settings_screen.dart';
 import '../../features/personal_expenses/views/category_breakdown_screen.dart';
-import '../../features/personal_expenses/views/circle_details_screen.dart';
 import '../../features/personal_expenses/views/detailed_transaction.dart';
+import '../../features/personal_expenses/views/faq_screen.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
-import '../../features/personal_expenses/views/faq_screen.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -116,10 +116,7 @@ class AppRouter {
           );
         },
       ),
-      GoRoute(
-        path: faq,
-        builder: (context, state) => const FaqScreen(),
-      ),
+      GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
     ],
   );
 }

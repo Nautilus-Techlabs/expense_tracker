@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../services/connectivity_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
@@ -12,7 +13,6 @@ import '../models/transaction_payload.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
@@ -103,9 +103,7 @@ class _AddTransactionBottomSheetState
       txnDate: _selectedDate,
       isCircleTransaction: false,
       isReimbursement: false,
-      isCreditCardTxn: false,
       isDeleted: false,
-      isSynced: false,
     );
 
     final success = await ref
@@ -156,7 +154,9 @@ class _AddTransactionBottomSheetState
     final txState = ref.watch(transactionProvider);
 
     // Filter categories by type using provider
-    final filteredCategories = ref.watch(categoriesByTypeProvider(_selectedType));
+    final filteredCategories = ref.watch(
+      categoriesByTypeProvider(_selectedType),
+    );
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,
@@ -439,9 +439,7 @@ class _AddTransactionBottomSheetState
           child: Text(
             label,
             style: context.appTexts.bodyMedium.copyWith(
-              color: isSelected
-                  ? Colors.white
-                  : (context.colors.textSecondary),
+              color: isSelected ? Colors.white : (context.colors.textSecondary),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -465,17 +463,13 @@ class _AddTransactionBottomSheetState
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(24.r),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : (context.colors.border),
+            color: isSelected ? AppColors.primary : (context.colors.border),
           ),
         ),
         child: Text(
           label,
           style: context.appTexts.bodyMedium.copyWith(
-            color: isSelected
-                ? Colors.white
-                : (context.colors.textPrimary),
+            color: isSelected ? Colors.white : (context.colors.textPrimary),
             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
           ),
         ),
@@ -539,19 +533,12 @@ class _AddTransactionBottomSheetState
       padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: context.colors.border,
-            width: 1,
-          ),
+          bottom: BorderSide(color: context.colors.border, width: 1),
         ),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 24.sp,
-            color: context.colors.textSecondary,
-          ),
+          Icon(icon, size: 24.sp, color: context.colors.textSecondary),
           UIHelpers.horizontalSpace(16),
           Expanded(child: child),
         ],
