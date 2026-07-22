@@ -6,12 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../models/transaction_model.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;
@@ -30,7 +30,6 @@ class DetailedTransactionScreen extends ConsumerStatefulWidget {
 
 class _DetailedTransactionScreenState
     extends ConsumerState<DetailedTransactionScreen> {
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -41,11 +40,15 @@ class _DetailedTransactionScreenState
     final bool isCircleTransaction = widget.transaction.isCircleTransaction;
 
     // Resolve category name
-    final category = ref.watch(categoryProvider.notifier).getCategoryById(widget.transaction.categoryId);
+    final category = ref
+        .watch(categoryProvider.notifier)
+        .getCategoryById(widget.transaction.categoryId);
     final categoryName = category?.name ?? 'Uncategorized';
 
     // Resolve account name
-    final account = ref.watch(accountProvider.notifier).getAccountById(widget.transaction.accountId);
+    final account = ref
+        .watch(accountProvider.notifier)
+        .getAccountById(widget.transaction.accountId);
     final accountName = account?.name ?? 'Unknown Account';
 
     return Scaffold(
@@ -225,9 +228,7 @@ class _DetailedTransactionScreenState
   }) {
     final borderColor = context.colors.border;
     final labelColor = context.colors.textSecondary;
-    final resolvedValueColor =
-        valueColor ??
-        (context.colors.textPrimary);
+    final resolvedValueColor = valueColor ?? (context.colors.textPrimary);
 
     return Column(
       children: [
@@ -324,7 +325,9 @@ class _DetailedTransactionScreenState
         // Delete button
         Expanded(
           child: OutlinedButton(
-            onPressed: ref.watch(transactionProvider).isLoading ? null : () => _handleDelete(context),
+            onPressed: ref.watch(transactionProvider).isLoading
+                ? null
+                : () => _handleDelete(context),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: AppColors.expense, width: 1.5),
               shape: RoundedRectangleBorder(
@@ -554,6 +557,10 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
       categoryId: _selectedCategoryId,
       accountId: _selectedAccountId!,
       txnDate: _selectedDate,
+      isCircleTransaction: widget.transaction.isCircleTransaction,
+      isReimbursement: widget.transaction.isReimbursement,
+      isDeleted: widget.transaction.isDeleted,
+      paidByUserId: widget.transaction.userId,
     );
 
     final success = await ref
@@ -731,9 +738,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                   decoration: BoxDecoration(
                     color: context.colors.card,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: context.colors.border,
-                    ),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -764,9 +769,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                 decoration: BoxDecoration(
                   color: context.colors.card,
                   borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: context.colors.border,
-                  ),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
@@ -798,9 +801,7 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
                 decoration: BoxDecoration(
                   color: context.colors.card,
                   borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: context.colors.border,
-                  ),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int?>(
@@ -845,7 +846,9 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: ref.watch(transactionProvider).isLoading ? null : _save,
+                  onPressed: ref.watch(transactionProvider).isLoading
+                      ? null
+                      : _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -895,23 +898,17 @@ class _EditTransactionSheetState extends ConsumerState<_EditTransactionSheet> {
     return InputDecoration(
       hintText: hint,
       hintStyle: context.appTexts.bodyMedium.copyWith(
-        color:
-            (context.colors.textSecondary)
-                .withValues(alpha: 0.5),
+        color: (context.colors.textSecondary).withValues(alpha: 0.5),
       ),
       filled: true,
       fillColor: context.colors.card,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(
-          color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(
-          color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.r),

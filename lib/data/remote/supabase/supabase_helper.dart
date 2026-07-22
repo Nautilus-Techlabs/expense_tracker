@@ -35,7 +35,7 @@ class SupabaseHelper {
       final insertResponse = await supabase
           .from(SupabaseKeys.tableUsers)
           .insert({
-            'full_name': data.name,
+            'full_name': data.name.trim(),
             'email': data.email,
             'auth_id': user.id,
           })

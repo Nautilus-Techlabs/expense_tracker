@@ -20,7 +20,6 @@ AccountModel _$AccountModelFromJson(Map<String, dynamic> json) => AccountModel(
   lastResetAt: json['last_reset_at'] == null
       ? null
       : DateTime.parse(json['last_reset_at'] as String),
-  isActive: json['is_active'] as bool,
   isDeleted: json['is_deleted'] as bool,
   deletedAt: json['deleted_at'] == null
       ? null
@@ -40,7 +39,6 @@ Map<String, dynamic> _$AccountModelToJson(AccountModel instance) =>
       'opening_balance_date': instance.openingBalanceDate?.toIso8601String(),
       'billing_cycle_day': instance.billingCycleDay,
       'last_reset_at': instance.lastResetAt?.toIso8601String(),
-      'is_active': instance.isActive,
       'is_deleted': instance.isDeleted,
       'deleted_at': instance.deletedAt?.toIso8601String(),
       'created_at': instance.createdAt.toIso8601String(),

@@ -40,9 +40,6 @@ class AccountModel {
   @JsonKey(name: 'last_reset_at')
   final DateTime? lastResetAt;
 
-  @JsonKey(name: 'is_active')
-  final bool isActive;
-
   @JsonKey(name: 'is_deleted')
   final bool isDeleted;
 
@@ -65,7 +62,6 @@ class AccountModel {
     this.openingBalanceDate,
     this.billingCycleDay,
     this.lastResetAt,
-    required this.isActive,
     required this.isDeleted,
     this.deletedAt,
 

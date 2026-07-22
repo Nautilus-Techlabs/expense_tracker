@@ -14,6 +14,7 @@ TransactionPayload _$TransactionPayloadFromJson(Map<String, dynamic> json) =>
       circleId: (json['circle_id'] as num?)?.toInt(),
       type: json['type'] as String,
       amount: (json['amount'] as num).toDouble(),
+      paidByUserId: (json['paid_by_user_id'] as num).toInt(),
       note: json['note'] as String?,
       txnDate: json['txn_date'] == null
           ? null
@@ -39,6 +40,7 @@ Map<String, dynamic> _$TransactionPayloadToJson(TransactionPayload instance) =>
       'txn_date': ?instance.txnDate?.toIso8601String(),
       'is_circle_transaction': instance.isCircleTransaction,
       'is_reimbursement': instance.isReimbursement,
+      'paid_by_user_id': instance.paidByUserId,
       'reimbursement_ref_id': ?instance.reimbursementRefId,
       'is_deleted': instance.isDeleted,
       'deleted_at': ?instance.deletedAt?.toIso8601String(),

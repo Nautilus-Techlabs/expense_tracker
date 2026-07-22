@@ -104,6 +104,7 @@ class _AddTransactionBottomSheetState
       isCircleTransaction: false,
       isReimbursement: false,
       isDeleted: false,
+      paidByUserId: user.id,
     );
 
     final success = await ref
