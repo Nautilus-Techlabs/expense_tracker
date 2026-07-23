@@ -10,9 +10,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_router.dart';
 import '../models/reports_model.dart' as model;
-import '../../../../core/theme/app_colors_extension.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -22,7 +22,6 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +32,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final filterState = ref.read(reportFilterProvider);
     ref
         .read(reportProvider.notifier)
-        .fetchReports(startDate: filterState.startDate, endDate: filterState.endDate);
+        .fetchReports(
+          startDate: filterState.startDate,
+          endDate: filterState.endDate,
+        );
   }
 
   void _previousMonth() {
@@ -274,9 +276,7 @@ class _MonthlyTrendCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,9 +440,7 @@ class _SpendingBreakdownCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,9 +621,7 @@ class _ByAccountCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

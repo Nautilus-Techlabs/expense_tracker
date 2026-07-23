@@ -13,6 +13,7 @@ import 'package:expense_tracker/features/personal_expenses/models/category_model
 import 'package:expense_tracker/features/personal_expenses/models/reports_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
+import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -365,7 +366,7 @@ class SupabaseHelper {
   Future<Either<Failure, CategoryModel>> createCategory({
     required int userId,
     required String name,
-    required String type, // 'expense', 'income', 'both'
+    required CategoryType type,
     required String icon,
     required String color,
   }) async {
@@ -375,7 +376,7 @@ class SupabaseHelper {
           .insert({
             'user_id': userId,
             'name': name,
-            'type': type,
+            'type': type.name,
             'icon': icon,
             'color': color,
           })
@@ -495,7 +496,7 @@ class SupabaseHelper {
   Future<Either<Failure, int>> createCircle({
     required String name,
     String? description,
-    String type = 'ongoing',
+    CircleType type = CircleType.ongoing,
     double? budget,
     bool splitEnabled = false,
   }) async {
@@ -505,7 +506,7 @@ class SupabaseHelper {
         params: {
           'p_name': name,
           'p_description': description,
-          'p_type': type,
+          'p_type': type.name,
           'p_budget': budget,
           'p_split_enabled': splitEnabled,
         },
@@ -520,7 +521,7 @@ class SupabaseHelper {
   Future<Either<Failure, int>> addCircleMember({
     required int circleId,
     required int targetUserId,
-    String role = 'member',
+    CircleMemberRole role = CircleMemberRole.member,
   }) async {
     try {
       final response = await supabase.rpc(
@@ -528,7 +529,7 @@ class SupabaseHelper {
         params: {
           'p_circle_id': circleId,
           'p_target_user_id': targetUserId,
-          'p_role': role,
+          'p_role': role.name,
         },
       );
       return Right(response as int);
@@ -541,7 +542,7 @@ class SupabaseHelper {
   Future<Either<Failure, void>> changeMemberRole({
     required int circleId,
     required int targetUserId,
-    required String newRole,
+    required CircleMemberRole newRole,
   }) async {
     try {
       await supabase.rpc(
@@ -549,7 +550,7 @@ class SupabaseHelper {
         params: {
           'p_circle_id': circleId,
           'p_target_user_id': targetUserId,
-          'p_new_role': newRole,
+          'p_new_role': newRole.name,
         },
       );
       return const Right(null);

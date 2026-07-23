@@ -72,7 +72,7 @@ class CircleNotifier extends Notifier<CircleState> {
   Future<void> createCircle({
     required String name,
     String? description,
-    String type = 'ongoing',
+    CircleType type = CircleType.ongoing,
     double? budget,
     bool splitEnabled = false,
   }) async {
@@ -93,7 +93,7 @@ class CircleNotifier extends Notifier<CircleState> {
   Future<void> addCircleMember({
     required int circleId,
     required int targetUserId,
-    String role = 'member',
+    CircleMemberRole role = CircleMemberRole.member,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref.read(supabaseHelperProvider).addCircleMember(
@@ -110,7 +110,7 @@ class CircleNotifier extends Notifier<CircleState> {
   Future<void> changeMemberRole({
     required int circleId,
     required int targetUserId,
-    required String newRole,
+    required CircleMemberRole newRole,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref.read(supabaseHelperProvider).changeMemberRole(

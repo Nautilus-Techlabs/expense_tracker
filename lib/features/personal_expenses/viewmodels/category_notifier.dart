@@ -59,7 +59,7 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
   Future<bool> addCategory({
     required String name,
-    required String type, // 'expense', 'income', 'both'
+    required CategoryType type,
     required String icon,
     required String color,
   }) async {

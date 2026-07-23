@@ -176,7 +176,7 @@ class _AddCategoryBottomSheet extends ConsumerStatefulWidget {
 
 class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet> {
   final _nameController = TextEditingController();
-  String _selectedType = 'expense';
+  CategoryType _selectedType = CategoryType.expense;
   bool _nameError = false;
 
   @override
@@ -214,7 +214,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
     }
   }
 
-  Widget _buildSegment(String label, String value, bool isDark) {
+  Widget _buildSegment(String label, CategoryType value, bool isDark) {
     final isSelected = _selectedType == value;
     return Expanded(
       child: GestureDetector(
@@ -307,9 +307,9 @@ class _AddCategoryBottomSheetState extends ConsumerState<_AddCategoryBottomSheet
               ),
               child: Row(
                 children: [
-                  _buildSegment('Expense', 'expense', isDark),
-                  _buildSegment('Income', 'income', isDark),
-                  _buildSegment('Both', 'both', isDark),
+                  _buildSegment('Expense', CategoryType.expense, isDark),
+                  _buildSegment('Income', CategoryType.income, isDark),
+                  _buildSegment('Both', CategoryType.both, isDark),
                 ],
               ),
             ),
