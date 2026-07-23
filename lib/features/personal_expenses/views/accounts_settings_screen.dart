@@ -85,8 +85,6 @@ class _AccountListItem extends StatelessWidget {
     switch (account.type) {
       case AccountType.bank:
         return Icons.account_balance_rounded;
-      case AccountType.creditCard:
-        return Icons.credit_card_rounded;
       case AccountType.cash:
         return Icons.money_rounded;
     }

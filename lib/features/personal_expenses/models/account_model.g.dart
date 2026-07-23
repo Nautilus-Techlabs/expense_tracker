@@ -47,6 +47,5 @@ Map<String, dynamic> _$AccountModelToJson(AccountModel instance) =>
 
 const _$AccountTypeEnumMap = {
   AccountType.bank: 'bank',
-  AccountType.creditCard: 'credit_card',
   AccountType.cash: 'cash',
 };

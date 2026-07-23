@@ -489,4 +489,143 @@ class SupabaseHelper {
       return Left(Failure('Failed to fetch spending breakdown.'));
     }
   }
+
+  // --- Circles RPC Methods ---
+
+  Future<Either<Failure, int>> createCircle({
+    required String name,
+    String? description,
+    String type = 'ongoing',
+    double? budget,
+    bool splitEnabled = false,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCreateCircle,
+        params: {
+          'p_name': name,
+          'p_description': description,
+          'p_type': type,
+          'p_budget': budget,
+          'p_split_enabled': splitEnabled,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error creating circle: $e');
+      return Left(Failure('Failed to create circle.'));
+    }
+  }
+
+  Future<Either<Failure, int>> addCircleMember({
+    required int circleId,
+    required int targetUserId,
+    String role = 'member',
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcAddCircleMember,
+        params: {
+          'p_circle_id': circleId,
+          'p_target_user_id': targetUserId,
+          'p_role': role,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error adding circle member: $e');
+      return Left(Failure('Failed to add member to circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> changeMemberRole({
+    required int circleId,
+    required int targetUserId,
+    required String newRole,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcChangeMemberRole,
+        params: {
+          'p_circle_id': circleId,
+          'p_target_user_id': targetUserId,
+          'p_new_role': newRole,
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error changing circle member role: $e');
+      return Left(Failure('Failed to change member role.'));
+    }
+  }
+
+  Future<Either<Failure, int>> transferCircleOwnership({
+    required int circleId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcTransferCircleOwnership,
+        params: {
+          'p_circle_id': circleId,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error transferring circle ownership: $e');
+      return Left(Failure('Failed to transfer circle ownership.'));
+    }
+  }
+
+  Future<Either<Failure, void>> removeCircleMember({
+    required int circleId,
+    required int targetUserId,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcRemoveCircleMember,
+        params: {
+          'p_circle_id': circleId,
+          'p_target_user_id': targetUserId,
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error removing circle member: $e');
+      return Left(Failure('Failed to remove member from circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> leaveCircle({
+    required int circleId,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcLeaveCircle,
+        params: {
+          'p_circle_id': circleId,
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error leaving circle: $e');
+      return Left(Failure('Failed to leave circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> deleteCircle({
+    required int circleId,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcDeleteCircle,
+        params: {
+          'p_circle_id': circleId,
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error deleting circle: $e');
+      return Left(Failure('Failed to delete circle.'));
+    }
+  }
 }

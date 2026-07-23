@@ -7,9 +7,6 @@ enum AccountType {
   @JsonValue('bank')
   bank,
 
-  @JsonValue('credit_card')
-  creditCard,
-
   @JsonValue('cash')
   cash,
 }

@@ -2,6 +2,26 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'transaction_model.g.dart';
 
+@JsonEnum()
+enum TransactionType {
+  @JsonValue('expense')
+  expense,
+  @JsonValue('income')
+  income,
+  @JsonValue('withdrawal')
+  withdrawal,
+}
+
+@JsonEnum()
+enum SplitType {
+  @JsonValue('equal')
+  equal,
+  @JsonValue('percentage')
+  percentage,
+  @JsonValue('fixed')
+  fixed,
+}
+
 @JsonSerializable()
 class TransactionModel {
   final int id;

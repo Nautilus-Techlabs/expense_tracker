@@ -12,6 +12,15 @@ class SupabaseKeys {
   static const String rpcGetReports = 'get_reports';
   static const String rpcGetReportSpendingBreakdown =
       'get_report_spending_breakdown';
+  
+  // Circle RPC functions
+  static const String rpcCreateCircle = 'create_circle';
+  static const String rpcAddCircleMember = 'add_circle_member';
+  static const String rpcChangeMemberRole = 'change_member_role';
+  static const String rpcTransferCircleOwnership = 'transfer_circle_ownership';
+  static const String rpcRemoveCircleMember = 'remove_circle_member';
+  static const String rpcLeaveCircle = 'leave_circle';
+  static const String rpcDeleteCircle = 'delete_circle';
 
   // Common Columns
   static const String colId = 'id';

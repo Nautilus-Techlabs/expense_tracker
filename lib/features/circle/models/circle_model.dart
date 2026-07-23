@@ -2,7 +2,23 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'circle_model.g.dart';
 
-enum CircleType { oneTime, ongoing }
+@JsonEnum()
+enum CircleType {
+  @JsonValue('one_time')
+  oneTime,
+  @JsonValue('ongoing')
+  ongoing,
+}
+
+@JsonEnum()
+enum CircleMemberRole {
+  @JsonValue('owner')
+  owner,
+  @JsonValue('member')
+  member,
+  @JsonValue('viewer')
+  viewer,
+}
 
 @JsonSerializable()
 class CircleModel {

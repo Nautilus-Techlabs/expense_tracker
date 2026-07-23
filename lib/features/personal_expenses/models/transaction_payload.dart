@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+
 part 'transaction_payload.g.dart';
 
 @JsonSerializable(includeIfNull: false)

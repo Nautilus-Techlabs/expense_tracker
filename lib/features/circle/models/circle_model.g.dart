@@ -51,6 +51,6 @@ Map<String, dynamic> _$CircleModelToJson(CircleModel instance) =>
     };
 
 const _$CircleTypeEnumMap = {
-  CircleType.oneTime: 'oneTime',
+  CircleType.oneTime: 'one_time',
   CircleType.ongoing: 'ongoing',
 };

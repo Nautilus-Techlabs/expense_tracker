@@ -4,95 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import '../models/circle_data.dart';
+import '../viewmodels/circle_notifier.dart';
 
-// ─── Data Models (local, until a real backend is wired up) ────────────────────
-
-class CircleMember {
-  final String initials;
-  final Color color;
-  const CircleMember({required this.initials, required this.color});
-}
-
-class CircleData {
-  final String name;
-  final CircleType type;
-  final List<CircleMember> members;
-  final double totalAmount;
-  final double? pending; // for one-time circles
-  final double? yourShare; // for ongoing circles
-  final double? youOwe; // for ongoing circles where user owes
-  final String lastActivity;
-  final double settlementProgress; // 0.0 – 1.0 (for one-time circles)
-
-  const CircleData({
-    required this.name,
-    required this.type,
-    required this.members,
-    required this.totalAmount,
-    this.pending,
-    this.yourShare,
-    this.youOwe,
-    required this.lastActivity,
-    this.settlementProgress = 0,
-  });
-}
-
-// ─── Screen ───────────────────────────────────────────────────────────────────
-
-class CirclesScreen extends StatelessWidget {
+class CirclesScreen extends ConsumerWidget {
   const CirclesScreen({super.key});
 
-  // Mock data matching the design screenshots
-  static const _circles = [
-    CircleData(
-      name: 'Goa Trip',
-      type: CircleType.oneTime,
-      members: [
-        CircleMember(initials: 'RK', color: AppColors.primary),
-        CircleMember(initials: 'AM', color: AppColors.expense),
-        CircleMember(initials: 'PR', color: Color(0xFF7C3AED)),
-      ],
-      totalAmount: 3600,
-      pending: 1200,
-      lastActivity: '',
-      settlementProgress: 0.5,
-    ),
-    CircleData(
-      name: 'Flat Expenses',
-      type: CircleType.ongoing,
-      members: [
-        CircleMember(initials: 'RK', color: AppColors.primary),
-        CircleMember(initials: 'AM', color: AppColors.expense),
-        CircleMember(initials: 'PR', color: Color(0xFF7C3AED)),
-        CircleMember(initials: 'SJ', color: Color(0xFFB45309)),
-      ],
-      totalAmount: 8400,
-      yourShare: 2100,
-      lastActivity: '2 days ago',
-      settlementProgress: 0,
-    ),
-    CircleData(
-      name: 'Family',
-      type: CircleType.ongoing,
-      members: [
-        CircleMember(initials: 'RK', color: AppColors.primary),
-        CircleMember(initials: 'AM', color: AppColors.expense),
-        CircleMember(initials: 'PR', color: Color(0xFF7C3AED)),
-        CircleMember(initials: 'SJ', color: Color(0xFFB45309)),
-        CircleMember(initials: 'KL', color: Color(0xFF0891B2)),
-      ],
-      totalAmount: 12000,
-      youOwe: 800,
-      lastActivity: 'Today',
-      settlementProgress: 0,
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final circleState = ref.watch(circleProvider);
+    final circles = circleState.circles;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -133,7 +58,7 @@ class CirclesScreen extends StatelessWidget {
                     UIHelpers.verticalSpace(24),
 
                     // ── Circle Cards ─────────────────────────────────────
-                    ..._circles.map(
+                    ...circles.map(
                       (c) => _CircleCard(circle: c, isDark: isDark),
                     ),
                     UIHelpers.verticalSpace(16),
