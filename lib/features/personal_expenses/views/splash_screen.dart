@@ -6,11 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../viewmodels/account_notifier.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/theme/app_colors_extension.dart';
-import 'package:expense_tracker/data/repositories/supabase_provider.dart';
-
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -37,19 +36,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!_timerFinished || authState.isLoading) return;
 
     if (authState.user != null) {
-      final hasAccounts = await ref.read(supabaseHelperProvider).fetchAllAccounts(
-        authState.user!.id,
-      );
-      hasAccounts.fold(
-        (failure) => context.pushReplacement(AppRouter.addAccount),
-        (accounts) {
-          if (accounts.isEmpty) {
-            context.pushReplacement(AppRouter.addAccount);
-          } else {
-            context.pushReplacement(AppRouter.transactions);
-          }
-        },
-      );
+      await ref.read(accountProvider.notifier).fetchAccounts();
+      final accountState = ref.read(accountProvider);
+      
+      if (!mounted) return;
+
+      if (accountState.errorMessage != null) {
+        // Safe navigation on network failure -> show main screen, don't force account creation
+        context.pushReplacement(AppRouter.transactions);
+      } else if (accountState.accounts.isEmpty) {
+        context.pushReplacement(AppRouter.addAccount);
+      } else {
+        context.pushReplacement(AppRouter.transactions);
+      }
     } else {
       context.pushReplacement(AppRouter.welcome);
     }
