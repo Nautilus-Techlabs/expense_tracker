@@ -3,15 +3,24 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/ui_helpers.dart';
-import '../../../../core/theme/app_colors_extension.dart';
+
+import '../models/circle_screen_model.dart';
 
 class CircleSummaryBanner extends StatelessWidget {
+  final Totals? totals;
   final bool isDark;
 
-  const CircleSummaryBanner({super.key, required this.isDark});
+  const CircleSummaryBanner({
+    super.key,
+    this.totals,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final owe = totals?.totalYouOwe ?? 0;
+    final owed = totals?.totalOwedToYou ?? 0;
+
     if (isDark) {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -22,7 +31,7 @@ class CircleSummaryBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'You are owed ₹2,400',
+                    'You are owed ₹$owed',
                     style: context.appTexts.bodyMedium.copyWith(
                       color: AppColors.textSecondaryDark,
                     ),
@@ -35,7 +44,7 @@ class CircleSummaryBanner extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(left: 16.w),
                 child: Text(
-                  'You owe ₹800',
+                  'You owe ₹$owe',
                   style: context.appTexts.bodyMedium.copyWith(
                     color: AppColors.expense,
                   ),
@@ -68,7 +77,7 @@ class CircleSummaryBanner extends StatelessWidget {
                 ),
                 UIHelpers.horizontalSpace(6),
                 Text(
-                  'YOU ARE OWED ₹2,400',
+                  'YOU ARE OWED ₹$owed',
                   style: context.appTexts.bodySmall.copyWith(
                     color: AppColors.income,
                     fontWeight: FontWeight.w700,
@@ -88,7 +97,7 @@ class CircleSummaryBanner extends StatelessWidget {
                 ),
                 UIHelpers.horizontalSpace(6),
                 Text(
-                  'YOU OWE ₹800',
+                  'YOU OWE ₹$owe',
                   style: context.appTexts.bodySmall.copyWith(
                     color: AppColors.expense,
                     fontWeight: FontWeight.w700,

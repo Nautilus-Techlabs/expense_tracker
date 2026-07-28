@@ -1,26 +1,26 @@
-
-import 'package:expense_tracker/features/circle/models/circle_data.dart';
+import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
 
 class CircleState {
-  final List<CircleData> circles;
+  final CircleScreenModel? screenData;
   final bool isLoading;
   final String? error;
 
   const CircleState({
-    this.circles = const [],
+    this.screenData,
     this.isLoading = false,
     this.error,
   });
 
   CircleState copyWith({
-    List<CircleData>? circles,
+    CircleScreenModel? screenData,
     bool? isLoading,
     String? error,
   }) {
     return CircleState(
-      circles: circles ?? this.circles,
+      screenData: screenData ?? this.screenData,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );
   }
 }
+

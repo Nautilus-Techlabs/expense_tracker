@@ -1,18 +1,15 @@
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_constants.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import '../../../../core/theme/app_colors_extension.dart';
+import '../../../core/constants/app_constants.dart';
 
 class CircleSettingsScreen extends StatefulWidget {
   final String circleName;
 
-  const CircleSettingsScreen({
-    super.key,
-    required this.circleName,
-  });
+  const CircleSettingsScreen({super.key, required this.circleName});
 
   @override
   State<CircleSettingsScreen> createState() => _CircleSettingsScreenState();
@@ -22,9 +19,24 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
   // Mock data for UI representation
   bool isOwner = true; // Toggle to test both owner and member view
   List<Map<String, dynamic>> members = [
-    {'name': 'Rajesh Kumar', 'initials': 'RK', 'role': 'Owner', 'color': AppColors.primary},
-    {'name': 'Amit Khanna', 'initials': 'AK', 'role': 'Member', 'color': const Color(0xFF7B3B1D)},
-    {'name': 'Priya Sharma', 'initials': 'PS', 'role': 'Member', 'color': const Color(0xFF7C3AED)},
+    {
+      'name': 'Rajesh Kumar',
+      'initials': 'RK',
+      'role': 'Owner',
+      'color': AppColors.primary,
+    },
+    {
+      'name': 'Amit Khanna',
+      'initials': 'AK',
+      'role': 'Member',
+      'color': const Color(0xFF7B3B1D),
+    },
+    {
+      'name': 'Priya Sharma',
+      'initials': 'PS',
+      'role': 'Member',
+      'color': const Color(0xFF7C3AED),
+    },
   ];
 
   void _removeMember(int index) {
@@ -108,7 +120,7 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                   ),
                   Switch.adaptive(
                     value: isOwner,
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                     onChanged: (val) {
                       setState(() {
                         isOwner = val;
@@ -287,7 +299,10 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.exit_to_app_rounded, color: AppColors.expense),
+                      const Icon(
+                        Icons.exit_to_app_rounded,
+                        color: AppColors.expense,
+                      ),
                       UIHelpers.horizontalSpace(8),
                       Text(
                         'Leave Circle',
@@ -328,7 +343,9 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                             onPressed: () => Navigator.pop(context),
                             child: Text(
                               'Cancel',
-                              style: TextStyle(color: context.colors.textSecondary),
+                              style: TextStyle(
+                                color: context.colors.textSecondary,
+                              ),
                             ),
                           ),
                           TextButton(
@@ -364,7 +381,10 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.delete_forever_rounded, color: Colors.white),
+                      const Icon(
+                        Icons.delete_forever_rounded,
+                        color: Colors.white,
+                      ),
                       UIHelpers.horizontalSpace(8),
                       Text(
                         'Delete Circle',

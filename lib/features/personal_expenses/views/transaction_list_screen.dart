@@ -5,15 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors_extension.dart';
 import '../models/transaction_model.dart';
-
-import '../viewmodels/category_notifier.dart';
-import '../viewmodels/transaction_filter_notifier.dart';
 import '../viewmodels/filtered_transactions_provider.dart';
+import '../viewmodels/transaction_filter_notifier.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/transaction_filter_sheet.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -42,7 +39,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     super.dispose();
   }
 
-
   void _showFilterSheet() {
     final filterState = ref.read(transactionFilterProvider);
     showModalBottomSheet(
@@ -53,13 +49,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         initialCategoryId: filterState.selectedCategoryId,
         initialSpecificDate: filterState.selectedSpecificDate,
         onApply: (categoryId, specificDate) {
-          ref.read(transactionFilterProvider.notifier).setFilters(
-                categoryId: categoryId,
-                specificDate: specificDate,
-              );
+          ref
+              .read(transactionFilterProvider.notifier)
+              .setFilters(categoryId: categoryId, specificDate: specificDate);
         },
       ),
-
     );
   }
 
@@ -103,7 +97,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           child: Icon(
                             Icons.filter_alt_outlined,
                             size: 28.sp,
-                            color: filterState.selectedCategoryId != null ||
+                            color:
+                                filterState.selectedCategoryId != null ||
                                     filterState.selectedSpecificDate != null
                                 ? AppColors.expense
                                 : (context.colors.primary),
@@ -147,12 +142,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     decoration: InputDecoration(
                       hintText: 'Search notes...',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: (context.colors.textSecondary).withValues(alpha: 0.5),
+                        color: (context.colors.textSecondary).withValues(
+                          alpha: 0.5,
+                        ),
                       ),
-                      prefixIcon: Icon(Icons.search, color: context.colors.textSecondary),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: context.colors.textSecondary,
+                      ),
                       filled: true,
                       fillColor: context.colors.card,
-                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16.w),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 16.w,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: BorderSide.none,
@@ -172,10 +175,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   itemCount: months.length,
                   itemBuilder: (context, index) {
                     final monthDate = months[index];
-                    final isSelected = monthDate.year == selectedMonthDate.year &&
+                    final isSelected =
+                        monthDate.year == selectedMonthDate.year &&
                         monthDate.month == selectedMonthDate.month;
-                    final monthString =
-                        DateFormat('MMM yyyy').format(monthDate);
+                    final monthString = DateFormat(
+                      'MMM yyyy',
+                    ).format(monthDate);
 
                     return GestureDetector(
                       onTap: () {
@@ -364,10 +369,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     ),
                   ),
                   UIHelpers.verticalSpace(8),
-                  Container(
-                    height: 1.h,
-                    color: context.colors.border,
-                  ),
+                  Container(height: 1.h, color: context.colors.border),
                 ],
               ),
             ),
@@ -410,4 +412,3 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 }
-

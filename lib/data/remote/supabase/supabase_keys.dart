@@ -21,6 +21,8 @@ class SupabaseKeys {
   static const String rpcRemoveCircleMember = 'remove_circle_member';
   static const String rpcLeaveCircle = 'leave_circle';
   static const String rpcDeleteCircle = 'delete_circle';
+  static const String rpcGetCirclesScreenData = 'get_circles_screen_data';
+
 
   // Common Columns
   static const String colId = 'id';

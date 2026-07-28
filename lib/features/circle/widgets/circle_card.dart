@@ -4,16 +4,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../models/circle_data.dart';
-import '../models/circle_model.dart';
 import 'circle_type_badge.dart';
+
 import 'member_avatar_stack.dart';
 import 'stat_column.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import '../../../core/constants/app_router.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/circle_screen_model.dart' as screen_model;
+
 class CircleCard extends StatelessWidget {
-  final CircleData circle;
+  final screen_model.Circle circle;
   final bool isDark;
 
   const CircleCard({super.key, required this.circle, required this.isDark});
@@ -22,7 +24,8 @@ class CircleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardColor = context.colors.card;
     final borderColor = context.colors.border;
-    final isOneTime = circle.type == CircleType.oneTime;
+    final isOneTime = circle.type.toLowerCase() == 'one_time' || circle.type.toLowerCase() == 'onetime';
+
 
     return GestureDetector(
       onTap: () {
@@ -47,7 +50,14 @@ class CircleCard extends StatelessWidget {
                   isDark: isDark,
                 ),
                 const Spacer(),
-                MemberAvatarStack(members: circle.members),
+                MemberAvatarStack(
+                  members: circle.members.map((m) {
+                    final initials = m.fullName.isNotEmpty
+                        ? m.fullName.trim().split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+                        : 'M';
+                    return CircleMember(initials: initials, color: AppColors.primary);
+                  }).toList(),
+                ),
               ],
             ),
             UIHelpers.verticalSpace(12),
@@ -84,7 +94,7 @@ class CircleCard extends StatelessWidget {
                 ),
                 UIHelpers.horizontalSpace(6),
                 Text(
-                  '${circle.members.length} members',
+                  '${circle.memberCount} members',
                   style: context.appTexts.bodySmall.copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -99,16 +109,16 @@ class CircleCard extends StatelessWidget {
                 children: [
                   StatColumn(
                     label: 'You paid',
-                    value: '₹${circle.totalAmount.toStringAsFixed(0)}',
+                    value: '₹${circle.youPaid}',
                     isDark: isDark,
                     valueColor: context.colors.textPrimary,
                   ),
                   UIHelpers.horizontalSpace(32),
                   StatColumn(
-                    label: 'Pending',
-                    value: '₹${circle.pending!.toStringAsFixed(0)}',
+                    label: 'Net Amount',
+                    value: '₹${circle.netAmount}',
                     isDark: isDark,
-                    valueColor: AppColors.expense,
+                    valueColor: circle.netAmount >= 0 ? AppColors.income : AppColors.expense,
                   ),
                 ],
               ),
@@ -125,7 +135,7 @@ class CircleCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${(circle.settlementProgress * 100).toStringAsFixed(0)}%',
+                    '${(circle.settlementProgressPct).toStringAsFixed(0)}%',
                     style: context.appTexts.bodySmall.copyWith(
                       color: context.colors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -137,7 +147,7 @@ class CircleCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4.r),
                 child: LinearProgressIndicator(
-                  value: circle.settlementProgress,
+                  value: (circle.settlementProgressPct / 100).clamp(0.0, 1.0),
                   minHeight: 6.h,
                   backgroundColor: isDark
                       ? AppColors.borderDark
@@ -151,52 +161,20 @@ class CircleCard extends StatelessWidget {
               Row(
                 children: [
                   StatColumn(
-                    label: 'This month',
-                    value: '₹${circle.totalAmount.toStringAsFixed(0)}',
+                    label: 'You paid',
+                    value: '₹${circle.youPaid}',
                     isDark: isDark,
                     valueColor: context.colors.textPrimary,
                   ),
                   UIHelpers.horizontalSpace(32),
-                  if (circle.yourShare != null)
-                    StatColumn(
-                      label: 'Your share',
-                      value: '₹${circle.yourShare!.toStringAsFixed(0)}',
-                      isDark: isDark,
-                      valueColor: context.colors.textPrimary,
-                    ),
-                  if (circle.youOwe != null)
-                    StatColumn(
-                      label: 'You owe',
-                      value: '₹${circle.youOwe!.toStringAsFixed(0)}',
-                      isDark: isDark,
-                      valueColor: AppColors.expense,
-                    ),
+                  StatColumn(
+                    label: circle.netAmount >= 0 ? 'You are owed' : 'You owe',
+                    value: '₹${circle.netAmount.abs()}',
+                    isDark: isDark,
+                    valueColor: circle.netAmount >= 0 ? AppColors.income : AppColors.expense,
+                  ),
                 ],
               ),
-              if (circle.lastActivity.isNotEmpty) ...[
-                UIHelpers.verticalSpace(16),
-                Divider(height: 1, color: context.colors.border),
-                UIHelpers.verticalSpace(12),
-                Row(
-                  children: [
-                    Icon(
-                      circle.lastActivity == 'Today'
-                          ? Icons.flash_on_rounded
-                          : Icons.access_time_rounded,
-                      size: 14.sp,
-                      color: context.colors.textSecondary,
-                    ),
-                    UIHelpers.horizontalSpace(6),
-                    Text(
-                      'Last activity: ${circle.lastActivity}',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: context.colors.textSecondary,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
           ],
         ),
@@ -204,3 +182,4 @@ class CircleCard extends StatelessWidget {
     );
   }
 }
+

@@ -7,13 +7,14 @@ import 'package:expense_tracker/core/utils/app_logger.dart';
 import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
 import 'package:expense_tracker/features/auth/model/user_model.dart';
 import 'package:expense_tracker/features/auth/model/user_payload.dart';
+import 'package:expense_tracker/features/circle/models/circle_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/reports_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
-import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -566,9 +567,7 @@ class SupabaseHelper {
     try {
       final response = await supabase.rpc(
         SupabaseKeys.rpcTransferCircleOwnership,
-        params: {
-          'p_circle_id': circleId,
-        },
+        params: {'p_circle_id': circleId},
       );
       return Right(response as int);
     } catch (e) {
@@ -584,10 +583,7 @@ class SupabaseHelper {
     try {
       await supabase.rpc(
         SupabaseKeys.rpcRemoveCircleMember,
-        params: {
-          'p_circle_id': circleId,
-          'p_target_user_id': targetUserId,
-        },
+        params: {'p_circle_id': circleId, 'p_target_user_id': targetUserId},
       );
       return const Right(null);
     } catch (e) {
@@ -596,15 +592,11 @@ class SupabaseHelper {
     }
   }
 
-  Future<Either<Failure, void>> leaveCircle({
-    required int circleId,
-  }) async {
+  Future<Either<Failure, void>> leaveCircle({required int circleId}) async {
     try {
       await supabase.rpc(
         SupabaseKeys.rpcLeaveCircle,
-        params: {
-          'p_circle_id': circleId,
-        },
+        params: {'p_circle_id': circleId},
       );
       return const Right(null);
     } catch (e) {
@@ -613,20 +605,29 @@ class SupabaseHelper {
     }
   }
 
-  Future<Either<Failure, void>> deleteCircle({
-    required int circleId,
-  }) async {
+  Future<Either<Failure, void>> deleteCircle({required int circleId}) async {
     try {
       await supabase.rpc(
         SupabaseKeys.rpcDeleteCircle,
-        params: {
-          'p_circle_id': circleId,
-        },
+        params: {'p_circle_id': circleId},
       );
       return const Right(null);
     } catch (e) {
       AppLogger.e('Error deleting circle: $e');
       return Left(Failure('Failed to delete circle.'));
+    }
+  }
+
+  Future<Either<Failure, CircleScreenModel>> getCirclesScreenData({
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(SupabaseKeys.rpcGetCirclesScreenData);
+      final model = CircleScreenModel.fromJson(response);
+      return Right(model);
+    } catch (e) {
+      AppLogger.e('Error fetching circles screen data: $e');
+      return Left(Failure('Failed to fetch circles screen data.'));
     }
   }
 }
