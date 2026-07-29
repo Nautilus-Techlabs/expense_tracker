@@ -117,45 +117,71 @@ class CircleNotifier extends Notifier<CircleState> {
     );
   }
 
-  Future<void> removeCircleMember({
+  Future<bool> removeCircleMember({
     required int circleId,
     required int targetUserId,
+    required int currentUserId,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref
         .read(supabaseHelperProvider)
         .removeCircleMember(circleId: circleId, targetUserId: targetUserId);
-    result.fold(
-      (failure) =>
-          state = state.copyWith(error: failure.message, isLoading: false),
-      (_) => state = state.copyWith(isLoading: false),
+    return result.fold(
+      (failure) {
+        state = state.copyWith(error: failure.message, isLoading: false);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(isLoading: false);
+        fetchCirclesScreenData(currentUserId);
+        return true;
+      },
     );
   }
 
-  Future<void> leaveCircle({required int circleId}) async {
+  Future<bool> leaveCircle({
+    required int circleId,
+    required int currentUserId,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref
         .read(supabaseHelperProvider)
         .leaveCircle(circleId: circleId);
-    result.fold(
-      (failure) =>
-          state = state.copyWith(error: failure.message, isLoading: false),
-      (_) => state = state.copyWith(isLoading: false),
+    return result.fold(
+      (failure) {
+        state = state.copyWith(error: failure.message, isLoading: false);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(isLoading: false);
+        fetchCirclesScreenData(currentUserId);
+        return true;
+      },
     );
   }
 
-  Future<void> deleteCircle({required int circleId}) async {
+  Future<bool> deleteCircle({
+    required int circleId,
+    required int currentUserId,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref
         .read(supabaseHelperProvider)
         .deleteCircle(circleId: circleId);
-    result.fold(
-      (failure) =>
-          state = state.copyWith(error: failure.message, isLoading: false),
-      (_) => state = state.copyWith(isLoading: false),
+    return result.fold(
+      (failure) {
+        state = state.copyWith(error: failure.message, isLoading: false);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(isLoading: false);
+        fetchCirclesScreenData(currentUserId);
+        return true;
+      },
     );
   }
 }
+
 
 final circleProvider = NotifierProvider<CircleNotifier, CircleState>(
   CircleNotifier.new,

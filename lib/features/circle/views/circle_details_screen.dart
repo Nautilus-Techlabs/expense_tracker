@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import '../../../core/constants/args.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../viewmodels/circle_details_notifier.dart';
@@ -17,14 +18,9 @@ import '../widgets/circle_member_card.dart';
 import '../widgets/settle_up_bottom_sheet.dart';
 
 class CircleDetailsScreen extends ConsumerStatefulWidget {
-  final int circleId;
-  final String circleName;
+  final CircleDetailsArgs args;
 
-  const CircleDetailsScreen({
-    super.key,
-    required this.circleId,
-    required this.circleName,
-  });
+  const CircleDetailsScreen({super.key, required this.args});
 
   @override
   ConsumerState<CircleDetailsScreen> createState() =>
@@ -39,7 +35,7 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
       final user = ref.read(authProvider).user;
       if (user != null) {
         ref
-            .read(circleDetailsProvider(widget.circleId).notifier)
+            .read(circleDetailsProvider(widget.args.circleId).notifier)
             .fetchCircleDetails(user.id);
       }
     });
@@ -48,7 +44,7 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final detailsState = ref.watch(circleDetailsProvider(widget.circleId));
+    final detailsState = ref.watch(circleDetailsProvider(widget.args.circleId));
     final data = detailsState.screenData;
 
     return Scaffold(
@@ -65,7 +61,7 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          widget.circleName,
+          widget.args.circleName,
           style: context.appTexts.displayMedium.copyWith(
             color: context.colors.textPrimary,
             fontSize: 22.sp,
@@ -79,10 +75,22 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
               size: 24.sp,
             ),
             onPressed: () {
-              context.push(AppRouter.circleSettings, extra: widget.circleName);
+              final owner = data?.members.firstWhere(
+                (m) => m.role.toLowerCase() == 'owner',
+                orElse: () => data.members.first,
+              );
+              context.push(
+                AppRouter.circleSettings,
+                extra: CircleSettingsArgs(
+                  circleId: widget.args.circleId,
+                  circleName: widget.args.circleName,
+                  ownerId: owner?.userId,
+                ),
+              );
             },
           ),
         ],
+
         centerTitle: false,
       ),
       body: SafeArea(
@@ -101,7 +109,9 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                         if (user != null) {
                           await ref
                               .read(
-                                circleDetailsProvider(widget.circleId).notifier,
+                                circleDetailsProvider(
+                                  widget.args.circleId,
+                                ).notifier,
                               )
                               .fetchCircleDetails(user.id);
                         }

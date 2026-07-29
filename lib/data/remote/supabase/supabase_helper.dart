@@ -510,7 +510,6 @@ class SupabaseHelper {
         SupabaseKeys.rpcCreateCircle,
         params: {
           'p_name': name,
-          'p_user_id': userId,
           'p_include_settlements_in_personal_ledger':
               includeSettlementsInPersonalLedger,
           'p_settlement_account_id': settlementAccountId,

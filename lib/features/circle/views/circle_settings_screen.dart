@@ -1,77 +1,141 @@
+import 'package:expense_tracker/core/constants/args.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
+import 'package:expense_tracker/features/circle/viewmodels/circle_details_notifier.dart';
+import 'package:expense_tracker/features/circle/viewmodels/circle_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 
-class CircleSettingsScreen extends StatefulWidget {
-  final String circleName;
+class CircleSettingsScreen extends ConsumerStatefulWidget {
+  final CircleSettingsArgs args;
 
-  const CircleSettingsScreen({super.key, required this.circleName});
+  const CircleSettingsScreen({super.key, required this.args});
 
   @override
-  State<CircleSettingsScreen> createState() => _CircleSettingsScreenState();
+  ConsumerState<CircleSettingsScreen> createState() =>
+      _CircleSettingsScreenState();
 }
 
-class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
-  // Mock data for UI representation
-  bool isOwner = true; // Toggle to test both owner and member view
-  List<Map<String, dynamic>> members = [
-    {
-      'name': 'Rajesh Kumar',
-      'initials': 'RK',
-      'role': 'Owner',
-      'color': AppColors.primary,
-    },
-    {
-      'name': 'Amit Khanna',
-      'initials': 'AK',
-      'role': 'Member',
-      'color': const Color(0xFF7B3B1D),
-    },
-    {
-      'name': 'Priya Sharma',
-      'initials': 'PS',
-      'role': 'Member',
-      'color': const Color(0xFF7C3AED),
-    },
-  ];
+class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
+  Future<void> _leaveCircle(int userId) async {
+    final success = await ref.read(circleProvider.notifier).leaveCircle(
+          circleId: widget.args.circleId,
+          currentUserId: userId,
+        );
 
-  void _removeMember(int index) {
-    setState(() {
-      members.removeAt(index);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Member removed'),
-        backgroundColor: AppColors.expense,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (mounted) {
+      if (success) {
+        context.pop(); // Settings
+        context.pop(); // Details
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You left the circle.'),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        final error =
+            ref.read(circleProvider).error ?? 'Failed to leave circle.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.expense,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
-  void _addMockMember() {
-    setState(() {
-      members.add({
-        'name': 'New Member ${members.length + 1}',
-        'initials': 'NM',
-        'role': 'Member',
-        'color': Colors.teal,
-      });
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Member added (Mock)'),
-        backgroundColor: AppColors.income,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  Future<void> _deleteCircle(int userId) async {
+    final success = await ref.read(circleProvider.notifier).deleteCircle(
+          circleId: widget.args.circleId,
+          currentUserId: userId,
+        );
+
+    if (mounted) {
+      if (success) {
+        context.pop(); // Settings
+        context.pop(); // Details
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Circle deleted successfully.'),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        final error =
+            ref.read(circleProvider).error ?? 'Failed to delete circle.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.expense,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeMember(int targetUserId, int currentUserId) async {
+    final success = await ref.read(circleProvider.notifier).removeCircleMember(
+          circleId: widget.args.circleId,
+          targetUserId: targetUserId,
+          currentUserId: currentUserId,
+        );
+
+    if (mounted) {
+      if (success) {
+        // Refresh details screen data
+        ref
+            .read(circleDetailsProvider(widget.args.circleId).notifier)
+            .fetchCircleDetails(currentUserId);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Member removed.'),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        final error =
+            ref.read(circleProvider).error ?? 'Failed to remove member.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.expense,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(authProvider).user;
+    final currentUserId = currentUser?.id ?? 0;
+
+    final detailsState =
+        ref.watch(circleDetailsProvider(widget.args.circleId));
+    final screenData = detailsState.screenData;
+    final members = screenData?.members ?? [];
+
+    final isOwner = widget.args.ownerId == currentUserId ||
+        members.any(
+          (m) => m.userId == currentUserId && m.role.toLowerCase() == 'owner',
+        );
+
+    final circleType = screenData?.type ?? 'ongoing';
+
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
@@ -100,38 +164,6 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Owner Mode Toggle (For Testing UI) ---
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: context.colors.card,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: context.colors.border),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Simulate Owner View',
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: context.colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Switch.adaptive(
-                    value: isOwner,
-                    activeThumbColor: AppColors.primary,
-                    onChanged: (val) {
-                      setState(() {
-                        isOwner = val;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            UIHelpers.verticalSpace(24),
-
             // --- Section: Circle Info ---
             Text(
               'CIRCLE DETAILS',
@@ -154,7 +186,7 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.circleName,
+                    widget.args.circleName,
                     style: context.appTexts.bodyLarge.copyWith(
                       color: context.colors.textPrimary,
                       fontWeight: FontWeight.bold,
@@ -162,7 +194,7 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                   ),
                   UIHelpers.verticalSpace(4),
                   Text(
-                    'Ongoing Circle • Split Enabled',
+                    '${circleType.toUpperCase()} Circle',
                     style: context.appTexts.bodySmall.copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -184,94 +216,106 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                     letterSpacing: 0.8,
                   ),
                 ),
-                if (isOwner)
-                  GestureDetector(
-                    onTap: _addMockMember,
-                    child: Text(
-                      '+ Add Member',
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: context.colors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
               ],
             ),
             UIHelpers.verticalSpace(12),
 
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: members.length,
-              itemBuilder: (context, index) {
-                final member = members[index];
-                final isCurrentMemberOwner = member['role'] == 'Owner';
-                return Container(
-                  margin: EdgeInsets.only(bottom: 12.h),
-                  padding: EdgeInsets.all(14.w),
-                  decoration: BoxDecoration(
-                    color: context.colors.card,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: context.colors.border),
+            if (members.isEmpty)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                child: Text(
+                  'No member information available.',
+                  style: context.appTexts.bodySmall.copyWith(
+                    color: context.colors.textSecondary,
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: member['color'],
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          member['initials'],
-                          style: context.appTexts.bodyMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: members.length,
+                itemBuilder: (context, index) {
+                  final member = members[index];
+                  final isMemberOwner = member.role.toLowerCase() == 'owner';
+                  final initials = member.fullName.isNotEmpty
+                      ? member.fullName
+                          .trim()
+                          .split(' ')
+                          .map((e) => e.isNotEmpty ? e[0] : '')
+                          .take(2)
+                          .join()
+                          .toUpperCase()
+                      : 'M';
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.all(14.w),
+                    decoration: BoxDecoration(
+                      color: context.colors.card,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40.w,
+                          height: 40.w,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            initials,
+                            style: context.appTexts.bodyMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      UIHelpers.horizontalSpace(16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              member['name'],
-                              style: context.appTexts.bodyMedium.copyWith(
-                                color: context.colors.textPrimary,
-                                fontWeight: FontWeight.w600,
+                        UIHelpers.horizontalSpace(16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                member.fullName +
+                                    (member.isSelf ? ' (You)' : ''),
+                                style: context.appTexts.bodyMedium.copyWith(
+                                  color: context.colors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            UIHelpers.verticalSpace(2),
-                            Text(
-                              member['role'],
-                              style: context.appTexts.bodySmall.copyWith(
-                                color: isCurrentMemberOwner
-                                    ? AppColors.primary
-                                    : context.colors.textSecondary,
-                                fontWeight: isCurrentMemberOwner
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
+                              UIHelpers.verticalSpace(2),
+                              Text(
+                                member.role.toUpperCase(),
+                                style: context.appTexts.bodySmall.copyWith(
+                                  color: isMemberOwner
+                                      ? AppColors.primary
+                                      : context.colors.textSecondary,
+                                  fontWeight: isMemberOwner
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isOwner && !isCurrentMemberOwner)
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline_rounded,
-                            color: AppColors.expense,
+                            ],
                           ),
-                          onPressed: () => _removeMember(index),
                         ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        if (isOwner && !isMemberOwner && !member.isSelf)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: AppColors.expense,
+                            ),
+                            onPressed: () =>
+                                _removeMember(member.userId, currentUserId),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             UIHelpers.verticalSpace(32),
 
             // --- Section: Actions ---
@@ -279,14 +323,7 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Leaving circle... (Mock)'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
+                  onPressed: () => _leaveCircle(currentUserId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.expense.withValues(alpha: 0.1),
                     foregroundColor: AppColors.expense,
@@ -333,7 +370,7 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                           ),
                         ),
                         content: Text(
-                          'Are you sure you want to delete this circle? This action cannot be undone.',
+                          'Are you sure you want to delete this circle? This action cannot be undone and is blocked if any members have outstanding balances.',
                           style: context.appTexts.bodyMedium.copyWith(
                             color: context.colors.textSecondary,
                           ),
@@ -350,15 +387,8 @@ class _CircleSettingsScreenState extends State<CircleSettingsScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.pop(context); // Dialog
-                              context.pop(); // Settings
-                              context.pop(); // Details
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Circle deleted (Mock)'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
+                              Navigator.pop(context); // Close dialog
+                              _deleteCircle(currentUserId);
                             },
                             child: const Text(
                               'Delete',

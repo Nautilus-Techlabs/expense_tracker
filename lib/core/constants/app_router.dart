@@ -18,6 +18,7 @@ import '../../features/personal_expenses/views/faq_screen.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
+import 'args.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -84,13 +85,8 @@ class AppRouter {
       GoRoute(
         path: circleDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final circleId = extra?['id'] as int?;
-          final circleName = extra?['name'] as String? ?? 'Circle Details';
-          return CircleDetailsScreen(
-            circleId: circleId ?? 0,
-            circleName: circleName,
-          );
+          final extra = state.extra as CircleDetailsArgs;
+          return CircleDetailsScreen(args: extra);
         },
       ),
       GoRoute(
@@ -127,8 +123,8 @@ class AppRouter {
       GoRoute(
         path: circleSettings,
         builder: (context, state) {
-          final circleName = state.extra as String? ?? 'Circle Settings';
-          return CircleSettingsScreen(circleName: circleName);
+          final extra = state.extra as CircleSettingsArgs;
+          return CircleSettingsScreen(args: extra);
         },
       ),
     ],

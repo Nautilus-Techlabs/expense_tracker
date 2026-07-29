@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/utils/ui_helpers.dart';
+import '../../../../core/constants/args.dart';
 import '../../../core/constants/app_router.dart';
+
 import '../models/circle_data.dart';
 import '../models/circle_screen_model.dart' as screen_model;
 import 'circle_type_badge.dart';
@@ -27,12 +29,17 @@ class CircleCard extends StatelessWidget {
         circle.type.toLowerCase() == 'onetime';
 
     return GestureDetector(
+
       onTap: () {
         context.push(
           AppRouter.circleDetails,
-          extra: {'id': circle.circleId, 'name': circle.name},
+          extra: CircleDetailsArgs(
+            circleId: circle.circleId,
+            circleName: circle.name,
+          ),
         );
       },
+
       child: Container(
         margin: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
         padding: EdgeInsets.all(20.w),
