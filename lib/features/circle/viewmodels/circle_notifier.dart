@@ -3,7 +3,6 @@ import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:expense_tracker/features/circle/viewmodels/circle_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 class CircleNotifier extends Notifier<CircleState> {
   @override
   CircleState build() {
@@ -22,36 +21,50 @@ class CircleNotifier extends Notifier<CircleState> {
     );
   }
 
-
   // --- RPC Calls ---
 
-  Future<void> createCircle({
+  Future<bool> createCircle({
     required String name,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
     String? description,
     CircleType type = CircleType.ongoing,
     double? budget,
     bool splitEnabled = false,
+    required int userId,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref
         .read(supabaseHelperProvider)
         .createCircle(
           name: name,
+          userId: userId,
+          includeSettlementsInPersonalLedger:
+              includeSettlementsInPersonalLedger,
+          settlementAccountId: settlementAccountId,
           description: description,
           type: type,
           budget: budget,
           splitEnabled: splitEnabled,
         );
-    result.fold(
-      (failure) =>
-          state = state.copyWith(error: failure.message, isLoading: false),
-      (id) => state = state.copyWith(isLoading: false),
+    return result.fold(
+      (failure) {
+        state = state.copyWith(error: failure.message, isLoading: false);
+        return false;
+      },
+      (id) {
+        state = state.copyWith(isLoading: false);
+        fetchCirclesScreenData(userId);
+        return true;
+      },
     );
   }
 
   Future<void> addCircleMember({
     required int circleId,
     required int targetUserId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
     CircleMemberRole role = CircleMemberRole.member,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -60,6 +73,9 @@ class CircleNotifier extends Notifier<CircleState> {
         .addCircleMember(
           circleId: circleId,
           targetUserId: targetUserId,
+          includeSettlementsInPersonalLedger:
+              includeSettlementsInPersonalLedger,
+          settlementAccountId: settlementAccountId,
           role: role,
         );
     result.fold(

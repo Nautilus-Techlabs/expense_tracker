@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/utils/ui_helpers.dart';
 import '../../../../core/theme/app_colors_extension.dart';
+import '../../../../core/utils/ui_helpers.dart';
 
 class CircleSummaryCard extends StatelessWidget {
   final bool isDark;
+  final double totalSpent;
+  final double settledAmount;
+  final double pendingAmount;
+  final double progressPct;
 
-  const CircleSummaryCard({super.key, required this.isDark});
+  const CircleSummaryCard({
+    super.key,
+    required this.isDark,
+    required this.totalSpent,
+    required this.settledAmount,
+    required this.pendingAmount,
+    required this.progressPct,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +28,7 @@ class CircleSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,13 +48,15 @@ class CircleSummaryCard extends StatelessWidget {
               Text(
                 'Total spent:',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.primary,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.primary,
                   fontSize: 24.sp,
                 ),
               ),
               UIHelpers.horizontalSpace(8),
               Text(
-                '₹7,200',
+                '₹${totalSpent.toStringAsFixed(0)}',
                 style: context.appTexts.displayMedium.copyWith(
                   color: isDark ? Colors.white : AppColors.primary,
                   fontSize: 28.sp,
@@ -62,17 +73,24 @@ class CircleSummaryCard extends StatelessWidget {
                 height: 8.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5E0),
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : const Color(0xFFE5E5E0),
                   borderRadius: BorderRadius.circular(4.r),
                 ),
               ),
-              Container(
-                height: 8.h,
-                width: 150.w,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.income : AppColors.primary,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    height: 8.h,
+                    width:
+                        constraints.maxWidth * (progressPct / 100).clamp(0, 1),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.income : AppColors.primary,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -93,9 +111,11 @@ class CircleSummaryCard extends StatelessWidget {
                   ),
                   UIHelpers.horizontalSpace(6),
                   Text(
-                    '₹3,600 settled',
+                    '₹${settledAmount.toStringAsFixed(0)} settled',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textPrimaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textPrimaryLight,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -107,15 +127,19 @@ class CircleSummaryCard extends StatelessWidget {
                     width: 8.w,
                     height: 8.w,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFB0B0B0),
+                      color: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFB0B0B0),
                       shape: BoxShape.circle,
                     ),
                   ),
                   UIHelpers.horizontalSpace(6),
                   Text(
-                    '₹3,600 pending',
+                    '₹${pendingAmount.toStringAsFixed(0)} pending',
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isDark ? AppColors.expense : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.expense
+                          : AppColors.textSecondaryLight,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

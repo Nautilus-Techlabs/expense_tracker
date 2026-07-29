@@ -7,6 +7,7 @@ import 'package:expense_tracker/core/utils/app_logger.dart';
 import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
 import 'package:expense_tracker/features/auth/model/user_model.dart';
 import 'package:expense_tracker/features/auth/model/user_payload.dart';
+import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
@@ -496,6 +497,9 @@ class SupabaseHelper {
 
   Future<Either<Failure, int>> createCircle({
     required String name,
+    required bool includeSettlementsInPersonalLedger,
+    required int userId,
+    int? settlementAccountId,
     String? description,
     CircleType type = CircleType.ongoing,
     double? budget,
@@ -506,6 +510,10 @@ class SupabaseHelper {
         SupabaseKeys.rpcCreateCircle,
         params: {
           'p_name': name,
+          'p_user_id': userId,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
           'p_description': description,
           'p_type': type.name,
           'p_budget': budget,
@@ -522,6 +530,8 @@ class SupabaseHelper {
   Future<Either<Failure, int>> addCircleMember({
     required int circleId,
     required int targetUserId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
     CircleMemberRole role = CircleMemberRole.member,
   }) async {
     try {
@@ -530,6 +540,9 @@ class SupabaseHelper {
         params: {
           'p_circle_id': circleId,
           'p_target_user_id': targetUserId,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
           'p_role': role.name,
         },
       );
@@ -618,6 +631,67 @@ class SupabaseHelper {
     }
   }
 
+  // --- Balances & Settlement RPC Methods ---
+
+  Future<Either<Failure, double>> getPairwiseBalance({
+    required int circleId,
+    required int userA,
+    required int userB,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetPairwiseBalance,
+        params: {'p_circle_id': circleId, 'p_user_a': userA, 'p_user_b': userB},
+      );
+      return Right((response as num).toDouble());
+    } catch (e) {
+      AppLogger.e('Error getting pairwise balance: $e');
+      return Left(Failure('Failed to get pairwise balance.'));
+    }
+  }
+
+  Future<Either<Failure, List<Map<String, dynamic>>>> getUserBalances({
+    required int circleId,
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetUserBalances,
+        params: {'p_circle_id': circleId, 'p_user_id': userId},
+      );
+      final list = (response as List).cast<Map<String, dynamic>>();
+      return Right(list);
+    } catch (e) {
+      AppLogger.e('Error getting user balances: $e');
+      return Left(Failure('Failed to get user balances.'));
+    }
+  }
+
+  Future<Either<Failure, int>> recordSettlement({
+    required int circleId,
+    required int paidByUserId,
+    required int paidToUserId,
+    required double amount,
+    String? note,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcRecordSettlement,
+        params: {
+          'p_circle_id': circleId,
+          'p_paid_by_user_id': paidByUserId,
+          'p_paid_to_user_id': paidToUserId,
+          'p_amount': amount,
+          'p_note': note,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error recording settlement: $e');
+      return Left(Failure('Failed to record settlement.'));
+    }
+  }
+
   Future<Either<Failure, CircleScreenModel>> getCirclesScreenData({
     required int userId,
   }) async {
@@ -628,6 +702,23 @@ class SupabaseHelper {
     } catch (e) {
       AppLogger.e('Error fetching circles screen data: $e');
       return Left(Failure('Failed to fetch circles screen data.'));
+    }
+  }
+
+  Future<Either<Failure, CircleDetailScreenModel>> getCircleDetailsScreenData({
+    required int circleId,
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleDetailsScreenData,
+        params: {'p_circle_id': circleId},
+      );
+      final model = CircleDetailScreenModel.fromJson(response);
+      return Right(model);
+    } catch (e) {
+      AppLogger.e('Error fetching circles details screen data: $e');
+      return Left(Failure('Failed to fetch circles details screen data.'));
     }
   }
 }

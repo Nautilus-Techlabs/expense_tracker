@@ -84,8 +84,13 @@ class AppRouter {
       GoRoute(
         path: circleDetails,
         builder: (context, state) {
-          final circleName = state.extra as String? ?? 'Circle Details';
-          return CircleDetailsScreen(circleName: circleName);
+          final extra = state.extra as Map<String, dynamic>?;
+          final circleId = extra?['id'] as int?;
+          final circleName = extra?['name'] as String? ?? 'Circle Details';
+          return CircleDetailsScreen(
+            circleId: circleId ?? 0,
+            circleName: circleName,
+          );
         },
       ),
       GoRoute(

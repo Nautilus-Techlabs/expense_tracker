@@ -9,6 +9,7 @@ import '../viewmodels/circle_notifier.dart';
 import '../widgets/circle_card.dart';
 import '../widgets/circle_summary_banner.dart';
 
+import '../widgets/create_circle_bottom_sheet.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 
 class CirclesScreen extends ConsumerStatefulWidget {
@@ -116,7 +117,7 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
                       Padding(
                         padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => showCreateCircleBottomSheet(context),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
                               color: isDark ? AppColors.borderDark : AppColors.primary,
@@ -153,7 +154,7 @@ class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => showCreateCircleBottomSheet(context),
       child: Container(
         width: 40.w,
         height: 40.w,
@@ -166,3 +167,4 @@ class _AddButton extends StatelessWidget {
     );
   }
 }
+

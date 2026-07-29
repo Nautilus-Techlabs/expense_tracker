@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
-import '../models/circle_data.dart';
-import 'circle_type_badge.dart';
-
-import 'member_avatar_stack.dart';
-import 'stat_column.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import '../../../core/constants/app_router.dart';
-import 'package:go_router/go_router.dart';
-
+import '../models/circle_data.dart';
 import '../models/circle_screen_model.dart' as screen_model;
+import 'circle_type_badge.dart';
+import 'member_avatar_stack.dart';
+import 'stat_column.dart';
 
 class CircleCard extends StatelessWidget {
   final screen_model.Circle circle;
@@ -24,12 +22,16 @@ class CircleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardColor = context.colors.card;
     final borderColor = context.colors.border;
-    final isOneTime = circle.type.toLowerCase() == 'one_time' || circle.type.toLowerCase() == 'onetime';
-
+    final isOneTime =
+        circle.type.toLowerCase() == 'one_time' ||
+        circle.type.toLowerCase() == 'onetime';
 
     return GestureDetector(
       onTap: () {
-        context.push(AppRouter.circleDetails, extra: circle.name);
+        context.push(
+          AppRouter.circleDetails,
+          extra: {'id': circle.circleId, 'name': circle.name},
+        );
       },
       child: Container(
         margin: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
@@ -53,9 +55,18 @@ class CircleCard extends StatelessWidget {
                 MemberAvatarStack(
                   members: circle.members.map((m) {
                     final initials = m.fullName.isNotEmpty
-                        ? m.fullName.trim().split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+                        ? m.fullName
+                              .trim()
+                              .split(' ')
+                              .map((e) => e.isNotEmpty ? e[0] : '')
+                              .take(2)
+                              .join()
+                              .toUpperCase()
                         : 'M';
-                    return CircleMember(initials: initials, color: AppColors.primary);
+                    return CircleMember(
+                      initials: initials,
+                      color: AppColors.primary,
+                    );
                   }).toList(),
                 ),
               ],
@@ -118,7 +129,9 @@ class CircleCard extends StatelessWidget {
                     label: 'Net Amount',
                     value: '₹${circle.netAmount}',
                     isDark: isDark,
-                    valueColor: circle.netAmount >= 0 ? AppColors.income : AppColors.expense,
+                    valueColor: circle.netAmount >= 0
+                        ? AppColors.income
+                        : AppColors.expense,
                   ),
                 ],
               ),
@@ -171,7 +184,9 @@ class CircleCard extends StatelessWidget {
                     label: circle.netAmount >= 0 ? 'You are owed' : 'You owe',
                     value: '₹${circle.netAmount.abs()}',
                     isDark: isDark,
-                    valueColor: circle.netAmount >= 0 ? AppColors.income : AppColors.expense,
+                    valueColor: circle.netAmount >= 0
+                        ? AppColors.income
+                        : AppColors.expense,
                   ),
                 ],
               ),
@@ -182,4 +197,3 @@ class CircleCard extends StatelessWidget {
     );
   }
 }
-
