@@ -105,15 +105,28 @@ class CircleNotifier extends Notifier<CircleState> {
     );
   }
 
-  Future<void> transferCircleOwnership({required int circleId}) async {
+  Future<bool> transferCircleOwnership({
+    required int circleId,
+    required int newOwnerUserId,
+    required int currentUserId,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await ref
         .read(supabaseHelperProvider)
-        .transferCircleOwnership(circleId: circleId);
-    result.fold(
-      (failure) =>
-          state = state.copyWith(error: failure.message, isLoading: false),
-      (_) => state = state.copyWith(isLoading: false),
+        .transferCircleOwnership(
+          circleId: circleId,
+          newOwnerUserId: newOwnerUserId,
+        );
+    return result.fold(
+      (failure) {
+        state = state.copyWith(error: failure.message, isLoading: false);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(isLoading: false);
+        fetchCirclesScreenData(currentUserId);
+        return true;
+      },
     );
   }
 
@@ -181,7 +194,6 @@ class CircleNotifier extends Notifier<CircleState> {
     );
   }
 }
-
 
 final circleProvider = NotifierProvider<CircleNotifier, CircleState>(
   CircleNotifier.new,

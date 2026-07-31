@@ -575,11 +575,15 @@ class SupabaseHelper {
 
   Future<Either<Failure, int>> transferCircleOwnership({
     required int circleId,
+    required int newOwnerUserId,
   }) async {
     try {
       final response = await supabase.rpc(
         SupabaseKeys.rpcTransferCircleOwnership,
-        params: {'p_circle_id': circleId},
+        params: {
+          'p_circle_id': circleId,
+          'p_new_owner_id': newOwnerUserId,
+        },
       );
       return Right(response as int);
     } catch (e) {
@@ -720,4 +724,38 @@ class SupabaseHelper {
       return Left(Failure('Failed to fetch circles details screen data.'));
     }
   }
+
+  Future<Either<Failure, int>> createCircleTransaction({
+    required int circleId,
+    required int accountId,
+    required double amount,
+    required int paidByUserId,
+    required dynamic splits, // jsonb (List<Map<String, dynamic>> or Map)
+    String type = 'expense',
+    String? note,
+    DateTime? txnDate,
+    int? categoryId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCreateCircleTransaction,
+        params: {
+          'p_circle_id': circleId,
+          'p_account_id': accountId,
+          'p_amount': amount,
+          'p_paid_by_user_id': paidByUserId,
+          'p_splits': splits,
+          'p_type': type,
+          'p_note': note,
+          'p_txn_date': (txnDate ?? DateTime.now()).toIso8601String().split('T').first,
+          'p_category_id': categoryId,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error creating circle transaction: $e');
+      return Left(Failure('Failed to create circle transaction.'));
+    }
+  }
 }
+

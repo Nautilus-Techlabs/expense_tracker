@@ -119,6 +119,43 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
     }
   }
 
+  Future<void> _transferOwnership(int newOwnerUserId, int currentUserId) async {
+    final success =
+        await ref.read(circleProvider.notifier).transferCircleOwnership(
+              circleId: widget.args.circleId,
+              newOwnerUserId: newOwnerUserId,
+              currentUserId: currentUserId,
+            );
+
+    if (mounted) {
+      if (success) {
+        // Refresh the details screen
+        ref
+            .read(circleDetailsProvider(widget.args.circleId).notifier)
+            .fetchCircleDetails(currentUserId);
+
+        context.pop(); // Pop settings
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ownership transferred successfully.'),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        final error =
+            ref.read(circleProvider).error ?? 'Failed to transfer ownership.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.expense,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).user;
@@ -354,6 +391,233 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                 ),
               ),
             if (isOwner) ...[
+              // Transfer Ownership Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Filter non-owner members who can receive ownership
+                    final transferCandidates = members
+                        .where((m) =>
+                            !m.isSelf &&
+                            m.role.toLowerCase() != 'owner')
+                        .toList();
+
+                    if (transferCandidates.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'No other members to transfer ownership to.'),
+                          backgroundColor: AppColors.expense,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return;
+                    }
+
+                    showDialog(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        backgroundColor: context.colors.background,
+                        title: Text(
+                          'Transfer Ownership',
+                          style: context.appTexts.heading.copyWith(
+                            fontSize: 20.sp,
+                            color: context.colors.textPrimary,
+                          ),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select the new owner. You will become a member after transferring.',
+                              style: context.appTexts.bodySmall.copyWith(
+                                color: context.colors.textSecondary,
+                              ),
+                            ),
+                            UIHelpers.verticalSpace(16),
+                            ...transferCandidates.map((m) {
+                              final initials = m.fullName.isNotEmpty
+                                  ? m.fullName
+                                      .trim()
+                                      .split(' ')
+                                      .map((e) =>
+                                          e.isNotEmpty ? e[0] : '')
+                                      .take(2)
+                                      .join()
+                                      .toUpperCase()
+                                  : 'M';
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: Material(
+                                  color: context.colors.card,
+                                  borderRadius:
+                                      BorderRadius.circular(12.r),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: ListTile(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                            horizontal: 12.w),
+                                    leading: Container(
+                                      width: 36.w,
+                                      height: 36.w,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        initials,
+                                        style: context
+                                            .appTexts.bodySmall
+                                            .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      m.fullName,
+                                      style: context
+                                          .appTexts.bodyMedium
+                                          .copyWith(
+                                        color:
+                                            context.colors.textPrimary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      m.role.toUpperCase(),
+                                      style: context
+                                          .appTexts.bodySmall
+                                          .copyWith(
+                                        color: context
+                                            .colors.textSecondary,
+                                        fontSize: 10.sp,
+                                      ),
+                                    ),
+                                    trailing: Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 14.sp,
+                                      color:
+                                          context.colors.textSecondary,
+                                    ),
+                                    onTap: () {
+                                      Navigator.pop(
+                                          dialogContext); // close picker
+                                      // Confirm transfer
+                                      showDialog(
+                                        context: context,
+                                        builder: (confirmCtx) =>
+                                            AlertDialog(
+                                          backgroundColor:
+                                              context.colors.background,
+                                          title: Text(
+                                            'Confirm Transfer',
+                                            style: context
+                                                .appTexts.heading
+                                                .copyWith(
+                                              fontSize: 20.sp,
+                                              color: context
+                                                  .colors.textPrimary,
+                                            ),
+                                          ),
+                                          content: Text(
+                                            'Transfer ownership to ${m.fullName}? You will become a regular member.',
+                                            style: context
+                                                .appTexts.bodyMedium
+                                                .copyWith(
+                                              color: context
+                                                  .colors.textSecondary,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(
+                                                      confirmCtx),
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                  color: context.colors
+                                                      .textSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(
+                                                    confirmCtx);
+                                                _transferOwnership(
+                                                  m.userId,
+                                                  currentUserId,
+                                                );
+                                              },
+                                              child: const Text(
+                                                'Transfer',
+                                                style: TextStyle(
+                                                    color: AppColors
+                                                        .primary),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(dialogContext),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: context.colors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        AppColors.primary.withValues(alpha: 0.1),
+                    foregroundColor: AppColors.primary,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.swap_horiz_rounded,
+                        color: AppColors.primary,
+                      ),
+                      UIHelpers.horizontalSpace(8),
+                      Text(
+                        'Transfer Ownership',
+                        style: context.appTexts.heading.copyWith(
+                          fontSize: 16.sp,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              UIHelpers.verticalSpace(12),
+              // Delete Circle Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

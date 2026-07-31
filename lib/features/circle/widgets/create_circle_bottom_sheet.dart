@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:expense_tracker/features/circle/viewmodels/circle_notifier.dart';
+import 'package:expense_tracker/features/circle/viewmodels/create_circle_form_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,11 +34,6 @@ class _CreateCircleBottomSheetState
   final _descriptionController = TextEditingController();
   final _budgetController = TextEditingController();
 
-  CircleType _selectedType = CircleType.ongoing;
-  bool _includeSettlements = true;
-  int? _selectedAccountId;
-  bool _nameError = false;
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -48,16 +44,19 @@ class _CreateCircleBottomSheetState
 
   Future<void> _submit() async {
     final name = _nameController.text.trim();
+    final formNotifier = ref.read(createCircleFormStateProvider.notifier);
+    final formState = ref.read(createCircleFormStateProvider);
+
     if (name.isEmpty) {
-      setState(() => _nameError = true);
+      formNotifier.setNameError(true);
       return;
     }
-    setState(() => _nameError = false);
+    formNotifier.setNameError(false);
 
-    if (_includeSettlements && _selectedAccountId == null) {
+    if (formState.includeSettlements && formState.selectedAccountId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please select a settlement account'),
+        const SnackBar(
+          content: Text('Please select a settlement account'),
           backgroundColor: AppColors.expense,
         ),
       );
@@ -76,10 +75,10 @@ class _CreateCircleBottomSheetState
         .read(circleProvider.notifier)
         .createCircle(
           name: name,
-          includeSettlementsInPersonalLedger: _includeSettlements,
-          settlementAccountId: _includeSettlements ? _selectedAccountId : null,
+          includeSettlementsInPersonalLedger: formState.includeSettlements,
+          settlementAccountId: formState.includeSettlements ? formState.selectedAccountId : null,
           description: description,
-          type: _selectedType,
+          type: formState.selectedType,
           budget: budget,
           userId: user.id,
         );
@@ -88,8 +87,8 @@ class _CreateCircleBottomSheetState
       if (success) {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Circle created successfully!'),
+          const SnackBar(
+            content: Text('Circle created successfully!'),
             backgroundColor: AppColors.income,
           ),
         );
@@ -103,11 +102,11 @@ class _CreateCircleBottomSheetState
     }
   }
 
-  Widget _buildTypeSegment(String label, CircleType value, bool isDark) {
-    final isSelected = _selectedType == value;
+  Widget _buildTypeSegment(String label, CircleType value, bool isDark, CreateCircleFormState formState, CreateCircleFormNotifier formNotifier) {
+    final isSelected = formState.selectedType == value;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _selectedType = value),
+        onTap: () => formNotifier.updateSelectedType(value),
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
@@ -144,6 +143,8 @@ class _CreateCircleBottomSheetState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accountsState = ref.watch(accountProvider);
     final accounts = accountsState.accounts;
+    final formState = ref.watch(createCircleFormStateProvider);
+    final formNotifier = ref.read(createCircleFormStateProvider.notifier);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -198,23 +199,13 @@ class _CreateCircleBottomSheetState
                   Container(
                     height: 48.h,
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.cardDark
-                          : const Color(0xFFEBEBEB),
+                      color: isDark ? AppColors.cardDark : const Color(0xFFEBEBEB),
                       borderRadius: BorderRadius.circular(24.r),
                     ),
                     child: Row(
                       children: [
-                        _buildTypeSegment(
-                          'Ongoing',
-                          CircleType.ongoing,
-                          isDark,
-                        ),
-                        _buildTypeSegment(
-                          'One-Time',
-                          CircleType.oneTime,
-                          isDark,
-                        ),
+                        _buildTypeSegment('Ongoing', CircleType.ongoing, isDark, formState, formNotifier),
+                        _buildTypeSegment('One-Time', CircleType.oneTime, isDark, formState, formNotifier),
                       ],
                     ),
                   ),
@@ -226,14 +217,14 @@ class _CreateCircleBottomSheetState
                       Text(
                         'Circle Name',
                         style: context.appTexts.bodySmall.copyWith(
-                          color: _nameError
+                          color: formState.nameError
                               ? AppColors.expense
                               : context.colors.textSecondary,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.8,
                         ),
                       ),
-                      if (_nameError) ...[
+                      if (formState.nameError) ...[
                         UIHelpers.horizontalSpace(8),
                         Icon(
                           Icons.error_outline_rounded,
@@ -252,16 +243,14 @@ class _CreateCircleBottomSheetState
                     decoration: InputDecoration(
                       hintText: 'e.g. Goa Trip 2026',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(
-                          alpha: 0.5,
-                        ),
+                        color: context.colors.textSecondary.withValues(alpha: 0.5),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: BorderSide(
-                          color: _nameError
+                          color: formState.nameError
                               ? AppColors.expense
                               : context.colors.border,
                         ),
@@ -269,7 +258,7 @@ class _CreateCircleBottomSheetState
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: BorderSide(
-                          color: _nameError
+                          color: formState.nameError
                               ? AppColors.expense
                               : context.colors.border,
                         ),
@@ -277,9 +266,7 @@ class _CreateCircleBottomSheetState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: BorderSide(
-                          color: _nameError
-                              ? AppColors.expense
-                              : AppColors.primary,
+                          color: formState.nameError ? AppColors.expense : AppColors.primary,
                         ),
                       ),
                     ),
@@ -304,9 +291,7 @@ class _CreateCircleBottomSheetState
                     decoration: InputDecoration(
                       hintText: 'e.g. Shared expenses for summer trip',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(
-                          alpha: 0.5,
-                        ),
+                        color: context.colors.textSecondary.withValues(alpha: 0.5),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
@@ -338,18 +323,14 @@ class _CreateCircleBottomSheetState
                   UIHelpers.verticalSpace(8),
                   TextField(
                     controller: _budgetController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: context.appTexts.bodyMedium.copyWith(
                       color: context.colors.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'e.g. 10000',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(
-                          alpha: 0.5,
-                        ),
+                        color: context.colors.textSecondary.withValues(alpha: 0.5),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
@@ -385,19 +366,16 @@ class _CreateCircleBottomSheetState
                         color: context.colors.textSecondary,
                       ),
                     ),
-                    value: _includeSettlements,
+                    value: formState.includeSettlements,
                     activeThumbColor: AppColors.primary,
                     onChanged: (val) {
-                      setState(() {
-                        _includeSettlements = val;
-                        if (!val) _selectedAccountId = null;
-                      });
+                      formNotifier.updateIncludeSettlements(val);
                     },
                   ),
                   UIHelpers.verticalSpace(12),
 
                   // Settlement Account dropdown (conditional)
-                  if (_includeSettlements) ...[
+                  if (formState.includeSettlements) ...[
                     Text(
                       'Settlement Account',
                       style: context.appTexts.bodySmall.copyWith(
@@ -417,7 +395,7 @@ class _CreateCircleBottomSheetState
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<int>(
-                          value: _selectedAccountId,
+                          value: formState.selectedAccountId,
                           isExpanded: true,
                           dropdownColor: context.colors.card,
                           hint: Text(
@@ -435,8 +413,9 @@ class _CreateCircleBottomSheetState
                               child: Text(acc.name),
                             );
                           }).toList(),
-                          onChanged: (val) =>
-                              setState(() => _selectedAccountId = val),
+                          onChanged: (val) {
+                            formNotifier.updateSelectedAccountId(val);
+                          },
                         ),
                       ),
                     ),
@@ -447,9 +426,7 @@ class _CreateCircleBottomSheetState
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: ref.watch(circleProvider).isLoading
-                          ? null
-                          : _submit,
+                      onPressed: ref.watch(circleProvider).isLoading ? null : _submit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
