@@ -23,13 +23,12 @@ class CircleSettingsScreen extends ConsumerStatefulWidget {
 
 class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
   Future<void> _leaveCircle(int userId) async {
-    final success = await ref.read(circleProvider.notifier).leaveCircle(
-          circleId: widget.args.circleId,
-          currentUserId: userId,
-        );
+    final errorMessage = await ref
+        .read(circleProvider.notifier)
+        .leaveCircle(circleId: widget.args.circleId, currentUserId: userId);
 
     if (mounted) {
-      if (success) {
+      if (errorMessage == null) {
         context.pop(); // Settings
         context.pop(); // Details
         ScaffoldMessenger.of(context).showSnackBar(
@@ -40,11 +39,9 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
           ),
         );
       } else {
-        final error =
-            ref.read(circleProvider).error ?? 'Failed to leave circle.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error),
+            content: Text(errorMessage),
             backgroundColor: AppColors.expense,
             behavior: SnackBarBehavior.floating,
           ),
@@ -54,13 +51,12 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
   }
 
   Future<void> _deleteCircle(int userId) async {
-    final success = await ref.read(circleProvider.notifier).deleteCircle(
-          circleId: widget.args.circleId,
-          currentUserId: userId,
-        );
+    final errorMessage = await ref
+        .read(circleProvider.notifier)
+        .deleteCircle(circleId: widget.args.circleId, currentUserId: userId);
 
     if (mounted) {
-      if (success) {
+      if (errorMessage == null) {
         context.pop(); // Settings
         context.pop(); // Details
         ScaffoldMessenger.of(context).showSnackBar(
@@ -71,11 +67,9 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
           ),
         );
       } else {
-        final error =
-            ref.read(circleProvider).error ?? 'Failed to delete circle.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error),
+            content: Text(errorMessage),
             backgroundColor: AppColors.expense,
             behavior: SnackBarBehavior.floating,
           ),
@@ -85,14 +79,16 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
   }
 
   Future<void> _removeMember(int targetUserId, int currentUserId) async {
-    final success = await ref.read(circleProvider.notifier).removeCircleMember(
+    final errorMessage = await ref
+        .read(circleProvider.notifier)
+        .removeCircleMember(
           circleId: widget.args.circleId,
           targetUserId: targetUserId,
           currentUserId: currentUserId,
         );
 
     if (mounted) {
-      if (success) {
+      if (errorMessage == null) {
         // Refresh details screen data
         ref
             .read(circleDetailsProvider(widget.args.circleId).notifier)
@@ -106,11 +102,9 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
           ),
         );
       } else {
-        final error =
-            ref.read(circleProvider).error ?? 'Failed to remove member.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error),
+            content: Text(errorMessage),
             backgroundColor: AppColors.expense,
             behavior: SnackBarBehavior.floating,
           ),
@@ -120,15 +114,16 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
   }
 
   Future<void> _transferOwnership(int newOwnerUserId, int currentUserId) async {
-    final success =
-        await ref.read(circleProvider.notifier).transferCircleOwnership(
-              circleId: widget.args.circleId,
-              newOwnerUserId: newOwnerUserId,
-              currentUserId: currentUserId,
-            );
+    final success = await ref
+        .read(circleProvider.notifier)
+        .transferCircleOwnership(
+          circleId: widget.args.circleId,
+          newOwnerUserId: newOwnerUserId,
+          currentUserId: currentUserId,
+        );
 
     if (mounted) {
-      if (success) {
+      if (success != null) {
         // Refresh the details screen
         ref
             .read(circleDetailsProvider(widget.args.circleId).notifier)
@@ -161,12 +156,12 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
     final currentUser = ref.watch(authProvider).user;
     final currentUserId = currentUser?.id ?? 0;
 
-    final detailsState =
-        ref.watch(circleDetailsProvider(widget.args.circleId));
+    final detailsState = ref.watch(circleDetailsProvider(widget.args.circleId));
     final screenData = detailsState.screenData;
     final members = screenData?.members ?? [];
 
-    final isOwner = widget.args.ownerId == currentUserId ||
+    final isOwner =
+        widget.args.ownerId == currentUserId ||
         members.any(
           (m) => m.userId == currentUserId && m.role.toLowerCase() == 'owner',
         );
@@ -277,12 +272,12 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                   final isMemberOwner = member.role.toLowerCase() == 'owner';
                   final initials = member.fullName.isNotEmpty
                       ? member.fullName
-                          .trim()
-                          .split(' ')
-                          .map((e) => e.isNotEmpty ? e[0] : '')
-                          .take(2)
-                          .join()
-                          .toUpperCase()
+                            .trim()
+                            .split(' ')
+                            .map((e) => e.isNotEmpty ? e[0] : '')
+                            .take(2)
+                            .join()
+                            .toUpperCase()
                       : 'M';
 
                   return Container(
@@ -398,16 +393,17 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                   onPressed: () {
                     // Filter non-owner members who can receive ownership
                     final transferCandidates = members
-                        .where((m) =>
-                            !m.isSelf &&
-                            m.role.toLowerCase() != 'owner')
+                        .where(
+                          (m) => !m.isSelf && m.role.toLowerCase() != 'owner',
+                        )
                         .toList();
 
                     if (transferCandidates.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                              'No other members to transfer ownership to.'),
+                            'No other members to transfer ownership to.',
+                          ),
                           backgroundColor: AppColors.expense,
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -440,25 +436,23 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                             ...transferCandidates.map((m) {
                               final initials = m.fullName.isNotEmpty
                                   ? m.fullName
-                                      .trim()
-                                      .split(' ')
-                                      .map((e) =>
-                                          e.isNotEmpty ? e[0] : '')
-                                      .take(2)
-                                      .join()
-                                      .toUpperCase()
+                                        .trim()
+                                        .split(' ')
+                                        .map((e) => e.isNotEmpty ? e[0] : '')
+                                        .take(2)
+                                        .join()
+                                        .toUpperCase()
                                   : 'M';
                               return Padding(
                                 padding: EdgeInsets.only(bottom: 8.h),
                                 child: Material(
                                   color: context.colors.card,
-                                  borderRadius:
-                                      BorderRadius.circular(12.r),
+                                  borderRadius: BorderRadius.circular(12.r),
                                   clipBehavior: Clip.antiAlias,
                                   child: ListTile(
-                                    contentPadding:
-                                        EdgeInsets.symmetric(
-                                            horizontal: 12.w),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                    ),
                                     leading: Container(
                                       width: 36.w,
                                       height: 36.w,
@@ -469,86 +463,79 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                                       alignment: Alignment.center,
                                       child: Text(
                                         initials,
-                                        style: context
-                                            .appTexts.bodySmall
+                                        style: context.appTexts.bodySmall
                                             .copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                     ),
                                     title: Text(
                                       m.fullName,
-                                      style: context
-                                          .appTexts.bodyMedium
+                                      style: context.appTexts.bodyMedium
                                           .copyWith(
-                                        color:
-                                            context.colors.textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                            color: context.colors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                                     subtitle: Text(
                                       m.role.toUpperCase(),
-                                      style: context
-                                          .appTexts.bodySmall
+                                      style: context.appTexts.bodySmall
                                           .copyWith(
-                                        color: context
-                                            .colors.textSecondary,
-                                        fontSize: 10.sp,
-                                      ),
+                                            color: context.colors.textSecondary,
+                                            fontSize: 10.sp,
+                                          ),
                                     ),
                                     trailing: Icon(
                                       Icons.arrow_forward_ios_rounded,
                                       size: 14.sp,
-                                      color:
-                                          context.colors.textSecondary,
+                                      color: context.colors.textSecondary,
                                     ),
                                     onTap: () {
                                       Navigator.pop(
-                                          dialogContext); // close picker
+                                        dialogContext,
+                                      ); // close picker
                                       // Confirm transfer
                                       showDialog(
                                         context: context,
-                                        builder: (confirmCtx) =>
-                                            AlertDialog(
+                                        builder: (confirmCtx) => AlertDialog(
                                           backgroundColor:
                                               context.colors.background,
                                           title: Text(
                                             'Confirm Transfer',
-                                            style: context
-                                                .appTexts.heading
+                                            style: context.appTexts.heading
                                                 .copyWith(
-                                              fontSize: 20.sp,
-                                              color: context
-                                                  .colors.textPrimary,
-                                            ),
+                                                  fontSize: 20.sp,
+                                                  color: context
+                                                      .colors
+                                                      .textPrimary,
+                                                ),
                                           ),
                                           content: Text(
                                             'Transfer ownership to ${m.fullName}? You will become a regular member.',
-                                            style: context
-                                                .appTexts.bodyMedium
+                                            style: context.appTexts.bodyMedium
                                                 .copyWith(
-                                              color: context
-                                                  .colors.textSecondary,
-                                            ),
+                                                  color: context
+                                                      .colors
+                                                      .textSecondary,
+                                                ),
                                           ),
                                           actions: [
                                             TextButton(
                                               onPressed: () =>
-                                                  Navigator.pop(
-                                                      confirmCtx),
+                                                  Navigator.pop(confirmCtx),
                                               child: Text(
                                                 'Cancel',
                                                 style: TextStyle(
-                                                  color: context.colors
+                                                  color: context
+                                                      .colors
                                                       .textSecondary,
                                                 ),
                                               ),
                                             ),
                                             TextButton(
                                               onPressed: () {
-                                                Navigator.pop(
-                                                    confirmCtx);
+                                                Navigator.pop(confirmCtx);
                                                 _transferOwnership(
                                                   m.userId,
                                                   currentUserId,
@@ -557,8 +544,8 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                                               child: const Text(
                                                 'Transfer',
                                                 style: TextStyle(
-                                                    color: AppColors
-                                                        .primary),
+                                                  color: AppColors.primary,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -573,8 +560,7 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () =>
-                                Navigator.pop(dialogContext),
+                            onPressed: () => Navigator.pop(dialogContext),
                             child: Text(
                               'Cancel',
                               style: TextStyle(
@@ -587,8 +573,7 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        AppColors.primary.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     foregroundColor: AppColors.primary,
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                     shape: RoundedRectangleBorder(

@@ -48,9 +48,7 @@ class CircleSummaryCard extends StatelessWidget {
               Text(
                 'Total spent:',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.primary,
+                  color: context.colors.textSecondary,
                   fontSize: 24.sp,
                 ),
               ),
@@ -58,7 +56,7 @@ class CircleSummaryCard extends StatelessWidget {
               Text(
                 '₹${totalSpent.toStringAsFixed(0)}',
                 style: context.appTexts.displayMedium.copyWith(
-                  color: isDark ? Colors.white : AppColors.primary,
+                  color: context.colors.textPrimary,
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -86,7 +84,7 @@ class CircleSummaryCard extends StatelessWidget {
                     width:
                         constraints.maxWidth * (progressPct / 100).clamp(0, 1),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.income : AppColors.primary,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                   );
@@ -105,7 +103,7 @@ class CircleSummaryCard extends StatelessWidget {
                     width: 8.w,
                     height: 8.w,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.income : AppColors.primary,
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),

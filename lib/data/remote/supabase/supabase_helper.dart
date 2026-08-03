@@ -600,6 +600,9 @@ class SupabaseHelper {
         params: {'p_circle_id': circleId, 'p_target_user_id': targetUserId},
       );
       return const Right(null);
+    } on PostgrestException catch (e) {
+      AppLogger.e('Error removing circle member: $e');
+      return Left(Failure(e.message));
     } catch (e) {
       AppLogger.e('Error removing circle member: $e');
       return Left(Failure('Failed to remove member from circle.'));
@@ -613,6 +616,9 @@ class SupabaseHelper {
         params: {'p_circle_id': circleId},
       );
       return const Right(null);
+    } on PostgrestException catch (e) {
+      AppLogger.e('Error leaving circle: $e');
+      return Left(Failure(e.message));
     } catch (e) {
       AppLogger.e('Error leaving circle: $e');
       return Left(Failure('Failed to leave circle.'));

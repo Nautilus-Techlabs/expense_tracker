@@ -110,35 +110,26 @@ class CircleMemberCard extends StatelessWidget {
             ),
           ),
 
-          // Action (Remind button or bell)
-          if (showRemind) ...[
-            if (isDark)
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: context.colors.border),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
-                  minimumSize: Size(0, 32.h),
+          // Action (Remind button)
+          if (showRemind)
+            OutlinedButton(
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: context.colors.border),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
-                child: Text(
-                  'Remind',
-                  style: context.appTexts.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              )
-            else
-              IconButton(
-                icon: Icon(Icons.notifications_none_rounded, color: context.colors.primary, size: 24.sp),
-                onPressed: () {},
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
+                minimumSize: Size(0, 32.h),
               ),
-          ],
+              child: Text(
+                'Remind',
+                style: context.appTexts.bodySmall.copyWith(
+                  color: context.colors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
         ],
       ),
     );
