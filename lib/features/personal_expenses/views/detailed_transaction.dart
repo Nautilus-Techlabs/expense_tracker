@@ -12,6 +12,8 @@ import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/edit_transaction_sheet.dart';
+import '../../circle/models/circle_transaction_split_model.dart';
+import '../../circle/viewmodels/circle_transaction_details_provider.dart';
 
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
@@ -129,7 +131,15 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(16),
 
             // ── Split Details Card (only for Circle transactions) ──
-            if (isCircleTransaction) _buildSplitDetailsCard(context, isDark),
+            if (isCircleTransaction)
+              ref.watch(circleTransactionDetailsProvider(widget.transaction.id)).when(
+                data: (splitModel) {
+                  if (splitModel == null) return const SizedBox.shrink();
+                  return _buildSplitDetailsCard(context, isDark, splitModel);
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(child: Text('Error: $e', style: TextStyle(color: context.colors.textPrimary))),
+              ),
             UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
@@ -273,7 +283,7 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildSplitDetailsCard(BuildContext context, bool isDark) {
+  Widget _buildSplitDetailsCard(BuildContext context, bool isDark, CircleTransactionSplitModel splitModel) {
     final cardColor = context.colors.card;
     final borderColor = context.colors.border;
 
@@ -283,15 +293,52 @@ class _DetailedTransactionScreenState
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: borderColor),
       ),
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Text(
-          'Circle split details coming soon.',
-          style: context.appTexts.bodyMedium.copyWith(
-            color: context.colors.textSecondary,
-            fontStyle: FontStyle.italic,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(20.w).copyWith(bottom: 10.h),
+            child: Text(
+              'Splits',
+              style: context.appTexts.bodyMedium.copyWith(
+                color: context.colors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-        ),
+          Divider(height: 1, color: borderColor),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: splitModel.splits.length,
+            separatorBuilder: (context, index) => Divider(height: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+            itemBuilder: (context, index) {
+              final split = splitModel.splits[index];
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      split.fullName,
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: context.colors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '₹${split.actualAmount}',
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: context.colors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

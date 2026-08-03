@@ -10,6 +10,7 @@ import 'package:expense_tracker/features/auth/model/user_payload.dart';
 import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_transaction_split_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
@@ -580,10 +581,7 @@ class SupabaseHelper {
     try {
       final response = await supabase.rpc(
         SupabaseKeys.rpcTransferCircleOwnership,
-        params: {
-          'p_circle_id': circleId,
-          'p_new_owner_id': newOwnerUserId,
-        },
+        params: {'p_circle_id': circleId, 'p_new_owner_id': newOwnerUserId},
       );
       return Right(response as int);
     } catch (e) {
@@ -631,6 +629,50 @@ class SupabaseHelper {
     } catch (e) {
       AppLogger.e('Error deleting circle: $e');
       return Left(Failure('Failed to delete circle.'));
+    }
+  }
+
+  Future<Either<Failure, List<TransactionModel>>> getCircleTransactions({
+    required int circleId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleTransactions,
+        params: {'p_circle_id': circleId},
+      );
+
+      final List<dynamic> data = response;
+      final transactions = data
+          .map(
+            (json) => TransactionModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+      AppLogger.d('Fetched transactions: ${transactions.length}');
+      return Right(transactions);
+    } catch (e) {
+      AppLogger.e('Error fetching circle transactions: $e');
+      return Left(Failure('Failed to fetch circle transactions.'));
+    }
+  }
+
+  Future<Either<Failure, CircleTransactionSplitModel>>
+  getCircleTransactionsDetails({required int transactionId}) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCircleDetails,
+        params: {'p_transaction_id': transactionId},
+      );
+
+      final circleTransactionSplitModel = CircleTransactionSplitModel.fromJson(
+        response,
+      );
+      AppLogger.d(
+        'Fetched circle transactions details: ${circleTransactionSplitModel.transaction.id}',
+      );
+      return Right(circleTransactionSplitModel);
+    } catch (e) {
+      AppLogger.e('Error fetching detailed circle transactions: $e');
+      return Left(Failure('Failed to fetch detailed circle transactions.'));
     }
   }
 
@@ -747,7 +789,10 @@ class SupabaseHelper {
           'p_splits': splits,
           'p_type': type,
           'p_note': note,
-          'p_txn_date': (txnDate ?? DateTime.now()).toIso8601String().split('T').first,
+          'p_txn_date': (txnDate ?? DateTime.now())
+              .toIso8601String()
+              .split('T')
+              .first,
           'p_category_id': categoryId,
         },
       );
@@ -758,4 +803,3 @@ class SupabaseHelper {
     }
   }
 }
-

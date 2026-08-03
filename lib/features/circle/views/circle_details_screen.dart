@@ -234,7 +234,12 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    context.push(
+                                      AppRouter.circleAllTransactions,
+                                      extra: widget.args.circleId,
+                                    );
+                                  },
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,

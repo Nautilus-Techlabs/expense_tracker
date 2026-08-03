@@ -57,7 +57,7 @@ class TransactionModel {
   final bool isReimbursement;
 
   @JsonKey(name: 'reimbursement_ref_id')
-  final String? reimbursementRefId;
+  final int? reimbursementRefId;
 
   @JsonKey(name: 'is_deleted')
   final bool isDeleted;

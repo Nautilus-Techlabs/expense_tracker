@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/circle/views/circle_details_screen.dart';
+import '../../features/circle/views/circle_all_transactions_screen.dart';
 import '../../features/circle/views/circle_settings_screen.dart';
 import '../../features/personal_expenses/models/transaction_model.dart';
 import '../../features/personal_expenses/views/accounts_settings_screen.dart';
@@ -38,6 +39,7 @@ class AppRouter {
   static const String addBudget = '/add-budget';
   static const String categoryBreakdown = '/category-breakdown';
   static const String faq = '/faq';
+  static const String circleAllTransactions = '/circle-all-transactions';
   static const String circleSettings = '/circle-settings';
 
   static final router = GoRouter(
@@ -120,6 +122,13 @@ class AppRouter {
         },
       ),
       GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
+      GoRoute(
+        path: circleAllTransactions,
+        builder: (context, state) {
+          final circleId = state.extra as int;
+          return CircleAllTransactionsScreen(circleId: circleId);
+        },
+      ),
       GoRoute(
         path: circleSettings,
         builder: (context, state) {

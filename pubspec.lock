@@ -145,14 +145,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  charcode:
-    dependency: transitive
-    description:
-      name: charcode
-      sha256: fb0f1107cac15a5ea6ef0a6ef71a807b9e4267c713bb93e00e92d737cc8dbd8a
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -205,10 +197,10 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: cad0e811a289ea2a941119dc483c204ec1684cbb9a8fc7351fe4a230b8313160
+      sha256: "762c99f890ca8bf87f7337236f99edd42793843bc6c3631da294a76653a54bd0"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.0"
+    version: "7.3.1"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
@@ -289,30 +281,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.13"
-  drift:
-    dependency: "direct main"
-    description:
-      name: drift
-      sha256: c21b9af62e78f86837638dda6c33506bd9444ca8a32cad2b99c07369cf9e2462
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.34.1"
-  drift_dev:
-    dependency: "direct dev"
-    description:
-      name: drift_dev
-      sha256: "9cfff1576b49725da0d32c040651a41ae195e8c4af8d8da301593e41d7abc2f7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.34.0"
-  drift_flutter:
-    dependency: "direct main"
-    description:
-      name: drift_flutter
-      sha256: "91acf4bee7c3c84467cba46455aa70e5292a3b889f4582645d74f2e5a8c106f2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   either_dart:
     dependency: "direct main"
     description:
@@ -458,10 +426,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_riverpod
-      sha256: "9255e1e3ad6e38906a1b4f8287678f95f378744c5b46b1985588543f3f19046e"
+      sha256: "56e81e662e6e54e59b231da57e90ac0d06ac67d8e3f2273c129a37ae6282b40c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.4.2"
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -768,6 +736,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+  listen:
+    dependency: transitive
+    description:
+      name: listen
+      sha256: "47501a08016a43fcad79252439d723f50f14f88fa7bfd8a177e0a417e5c9e1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   logger:
     dependency: "direct main"
     description:
@@ -816,14 +792,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  native_toolchain_c:
-    dependency: transitive
-    description:
-      name: native_toolchain_c
-      sha256: f9c168717100ae6d9fee9ffb0be379bf1f8b26b0f6bcbd4fdddcd931993a6a72
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.19.2"
   nm:
     dependency: transitive
     description:
@@ -1000,14 +968,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  recase:
-    dependency: transitive
-    description:
-      name: recase
-      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   record_use:
     dependency: transitive
     description:
@@ -1036,10 +996,10 @@ packages:
     dependency: transitive
     description:
       name: riverpod
-      sha256: "17100416c51db7810c71a7bb2c34d1f881faa0074fd452afb0c4db6f8f126c76"
+      sha256: "84351b3472a447f7b89f961f95c73287009d58c59d8cc1267425d995f78e50f1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.4.2"
   rxdart:
     dependency: transitive
     description:
@@ -1052,18 +1012,18 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: "02180b01c1237b9706b663d9402b2cf2402b3407f48cce99cc19e3200f095b8a"
+      sha256: "34f00f9becd2743c1fb05363d624f9f70d37f7ccdcdda47450bc0b8c9d327b8c"
       url: "https://pub.dev"
     source: hosted
-    version: "13.2.1"
+    version: "13.3.0"
   share_plus_platform_interface:
     dependency: transitive
     description:
       name: share_plus_platform_interface
-      sha256: "7f7ae28cf400d13f811e297ff37742dba83b79e0a6f5dce14eec0248274e6ce9"
+      sha256: "365ef7379fc22507256adda3385152942ffce08935452bc972c2e52a0bebae41"
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.0"
+    version: "7.2.0"
   shared_preferences:
     dependency: transitive
     description:
@@ -1205,38 +1165,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
-  sqlcipher_flutter_libs:
-    dependency: transitive
-    description:
-      name: sqlcipher_flutter_libs
-      sha256: "38d62d659d2fb8739bf25a42c9a350d1fdd6c29a5a61f13a946778ec75d27929"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0+eol"
-  sqlite3:
-    dependency: transitive
-    description:
-      name: sqlite3
-      sha256: "752d9d746052359a2022f588bb979f2e7c4e0f9e4b6a1c3121f7626a1574974b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.4"
-  sqlite3_flutter_libs:
-    dependency: transitive
-    description:
-      name: sqlite3_flutter_libs
-      sha256: "3ed7553eee7bb368f8950f58ba29f634e06e813c029aff6a0d60862b96de8454"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0+eol"
-  sqlparser:
-    dependency: transitive
-    description:
-      name: sqlparser
-      sha256: "40bdddb306a727be9ce510bd2d2b9a6c9db6c586d846ef7b22e3990a2b24f02d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.44.5"
   stack_trace:
     dependency: transitive
     description:
@@ -1406,7 +1334,7 @@ packages:
     source: hosted
     version: "3.1.5"
   uuid:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: uuid
       sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"

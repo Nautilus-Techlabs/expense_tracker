@@ -19,7 +19,7 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       txnDate: DateTime.parse(json['txn_date'] as String),
       isCircleTransaction: json['is_circle_transaction'] as bool,
       isReimbursement: json['is_reimbursement'] as bool,
-      reimbursementRefId: json['reimbursement_ref_id'] as String?,
+      reimbursementRefId: (json['reimbursement_ref_id'] as num?)?.toInt(),
       isDeleted: json['is_deleted'] as bool,
       deletedAt: json['deleted_at'] == null
           ? null
