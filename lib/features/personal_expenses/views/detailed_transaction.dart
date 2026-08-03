@@ -14,6 +14,7 @@ import '../viewmodels/transaction_notifier.dart';
 import '../widgets/edit_transaction_sheet.dart';
 import '../../circle/models/circle_transaction_split_model.dart';
 import '../../circle/viewmodels/circle_transaction_details_provider.dart';
+import '../viewmodels/detailed_transaction_provider.dart';
 
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
@@ -36,23 +37,12 @@ class _DetailedTransactionScreenState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isExpense =
-        widget.transaction.type == 'expense' ||
-        widget.transaction.type == 'withdrawal';
-    final amountColor = isExpense ? AppColors.expense : AppColors.income;
-    final bool isCircleTransaction = widget.transaction.isCircleTransaction;
-
-    // Resolve category name
-    final category = ref
-        .watch(categoryProvider.notifier)
-        .getCategoryById(widget.transaction.categoryId);
-    final categoryName = category?.name ?? 'Uncategorized';
-
-    // Resolve account name
-    final account = ref
-        .watch(accountProvider.notifier)
-        .getAccountById(widget.transaction.accountId);
-    final accountName = account?.name ?? 'Unknown Account';
+    final detailState = ref.watch(detailedTransactionProvider(widget.transaction));
+    
+    final amountColor = detailState.isExpense ? AppColors.expense : AppColors.income;
+    final isCircleTransaction = detailState.isCircleTransaction;
+    final categoryName = detailState.categoryName;
+    final accountName = detailState.accountName;
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -143,7 +133,8 @@ class _DetailedTransactionScreenState
             UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
-            _buildActionButtons(context, isDark),
+            if (detailState.canEditOrDelete)
+              _buildActionButtons(context, isDark),
             UIHelpers.verticalSpace(40),
           ],
         ),
@@ -319,12 +310,25 @@ class _DetailedTransactionScreenState
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      split.fullName,
-                      style: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          split.fullName,
+                          style: context.appTexts.bodyMedium.copyWith(
+                            color: context.colors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        UIHelpers.verticalSpace(2),
+                        Text(
+                          split.splitType,
+                          style: context.appTexts.bodySmall.copyWith(
+                            color: context.colors.textSecondary,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       '₹${split.actualAmount}',
