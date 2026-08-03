@@ -5,7 +5,7 @@ part 'circle_model.g.dart';
 @JsonEnum()
 enum CircleType {
   @JsonValue('one_time')
-  oneTime,
+  one_time,
   @JsonValue('ongoing')
   ongoing,
 }

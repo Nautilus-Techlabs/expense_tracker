@@ -423,13 +423,10 @@ class SupabaseHelper {
     required int transactionId,
   }) async {
     try {
-      await supabase
-          .from(SupabaseKeys.tableTransactions)
-          .update({
-            'is_deleted': true,
-            'deleted_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', transactionId);
+      await supabase.rpc(
+        SupabaseKeys.rpcDeleteTransaction,
+        params: {'p_transaction_id': transactionId},
+      );
 
       return const Right(null);
     } catch (e) {

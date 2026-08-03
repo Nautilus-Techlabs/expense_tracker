@@ -76,7 +76,9 @@ class _CreateCircleBottomSheetState
         .createCircle(
           name: name,
           includeSettlementsInPersonalLedger: formState.includeSettlements,
-          settlementAccountId: formState.includeSettlements ? formState.selectedAccountId : null,
+          settlementAccountId: formState.includeSettlements
+              ? formState.selectedAccountId
+              : null,
           description: description,
           type: formState.selectedType,
           budget: budget,
@@ -102,7 +104,13 @@ class _CreateCircleBottomSheetState
     }
   }
 
-  Widget _buildTypeSegment(String label, CircleType value, bool isDark, CreateCircleFormState formState, CreateCircleFormNotifier formNotifier) {
+  Widget _buildTypeSegment(
+    String label,
+    CircleType value,
+    bool isDark,
+    CreateCircleFormState formState,
+    CreateCircleFormNotifier formNotifier,
+  ) {
     final isSelected = formState.selectedType == value;
     return Expanded(
       child: GestureDetector(
@@ -199,13 +207,27 @@ class _CreateCircleBottomSheetState
                   Container(
                     height: 48.h,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.cardDark : const Color(0xFFEBEBEB),
+                      color: isDark
+                          ? AppColors.cardDark
+                          : const Color(0xFFEBEBEB),
                       borderRadius: BorderRadius.circular(24.r),
                     ),
                     child: Row(
                       children: [
-                        _buildTypeSegment('Ongoing', CircleType.ongoing, isDark, formState, formNotifier),
-                        _buildTypeSegment('One-Time', CircleType.oneTime, isDark, formState, formNotifier),
+                        _buildTypeSegment(
+                          'Ongoing',
+                          CircleType.ongoing,
+                          isDark,
+                          formState,
+                          formNotifier,
+                        ),
+                        _buildTypeSegment(
+                          'One-Time',
+                          CircleType.one_time,
+                          isDark,
+                          formState,
+                          formNotifier,
+                        ),
                       ],
                     ),
                   ),
@@ -243,7 +265,9 @@ class _CreateCircleBottomSheetState
                     decoration: InputDecoration(
                       hintText: 'e.g. Goa Trip 2026',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(alpha: 0.5),
+                        color: context.colors.textSecondary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
@@ -266,7 +290,9 @@ class _CreateCircleBottomSheetState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: BorderSide(
-                          color: formState.nameError ? AppColors.expense : AppColors.primary,
+                          color: formState.nameError
+                              ? AppColors.expense
+                              : AppColors.primary,
                         ),
                       ),
                     ),
@@ -291,7 +317,9 @@ class _CreateCircleBottomSheetState
                     decoration: InputDecoration(
                       hintText: 'e.g. Shared expenses for summer trip',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(alpha: 0.5),
+                        color: context.colors.textSecondary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
@@ -323,14 +351,18 @@ class _CreateCircleBottomSheetState
                   UIHelpers.verticalSpace(8),
                   TextField(
                     controller: _budgetController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     style: context.appTexts.bodyMedium.copyWith(
                       color: context.colors.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'e.g. 10000',
                       hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: context.colors.textSecondary.withValues(alpha: 0.5),
+                        color: context.colors.textSecondary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       filled: true,
                       fillColor: context.colors.card,
@@ -426,7 +458,9 @@ class _CreateCircleBottomSheetState
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: ref.watch(circleProvider).isLoading ? null : _submit,
+                      onPressed: ref.watch(circleProvider).isLoading
+                          ? null
+                          : _submit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
