@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/services/link_generator.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/circle/widgets/circle_summary_card.dart';
 import 'package:expense_tracker/features/circle/widgets/circle_transaction_tile.dart';
@@ -148,7 +149,11 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                                   ),
                                 ),
                                 TextButton.icon(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    ShareHelper.inviteCircle(
+                                      widget.args.circleId,
+                                    );
+                                  },
                                   icon: Icon(
                                     Icons.person_add_outlined,
                                     size: 16.sp,

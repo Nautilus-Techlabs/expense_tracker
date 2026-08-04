@@ -311,7 +311,7 @@ class _InputField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (prefix != null) prefix!,
+          ?prefix,
           Expanded(
             child: TextField(
               controller: controller,
