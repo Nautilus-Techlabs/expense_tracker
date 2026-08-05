@@ -300,6 +300,68 @@ The app can automatically report crashes and unexpected errors to help the devel
 
 ---
 
+## Feature Roadmap: Spec vs. Current Build
+
+This section tracks the current build against the internal product spec ("Finance Tracker Document") — what's done, what's partial, and what's still missing. Update this checklist as gaps get closed.
+
+### A. Core entities and flows
+
+| Requirement | Status |
+|---|---|
+| Personal profile / default "My Wallet" space for solo tracking | ✅ Implemented |
+| Groups: create "Family"/"Flatmates"/"Trip", invite via link/WhatsApp, start logging shared expenses immediately **without full sign-up** | ⚠️ Partial — Circles + invite links exist, but the app requires full sign-in (email/password or Google) to use at all. The spec's frictionless, no-account join isn't there. |
+| Simple "Personal ↔ Groups" switcher (workspace-style toggle) | ⚠️ Partial — a separate "Circles" tab in the bottom nav stands in for this instead of a single toggle |
+
+### B. Personal expense tracking
+
+| Requirement | Status |
+|---|---|
+| Quick add expense/income (amount, category, date, notes) | ✅ Implemented |
+| Pre-configured categories with icons + custom categories | ✅ Implemented (custom categories all get the same default icon/color — no picker yet) |
+| **Per-category monthly budgets** (e.g. Food ₹10,000, Transport ₹3,000) | ❌ Missing — only a single global monthly budget exists |
+| Simple global monthly budget with progress bar | ✅ Implemented |
+| Personal insights: daily/weekly/monthly overview, top categories, trend charts | ✅ Implemented (Reports screen) |
+
+### C. Family/friends sharing
+
+| Requirement | Status |
+|---|---|
+| Group creation in 2–3 taps, invite via link/WhatsApp/SMS | ✅ Implemented |
+| **Shared group budget** with everyone seeing utilization/remaining | ⚠️ Partial — circles have an optional "Budget" field at creation, but no utilization/remaining-balance display against it |
+| Expense entry: amount + category + payer + participants, equal split by default, custom split for advanced users | ✅ Implemented — exceeds spec (Equal / Percentage / Fixed, not just equal + custom) |
+| Balances screen ("You owe ₹X / owed ₹Y"), simplified Splitwise-style settling | ⚠️ Partial — balances are implemented and accurate; **Settle Up itself is still mock/placeholder data**, not wired to real balances yet |
+| Roles: Owner / Member / Viewer | ⚠️ Partial — roles exist in the data model, but only Owner has enforced special permissions; Viewer's read-only restriction isn't enforced |
+| "Hide certain personal accounts from a group" | ❌ Missing |
+
+### D. UX priorities
+
+| Requirement | Status |
+|---|---|
+| Simple UI, one FAB "Add expense", bottom nav | ✅ Implemented |
+| **Offline-friendly** (add expenses offline, sync later) | ❌ Missing — biggest gap. The app requires internet for every operation; a "no internet" banner blocks actions instead of allowing offline entry |
+| India-friendly sharing: export settlement summaries as text/image for WhatsApp | ❌ Missing — a general CSV data export exists, but no settlement-specific text/image summary |
+| UPI/WhatsApp as primary settlement communication channel | ❌ Missing — no UPI deep-linking; WhatsApp is only used generically via the OS share sheet for invite links |
+
+### E. Differentiation
+
+The "one app for personal + shared money, India-friendly, offline-capable" positioning is partially achieved: personal and shared (Circles) flows both exist and are reasonably built out, but the two things that make it *India-friendly and offline-capable* per the spec — offline support and WhatsApp/UPI-native settlement sharing — are the biggest remaining gaps.
+
+### Remaining work, in priority order
+
+1. **Offline support** — the app is fully online-only today
+2. **Per-category budgets** — only a single global monthly budget exists
+3. **Frictionless group join without full account creation**
+4. **Settle Up flow** — currently mock data, not functional
+5. **Settlement summary export as text/image for WhatsApp**
+6. **UPI-linked settlement/payment flow**
+7. **Group budget utilization display** (the budget field exists but isn't visibly tracked)
+8. **Viewer role enforcement** and **hide-personal-account-from-group** option
+9. Minor: unified Personal/Groups switcher UX (currently separate nav tabs — cosmetic, not functional)
+
+Everything else in the spec (quick-add, categories, personal insights/reports, group creation + invites, expense splitting with 3 methods, per-member balances) is implemented, and a few things (3 split methods instead of 2, crash reporting, CSV export, Google sign-in) go beyond what the spec asked for.
+
+---
+
 ## Getting Started (for developers)
 
 ```bash
