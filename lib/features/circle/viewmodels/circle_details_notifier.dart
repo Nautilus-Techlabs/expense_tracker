@@ -23,6 +23,33 @@ class CircleDetailsNotifier extends Notifier<CircleDetailsState> {
       (data) => state = state.copyWith(screenData: data, isLoading: false),
     );
   }
+
+  Future<String?> recordSettlement({
+    required int paidByUserId,
+    required int paidToUserId,
+    required double amount,
+    required int currentUserId,
+    String? note,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    final result = await ref.read(supabaseHelperProvider).recordSettlement(
+          circleId: circleId,
+          paidByUserId: paidByUserId,
+          paidToUserId: paidToUserId,
+          amount: amount,
+          note: note,
+        );
+    return result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false);
+        return failure.message;
+      },
+      (_) {
+        fetchCircleDetails(currentUserId);
+        return null;
+      },
+    );
+  }
 }
 
 final circleDetailsProvider =

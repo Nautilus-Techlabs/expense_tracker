@@ -45,6 +45,9 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).user;
+    final currentUserId = user?.id ?? 0;
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final detailsState = ref.watch(circleDetailsProvider(widget.args.circleId));
     final data = detailsState.screenData;
@@ -191,16 +194,22 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
 
                               String subtext = '';
                               Color? subtextColor;
-                              if (m.relationshipAmount > 0) {
-                                subtext =
-                                    'Owes ₹${m.relationshipAmount} to you';
-                                subtextColor = AppColors.expense;
-                              } else if (m.relationshipAmount < 0) {
-                                subtext =
-                                    'You owe ₹${m.relationshipAmount.abs()} to them';
-                                subtextColor = AppColors.income;
-                              } else {
-                                subtext = 'Settled up';
+
+                              switch (m.status) {
+                                case 'owes_you':
+                                  subtext =
+                                      'Owes ₹${m.relationshipAmount.abs()} to you';
+                                  subtextColor = AppColors.income;
+                                  break;
+
+                                case 'you_owe':
+                                  subtext =
+                                      'You owe ₹${m.relationshipAmount.abs()} to them';
+                                  subtextColor = AppColors.expense;
+                                  break;
+
+                                default:
+                                  subtext = 'Settled up';
                               }
 
                               return CircleMemberCard(
@@ -217,8 +226,7 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                                     ? AppColors.primary
                                     : AppColors.textSecondaryLight,
                                 isDark: isDark,
-                                showRemind:
-                                    !m.isSelf && m.relationshipAmount > 0,
+                                showRemind: !m.isSelf && m.status == 'owes_you',
                                 subtextColor: subtextColor,
                               );
                             }),
@@ -312,7 +320,11 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => showSettleUpBottomSheet(context),
+                            onPressed: () => showSettleUpBottomSheet(
+                              context,
+                              widget.args.circleId,
+                              currentUserId,
+                            ),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(
                                 color: isDark

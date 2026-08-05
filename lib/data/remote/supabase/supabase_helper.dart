@@ -512,7 +512,7 @@ class SupabaseHelper {
               includeSettlementsInPersonalLedger,
           'p_settlement_account_id': settlementAccountId,
           'p_description': description,
-          'p_type': type.name,
+          'p_type': type == CircleType.one_time ? 'one_time' : 'ongoing',
           'p_budget': budget,
           'p_split_enabled': splitEnabled,
         },
