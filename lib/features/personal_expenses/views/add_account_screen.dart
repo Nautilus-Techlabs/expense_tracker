@@ -34,7 +34,9 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
     final isOnline = ref.read(connectivityStreamProvider).value ?? false;
     if (!isOnline) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You are currently offline. Operations are disabled.')),
+        const SnackBar(
+          content: Text('You are currently offline. Operations are disabled.'),
+        ),
       );
       return;
     }

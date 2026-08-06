@@ -20,7 +20,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   String _selectedType = 'Suggestion';
   bool _isSending = false;
 
-  final List<String> _feedbackTypes = ['Bug Report', 'Suggestion', 'Feature Request', 'Other'];
+  final List<String> _feedbackTypes = [
+    'Bug Report',
+    'Suggestion',
+    'Feature Request',
+    'Other',
+  ];
 
   @override
   void dispose() {
@@ -56,14 +61,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Could not open email client. Please email us at hi@nautilustechlabs.com'),
+              content: Text(
+                'Could not open email client. Please email us at hi@nautilustechlabs.com',
+              ),
             ),
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -72,13 +81,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   String _encodeQuery(Map<String, String> params) {
     return params.entries
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
         .join('&');
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
@@ -117,7 +128,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   color: AppColors.primary.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.feedback_outlined, size: 34.sp, color: context.colors.primary),
+                child: Icon(
+                  Icons.feedback_outlined,
+                  size: 34.sp,
+                  color: context.colors.primary,
+                ),
               ),
             ),
             UIHelpers.verticalSpace(20),
@@ -164,9 +179,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _selectedType = type),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 10.h,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : Colors.transparent,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(24.r),
                       border: Border.all(
                         color: isSelected
@@ -180,7 +200,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         color: isSelected
                             ? Colors.white
                             : (context.colors.textPrimary),
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                     ),
                   ),
@@ -203,9 +225,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               decoration: BoxDecoration(
                 color: context.colors.card,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: context.colors.border,
-                ),
+                border: Border.all(color: context.colors.border),
               ),
               child: TextField(
                 controller: _feedbackController,

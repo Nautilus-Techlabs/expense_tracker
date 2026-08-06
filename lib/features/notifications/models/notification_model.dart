@@ -36,16 +36,16 @@ class NotificationModel {
   final String title;
   final String body;
   final NotificationType type;
-  
+
   @JsonKey(name: 'ref_id')
   final int? refId;
-  
+
   @JsonKey(name: 'ref_type')
   final NotificationRefType? refType;
-  
+
   @JsonKey(name: 'is_read')
   final bool isRead;
-  
+
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 

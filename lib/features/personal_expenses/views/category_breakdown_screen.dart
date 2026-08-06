@@ -97,9 +97,7 @@ class _CategoryBreakdownScreenState
                       decoration: BoxDecoration(
                         color: context.colors.card,
                         borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(
-                          color: context.colors.border,
-                        ),
+                        border: Border.all(color: context.colors.border),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -185,9 +183,7 @@ class _CategoryListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [

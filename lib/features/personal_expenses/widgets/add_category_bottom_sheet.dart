@@ -22,10 +22,12 @@ class AddCategoryBottomSheet extends ConsumerStatefulWidget {
   const AddCategoryBottomSheet({super.key});
 
   @override
-  ConsumerState<AddCategoryBottomSheet> createState() => _AddCategoryBottomSheetState();
+  ConsumerState<AddCategoryBottomSheet> createState() =>
+      _AddCategoryBottomSheetState();
 }
 
-class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet> {
+class _AddCategoryBottomSheetState
+    extends ConsumerState<AddCategoryBottomSheet> {
   final _nameController = TextEditingController();
   CategoryType _selectedType = CategoryType.expense;
   bool _nameError = false;
@@ -46,7 +48,9 @@ class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet>
       _nameError = false;
     });
 
-    final success = await ref.read(categoryProvider.notifier).addCategory(
+    final success = await ref
+        .read(categoryProvider.notifier)
+        .addCategory(
           name: name,
           type: _selectedType,
           icon: 'category_rounded',
@@ -57,7 +61,8 @@ class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet>
       if (success) {
         context.pop();
       } else {
-        final error = ref.read(categoryProvider).errorMessage ?? 'Failed to add category';
+        final error =
+            ref.read(categoryProvider).errorMessage ?? 'Failed to add category';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error), backgroundColor: AppColors.expense),
         );
@@ -82,7 +87,7 @@ class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet>
                       color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -181,7 +186,11 @@ class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet>
                 ),
                 if (_nameError) ...[
                   UIHelpers.horizontalSpace(8),
-                  Icon(Icons.error_outline_rounded, size: 14.sp, color: AppColors.expense),
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 14.sp,
+                    color: AppColors.expense,
+                  ),
                 ],
               ],
             ),
@@ -228,7 +237,9 @@ class _AddCategoryBottomSheetState extends ConsumerState<AddCategoryBottomSheet>
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: ref.watch(categoryProvider).isLoading ? null : _submit,
+                onPressed: ref.watch(categoryProvider).isLoading
+                    ? null
+                    : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

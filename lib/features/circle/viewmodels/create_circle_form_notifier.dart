@@ -56,6 +56,7 @@ class CreateCircleFormNotifier extends Notifier<CreateCircleFormState> {
 }
 
 final createCircleFormStateProvider =
-    NotifierProvider.autoDispose<CreateCircleFormNotifier, CreateCircleFormState>(
-  CreateCircleFormNotifier.new,
-);
+    NotifierProvider.autoDispose<
+      CreateCircleFormNotifier,
+      CreateCircleFormState
+    >(CreateCircleFormNotifier.new);

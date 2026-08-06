@@ -24,7 +24,8 @@ class EditTransactionSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<EditTransactionSheet> createState() => _EditTransactionSheetState();
+  ConsumerState<EditTransactionSheet> createState() =>
+      _EditTransactionSheetState();
 }
 
 class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {

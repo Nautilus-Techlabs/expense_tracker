@@ -31,6 +31,13 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
     });
   }
 
+  Future<void> _onRefresh() async {
+    final user = ref.read(authProvider).user;
+    if (user != null) {
+      await ref.read(circleProvider.notifier).fetchCirclesScreenData(user.id);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final circleState = ref.watch(circleProvider);
@@ -40,112 +47,118 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
-        child: circleState.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : circleState.error != null
-                ? Center(
-                    child: Text(
-                      circleState.error!,
-                      style: context.appTexts.bodyMedium.copyWith(
-                        color: AppColors.expense,
-                      ),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              UIHelpers.verticalSpace(24),
+      body: circleState.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : circleState.error != null
+          ? Center(
+              child: Text(
+                circleState.error!,
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: AppColors.expense,
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    color: AppColors.primary,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          UIHelpers.verticalSpace(24),
 
-                              // ── Header ──────────────────────────────────────────
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Circles',
-                                      style: context.appTexts.displayMedium.copyWith(
+                          // ── Header ──────────────────────────────────────────
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Circles',
+                                  style: context.appTexts.displayMedium
+                                      .copyWith(
                                         color: isDark
                                             ? AppColors.textPrimaryDark
                                             : AppColors.primary,
                                         fontSize: 32.sp,
                                       ),
-                                    ),
-                                    _AddButton(isDark: isDark),
-                                  ],
                                 ),
-                              ),
-                              UIHelpers.verticalSpace(20),
+                                _AddButton(isDark: isDark),
+                              ],
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(20),
 
-                              // ── Owed / Owe Summary ───────────────────────────────
-                              CircleSummaryBanner(
-                                totals: screenData?.totals,
-                                isDark: isDark,
-                              ),
-                              UIHelpers.verticalSpace(24),
+                          // ── Owed / Owe Summary ───────────────────────────────
+                          CircleSummaryBanner(
+                            totals: screenData?.totals,
+                            isDark: isDark,
+                          ),
+                          UIHelpers.verticalSpace(24),
 
-                              // ── Circle Cards ─────────────────────────────────────
-                              if (circles.isEmpty)
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
-                                  child: Center(
-                                    child: Text(
-                                      'No circles found. Create one to get started!',
-                                      style: context.appTexts.bodyMedium.copyWith(
-                                        color: context.colors.textSecondary,
-                                      ),
-                                    ),
+                          // ── Circle Cards ─────────────────────────────────────
+                          if (circles.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24.w,
+                                vertical: 40.h,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'No circles found. Create one to get started!',
+                                  style: context.appTexts.bodyMedium.copyWith(
+                                    color: context.colors.textSecondary,
                                   ),
-                                )
-                              else
-                                ...circles.map(
-                                  (c) => CircleCard(circle: c, isDark: isDark),
                                 ),
-                              UIHelpers.verticalSpace(16),
-                            ],
-                          ),
-                        ),
+                              ),
+                            )
+                          else
+                            ...circles.map(
+                              (c) => CircleCard(circle: c, isDark: isDark),
+                            ),
+                          UIHelpers.verticalSpace(16),
+                        ],
                       ),
-
-                      // ── Create a new circle Button ───────────────────────────────
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
-                        child: OutlinedButton(
-                          onPressed: () => showCreateCircleBottomSheet(context),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: isDark ? AppColors.borderDark : AppColors.primary,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32.r),
-                            ),
-                            minimumSize: Size(double.infinity, 52.h),
-                          ),
-                          child: Text(
-                            'Create a new circle',
-                            style: context.appTexts.bodyLarge.copyWith(
-                              color: isDark
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-      ),
+                ),
+                // ── Create a new circle Button ───────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
+                  child: OutlinedButton(
+                    onPressed: () => showCreateCircleBottomSheet(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: isDark
+                            ? AppColors.borderDark
+                            : AppColors.primary,
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(32.r),
+                      ),
+                      minimumSize: Size(double.infinity, 52.h),
+                    ),
+                    child: Text(
+                      'Create a new circle',
+                      style: context.appTexts.bodyLarge.copyWith(
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
-
 
 class _AddButton extends StatelessWidget {
   final bool isDark;
@@ -167,4 +180,3 @@ class _AddButton extends StatelessWidget {
     );
   }
 }
-

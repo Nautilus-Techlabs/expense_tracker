@@ -1,12 +1,13 @@
 import 'package:expense_tracker/features/auth/views/signin_screen.dart';
 import 'package:expense_tracker/features/auth/views/signup_screen.dart';
 import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
+import 'package:expense_tracker/features/circle/views/join_circle_screen.dart';
 import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/circle/views/circle_details_screen.dart';
 import '../../features/circle/views/circle_all_transactions_screen.dart';
+import '../../features/circle/views/circle_details_screen.dart';
 import '../../features/circle/views/circle_settings_screen.dart';
 import '../../features/personal_expenses/models/transaction_model.dart';
 import '../../features/personal_expenses/views/accounts_settings_screen.dart';
@@ -41,8 +42,12 @@ class AppRouter {
   static const String faq = '/faq';
   static const String circleAllTransactions = '/circle-all-transactions';
   static const String circleSettings = '/circle-settings';
+  static const String joinCircle = '/join-circle';
+
+  static final rootNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: splash,
     routes: [
       GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
@@ -51,12 +56,6 @@ class AppRouter {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(path: signIn, builder: (context, state) => const SignInScreen()),
-
-      GoRoute(
-        path: welcome,
-        builder: (context, state) => const WelcomeScreen(),
-      ),
-
       GoRoute(path: signup, builder: (context, state) => const SignUpScreen()),
       GoRoute(
         path: transactions,
@@ -134,6 +133,13 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as CircleSettingsArgs;
           return CircleSettingsScreen(args: extra);
+        },
+      ),
+      GoRoute(
+        path: joinCircle,
+        builder: (context, state) {
+          final circleId = state.extra as int;
+          return JoinCircleScreen(circleId: circleId);
         },
       ),
     ],

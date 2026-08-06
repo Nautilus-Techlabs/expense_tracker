@@ -16,7 +16,6 @@ import '../../circle/models/circle_transaction_split_model.dart';
 import '../../circle/viewmodels/circle_transaction_details_provider.dart';
 import '../viewmodels/detailed_transaction_provider.dart';
 
-
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;
   final String? heroTag;
@@ -37,9 +36,13 @@ class _DetailedTransactionScreenState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final detailState = ref.watch(detailedTransactionProvider(widget.transaction));
-    
-    final amountColor = detailState.isExpense ? AppColors.expense : AppColors.income;
+    final detailState = ref.watch(
+      detailedTransactionProvider(widget.transaction),
+    );
+
+    final amountColor = detailState.isExpense
+        ? AppColors.expense
+        : AppColors.income;
     final isCircleTransaction = detailState.isCircleTransaction;
     final categoryName = detailState.categoryName;
     final accountName = detailState.accountName;
@@ -122,14 +125,28 @@ class _DetailedTransactionScreenState
 
             // ── Split Details Card (only for Circle transactions) ──
             if (isCircleTransaction)
-              ref.watch(circleTransactionDetailsProvider(widget.transaction.id)).when(
-                data: (splitModel) {
-                  if (splitModel == null) return const SizedBox.shrink();
-                  return _buildSplitDetailsCard(context, isDark, splitModel);
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e', style: TextStyle(color: context.colors.textPrimary))),
-              ),
+              ref
+                  .watch(
+                    circleTransactionDetailsProvider(widget.transaction.id),
+                  )
+                  .when(
+                    data: (splitModel) {
+                      if (splitModel == null) return const SizedBox.shrink();
+                      return _buildSplitDetailsCard(
+                        context,
+                        isDark,
+                        splitModel,
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, st) => Center(
+                      child: Text(
+                        'Error: $e',
+                        style: TextStyle(color: context.colors.textPrimary),
+                      ),
+                    ),
+                  ),
             UIHelpers.verticalSpace(32),
 
             // ── Action Buttons ──
@@ -274,7 +291,11 @@ class _DetailedTransactionScreenState
     );
   }
 
-  Widget _buildSplitDetailsCard(BuildContext context, bool isDark, CircleTransactionSplitModel splitModel) {
+  Widget _buildSplitDetailsCard(
+    BuildContext context,
+    bool isDark,
+    CircleTransactionSplitModel splitModel,
+  ) {
     final cardColor = context.colors.card;
     final borderColor = context.colors.border;
 
@@ -302,7 +323,12 @@ class _DetailedTransactionScreenState
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: splitModel.splits.length,
-            separatorBuilder: (context, index) => Divider(height: 1, color: borderColor, indent: 20.w, endIndent: 20.w),
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              color: borderColor,
+              indent: 20.w,
+              endIndent: 20.w,
+            ),
             itemBuilder: (context, index) {
               final split = splitModel.splits[index];
               return Padding(
@@ -425,7 +451,6 @@ class _DetailedTransactionScreenState
     );
   }
 
-
   String _buildSubtitle(String categoryName) {
     String typeLabel = 'Expense';
     if (widget.transaction.type == 'income') {
@@ -530,4 +555,3 @@ class _DetailedTransactionScreenState
     }
   }
 }
-

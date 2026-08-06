@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_router.dart';
+import 'core/services/deep_link_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_notifier.dart';
 import 'core/widgets/connectivity_wrapper.dart';
@@ -59,6 +60,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
           title: 'Expense Lite',
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
+            ref.watch(deepLinkProvider);
             return GlobalSnackbarListener(
               child: ConnectivityWrapper(child: child!),
             );

@@ -33,8 +33,18 @@ class AuthTabToggle extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _TabItem(label: 'Phone', selected: isPhoneSelected, onTap: onPhoneTap, isDark: isDark),
-          _TabItem(label: 'Email & Password', selected: !isPhoneSelected, onTap: onEmailTap, isDark: isDark),
+          _TabItem(
+            label: 'Phone',
+            selected: isPhoneSelected,
+            onTap: onPhoneTap,
+            isDark: isDark,
+          ),
+          _TabItem(
+            label: 'Email & Password',
+            selected: !isPhoneSelected,
+            onTap: onEmailTap,
+            isDark: isDark,
+          ),
         ],
       ),
     );
@@ -47,7 +57,12 @@ class _TabItem extends StatelessWidget {
   final VoidCallback onTap;
   final bool isDark;
 
-  const _TabItem({required this.label, required this.selected, required this.onTap, required this.isDark});
+  const _TabItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +77,13 @@ class _TabItem extends StatelessWidget {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(28.r),
             boxShadow: selected
-                ? [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 4, offset: const Offset(0, 1))]
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(15),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
                 : null,
           ),
           alignment: Alignment.center,
@@ -71,7 +92,9 @@ class _TabItem extends StatelessWidget {
             style: context.appTexts.bodySmall.copyWith(
               color: selected
                   ? (isDark ? AppColors.textPrimaryDark : AppColors.primary)
-                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight),
               fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               fontSize: 13.sp,
             ),
@@ -98,8 +121,12 @@ class AuthPhoneField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
@@ -111,7 +138,13 @@ class AuthPhoneField extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Text('+91', style: context.appTexts.bodyMedium.copyWith(color: textPrimary, fontWeight: FontWeight.w600)),
+            child: Text(
+              '+91',
+              style: context.appTexts.bodyMedium.copyWith(
+                color: textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           Container(width: 1, height: 28.h, color: borderColor),
           Expanded(
@@ -122,7 +155,9 @@ class AuthPhoneField extends StatelessWidget {
               style: context.appTexts.bodyMedium.copyWith(color: textPrimary),
               decoration: InputDecoration(
                 hintText: 'Mobile number',
-                hintStyle: context.appTexts.bodyMedium.copyWith(color: textSecondary),
+                hintStyle: context.appTexts.bodyMedium.copyWith(
+                  color: textSecondary,
+                ),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
@@ -166,14 +201,20 @@ class AuthInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
     return Container(
       // Allow dynamic height when error text appears
       constraints: BoxConstraints(minHeight: 56.h),
       padding: EdgeInsets.symmetric(vertical: 4.h),
       decoration: BoxDecoration(
-        color: enabled ? cardBg : (isDark ? Colors.grey[850] : Colors.grey[200]),
+        color: enabled
+            ? cardBg
+            : (isDark ? Colors.grey[850] : Colors.grey[200]),
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: borderColor),
       ),
@@ -192,15 +233,23 @@ class AuthInputField extends StatelessWidget {
               style: context.appTexts.bodyMedium.copyWith(color: textPrimary),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: context.appTexts.bodyMedium.copyWith(color: textSecondary),
+                hintStyle: context.appTexts.bodyMedium.copyWith(
+                  color: textSecondary,
+                ),
                 border: InputBorder.none,
                 errorStyle: TextStyle(height: 0.8), // Keep error text compact
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 8.h,
+                ),
               ),
             ),
           ),
           if (suffix != null)
-            Padding(padding: EdgeInsets.only(right: 16.w), child: suffix),
+            Padding(
+              padding: EdgeInsets.only(right: 16.w),
+              child: suffix,
+            ),
         ],
       ),
     );

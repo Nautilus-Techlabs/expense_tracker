@@ -10,6 +10,7 @@ import '../viewmodels/account_notifier.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/theme/app_colors_extension.dart';
+
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -38,7 +39,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (authState.user != null) {
       await ref.read(accountProvider.notifier).fetchAccounts();
       final accountState = ref.read(accountProvider);
-      
+
       if (!mounted) return;
 
       if (accountState.errorMessage != null) {

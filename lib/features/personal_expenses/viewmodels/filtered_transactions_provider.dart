@@ -20,9 +20,9 @@ class FilteredTransactionsData {
 final filteredTransactionsProvider = Provider<FilteredTransactionsData>((ref) {
   final transactionState = ref.watch(transactionProvider);
   final filterState = ref.watch(transactionFilterProvider);
-  
+
   final transactions = transactionState.transactions;
-  
+
   // Generate Months
   final Set<String> uniqueMonths = {};
   final List<DateTime> months = [];
@@ -43,7 +43,7 @@ final filteredTransactionsProvider = Provider<FilteredTransactionsData>((ref) {
 
   // Filter
   final String search = filterState.searchQuery.trim().toLowerCase();
-  
+
   final filteredList = transactions.where((t) {
     if (filterState.selectedSpecificDate == null) {
       if (t.txnDate.year != selectedMonthDate.year ||

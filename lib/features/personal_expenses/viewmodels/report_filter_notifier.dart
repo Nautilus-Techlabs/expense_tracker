@@ -4,16 +4,13 @@ class ReportFilterState {
   final DateTime startDate;
   final DateTime endDate;
 
-  const ReportFilterState({
-    required this.startDate,
-    required this.endDate,
-  });
+  const ReportFilterState({required this.startDate, required this.endDate});
 }
 
 final reportFilterProvider =
     NotifierProvider.autoDispose<ReportFilterNotifier, ReportFilterState>(
-  () => ReportFilterNotifier(),
-);
+      () => ReportFilterNotifier(),
+    );
 
 class ReportFilterNotifier extends Notifier<ReportFilterState> {
   @override

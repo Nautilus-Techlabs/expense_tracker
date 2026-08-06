@@ -42,25 +42,25 @@ class CategoriesSettingsScreen extends ConsumerWidget {
       body: categoryState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : categoryState.categories.isEmpty
-              ? Center(
-                  child: Text(
-                    'No categories found.',
-                    textAlign: TextAlign.center,
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
-                  ),
-                )
-              : ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                  itemCount: categoryState.categories.length,
-                  separatorBuilder: (context, index) => UIHelpers.verticalSpace(12),
-                  itemBuilder: (context, index) {
-                    final category = categoryState.categories[index];
-                    return CategoryListItem(category: category);
-                  },
+          ? Center(
+              child: Text(
+                'No categories found.',
+                textAlign: TextAlign.center,
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: context.colors.textSecondary,
                 ),
+              ),
+            )
+          : ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+              itemCount: categoryState.categories.length,
+              separatorBuilder: (context, index) => UIHelpers.verticalSpace(12),
+              itemBuilder: (context, index) {
+                final category = categoryState.categories[index];
+                return CategoryListItem(category: category);
+              },
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showAddCategorySheet(context),
         backgroundColor: AppColors.primary,
@@ -76,4 +76,3 @@ class CategoriesSettingsScreen extends ConsumerWidget {
     );
   }
 }
-

@@ -60,6 +60,27 @@ class CircleNotifier extends Notifier<CircleState> {
     );
   }
 
+  Future<void> joinCircle({
+    required int circleId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .joinCircle(
+          circleId: circleId,
+          includeSettlementsInPersonalLedger:
+              includeSettlementsInPersonalLedger,
+          settlementAccountId: settlementAccountId,
+        );
+    result.fold(
+      (failure) =>
+          state = state.copyWith(error: failure.message, isLoading: false),
+      (id) => state = state.copyWith(isLoading: false),
+    );
+  }
+
   Future<void> addCircleMember({
     required int circleId,
     required int targetUserId,

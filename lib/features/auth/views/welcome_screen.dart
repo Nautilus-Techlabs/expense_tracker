@@ -22,103 +22,101 @@ class WelcomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bg,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Spacer(),
 
-              // ── Logo & Branding ──
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 80.w,
-                      height: 80.w,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'F',
-                        style: context.appTexts.displayLarge.copyWith(
-                          color: Colors.white,
-                          fontSize: 40.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+            // ── Logo & Branding ──
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(24.r),
                     ),
-                    UIHelpers.verticalSpace(20),
-                    Text(
-                      'Expense Lite',
+                    alignment: Alignment.center,
+                    child: Text(
+                      'F',
                       style: context.appTexts.displayLarge.copyWith(
-                        color: textPrimary,
-                        fontSize: 36.sp,
+                        color: Colors.white,
+                        fontSize: 40.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    UIHelpers.verticalSpace(8),
-                    Text(
-                      'Your money, your story.',
-                      style: context.appTexts.bodyMedium.copyWith(
-                        color: textSecondary,
-                        fontSize: 15.sp,
+                  ),
+                  UIHelpers.verticalSpace(20),
+                  Text(
+                    'Expense Lite',
+                    style: context.appTexts.displayLarge.copyWith(
+                      color: textPrimary,
+                      fontSize: 36.sp,
+                    ),
+                  ),
+                  UIHelpers.verticalSpace(8),
+                  Text(
+                    'Your money, your story.',
+                    style: context.appTexts.bodyMedium.copyWith(
+                      color: textSecondary,
+                      fontSize: 15.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
+
+            // ── Buttons ──
+            _PrimaryButton(
+              label: 'Create account',
+              onTap: () => context.push(AppRouter.signup),
+            ),
+            UIHelpers.verticalSpace(12),
+            _OutlineButton(
+              label: 'Sign in',
+              onTap: () => context.push(AppRouter.signIn),
+              isDark: isDark,
+            ),
+            UIHelpers.verticalSpace(32),
+
+            // ── Footer ──
+            Center(
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: context.appTexts.bodySmall.copyWith(
+                    color: textSecondary,
+                    fontSize: 11.sp,
+                  ),
+                  children: [
+                    const TextSpan(text: 'By continuing you agree to our '),
+                    TextSpan(
+                      text: 'Terms',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
+                      ),
+                    ),
+                    const TextSpan(text: ' & '),
+                    TextSpan(
+                      text: 'Privacy Policy',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
                       ),
                     ),
                   ],
                 ),
               ),
-
-              const Spacer(),
-
-              // ── Buttons ──
-              _PrimaryButton(
-                label: 'Create account',
-                onTap: () => context.push(AppRouter.signup),
-              ),
-              UIHelpers.verticalSpace(12),
-              _OutlineButton(
-                label: 'Sign in',
-                onTap: () => context.push(AppRouter.signIn),
-                isDark: isDark,
-              ),
-              UIHelpers.verticalSpace(32),
-
-              // ── Footer ──
-              Center(
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: context.appTexts.bodySmall.copyWith(
-                      color: textSecondary,
-                      fontSize: 11.sp,
-                    ),
-                    children: [
-                      const TextSpan(text: 'By continuing you agree to our '),
-                      TextSpan(
-                        text: 'Terms',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
-                      const TextSpan(text: ' & '),
-                      TextSpan(
-                        text: 'Privacy Policy',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              UIHelpers.verticalSpace(24),
-            ],
-          ),
+            ),
+            UIHelpers.verticalSpace(24),
+          ],
         ),
       ),
     );

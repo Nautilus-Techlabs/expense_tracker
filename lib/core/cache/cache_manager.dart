@@ -14,6 +14,7 @@ class CacheManager {
 
   static const String _userKey = 'user_data';
   static const String _themeKey = 'theme_mode';
+  static const String _processedInvitesKey = 'processed_invites';
 
   Future<void> saveUser(UserModel user) async {
     final userJson = jsonEncode(user.toJson());
@@ -46,5 +47,29 @@ class CacheManager {
 
   Future<void> clearAll() async {
     await _storage.deleteAll();
+  }
+
+  Future<void> saveProcessedInvite(int circleId) async {
+    final invites = await getProcessedInvites();
+    if (!invites.contains(circleId)) {
+      invites.add(circleId);
+      await _storage.write(
+        key: _processedInvitesKey,
+        value: jsonEncode(invites),
+      );
+    }
+  }
+
+  Future<List<int>> getProcessedInvites() async {
+    final jsonStr = await _storage.read(key: _processedInvitesKey);
+    if (jsonStr != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        return decoded.map((e) => e as int).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
   }
 }

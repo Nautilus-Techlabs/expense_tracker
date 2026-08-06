@@ -23,41 +23,48 @@ class DetailedTransactionState {
 }
 
 final detailedTransactionProvider =
-    Provider.family<DetailedTransactionState, TransactionModel>((ref, transaction) {
-  final isExpense =
-      transaction.type == 'expense' || transaction.type == 'withdrawal';
+    Provider.family<DetailedTransactionState, TransactionModel>((
+      ref,
+      transaction,
+    ) {
+      final isExpense =
+          transaction.type == 'expense' || transaction.type == 'withdrawal';
 
-  final category = ref
-      .watch(categoryProvider.notifier)
-      .getCategoryById(transaction.categoryId);
-  final categoryName = category?.name ?? 'Uncategorized';
+      final category = ref
+          .watch(categoryProvider.notifier)
+          .getCategoryById(transaction.categoryId);
+      final categoryName = category?.name ?? 'Uncategorized';
 
-  final account = ref
-      .watch(accountProvider.notifier)
-      .getAccountById(transaction.accountId);
-  final accountName = account?.name ?? 'Unknown Account';
+      final account = ref
+          .watch(accountProvider.notifier)
+          .getAccountById(transaction.accountId);
+      final accountName = account?.name ?? 'Unknown Account';
 
-  bool canEditOrDelete = true;
-  if (transaction.isCircleTransaction) {
-    final currentUserId = ref.watch(authProvider).user?.id;
-    final isCreator = transaction.userId == currentUserId;
-    
-    bool isOwner = false;
-    if (transaction.circleId != null) {
-      final circleDetails = ref.watch(circleDetailsProvider(transaction.circleId!)).screenData;
-      if (circleDetails != null) {
-        final selfMember = circleDetails.members.firstWhereOrNull((m) => m.isSelf);
-        isOwner = selfMember?.role == 'owner';
+      bool canEditOrDelete = true;
+      if (transaction.isCircleTransaction) {
+        final currentUserId = ref.watch(authProvider).user?.id;
+        final isCreator = transaction.userId == currentUserId;
+
+        bool isOwner = false;
+        if (transaction.circleId != null) {
+          final circleDetails = ref
+              .watch(circleDetailsProvider(transaction.circleId!))
+              .screenData;
+          if (circleDetails != null) {
+            final selfMember = circleDetails.members.firstWhereOrNull(
+              (m) => m.isSelf,
+            );
+            isOwner = selfMember?.role == 'owner';
+          }
+        }
+        canEditOrDelete = isCreator || isOwner;
       }
-    }
-    canEditOrDelete = isCreator || isOwner;
-  }
 
-  return DetailedTransactionState(
-    isExpense: isExpense,
-    isCircleTransaction: transaction.isCircleTransaction,
-    categoryName: categoryName,
-    accountName: accountName,
-    canEditOrDelete: canEditOrDelete,
-  );
-});
+      return DetailedTransactionState(
+        isExpense: isExpense,
+        isCircleTransaction: transaction.isCircleTransaction,
+        categoryName: categoryName,
+        accountName: accountName,
+        canEditOrDelete: canEditOrDelete,
+      );
+    });

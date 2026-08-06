@@ -7,8 +7,9 @@ import 'category_notifier.dart';
 import 'export_state.dart';
 import 'transaction_notifier.dart';
 
-final exportProvider =
-    NotifierProvider<ExportNotifier, ExportState>(() => ExportNotifier());
+final exportProvider = NotifierProvider<ExportNotifier, ExportState>(
+  () => ExportNotifier(),
+);
 
 class ExportNotifier extends Notifier<ExportState> {
   @override
@@ -22,9 +23,7 @@ class ExportNotifier extends Notifier<ExportState> {
     final categories = ref.read(categoryProvider).categories;
 
     if (transactions.isEmpty) {
-      state = state.copyWith(
-        errorMessage: () => 'No transactions to export.',
-      );
+      state = state.copyWith(errorMessage: () => 'No transactions to export.');
       return;
     }
 
@@ -42,10 +41,7 @@ class ExportNotifier extends Notifier<ExportState> {
         categories: categories,
       );
 
-      state = state.copyWith(
-        isLoading: false,
-        exportCompleted: true,
-      );
+      state = state.copyWith(isLoading: false, exportCompleted: true);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

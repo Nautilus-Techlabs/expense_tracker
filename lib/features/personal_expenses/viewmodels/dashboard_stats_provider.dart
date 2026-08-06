@@ -56,18 +56,16 @@ final dashboardStatsProvider = Provider<DashboardStats>((ref) {
       .where(
         (t) =>
             (t.type == 'expense' || t.type == 'withdrawal') &&
-            t.txnDate.isAfter(
-              startOfWeek.subtract(const Duration(seconds: 1)),
-            ),
+            t.txnDate.isAfter(startOfWeek.subtract(const Duration(seconds: 1))),
       )
       .fold<double>(0, (sum, t) => sum + t.amount);
 
   final topSpendTx = transactions
       .where((t) => t.type == 'expense' || t.type == 'withdrawal')
       .fold<TransactionModel?>(null, (prev, t) {
-    if (prev == null || t.amount > prev.amount) return t;
-    return prev;
-  });
+        if (prev == null || t.amount > prev.amount) return t;
+        return prev;
+      });
 
   return DashboardStats(
     globalBalance: globalBalance,

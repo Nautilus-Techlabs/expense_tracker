@@ -32,7 +32,9 @@ class CircleDetailsNotifier extends Notifier<CircleDetailsState> {
     String? note,
   }) async {
     state = state.copyWith(isLoading: true);
-    final result = await ref.read(supabaseHelperProvider).recordSettlement(
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .recordSettlement(
           circleId: circleId,
           paidByUserId: paidByUserId,
           paidToUserId: paidToUserId,

@@ -29,7 +29,6 @@ class CircleCard extends StatelessWidget {
         circle.type.toLowerCase() == 'onetime';
 
     return GestureDetector(
-
       onTap: () {
         context.push(
           AppRouter.circleDetails,

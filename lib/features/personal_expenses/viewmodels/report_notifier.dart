@@ -41,15 +41,17 @@ class ReportNotifier extends Notifier<ReportState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).fetchUserReports(
-      userId: user.id,
-      startDate: startDate,
-      endDate: endDate,
-      groupBy: groupBy,
-      fillGaps: fillGaps,
-      topCategories: topCategories,
-      includeZeroAcc: includeZeroAcc,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .fetchUserReports(
+          userId: user.id,
+          startDate: startDate,
+          endDate: endDate,
+          groupBy: groupBy,
+          fillGaps: fillGaps,
+          topCategories: topCategories,
+          includeZeroAcc: includeZeroAcc,
+        );
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -80,13 +82,15 @@ class ReportNotifier extends Notifier<ReportState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).getSpendingBreakdown(
-      userId: user.id,
-      startDate: startDate,
-      endDate: endDate,
-      topCategories: topCategories,
-      groupByOthers: groupByOthers,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .getSpendingBreakdown(
+          userId: user.id,
+          startDate: startDate,
+          endDate: endDate,
+          topCategories: topCategories,
+          groupByOthers: groupByOthers,
+        );
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -121,4 +125,3 @@ class ReportNotifier extends Notifier<ReportState> {
     }
   }
 }
-

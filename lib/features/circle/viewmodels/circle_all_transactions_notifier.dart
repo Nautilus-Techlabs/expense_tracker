@@ -27,7 +27,8 @@ class CircleAllTransactionsState {
   }
 }
 
-class CircleAllTransactionsNotifier extends Notifier<CircleAllTransactionsState> {
+class CircleAllTransactionsNotifier
+    extends Notifier<CircleAllTransactionsState> {
   final int circleId;
 
   CircleAllTransactionsNotifier(this.circleId);
@@ -39,7 +40,7 @@ class CircleAllTransactionsNotifier extends Notifier<CircleAllTransactionsState>
 
   Future<void> fetchTransactions() async {
     state = state.copyWith(isLoading: true, clearError: true);
-    
+
     final result = await ref
         .read(supabaseHelperProvider)
         .getCircleTransactions(circleId: circleId);
@@ -57,7 +58,9 @@ class CircleAllTransactionsNotifier extends Notifier<CircleAllTransactionsState>
   }
 }
 
-final circleAllTransactionsProvider = NotifierProvider.family<
-    CircleAllTransactionsNotifier, CircleAllTransactionsState, int>(
-  CircleAllTransactionsNotifier.new,
-);
+final circleAllTransactionsProvider =
+    NotifierProvider.family<
+      CircleAllTransactionsNotifier,
+      CircleAllTransactionsState,
+      int
+    >(CircleAllTransactionsNotifier.new);

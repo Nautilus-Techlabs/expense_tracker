@@ -25,7 +25,9 @@ class AccountNotifier extends Notifier<AccountState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await ref.read(supabaseHelperProvider).fetchAllAccounts(user.id);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .fetchAllAccounts(user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -56,12 +58,14 @@ class AccountNotifier extends Notifier<AccountState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).createAccount(
-      userId: user.id,
-      name: name,
-      type: type,
-      balance: balance,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .createAccount(
+          userId: user.id,
+          name: name,
+          type: type,
+          balance: balance,
+        );
 
     return result.fold(
       (failure) {

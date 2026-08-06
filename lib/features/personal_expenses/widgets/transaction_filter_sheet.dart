@@ -22,10 +22,12 @@ class TransactionFilterSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TransactionFilterSheet> createState() => _TransactionFilterSheetState();
+  ConsumerState<TransactionFilterSheet> createState() =>
+      _TransactionFilterSheetState();
 }
 
-class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet> {
+class _TransactionFilterSheetState
+    extends ConsumerState<TransactionFilterSheet> {
   int? _selectedCategoryId;
   DateTime? _selectedSpecificDate;
 
@@ -106,7 +108,9 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
                 children: [
                   Text(
                     _selectedSpecificDate != null
-                        ? DateFormat('MMM dd, yyyy').format(_selectedSpecificDate!)
+                        ? DateFormat(
+                            'MMM dd, yyyy',
+                          ).format(_selectedSpecificDate!)
                         : 'Select Date',
                     style: context.appTexts.bodyMedium.copyWith(
                       color: _selectedSpecificDate != null
@@ -114,7 +118,11 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
                           : context.colors.textSecondary,
                     ),
                   ),
-                  Icon(Icons.calendar_today_rounded, size: 20.sp, color: context.colors.textSecondary),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    size: 20.sp,
+                    color: context.colors.textSecondary,
+                  ),
                 ],
               ),
             ),
@@ -142,19 +150,28 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
                   });
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24.r),
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : context.colors.border,
+                      color: isSelected
+                          ? AppColors.primary
+                          : context.colors.border,
                     ),
                   ),
                   child: Text(
                     cat.name,
                     style: context.appTexts.bodySmall.copyWith(
-                      color: isSelected ? Colors.white : context.colors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.textPrimary,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -179,7 +196,9 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     side: BorderSide(color: context.colors.border),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.r),
+                    ),
                   ),
                   child: Text(
                     'Clear All',
@@ -200,7 +219,9 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.r)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.r),
+                    ),
                     elevation: 0,
                   ),
                   child: Text(

@@ -25,7 +25,9 @@ class BudgetNotifier extends Notifier<BudgetState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await ref.read(supabaseHelperProvider).fetchMonthlyBudget(userId: user.id);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .fetchMonthlyBudget(userId: user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -53,17 +55,21 @@ class BudgetNotifier extends Notifier<BudgetState> {
 
     late final Future<dynamic> resultFuture;
     if (existingBudget != null) {
-      resultFuture = ref.read(supabaseHelperProvider).updateMonthlyBudget(
-        userId: user.id,
-        amount: amount,
-        month: normalizedMonth,
-      );
+      resultFuture = ref
+          .read(supabaseHelperProvider)
+          .updateMonthlyBudget(
+            userId: user.id,
+            amount: amount,
+            month: normalizedMonth,
+          );
     } else {
-      resultFuture = ref.read(supabaseHelperProvider).createMonthlyBudget(
-        userId: user.id,
-        amount: amount,
-        month: normalizedMonth,
-      );
+      resultFuture = ref
+          .read(supabaseHelperProvider)
+          .createMonthlyBudget(
+            userId: user.id,
+            amount: amount,
+            month: normalizedMonth,
+          );
     }
 
     final result = await resultFuture;

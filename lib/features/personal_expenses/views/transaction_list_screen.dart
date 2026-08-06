@@ -11,6 +11,7 @@ import '../viewmodels/filtered_transactions_provider.dart';
 import '../viewmodels/transaction_filter_notifier.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/transaction_filter_sheet.dart';
+import '../viewmodels/transaction_notifier.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -57,6 +58,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    await ref.read(transactionProvider.notifier).fetchTransactions();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -72,7 +77,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: AppColors.primary,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [

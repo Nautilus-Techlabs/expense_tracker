@@ -29,7 +29,9 @@ class _CircleAllTransactionsScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(circleAllTransactionsProvider(widget.circleId).notifier).fetchTransactions();
+      ref
+          .read(circleAllTransactionsProvider(widget.circleId).notifier)
+          .fetchTransactions();
     });
   }
 
@@ -50,7 +52,9 @@ class _CircleAllTransactionsScreenState
     final screenData = detailsState.screenData;
     final members = screenData?.members ?? [];
 
-    final transactionsState = ref.watch(circleAllTransactionsProvider(widget.circleId));
+    final transactionsState = ref.watch(
+      circleAllTransactionsProvider(widget.circleId),
+    );
 
     // Grouping
     final groupedTxns = <String, List<TransactionModel>>{};
@@ -85,86 +89,94 @@ class _CircleAllTransactionsScreenState
           ),
         ),
       ),
-      body: transactionsState.isLoading && transactionsState.transactions.isEmpty
+      body:
+          transactionsState.isLoading && transactionsState.transactions.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : transactionsState.error != null && transactionsState.transactions.isEmpty
-              ? Center(child: Text(transactionsState.error!))
-              : groupKeys.isEmpty
-                  ? Center(
+          : transactionsState.error != null &&
+                transactionsState.transactions.isEmpty
+          ? Center(child: Text(transactionsState.error!))
+          : groupKeys.isEmpty
+          ? Center(
+              child: Text(
+                'No transactions found.',
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              ),
+            )
+          : ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: 24.w,
+                vertical: 16.h,
+              ).copyWith(bottom: 100.h),
+              itemCount: groupKeys.length,
+              itemBuilder: (context, index) {
+                final dateString = groupKeys[index];
+                final txns = groupedTxns[dateString]!;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: 12.h,
+                        top: index == 0 ? 0 : 24.h,
+                      ),
                       child: Text(
-                        'No transactions found.',
-                        style: context.appTexts.bodyMedium.copyWith(
+                        dateString.toUpperCase(),
+                        style: context.appTexts.bodySmall.copyWith(
                           color: context.colors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
                         ),
                       ),
-                    )
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 16.h,
-                      ).copyWith(bottom: 100.h),
-                      itemCount: groupKeys.length,
-                      itemBuilder: (context, index) {
-                        final dateString = groupKeys[index];
-                        final txns = groupedTxns[dateString]!;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 12.h,
-                                top: index == 0 ? 0 : 24.h,
-                              ),
-                              child: Text(
-                                dateString.toUpperCase(),
-                                style: context.appTexts.bodySmall.copyWith(
-                                  color: context.colors.textSecondary,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.8,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: context.colors.card,
-                                borderRadius: BorderRadius.circular(24.r),
-                                border: Border.all(color: context.colors.border),
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: txns.length,
-                                separatorBuilder: (context, sepIndex) => Divider(
-                                  height: 1,
-                                  indent: 76.w,
-                                  color: context.colors.border,
-                                ),
-                                itemBuilder: (context, txnIndex) {
-                                  final txn = txns[txnIndex];
-                                  final paidByMember = members.where((m) => m.userId == txn.userId).firstOrNull;
-                                  final paidByName = paidByMember?.fullName ?? 'Someone';
-                                  
-                                  return InkWell(
-                                    onTap: () {
-                                      context.push(AppRouter.transactionDetail, extra: txn);
-                                    },
-                                    child: CircleTransactionTile(
-                                      icon: Icons.receipt_long_rounded,
-                                      title: txn.note ?? 'Expense',
-                                      subtitle: 'Paid by $paidByName',
-                                      amount: '₹${txn.amount}',
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        );
-                      },
                     ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: context.colors.card,
+                        borderRadius: BorderRadius.circular(24.r),
+                        border: Border.all(color: context.colors.border),
+                      ),
+                      child: ListView.separated(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: txns.length,
+                        separatorBuilder: (context, sepIndex) => Divider(
+                          height: 1,
+                          indent: 76.w,
+                          color: context.colors.border,
+                        ),
+                        itemBuilder: (context, txnIndex) {
+                          final txn = txns[txnIndex];
+                          final paidByMember = members
+                              .where((m) => m.userId == txn.userId)
+                              .firstOrNull;
+                          final paidByName =
+                              paidByMember?.fullName ?? 'Someone';
+
+                          return InkWell(
+                            onTap: () {
+                              context.push(
+                                AppRouter.transactionDetail,
+                                extra: txn,
+                              );
+                            },
+                            child: CircleTransactionTile(
+                              icon: Icons.receipt_long_rounded,
+                              title: txn.note ?? 'Expense',
+                              subtitle: 'Paid by $paidByName',
+                              amount: '₹${txn.amount}',
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (members.isNotEmpty) {

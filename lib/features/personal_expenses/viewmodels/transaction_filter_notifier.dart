@@ -39,9 +39,10 @@ class TransactionFilterState {
 }
 
 final transactionFilterProvider =
-    NotifierProvider.autoDispose<TransactionFilterNotifier, TransactionFilterState>(
-  () => TransactionFilterNotifier(),
-);
+    NotifierProvider.autoDispose<
+      TransactionFilterNotifier,
+      TransactionFilterState
+    >(() => TransactionFilterNotifier());
 
 class TransactionFilterNotifier extends Notifier<TransactionFilterState> {
   @override
@@ -56,7 +57,9 @@ class TransactionFilterNotifier extends Notifier<TransactionFilterState> {
   void toggleSearchVisible() {
     state = state.copyWith(
       isSearchVisible: !state.isSearchVisible,
-      searchQuery: state.isSearchVisible ? '' : null, // clear search when hiding
+      searchQuery: state.isSearchVisible
+          ? ''
+          : null, // clear search when hiding
     );
   }
 

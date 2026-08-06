@@ -33,11 +33,7 @@ class CircleTransactionTile extends StatelessWidget {
               color: AppColors.expense.withAlpha(30),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: AppColors.expense,
-              size: 20.sp,
-            ),
+            child: Icon(icon, color: AppColors.expense, size: 20.sp),
           ),
           UIHelpers.horizontalSpace(16),
 

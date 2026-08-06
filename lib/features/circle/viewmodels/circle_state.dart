@@ -5,11 +5,7 @@ class CircleState {
   final bool isLoading;
   final String? error;
 
-  const CircleState({
-    this.screenData,
-    this.isLoading = false,
-    this.error,
-  });
+  const CircleState({this.screenData, this.isLoading = false, this.error});
 
   CircleState copyWith({
     CircleScreenModel? screenData,
@@ -23,4 +19,3 @@ class CircleState {
     );
   }
 }
-

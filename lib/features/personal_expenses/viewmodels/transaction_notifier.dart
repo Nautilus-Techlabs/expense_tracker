@@ -29,7 +29,9 @@ class TransactionNotifier extends Notifier<TransactionState> {
     if (user == null) return;
 
     state = state.copyWith(isLoading: true);
-    final result = await ref.read(supabaseHelperProvider).fetchAllTransactions(user.id);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .fetchAllTransactions(user.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -62,7 +64,9 @@ class TransactionNotifier extends Notifier<TransactionState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).addTransactions(payload);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .addTransactions(payload);
 
     return result.fold(
       (failure) {
@@ -88,10 +92,9 @@ class TransactionNotifier extends Notifier<TransactionState> {
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).updateTransaction(
-      transactionId: transactionId,
-      updates: updates,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .updateTransaction(transactionId: transactionId, updates: updates);
 
     return result.fold(
       (failure) {
@@ -116,9 +119,9 @@ class TransactionNotifier extends Notifier<TransactionState> {
   Future<bool> deleteTransaction(int transactionId) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).deleteTransaction(
-      transactionId: transactionId,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .deleteTransaction(transactionId: transactionId);
 
     return result.fold(
       (failure) {
@@ -139,4 +142,3 @@ class TransactionNotifier extends Notifier<TransactionState> {
     );
   }
 }
-

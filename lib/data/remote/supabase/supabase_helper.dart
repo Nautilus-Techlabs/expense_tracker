@@ -491,7 +491,35 @@ class SupabaseHelper {
     }
   }
 
-  // --- Circles RPC Methods ---
+  /// Fetches minimal circle info for the invite dialog:
+  /// circle name + owner's full name.
+  Future<Either<Failure, Map<String, String>>> getCircleInviteInfo(
+    int circleId,
+  ) async {
+    try {
+      // Use the dedicated RPC to bypass RLS for non-members
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleInviteInfo,
+        params: {'p_circle_id': circleId},
+      );
+
+      if (response == null) {
+        AppLogger.e(
+          'getCircleInviteInfo: RPC returned null for circle $circleId',
+        );
+        return Left(Failure('Circle not found or invite invalid.'));
+      }
+
+      final circleName =
+          (response['circleName'] as String?) ?? 'Unknown Circle';
+      final ownerName = (response['ownerName'] as String?) ?? 'Unknown';
+
+      return Right({'circleName': circleName, 'ownerName': ownerName});
+    } catch (e) {
+      AppLogger.e('Error fetching circle invite info: $e');
+      return Left(Failure('Failed to fetch circle info.'));
+    }
+  }
 
   Future<Either<Failure, int>> createCircle({
     required String name,
@@ -541,6 +569,28 @@ class SupabaseHelper {
               includeSettlementsInPersonalLedger,
           'p_settlement_account_id': settlementAccountId,
           'p_role': role.name,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error adding circle member: $e');
+      return Left(Failure('Failed to add member to circle.'));
+    }
+  }
+
+  Future<Either<Failure, int>> joinCircle({
+    required int circleId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcJoinCircle,
+        params: {
+          'p_circle_id': circleId,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
         },
       );
       return Right(response as int);

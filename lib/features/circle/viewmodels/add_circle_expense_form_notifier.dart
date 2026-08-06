@@ -78,7 +78,9 @@ class AddCircleExpenseFormNotifier extends Notifier<AddCircleExpenseFormState> {
 
   void setAllMembers(List<Member> members, bool selectAll) {
     if (selectAll) {
-      state = state.copyWith(includedMemberIds: members.map((m) => m.userId).toSet());
+      state = state.copyWith(
+        includedMemberIds: members.map((m) => m.userId).toSet(),
+      );
     } else {
       state = state.copyWith(includedMemberIds: {});
     }
@@ -90,6 +92,8 @@ class AddCircleExpenseFormNotifier extends Notifier<AddCircleExpenseFormState> {
 }
 
 final addCircleExpenseFormStateProvider =
-    NotifierProvider.family<AddCircleExpenseFormNotifier, AddCircleExpenseFormState, List<Member>>(
-  AddCircleExpenseFormNotifier.new,
-);
+    NotifierProvider.family<
+      AddCircleExpenseFormNotifier,
+      AddCircleExpenseFormState,
+      List<Member>
+    >(AddCircleExpenseFormNotifier.new);

@@ -9,7 +9,10 @@ final categoryProvider = NotifierProvider<CategoryNotifier, CategoryState>(() {
   return CategoryNotifier();
 });
 
-final categoriesByTypeProvider = Provider.family<List<CategoryModel>, String>((ref, type) {
+final categoriesByTypeProvider = Provider.family<List<CategoryModel>, String>((
+  ref,
+  type,
+) {
   final state = ref.watch(categoryProvider);
   return state.categories.where((c) {
     if (type == 'expense') {
@@ -31,9 +34,9 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
   Future<void> fetchCategories() async {
     state = state.copyWith(isLoading: true);
-    final result = await ref.read(supabaseHelperProvider).fetchAllCategories(
-      currentUserId: ref.read(authProvider).user!.id,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .fetchAllCategories(currentUserId: ref.read(authProvider).user!.id);
 
     result.fold(
       (failure) => state = state.copyWith(
@@ -68,13 +71,15 @@ class CategoryNotifier extends Notifier<CategoryState> {
 
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).createCategory(
-      userId: user.id,
-      name: name,
-      type: type,
-      icon: icon,
-      color: color,
-    );
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .createCategory(
+          userId: user.id,
+          name: name,
+          type: type,
+          icon: icon,
+          color: color,
+        );
 
     return result.fold(
       (failure) {

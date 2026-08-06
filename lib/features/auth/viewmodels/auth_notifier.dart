@@ -29,23 +29,27 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(user: () => cachedUser, isLoading: false);
       }
 
-      final supabaseUser = ref.read(supabaseHelperProvider).supabase.auth.currentUser;
+      final supabaseUser = ref
+          .read(supabaseHelperProvider)
+          .supabase
+          .auth
+          .currentUser;
 
       if (supabaseUser != null) {
         // If we didn't have a cached user, but have a supabase user, fetch profile
         if (cachedUser == null) {
-          final result = await ref.read(supabaseHelperProvider).fetchUserProfile(
-            supabaseUser.id,
-          );
+          final result = await ref
+              .read(supabaseHelperProvider)
+              .fetchUserProfile(supabaseUser.id);
           result.fold((l) => state = state.copyWith(isLoading: false), (user) {
             _cacheManager.saveUser(user);
             state = state.copyWith(user: () => user, isLoading: false);
           });
         } else if (cachedUser.authId != supabaseUser.id) {
           // Stale cache - fetch fresh profile
-          final result = await ref.read(supabaseHelperProvider).fetchUserProfile(
-            supabaseUser.id,
-          );
+          final result = await ref
+              .read(supabaseHelperProvider)
+              .fetchUserProfile(supabaseUser.id);
           result.fold(
             (l) => signOut(), // Session mismatch, better log out
             (user) {
@@ -94,7 +98,9 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> signIn(String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: () => null);
 
-    final result = await ref.read(supabaseHelperProvider).signIn(email, password);
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .signIn(email, password);
 
     return result.fold(
       (failure) {
@@ -126,7 +132,8 @@ class AuthNotifier extends Notifier<AuthState> {
         return false;
       },
       (_) async {
-        final profileResult = await ref.read(supabaseHelperProvider)
+        final profileResult = await ref
+            .read(supabaseHelperProvider)
             .fetchOrCreateGoogleProfile();
         return profileResult.fold(
           (failure) {

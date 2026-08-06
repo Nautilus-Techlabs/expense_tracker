@@ -42,25 +42,25 @@ class AccountsSettingsScreen extends ConsumerWidget {
       body: accountState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : accountState.accounts.isEmpty
-              ? Center(
-                  child: Text(
-                    'No accounts found.\nAdd one to get started.',
-                    textAlign: TextAlign.center,
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
-                  ),
-                )
-              : ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                  itemCount: accountState.accounts.length,
-                  separatorBuilder: (context, index) => UIHelpers.verticalSpace(16),
-                  itemBuilder: (context, index) {
-                    final account = accountState.accounts[index];
-                    return AccountListItem(account: account);
-                  },
+          ? Center(
+              child: Text(
+                'No accounts found.\nAdd one to get started.',
+                textAlign: TextAlign.center,
+                style: context.appTexts.bodyMedium.copyWith(
+                  color: context.colors.textSecondary,
                 ),
+              ),
+            )
+          : ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+              itemCount: accountState.accounts.length,
+              separatorBuilder: (context, index) => UIHelpers.verticalSpace(16),
+              itemBuilder: (context, index) {
+                final account = accountState.accounts[index];
+                return AccountListItem(account: account);
+              },
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRouter.addAccount),
         backgroundColor: AppColors.primary,
@@ -76,4 +76,3 @@ class AccountsSettingsScreen extends ConsumerWidget {
     );
   }
 }
-

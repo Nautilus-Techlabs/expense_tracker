@@ -39,9 +39,7 @@ class CircleMemberCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: context.colors.border,
-        ),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -82,7 +80,10 @@ class CircleMemberCard extends StatelessWidget {
                     UIHelpers.horizontalSpace(8),
                     // Badge
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
                       decoration: BoxDecoration(
                         color: badgeColor.withAlpha(isDark ? 30 : 40),
                         borderRadius: BorderRadius.circular(12.r),

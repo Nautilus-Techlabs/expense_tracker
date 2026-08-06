@@ -28,6 +28,8 @@ class SupabaseKeys {
   static const String rpcCreateCircleTransaction = 'create_circle_transaction';
   static const String rpcGetCircleTransactions = 'get_circle_transactions';
   static const String rpcCircleDetails = 'get_circle_transaction_details';
+  static const String rpcGetCircleInviteInfo = 'get_circle_invite_info';
+  static const String rpcJoinCircle = 'join_circle';
 
   // Balances & Settlement RPC functions
   static const String rpcGetPairwiseBalance = 'get_pairwise_balance';
