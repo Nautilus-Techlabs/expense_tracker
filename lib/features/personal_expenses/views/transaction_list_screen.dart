@@ -9,9 +9,9 @@ import '../../../../core/theme/app_colors_extension.dart';
 import '../models/transaction_model.dart';
 import '../viewmodels/filtered_transactions_provider.dart';
 import '../viewmodels/transaction_filter_notifier.dart';
+import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/transaction_filter_sheet.dart';
-import '../viewmodels/transaction_notifier.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -77,224 +77,190 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        color: AppColors.primary,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // 1. Header (Transactions + Icons)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 16.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Transactions',
-                      style: context.appTexts.displayMedium.copyWith(
-                        color: context.colors.primary,
-                        fontSize: 32.sp,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: _showFilterSheet,
-                          child: Icon(
-                            Icons.filter_alt_outlined,
-                            size: 28.sp,
-                            color:
-                                filterState.selectedCategoryId != null ||
-                                    filterState.selectedSpecificDate != null
-                                ? AppColors.expense
-                                : (context.colors.primary),
-                          ),
-                        ),
-                        UIHelpers.horizontalSpace(16),
-                        GestureDetector(
-                          onTap: () {
-                            ref
-                                .read(transactionFilterProvider.notifier)
-                                .toggleSearchVisible();
-                            if (filterState.isSearchVisible) {
-                              // If it was visible and we're toggling it off, clear the controller
-                              _searchController.clear();
-                            }
-                          },
-                          child: Icon(
-                            Icons.search_rounded,
-                            size: 28.sp,
-                            color: filterState.isSearchVisible
-                                ? AppColors.expense
-                                : (context.colors.primary),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            if (filterState.isSearchVisible)
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // 1. Header (Transactions + Icons)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
-                  child: TextField(
-                    controller: _searchController,
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: context.colors.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Search notes...',
-                      hintStyle: context.appTexts.bodyMedium.copyWith(
-                        color: (context.colors.textSecondary).withValues(
-                          alpha: 0.5,
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 16.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Transactions',
+                        style: context.appTexts.displayMedium.copyWith(
+                          color: context.colors.primary,
+                          fontSize: 32.sp,
                         ),
                       ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: context.colors.textSecondary,
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: _showFilterSheet,
+                            child: Icon(
+                              Icons.filter_alt_outlined,
+                              size: 28.sp,
+                              color:
+                                  filterState.selectedCategoryId != null ||
+                                      filterState.selectedSpecificDate != null
+                                  ? AppColors.expense
+                                  : (context.colors.primary),
+                            ),
+                          ),
+                          UIHelpers.horizontalSpace(16),
+                          GestureDetector(
+                            onTap: () {
+                              ref
+                                  .read(transactionFilterProvider.notifier)
+                                  .toggleSearchVisible();
+                              if (filterState.isSearchVisible) {
+                                // If it was visible and we're toggling it off, clear the controller
+                                _searchController.clear();
+                              }
+                            },
+                            child: Icon(
+                              Icons.search_rounded,
+                              size: 28.sp,
+                              color: filterState.isSearchVisible
+                                  ? AppColors.expense
+                                  : (context.colors.primary),
+                            ),
+                          ),
+                        ],
                       ),
-                      filled: true,
-                      fillColor: context.colors.card,
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 16.w,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ),
 
-            // 2. Month Selector
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 48.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  itemCount: months.length,
-                  itemBuilder: (context, index) {
-                    final monthDate = months[index];
-                    final isSelected =
-                        monthDate.year == selectedMonthDate.year &&
-                        monthDate.month == selectedMonthDate.month;
-                    final monthString = DateFormat(
-                      'MMM yyyy',
-                    ).format(monthDate);
-
-                    return GestureDetector(
-                      onTap: () {
-                        ref
-                            .read(transactionFilterProvider.notifier)
-                            .setMonthDate(monthDate);
-                        ref
-                            .read(transactionFilterProvider.notifier)
-                            .clearFilters(); // clear specific date when picking a month
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 8.h,
-                        ),
-                        margin: EdgeInsets.symmetric(horizontal: 4.w),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(24.r),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          monthString,
-                          style: context.appTexts.bodyMedium.copyWith(
-                            color: isSelected
-                                ? Colors.white
-                                : (context.colors.textSecondary),
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.w500,
+              if (filterState.isSearchVisible)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
+                    child: TextField(
+                      controller: _searchController,
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: context.colors.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search notes...',
+                        hintStyle: context.appTexts.bodyMedium.copyWith(
+                          color: (context.colors.textSecondary).withValues(
+                            alpha: 0.5,
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // 3. Summary Card
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 20.h,
-                    horizontal: 24.w,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.cardDark
-                        : const Color(
-                            0xFFF0F0E9,
-                          ), // Slightly darker cream for contrast in light mode
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: isDark
-                        ? Border.all(color: AppColors.borderDark)
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Income',
-                              style: context.appTexts.bodyMedium.copyWith(
-                                color: context.colors.textPrimary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            UIHelpers.verticalSpace(4),
-                            Row(
-                              children: [
-                                Text(
-                                  '₹${totalGlobalCredit.toStringAsFixed(0)}',
-                                  style: context.appTexts.amountIncome.copyWith(
-                                    fontSize: 20.sp,
-                                  ),
-                                ),
-                                UIHelpers.horizontalSpace(4),
-                                Icon(
-                                  Icons.arrow_upward_rounded,
-                                  size: 16.sp,
-                                  color: AppColors.income,
-                                ),
-                              ],
-                            ),
-                          ],
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: context.colors.textSecondary,
+                        ),
+                        filled: true,
+                        fillColor: context.colors.card,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16.w,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      Container(
-                        width: 1.w,
-                        height: 40.h,
-                        color: context.colors.border,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 24.w),
+                    ),
+                  ),
+                ),
+
+              // 2. Month Selector
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 48.h,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    itemCount: months.length,
+                    itemBuilder: (context, index) {
+                      final monthDate = months[index];
+                      final isSelected =
+                          monthDate.year == selectedMonthDate.year &&
+                          monthDate.month == selectedMonthDate.month;
+                      final monthString = DateFormat(
+                        'MMM yyyy',
+                      ).format(monthDate);
+
+                      return GestureDetector(
+                        onTap: () {
+                          ref
+                              .read(transactionFilterProvider.notifier)
+                              .setMonthDate(monthDate);
+                          ref
+                              .read(transactionFilterProvider.notifier)
+                              .clearFilters(); // clear specific date when picking a month
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w,
+                            vertical: 8.h,
+                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            monthString,
+                            style: context.appTexts.bodyMedium.copyWith(
+                              color: isSelected
+                                  ? Colors.white
+                                  : (context.colors.textSecondary),
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // 3. Summary Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 24.h,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 20.h,
+                      horizontal: 24.w,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.cardDark
+                          : const Color(
+                              0xFFF0F0E9,
+                            ), // Slightly darker cream for contrast in light mode
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: isDark
+                          ? Border.all(color: AppColors.borderDark)
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Expense',
+                                'Income',
                                 style: context.appTexts.bodyMedium.copyWith(
                                   color: context.colors.textPrimary,
                                   fontWeight: FontWeight.w500,
@@ -304,46 +270,84 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    '₹${totalGlobalDebit.toStringAsFixed(0)}',
-                                    style: context.appTexts.amountExpense
+                                    '₹${totalGlobalCredit.toStringAsFixed(0)}',
+                                    style: context.appTexts.amountIncome
                                         .copyWith(fontSize: 20.sp),
                                   ),
                                   UIHelpers.horizontalSpace(4),
                                   Icon(
-                                    Icons.arrow_downward_rounded,
+                                    Icons.arrow_upward_rounded,
                                     size: 16.sp,
-                                    color: AppColors.expense,
+                                    color: AppColors.income,
                                   ),
                                 ],
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // 4. Transactions List
-            if (filteredTransactions.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Text(
-                    "No transactions found.",
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
+                        Container(
+                          width: 1.w,
+                          height: 40.h,
+                          color: context.colors.border,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 24.w),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Expense',
+                                  style: context.appTexts.bodyMedium.copyWith(
+                                    color: context.colors.textPrimary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                UIHelpers.verticalSpace(4),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '₹${totalGlobalDebit.toStringAsFixed(0)}',
+                                      style: context.appTexts.amountExpense
+                                          .copyWith(fontSize: 20.sp),
+                                    ),
+                                    UIHelpers.horizontalSpace(4),
+                                    Icon(
+                                      Icons.arrow_downward_rounded,
+                                      size: 16.sp,
+                                      color: AppColors.expense,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              )
-            else
-              ..._buildGroupedList(filteredTransactions, isDark),
+              ),
 
-            SliverPadding(padding: EdgeInsets.only(bottom: 100.h)),
-          ],
+              // 4. Transactions List
+              if (filteredTransactions.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      "No transactions found.",
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: context.colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                ..._buildGroupedList(filteredTransactions, isDark),
+
+              SliverPadding(padding: EdgeInsets.only(bottom: 100.h)),
+            ],
+          ),
         ),
       ),
     );

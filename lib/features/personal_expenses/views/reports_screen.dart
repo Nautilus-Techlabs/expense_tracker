@@ -82,130 +82,135 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: () async => _fetchData(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header ──
-              Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Reports',
-                      style: context.appTexts.displayMedium.copyWith(
-                        color: context.colors.primary,
-                        fontSize: 32.sp,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 6.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.cardDark
-                            : AppColors.borderLight,
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          GestureDetector(
-                            onTap: _previousMonth,
-                            child: Icon(
-                              Icons.chevron_left_rounded,
-                              size: 20.sp,
-                              color: context.colors.textSecondary,
-                            ),
-                          ),
-                          UIHelpers.horizontalSpace(8),
-                          Text(
-                            monthYear,
-                            style: context.appTexts.bodyMedium.copyWith(
-                              color: context.colors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          UIHelpers.horizontalSpace(8),
-                          GestureDetector(
-                            onTap: _nextMonth,
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              size: 20.sp,
-                              color: context.colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              if (report != null) ...[
-                // ── Top Stats ──
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async => _fetchData(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Header ──
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _StatItem(
-                        title: 'INCOME',
-                        amount: '₹${report.summary.income}',
-                        color: AppColors.income,
-                        isDark: isDark,
+                      Text(
+                        'Reports',
+                        style: context.appTexts.displayMedium.copyWith(
+                          color: context.colors.primary,
+                          fontSize: 32.sp,
+                        ),
                       ),
-                      _StatItem(
-                        title: 'EXPENSE',
-                        amount: '₹${report.summary.expense}',
-                        color: AppColors.expense,
-                        isDark: isDark,
-                      ),
-                      _StatItem(
-                        title: 'NET',
-                        amount:
-                            '${report.summary.net >= 0 ? '+' : ''}₹${report.summary.net}',
-                        color: report.summary.net >= 0
-                            ? AppColors.income
-                            : AppColors.expense,
-                        isDark: isDark,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.cardDark
+                              : AppColors.borderLight,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: _previousMonth,
+                              child: Icon(
+                                Icons.chevron_left_rounded,
+                                size: 20.sp,
+                                color: context.colors.textSecondary,
+                              ),
+                            ),
+                            UIHelpers.horizontalSpace(8),
+                            Text(
+                              monthYear,
+                              style: context.appTexts.bodyMedium.copyWith(
+                                color: context.colors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            UIHelpers.horizontalSpace(8),
+                            GestureDetector(
+                              onTap: _nextMonth,
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                size: 20.sp,
+                                color: context.colors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                UIHelpers.verticalSpace(32),
 
-                // ── Monthly Trend Card ──
-                _MonthlyTrendCard(trend: report.trend, isDark: isDark),
-                UIHelpers.verticalSpace(16),
-
-                // ── Spending Breakdown Card ──
-                _SpendingBreakdownCard(
-                  breakdown: report.spendingBreakdown,
-                  isDark: isDark,
-                  startDate: filterState.startDate,
-                  endDate: filterState.endDate,
-                ),
-                UIHelpers.verticalSpace(16),
-
-                // ── By Account Card ──
-                _ByAccountCard(summary: report.accountSummary, isDark: isDark),
-              ] else
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(32.0),
-                    child: Text('No data available for this period'),
+                if (report != null) ...[
+                  // ── Top Stats ──
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _StatItem(
+                          title: 'INCOME',
+                          amount: '₹${report.summary.income}',
+                          color: AppColors.income,
+                          isDark: isDark,
+                        ),
+                        _StatItem(
+                          title: 'EXPENSE',
+                          amount: '₹${report.summary.expense}',
+                          color: AppColors.expense,
+                          isDark: isDark,
+                        ),
+                        _StatItem(
+                          title: 'NET',
+                          amount:
+                              '${report.summary.net >= 0 ? '+' : ''}₹${report.summary.net}',
+                          color: report.summary.net >= 0
+                              ? AppColors.income
+                              : AppColors.expense,
+                          isDark: isDark,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  UIHelpers.verticalSpace(32),
 
-              UIHelpers.verticalSpace(120), // Bottom padding for nav bar
-            ],
+                  // ── Monthly Trend Card ──
+                  _MonthlyTrendCard(trend: report.trend, isDark: isDark),
+                  UIHelpers.verticalSpace(16),
+
+                  // ── Spending Breakdown Card ──
+                  _SpendingBreakdownCard(
+                    breakdown: report.spendingBreakdown,
+                    isDark: isDark,
+                    startDate: filterState.startDate,
+                    endDate: filterState.endDate,
+                  ),
+                  UIHelpers.verticalSpace(16),
+
+                  // ── By Account Card ──
+                  _ByAccountCard(
+                    summary: report.accountSummary,
+                    isDark: isDark,
+                  ),
+                ] else
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Text('No data available for this period'),
+                    ),
+                  ),
+
+                UIHelpers.verticalSpace(120), // Bottom padding for nav bar
+              ],
+            ),
           ),
         ),
       ),

@@ -16,8 +16,8 @@ class UserModel {
 
   final String? email;
 
-  @JsonKey(name: 'avatar_url')
-  final String? avatarUrl;
+  @JsonKey(name: 'fcm_token')
+  final String? fcmToken;
 
   @JsonKey(name: 'is_active')
   final bool isActive;
@@ -34,7 +34,7 @@ class UserModel {
     required this.fullName,
     this.phone,
     this.email,
-    this.avatarUrl,
+    this.fcmToken,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
