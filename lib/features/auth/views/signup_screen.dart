@@ -262,7 +262,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
           // ── Bottom: link + button ──
           Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
+            padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h + MediaQuery.of(context).padding.bottom),
             child: Column(
               children: [
                 Center(

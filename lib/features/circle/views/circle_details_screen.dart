@@ -305,7 +305,7 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
 
                 // ── Fixed Bottom Actions ──
                 Container(
-                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 16.h),
+                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 16.h + MediaQuery.of(context).padding.bottom),
                   decoration: BoxDecoration(
                     color: context.colors.background,
                     border: Border(

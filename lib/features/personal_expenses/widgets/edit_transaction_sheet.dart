@@ -95,7 +95,6 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
       isCircleTransaction: widget.transaction.isCircleTransaction,
       isReimbursement: widget.transaction.isReimbursement,
       isDeleted: widget.transaction.isDeleted,
-      paidByUserId: widget.transaction.userId,
     );
 
     final success = await ref

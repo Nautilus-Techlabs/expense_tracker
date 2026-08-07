@@ -31,9 +31,6 @@ class TransactionPayload {
   @JsonKey(name: 'is_reimbursement')
   final bool isReimbursement;
 
-  @JsonKey(name: 'paid_by_user_id')
-  final int paidByUserId;
-
   @JsonKey(name: 'reimbursement_ref_id')
   final int? reimbursementRefId;
   @JsonKey(name: 'is_deleted')
@@ -49,7 +46,6 @@ class TransactionPayload {
     this.circleId,
     required this.type,
     required this.amount,
-    required this.paidByUserId,
     this.note,
     this.txnDate,
     this.isCircleTransaction = false,

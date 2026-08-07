@@ -87,7 +87,6 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
                                         fontSize: 32.sp,
                                       ),
                                 ),
-                                _AddButton(isDark: isDark),
                               ],
                             ),
                           ),
@@ -128,7 +127,7 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
                 ),
                 // ── Create a new circle Button ───────────────────────────────
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
+                  padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h + MediaQuery.of(context).padding.bottom),
                   child: OutlinedButton(
                     onPressed: () => showCreateCircleBottomSheet(context),
                     style: OutlinedButton.styleFrom(
@@ -160,23 +159,3 @@ class _CirclesScreenState extends ConsumerState<CirclesScreen> {
   }
 }
 
-class _AddButton extends StatelessWidget {
-  final bool isDark;
-  const _AddButton({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => showCreateCircleBottomSheet(context),
-      child: Container(
-        width: 40.w,
-        height: 40.w,
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.add_rounded, color: Colors.white, size: 22.sp),
-      ),
-    );
-  }
-}

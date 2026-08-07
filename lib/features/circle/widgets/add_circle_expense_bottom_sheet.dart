@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_transaction_payload.dart';
 import 'package:expense_tracker/features/circle/viewmodels/add_circle_expense_form_notifier.dart';
 import 'package:expense_tracker/features/circle/viewmodels/circle_details_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 void showAddCircleExpenseBottomSheet({
   required BuildContext context,
@@ -49,6 +51,8 @@ class _AddCircleExpenseBottomSheetState
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
+  DateTime _selectedDate = DateTime.now();
+
   // Controllers for per-member custom inputs (percentage or fixed amount)
   final Map<int, TextEditingController> _memberSplitControllers = {};
 
@@ -76,31 +80,77 @@ class _AddCircleExpenseBottomSheetState
         .toList();
   }
 
-  dynamic _buildSplitsJson(
+  Future<void> _pickDate(BuildContext context, bool isDark) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? const ColorScheme.dark(
+                    primary: AppColors.primary,
+                    onPrimary: Colors.white,
+                    surface: AppColors.cardDark,
+                    onSurface: Colors.white,
+                  )
+                : const ColorScheme.light(
+                    primary: AppColors.primary,
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                  ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  List<CircleSplitModel> _buildSplitsJson(
     double totalAmount,
     SplitType splitType,
     Set<int> includedMemberIds,
   ) {
     final activeMembers = _includedMembers(includedMemberIds);
     if (splitType == SplitType.equal) {
-      // Equal split: array of included member user_ids
-      return activeMembers.map((m) => m.userId).toList();
+      // Equal split
+      return activeMembers
+          .map((m) => CircleSplitModel(userId: m.userId, splitType: 'equal'))
+          .toList();
     } else if (splitType == SplitType.percentage) {
-      // Percentage split: list of maps for included members
-      final List<Map<String, dynamic>> splits = [];
+      // Percentage split
+      final List<CircleSplitModel> splits = [];
       for (final m in activeMembers) {
         final pctStr = _memberSplitControllers[m.userId]?.text.trim() ?? '0';
         final pct = double.tryParse(pctStr) ?? 0.0;
-        splits.add({'user_id': m.userId, 'percentage': pct});
+        splits.add(
+          CircleSplitModel(
+            userId: m.userId,
+            splitType: 'percentage',
+            splitValue: pct,
+          ),
+        );
       }
       return splits;
     } else {
-      // Fixed amount split: list of maps for included members
-      final List<Map<String, dynamic>> splits = [];
+      // Fixed amount split
+      final List<CircleSplitModel> splits = [];
       for (final m in activeMembers) {
         final amtStr = _memberSplitControllers[m.userId]?.text.trim() ?? '0';
         final amt = double.tryParse(amtStr) ?? 0.0;
-        splits.add({'user_id': m.userId, 'amount': amt});
+        splits.add(
+          CircleSplitModel(
+            userId: m.userId,
+            splitType: 'fixed',
+            splitValue: amt,
+          ),
+        );
       }
       return splits;
     }
@@ -197,21 +247,19 @@ class _AddCircleExpenseBottomSheetState
       formState.splitType,
       formState.includedMemberIds,
     );
-    final note = _noteController.text.trim().isEmpty
-        ? null
-        : _noteController.text.trim();
 
     final result = await ref
         .read(supabaseHelperProvider)
         .createCircleTransaction(
-          circleId: widget.circleId,
-          accountId: formState.selectedAccountId!,
-          amount: totalAmount,
-          paidByUserId: formState.paidByUserId,
-          splits: splitsPayload,
-          type: 'expense',
-          note: note,
-          categoryId: formState.selectedCategoryId,
+          payload: CircleTransactionPayload(
+            circleId: widget.circleId,
+            accountId: formState.selectedAccountId!,
+            categoryId: formState.selectedCategoryId!,
+            type: 'expense',
+            amount: totalAmount,
+            txnDate: _selectedDate.toIso8601String().split('T').first,
+            splits: splitsPayload,
+          ),
         );
 
     formNotifier.setSubmitting(false);
@@ -438,6 +486,48 @@ class _AddCircleExpenseBottomSheetState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
                         borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                  UIHelpers.verticalSpace(16),
+
+                  // Date Picker
+                  Text(
+                    'Date',
+                    style: context.appTexts.bodySmall.copyWith(
+                      color: context.colors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  UIHelpers.verticalSpace(8),
+                  GestureDetector(
+                    onTap: () => _pickDate(context, isDark),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 14.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.colors.card,
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(color: context.colors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 20.sp,
+                            color: AppColors.primary,
+                          ),
+                          UIHelpers.horizontalSpace(12),
+                          Text(
+                            DateFormat('dd MMM yyyy').format(_selectedDate),
+                            style: context.appTexts.bodyMedium.copyWith(
+                              color: context.colors.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

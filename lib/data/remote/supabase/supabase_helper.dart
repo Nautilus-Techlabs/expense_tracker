@@ -10,6 +10,7 @@ import 'package:expense_tracker/features/auth/model/user_payload.dart';
 import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_model.dart';
 import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_transaction_payload.dart';
 import 'package:expense_tracker/features/circle/models/circle_transaction_split_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
@@ -821,32 +822,20 @@ class SupabaseHelper {
   }
 
   Future<Either<Failure, int>> createCircleTransaction({
-    required int circleId,
-    required int accountId,
-    required double amount,
-    required int paidByUserId,
-    required dynamic splits, // jsonb (List<Map<String, dynamic>> or Map)
-    String type = 'expense',
-    String? note,
-    DateTime? txnDate,
-    int? categoryId,
+    required CircleTransactionPayload payload,
   }) async {
     try {
       final response = await supabase.rpc(
         SupabaseKeys.rpcCreateCircleTransaction,
         params: {
-          'p_circle_id': circleId,
-          'p_account_id': accountId,
-          'p_amount': amount,
-          'p_paid_by_user_id': paidByUserId,
-          'p_splits': splits,
-          'p_type': type,
-          'p_note': note,
-          'p_txn_date': (txnDate ?? DateTime.now())
-              .toIso8601String()
-              .split('T')
-              .first,
-          'p_category_id': categoryId,
+          'p_circle_id': payload.circleId,
+          'p_account_id': payload.accountId,
+          'p_amount': payload.amount,
+          'p_splits': payload.splits,
+          'p_type': payload.type,
+          'p_note': payload.note,
+          'p_txn_date': payload.txnDate,
+          'p_category_id': payload.categoryId,
         },
       );
       return Right(response as int);

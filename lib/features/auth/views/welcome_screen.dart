@@ -115,7 +115,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            UIHelpers.verticalSpace(24),
+            SizedBox(height: 24.h + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

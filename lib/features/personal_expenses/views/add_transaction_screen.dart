@@ -31,6 +31,7 @@ class _AddTransactionBottomSheetState
   DateTime _selectedDate = DateTime.now();
   bool _accountError = false; // shows inline error when no account selected
   bool _amountError = false; // shows inline error when no amount entered
+  bool _categoryError = false; // shows inline error when no category selected
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -68,14 +69,18 @@ class _AddTransactionBottomSheetState
     final bool hasAmountError =
         amountText.isEmpty || amount == null || amount <= 0;
     final bool hasAccountError = _selectedAccountId == null;
+    final bool hasCategoryError = _selectedCategoryId == null;
 
-    if (hasAmountError || hasAccountError) {
+    if (hasAmountError || hasAccountError || hasCategoryError) {
       setState(() {
         _amountError = hasAmountError;
         _accountError = hasAccountError;
+        _categoryError = hasCategoryError;
       });
       if (hasAmountError) {
         _showError('Please enter a valid amount.');
+      } else if (hasCategoryError) {
+        _showError('Please select a category to continue.');
       } else if (hasAccountError) {
         _showError('Please select an account to continue.');
       }
@@ -86,6 +91,7 @@ class _AddTransactionBottomSheetState
     setState(() {
       _amountError = false;
       _accountError = false;
+      _categoryError = false;
     });
 
     final user = ref.read(authProvider).user;
@@ -104,7 +110,6 @@ class _AddTransactionBottomSheetState
       isCircleTransaction: false,
       isReimbursement: false,
       isDeleted: false,
-      paidByUserId: user.id,
     );
 
     final success = await ref
@@ -279,7 +284,11 @@ class _AddTransactionBottomSheetState
                   UIHelpers.verticalSpace(40),
 
                   // ── Category Section ──
-                  _buildSectionLabel('Category', isDark),
+                  _buildSectionLabel(
+                    'Category',
+                    isDark,
+                    hasError: _categoryError,
+                  ),
                   UIHelpers.verticalSpace(12),
                   if (categoryState.isLoading)
                     _buildLoadingChips()
