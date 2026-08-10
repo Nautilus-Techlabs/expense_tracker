@@ -7,14 +7,12 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
-import '../models/transaction_model.dart';
-import '../viewmodels/account_notifier.dart';
-import '../viewmodels/category_notifier.dart';
-import '../viewmodels/transaction_notifier.dart';
-import '../widgets/edit_transaction_sheet.dart';
 import '../../circle/models/circle_transaction_split_model.dart';
 import '../../circle/viewmodels/circle_transaction_details_provider.dart';
+import '../models/transaction_model.dart';
 import '../viewmodels/detailed_transaction_provider.dart';
+import '../viewmodels/transaction_notifier.dart';
+import '../widgets/edit_transaction_sheet.dart';
 
 class DetailedTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel transaction;

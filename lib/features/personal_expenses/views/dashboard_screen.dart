@@ -12,6 +12,7 @@ import '../../../core/constants/app_router.dart';
 import '../../../core/navigation_provider.dart';
 import '../../../core/services/deep_link_service.dart';
 import '../../../core/utils/app_logger.dart';
+import '../../../data/repositories/supabase_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/budget_notifier.dart';
@@ -31,12 +32,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Deferring past the current frame is just a courtesy here (don't
-    // navigate mid-build) — it's no longer working around a Navigator lock,
-    // since the invite flow is now a real GoRoute (see AppRouter.joinCircle)
-    // instead of an imperative push on rootNavigatorKey.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+
+      // ── Firebase Cloud Messaging setup ──────────────────────────────────
+      // Request permission first, then setup listeners & register the token.
+      final fcm = ref.read(fcmServiceProvider);
+      await fcm.requestNotificationPermission();
+      await fcm.setupFirebaseMessaging();
+
+      // ── Pending deep-link invite ─────────────────────────────────────────
       final pendingInvite = ref.read(deepLinkProvider).pendingCircleInvite;
       if (pendingInvite != null) {
         _checkPendingInvite(pendingInvite);

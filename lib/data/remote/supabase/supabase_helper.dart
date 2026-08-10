@@ -844,4 +844,23 @@ class SupabaseHelper {
       return Left(Failure('Failed to create circle transaction.'));
     }
   }
+
+  Future<void> updateOrInsertFcmToken(String fcmToken) async {
+    try {
+      final userId = supabase.auth.currentSession?.user.id;
+
+      if (userId != null) {
+        final response = await supabase
+            .from(SupabaseKeys.tableUsers)
+            .update({"fcm_token": fcmToken})
+            .eq("auth_id", userId)
+            .select();
+        AppLogger.i('FCM token upsert response: $response');
+      } else {
+        AppLogger.e('No authenticated user found.');
+      }
+    } catch (e) {
+      AppLogger.e('Exception in updateOrInsertFcmToken: $e');
+    }
+  }
 }
