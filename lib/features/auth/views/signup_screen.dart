@@ -90,167 +90,235 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     return Scaffold(
       backgroundColor: bg,
       resizeToAvoidBottomInset: true,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Back button ──
-          Padding(
-            padding: EdgeInsets.only(left: 8.w, top: 8.h),
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                size: 24.sp,
-                color: textPrimary,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Back button ──
+            Padding(
+              padding: EdgeInsets.only(left: 8.w, top: 8.h),
+              child: IconButton(
+                onPressed: () => context.pop(),
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 24.sp,
+                  color: textPrimary,
+                ),
+                alignment: Alignment.centerLeft,
               ),
-              alignment: Alignment.centerLeft,
             ),
-          ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  UIHelpers.verticalSpace(24),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    UIHelpers.verticalSpace(24),
 
-                  // ── Heading ──
-                  Text(
-                    'Create account',
-                    style: context.appTexts.displayMedium.copyWith(
-                      color: textPrimary,
-                      fontSize: 32.sp,
+                    // ── Heading ──
+                    Text(
+                      'Create account',
+                      style: context.appTexts.displayMedium.copyWith(
+                        color: textPrimary,
+                        fontSize: 32.sp,
+                      ),
                     ),
-                  ),
-                  UIHelpers.verticalSpace(6),
-                  Text(
-                    'Enter your details to get started',
-                    style: context.appTexts.bodyMedium.copyWith(
-                      color: textSecondary,
+                    UIHelpers.verticalSpace(6),
+                    Text(
+                      'Enter your details to get started',
+                      style: context.appTexts.bodyMedium.copyWith(
+                        color: textSecondary,
+                      ),
                     ),
-                  ),
-                  UIHelpers.verticalSpace(32),
+                    UIHelpers.verticalSpace(32),
 
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Name',
-                          style: context.appTexts.bodySmall.copyWith(
-                            color: textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        UIHelpers.verticalSpace(8),
-                        AuthInputField(
-                          controller: _nameController,
-                          hint: 'Enter your full name',
-                          keyboardType: TextInputType.name,
-                          isDark: isDark,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          validator: Validator.validateName,
-                          enabled: !authState.isLoading,
-                          textInputAction: TextInputAction.next,
-                        ),
-                        UIHelpers.verticalSpace(20),
-                        Text(
-                          'Email',
-                          style: context.appTexts.bodySmall.copyWith(
-                            color: textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        UIHelpers.verticalSpace(8),
-                        AuthInputField(
-                          controller: _emailController,
-                          hint: 'Enter your email',
-                          keyboardType: TextInputType.emailAddress,
-                          isDark: isDark,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          validator: Validator.validateEmail,
-                          enabled: !authState.isLoading,
-                          textInputAction: TextInputAction.next,
-                        ),
-                        UIHelpers.verticalSpace(20),
-                        Text(
-                          'Password',
-                          style: context.appTexts.bodySmall.copyWith(
-                            color: textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        UIHelpers.verticalSpace(8),
-                        AuthInputField(
-                          controller: _passwordController,
-                          hint: 'Create a password',
-                          obscure: _obscurePassword,
-                          isDark: isDark,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          validator: Validator.validatePassword,
-                          enabled: !authState.isLoading,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _onSubmit(),
-                          suffix: GestureDetector(
-                            onTap: () => setState(
-                              () => _obscurePassword = !_obscurePassword,
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
                             ),
-                            child: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              size: 20.sp,
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _nameController,
+                            hint: 'Enter your full name',
+                            keyboardType: TextInputType.name,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateName,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          UIHelpers.verticalSpace(20),
+                          Text(
+                            'Email',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _emailController,
+                            hint: 'Enter your email',
+                            keyboardType: TextInputType.emailAddress,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validateEmail,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          UIHelpers.verticalSpace(20),
+                          Text(
+                            'Password',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          UIHelpers.verticalSpace(8),
+                          AuthInputField(
+                            controller: _passwordController,
+                            hint: 'Create a password',
+                            obscure: _obscurePassword,
+                            isDark: isDark,
+                            cardBg: cardBg,
+                            borderColor: borderColor,
+                            validator: Validator.validatePassword,
+                            enabled: !authState.isLoading,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _onSubmit(),
+                            suffix: GestureDetector(
+                              onTap: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                              child: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                size: 20.sp,
+                                color: textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    UIHelpers.verticalSpace(32),
+
+                    // ── Social Login ──
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: borderColor)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Text(
+                            'OR',
+                            style: context.appTexts.label.copyWith(
                               color: textSecondary,
                             ),
                           ),
                         ),
+                        Expanded(child: Divider(color: borderColor)),
                       ],
                     ),
-                  ),
-                  UIHelpers.verticalSpace(32),
+                    UIHelpers.verticalSpace(24),
 
-                  // ── Social Login ──
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: borderColor)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Text(
-                          'OR',
-                          style: context.appTexts.label.copyWith(
-                            color: textSecondary,
+                    SizedBox(
+                      height: 56.h,
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: authState.isLoading ? null : _onGoogleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: borderColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32.r),
                           ),
                         ),
+                        child: authState.isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                                'Continue with Google',
+                                style: context.appTexts.bodyMedium.copyWith(
+                                  color: textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-                      Expanded(child: Divider(color: borderColor)),
-                    ],
-                  ),
-                  UIHelpers.verticalSpace(24),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
+            // ── Bottom: link + button ──
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                24.w,
+                12.h,
+                24.w,
+                24.h + MediaQuery.of(context).padding.bottom,
+              ),
+              child: Column(
+                children: [
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.pop();
+                        context.push(AppRouter.signIn);
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          style: context.appTexts.bodySmall.copyWith(
+                            color: textSecondary,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Already have an account? '),
+                            TextSpan(
+                              text: 'Sign in',
+                              style: TextStyle(
+                                color: textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  UIHelpers.verticalSpace(16),
                   SizedBox(
                     height: 56.h,
                     width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: authState.isLoading ? null : _onGoogleSignIn,
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: borderColor),
+                    child: ElevatedButton(
+                      onPressed: authState.isLoading ? null : _onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32.r),
                         ),
+                        elevation: 0,
                       ),
                       child: authState.isLoading
-                          ? const CircularProgressIndicator()
+                          ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
-                              'Continue with Google',
+                              'CREATE ACCOUNT',
                               style: context.appTexts.bodyMedium.copyWith(
-                                color: textPrimary,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15.sp,
+                                letterSpacing: 0.8,
                               ),
                             ),
                     ),
@@ -258,68 +326,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ],
               ),
             ),
-          ),
-
-          // ── Bottom: link + button ──
-          Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h + MediaQuery.of(context).padding.bottom),
-            child: Column(
-              children: [
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      context.pop();
-                      context.push(AppRouter.signIn);
-                    },
-                    child: RichText(
-                      text: TextSpan(
-                        style: context.appTexts.bodySmall.copyWith(
-                          color: textSecondary,
-                        ),
-                        children: [
-                          const TextSpan(text: 'Already have an account? '),
-                          TextSpan(
-                            text: 'Sign in',
-                            style: TextStyle(
-                              color: textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                UIHelpers.verticalSpace(16),
-                SizedBox(
-                  height: 56.h,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: authState.isLoading ? null : _onSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: authState.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            'CREATE ACCOUNT',
-                            style: context.appTexts.bodyMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15.sp,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
