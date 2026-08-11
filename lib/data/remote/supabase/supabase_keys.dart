@@ -35,6 +35,7 @@ class SupabaseKeys {
   static const String rpcGetPairwiseBalance = 'get_pairwise_balance';
   static const String rpcGetUserBalances = 'get_user_balances';
   static const String rpcRecordSettlement = 'record_settlement';
+  static const String rpcSendPaymentReminder = 'send_payment_reminder';
 
   // Common Columns
   static const String colId = 'id';

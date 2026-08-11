@@ -845,6 +845,22 @@ class SupabaseHelper {
     }
   }
 
+  Future<Either<Failure, int>> sendPaymentReminder({
+    required int circleId,
+    required int targetUserId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcSendPaymentReminder,
+        params: {'p_circle_id': circleId, 'p_target_user_id': targetUserId},
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error sending payment reminder: $e');
+      return Left(Failure('Failed to send reminder.'));
+    }
+  }
+
   Future<void> updateOrInsertFcmToken(String fcmToken) async {
     try {
       final userId = supabase.auth.currentSession?.user.id;

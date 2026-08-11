@@ -52,6 +52,13 @@ class CircleDetailsNotifier extends Notifier<CircleDetailsState> {
       },
     );
   }
+
+  Future<String?> sendReminder({required int targetUserId}) async {
+    final result = await ref
+        .read(supabaseHelperProvider)
+        .sendPaymentReminder(circleId: circleId, targetUserId: targetUserId);
+    return result.fold((failure) => failure.message, (_) => null);
+  }
 }
 
 final circleDetailsProvider =

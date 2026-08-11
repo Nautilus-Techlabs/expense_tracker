@@ -16,6 +16,7 @@ class CircleMemberCard extends StatelessWidget {
   final bool showRemind;
   final Color? subtextColor;
   final Color? avatarTextColor;
+  final VoidCallback? onRemind;
 
   const CircleMemberCard({
     super.key,
@@ -29,6 +30,7 @@ class CircleMemberCard extends StatelessWidget {
     this.showRemind = false,
     this.subtextColor,
     this.avatarTextColor,
+    this.onRemind,
   });
 
   @override
@@ -114,7 +116,7 @@ class CircleMemberCard extends StatelessWidget {
           // Action (Remind button)
           if (showRemind)
             OutlinedButton(
-              onPressed: () {},
+              onPressed: onRemind,
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: context.colors.border),
                 shape: RoundedRectangleBorder(

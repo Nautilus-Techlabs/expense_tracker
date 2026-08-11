@@ -226,6 +226,30 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                               isDark: isDark,
                               showRemind: !m.isSelf && m.status == 'owes_you',
                               subtextColor: subtextColor,
+                              onRemind: (!m.isSelf && m.status == 'owes_you')
+                                  ? () async {
+                                      final error = await ref
+                                          .read(
+                                            circleDetailsProvider(
+                                              widget.args.circleId,
+                                            ).notifier,
+                                          )
+                                          .sendReminder(
+                                            targetUserId: m.userId,
+                                          );
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            error ?? 'Reminder sent to ${m.fullName}!',
+                                          ),
+                                          backgroundColor: error != null
+                                              ? AppColors.expense
+                                              : AppColors.income,
+                                        ),
+                                      );
+                                    }
+                                  : null,
                             );
                           }),
 
