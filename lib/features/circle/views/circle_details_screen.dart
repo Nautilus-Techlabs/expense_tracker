@@ -15,7 +15,7 @@ import '../../../core/constants/args.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../viewmodels/circle_details_notifier.dart';
-import '../widgets/add_circle_expense_bottom_sheet.dart';
+
 import '../widgets/circle_member_card.dart';
 import '../widgets/settle_up_bottom_sheet.dart';
 
@@ -373,10 +373,12 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
                         child: PrimaryButton(
                           text: '+ Add expense',
                           onPressed: () {
-                            showAddCircleExpenseBottomSheet(
-                              context: context,
-                              circleId: widget.args.circleId,
-                              members: data.members,
+                            context.push(
+                              AppRouter.addCircleExpense,
+                              extra: AddCircleExpenseArgs(
+                                circleId: widget.args.circleId,
+                                members: data.members,
+                              ),
                             );
                           },
                         ),

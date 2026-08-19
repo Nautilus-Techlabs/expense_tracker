@@ -257,6 +257,7 @@ class _AddTransactionBottomSheetState
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
+                            scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
                             autofocus: false,
                             style: context.appTexts.displayLarge.copyWith(
                               color: _amountError
@@ -370,6 +371,7 @@ class _AddTransactionBottomSheetState
                     isDark: isDark,
                     child: TextField(
                       controller: _noteController,
+                      scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
                       style: context.appTexts.bodyLarge.copyWith(
                         color: context.colors.primary,
                       ),
@@ -423,7 +425,11 @@ class _AddTransactionBottomSheetState
               ),
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).padding.bottom + 24.h),
+          SizedBox(
+            height: MediaQuery.of(context).padding.bottom + 
+                    MediaQuery.of(context).viewInsets.bottom + 
+                    24.h,
+          ),
         ],
       ),
     );

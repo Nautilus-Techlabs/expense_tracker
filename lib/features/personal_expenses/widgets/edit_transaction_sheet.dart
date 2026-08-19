@@ -183,7 +183,12 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
             ),
           ],
         ),
-        padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 32.h),
+        padding: EdgeInsets.fromLTRB(
+          24.w,
+          16.h,
+          24.w,
+          32.h + MediaQuery.of(context).padding.bottom,
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -233,6 +238,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
               UIHelpers.verticalSpace(8),
               TextField(
                 controller: _amountController,
+                scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -248,6 +254,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
               UIHelpers.verticalSpace(8),
               TextField(
                 controller: _noteController,
+                scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
                 style: context.appTexts.bodyMedium.copyWith(
                   color: context.colors.textPrimary,
                 ),

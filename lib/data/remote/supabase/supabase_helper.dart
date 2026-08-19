@@ -466,6 +466,28 @@ class SupabaseHelper {
     }
   }
 
+  Future<Either<Failure, DateTime?>> getEarliestTransactionDate(
+    int userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .select('txn_date')
+          .eq('user_id', userId)
+          .eq('is_deleted', false)
+          .order('txn_date', ascending: true)
+          .limit(1)
+          .maybeSingle();
+      if (response == null || response['txn_date'] == null) {
+        return const Right(null);
+      }
+      return Right(DateTime.parse(response['txn_date'] as String));
+    } catch (e) {
+      AppLogger.e('Error getting earliest transaction date: $e');
+      return Left(Failure('Failed to get earliest transaction date.'));
+    }
+  }
+
   Future<Either<Failure, SpendingBreakdown>> getSpendingBreakdown({
     required int userId,
     required DateTime startDate,

@@ -4,6 +4,8 @@ import 'package:expense_tracker/core/utils/secrets.dart';
 import 'package:expense_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,14 @@ import 'core/widgets/global_snackbar_listener.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  if (kDebugMode) {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+  } else {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  }
 
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);

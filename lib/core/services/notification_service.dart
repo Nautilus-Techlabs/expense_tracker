@@ -139,7 +139,6 @@ class FCMService {
     debugPrint('Parsing notification data for route: $data');
 
     final String? type = data['type']?.toString();
-    final String? refType = data['ref_type']?.toString();
     final String? refId = data['ref_id']?.toString();
 
     final bool hasRef = refId != null && refId.isNotEmpty;

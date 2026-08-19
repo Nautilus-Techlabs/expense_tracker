@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
+import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/report_filter_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/report_notifier.dart';
@@ -22,10 +24,49 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
+  DateTime? _earliestTxnDate;
+  bool _loadingEarliestDate = true;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => _fetchData());
+    Future.microtask(() {
+      _fetchEarliestTransactionDate();
+      _fetchData();
+    });
+  }
+
+  Future<void> _fetchEarliestTransactionDate() async {
+    final user = ref.read(authProvider).user;
+    if (user != null) {
+      final result = await ref
+          .read(supabaseHelperProvider)
+          .getEarliestTransactionDate(user.id);
+      result.fold(
+        (failure) {
+          if (mounted) {
+            setState(() {
+              _earliestTxnDate = null;
+              _loadingEarliestDate = false;
+            });
+          }
+        },
+        (date) {
+          if (mounted) {
+            setState(() {
+              _earliestTxnDate = date;
+              _loadingEarliestDate = false;
+            });
+          }
+        },
+      );
+    } else {
+      if (mounted) {
+        setState(() {
+          _loadingEarliestDate = false;
+        });
+      }
+    }
   }
 
   void _fetchData() {
@@ -39,11 +80,39 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   }
 
   void _previousMonth() {
+    final filterState = ref.read(reportFilterProvider);
+    final previousMonthStart = DateTime(
+      filterState.startDate.year,
+      filterState.startDate.month - 1,
+      1,
+    );
+
+    if (_earliestTxnDate != null) {
+      final earliestMonthStart = DateTime(
+        _earliestTxnDate!.year,
+        _earliestTxnDate!.month,
+        1,
+      );
+      if (previousMonthStart.isBefore(earliestMonthStart)) {
+        return;
+      }
+    } else if (!_loadingEarliestDate) {
+      // If load finished and user has no transactions, don't allow navigating back
+      return;
+    }
+
     ref.read(reportFilterProvider.notifier).previousMonth();
     _fetchData();
   }
 
   void _nextMonth() {
+    final filterState = ref.read(reportFilterProvider);
+    final now = DateTime.now();
+    if (filterState.startDate.year == now.year &&
+        filterState.startDate.month == now.month) {
+      return;
+    }
+
     ref.read(reportFilterProvider.notifier).nextMonth();
     _fetchData();
   }
@@ -53,31 +122,37 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final reportState = ref.watch(reportProvider);
     final report = reportState.report;
-
-    if (reportState.isLoading) {
-      return Scaffold(
-        backgroundColor: context.colors.background,
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (reportState.errorMessage != null && report == null) {
-      return Scaffold(
-        backgroundColor: context.colors.background,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(reportState.errorMessage!),
-              UIHelpers.verticalSpace(16),
-              ElevatedButton(onPressed: _fetchData, child: const Text('Retry')),
-            ],
-          ),
-        ),
-      );
-    }
-
     final filterState = ref.watch(reportFilterProvider);
+
+    final reportMatchesFilter = report != null &&
+        DateTime.parse(report.startDate).month == filterState.startDate.month &&
+        DateTime.parse(report.startDate).year == filterState.startDate.year;
+
+    bool canGoPrevious = true;
+    if (_loadingEarliestDate) {
+      canGoPrevious = false;
+    } else if (_earliestTxnDate == null) {
+      canGoPrevious = false;
+    } else {
+      final previousMonthStart = DateTime(
+        filterState.startDate.year,
+        filterState.startDate.month - 1,
+        1,
+      );
+      final earliestMonthStart = DateTime(
+        _earliestTxnDate!.year,
+        _earliestTxnDate!.month,
+        1,
+      );
+      if (previousMonthStart.isBefore(earliestMonthStart)) {
+        canGoPrevious = false;
+      }
+    }
+
+    final now = DateTime.now();
+    final canGoNext = !(filterState.startDate.year == now.year &&
+        filterState.startDate.month == now.month);
+
     final monthYear = DateFormat('MMM yyyy').format(filterState.startDate);
 
     return Scaffold(
@@ -118,11 +193,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
-                              onTap: _previousMonth,
-                              child: Icon(
-                                Icons.chevron_left_rounded,
-                                size: 20.sp,
-                                color: context.colors.textSecondary,
+                              onTap: canGoPrevious && !reportState.isLoading
+                                  ? _previousMonth
+                                  : null,
+                              child: Opacity(
+                                opacity: canGoPrevious && !reportState.isLoading
+                                    ? 1.0
+                                    : 0.4,
+                                child: Icon(
+                                  Icons.chevron_left_rounded,
+                                  size: 20.sp,
+                                  color: context.colors.textSecondary,
+                                ),
                               ),
                             ),
                             UIHelpers.horizontalSpace(8),
@@ -135,11 +217,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             ),
                             UIHelpers.horizontalSpace(8),
                             GestureDetector(
-                              onTap: _nextMonth,
-                              child: Icon(
-                                Icons.chevron_right_rounded,
-                                size: 20.sp,
-                                color: context.colors.textSecondary,
+                              onTap: canGoNext && !reportState.isLoading
+                                  ? _nextMonth
+                                  : null,
+                              child: Opacity(
+                                opacity: canGoNext && !reportState.isLoading
+                                    ? 1.0
+                                    : 0.4,
+                                child: Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 20.sp,
+                                  color: context.colors.textSecondary,
+                                ),
                               ),
                             ),
                           ],
@@ -149,7 +238,32 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   ),
                 ),
 
-                if (report != null) ...[
+                if (reportState.isLoading && !reportMatchesFilter)
+                  SizedBox(
+                    height: 400.h,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (reportState.errorMessage != null &&
+                    !reportMatchesFilter)
+                  SizedBox(
+                    height: 400.h,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(reportState.errorMessage!),
+                          UIHelpers.verticalSpace(16),
+                          ElevatedButton(
+                            onPressed: _fetchData,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (reportMatchesFilter) ...[
                   // ── Top Stats ──
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -201,9 +315,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     isDark: isDark,
                   ),
                 ] else
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
+                  SizedBox(
+                    height: 400.h,
+                    child: const Center(
                       child: Text('No data available for this period'),
                     ),
                   ),

@@ -20,6 +20,7 @@ import '../../features/personal_expenses/views/faq_screen.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
+import '../../features/circle/views/add_circle_expense_screen.dart';
 import 'args.dart';
 
 class AppRouter {
@@ -43,6 +44,8 @@ class AppRouter {
   static const String circleAllTransactions = '/circle-all-transactions';
   static const String circleSettings = '/circle-settings';
   static const String joinCircle = '/join-circle';
+
+  static const String addCircleExpense = '/add-circle-expense';
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -140,6 +143,13 @@ class AppRouter {
         builder: (context, state) {
           final circleId = state.extra as int;
           return JoinCircleScreen(circleId: circleId);
+        },
+      ),
+      GoRoute(
+        path: addCircleExpense,
+        builder: (context, state) {
+          final args = state.extra as AddCircleExpenseArgs;
+          return AddCircleExpenseScreen(args: args);
         },
       ),
     ],

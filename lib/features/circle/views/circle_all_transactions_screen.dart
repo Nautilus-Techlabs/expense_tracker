@@ -10,7 +10,7 @@ import '../../../core/constants/app_router.dart';
 import '../../personal_expenses/models/transaction_model.dart';
 import '../viewmodels/circle_details_notifier.dart';
 import '../viewmodels/circle_all_transactions_notifier.dart';
-import '../widgets/add_circle_expense_bottom_sheet.dart';
+import '../../../core/constants/args.dart';
 import '../widgets/circle_transaction_tile.dart';
 
 class CircleAllTransactionsScreen extends ConsumerStatefulWidget {
@@ -180,10 +180,12 @@ class _CircleAllTransactionsScreenState
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (members.isNotEmpty) {
-            showAddCircleExpenseBottomSheet(
-              context: context,
-              circleId: widget.circleId,
-              members: members,
+            context.push(
+              AppRouter.addCircleExpense,
+              extra: AddCircleExpenseArgs(
+                circleId: widget.circleId,
+                members: members,
+              ),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(

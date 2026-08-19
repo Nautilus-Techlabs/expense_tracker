@@ -126,7 +126,12 @@ class _AddCategoryBottomSheetState
             ),
           ],
         ),
-        padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 32.h),
+        padding: EdgeInsets.fromLTRB(
+          24.w,
+          16.h,
+          24.w,
+          32.h + MediaQuery.of(context).padding.bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,6 +202,7 @@ class _AddCategoryBottomSheetState
             UIHelpers.verticalSpace(12),
             TextField(
               controller: _nameController,
+              scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
               style: context.appTexts.bodyMedium.copyWith(
                 color: context.colors.textPrimary,
               ),

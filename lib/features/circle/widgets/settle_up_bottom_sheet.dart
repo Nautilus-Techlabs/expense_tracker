@@ -65,6 +65,7 @@ class SettleUpBottomSheet extends ConsumerWidget {
             UIHelpers.verticalSpace(16),
             TextField(
               controller: amountController,
+              scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -181,7 +182,7 @@ class SettleUpBottomSheet extends ConsumerWidget {
         24.w,
         20.h,
         24.w,
-        MediaQuery.of(context).viewInsets.bottom + 24.h,
+        MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).padding.bottom + 24.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

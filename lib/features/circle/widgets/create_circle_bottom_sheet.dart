@@ -174,7 +174,12 @@ class _CreateCircleBottomSheetState
           borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
           clipBehavior: Clip.antiAlias,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 32.h),
+            padding: EdgeInsets.fromLTRB(
+              24.w,
+              16.h,
+              24.w,
+              32.h + MediaQuery.of(context).padding.bottom,
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -259,6 +264,7 @@ class _CreateCircleBottomSheetState
                   UIHelpers.verticalSpace(8),
                   TextField(
                     controller: _nameController,
+                    scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 100),
                     style: context.appTexts.bodyMedium.copyWith(
                       color: context.colors.textPrimary,
                     ),
