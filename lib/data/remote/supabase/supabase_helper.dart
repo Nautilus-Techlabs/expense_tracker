@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:either_dart/either.dart';
 import 'package:expense_tracker/core/cache/cache_manager.dart';
@@ -19,7 +20,11 @@ import 'package:expense_tracker/features/personal_expenses/models/reports_model.
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+enum AppVersionStatus { upToDate, needsUpdate }
 
 class SupabaseHelper {
   final SupabaseClient supabase = Supabase.instance.client;
@@ -899,6 +904,65 @@ class SupabaseHelper {
       }
     } catch (e) {
       AppLogger.e('Exception in updateOrInsertFcmToken: $e');
+    }
+  }
+
+  Future<AppVersionStatus> appVersionCheck() async {
+    try {
+      // Get current app version string (e.g., "1.0.0")
+      final info = await PackageInfo.fromPlatform();
+      final currentVersionStr = info.version;
+      await cacheManager.setAppVersion(currentVersionStr);
+      AppLogger.i('Current app version: $currentVersionStr');
+
+      // Determine platform-specific key
+      final platformKey = Platform.isAndroid
+          ? 'min_android_version'
+          : Platform.isIOS
+          ? 'min_ios_version'
+          : null;
+
+      if (platformKey == null) {
+        AppLogger.e('Unsupported platform for version check.');
+        return AppVersionStatus.upToDate;
+      }
+
+      // Fetch version requirement from Supabase
+      final response = await supabase
+          .from(SupabaseKeys.config)
+          .select()
+          .eq("key", platformKey)
+          .single();
+
+      AppLogger.i('Config response: $response');
+      if (response.isEmpty) {
+        AppLogger.e('🚫 No config entry found for "$platformKey"');
+        return AppVersionStatus.upToDate; // Fail open
+      }
+
+      final requiredVersionStr = response["value"] as String?;
+      if (requiredVersionStr == null || requiredVersionStr.isEmpty) {
+        AppLogger.e('⚠️ Empty or missing version string for "$platformKey"');
+        return AppVersionStatus.upToDate;
+      }
+
+      AppLogger.i('Required version: $requiredVersionStr');
+
+      // Compare versions using semantic versioning
+      final currentVersion = Version.parse(currentVersionStr);
+      final requiredVersion = Version.parse(requiredVersionStr);
+
+      if (currentVersion < requiredVersion) {
+        AppLogger.w(
+          'App needs update: $currentVersionStr < $requiredVersionStr',
+        );
+        return AppVersionStatus.needsUpdate;
+      }
+
+      return AppVersionStatus.upToDate;
+    } catch (e) {
+      AppLogger.e('❌ Error in appVersionCheck: $e');
+      return AppVersionStatus.upToDate; // Changed to fail open for better UX
     }
   }
 }

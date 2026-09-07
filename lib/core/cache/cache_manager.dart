@@ -72,4 +72,8 @@ class CacheManager {
     }
     return [];
   }
+
+  Future<void> setAppVersion(String appVersion) async {
+    await _storage.write(key: 'appVersion', value: appVersion);
+  }
 }
