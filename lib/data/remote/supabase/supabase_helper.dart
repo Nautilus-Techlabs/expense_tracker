@@ -1,0 +1,904 @@
+import 'dart:async';
+
+import 'package:either_dart/either.dart';
+import 'package:expense_tracker/core/cache/cache_manager.dart';
+import 'package:expense_tracker/core/error/failure.dart';
+import 'package:expense_tracker/core/utils/app_logger.dart';
+import 'package:expense_tracker/data/remote/supabase/supabase_keys.dart';
+import 'package:expense_tracker/features/auth/model/user_model.dart';
+import 'package:expense_tracker/features/auth/model/user_payload.dart';
+import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_screen_model.dart';
+import 'package:expense_tracker/features/circle/models/circle_transaction_payload.dart';
+import 'package:expense_tracker/features/circle/models/circle_transaction_split_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/account_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/budget_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/category_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/reports_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
+import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class SupabaseHelper {
+  final SupabaseClient supabase = Supabase.instance.client;
+  final CacheManager cacheManager = CacheManager();
+
+  Future<Either<Failure, UserModel>> createUser(UserPayload data) async {
+    try {
+      final signUpResponse = await supabase.auth.signUp(
+        password: data.password!,
+        email: data.email,
+      );
+
+      final user = signUpResponse.user;
+      if (user == null) {
+        return Left(Failure('Signup failed. Please try again.'));
+      }
+
+      final insertResponse = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .insert({
+            'full_name': data.name.trim(),
+            'email': data.email,
+            'auth_id': user.id,
+          })
+          .select()
+          .single();
+
+      return Right(UserModel.fromJson(insertResponse));
+    } on AuthException catch (e) {
+      // Supabase auth errors — email already registered etc
+      AppLogger.e('Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } on PostgrestException catch (e) {
+      // DB constraint violations — duplicate email/phone
+      AppLogger.e('DB error: ${e.message}');
+      if (e.code == '23505') {
+        return Left(Failure('An account with this email already exists.'));
+      }
+      return Left(Failure('Failed to create profile. Please try again.'));
+    } catch (e) {
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong. Please try again.'));
+    }
+  }
+
+  Future<Either<Failure, void>> signInWithGoogle() async {
+    try {
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.nt.expensetracker://google-auth-callback',
+      );
+
+      // Block here until the deep link comes back and session is set
+      await supabase.auth.onAuthStateChange
+          .firstWhere((data) => data.event == AuthChangeEvent.signedIn)
+          .timeout(const Duration(seconds: 10));
+
+      return const Right(null);
+    } on TimeoutException {
+      return Left(Failure('Google sign-in timed out. Please try again.'));
+    } on AuthException catch (e) {
+      AppLogger.e('Google Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Unexpected Google error: $e');
+      return Left(Failure('Something went wrong with Google sign-in.'));
+    }
+  }
+
+  Future<Either<Failure, ({UserModel user, bool isNewUser})>>
+  fetchOrCreateGoogleProfile() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return Left(Failure('No authenticated user found.'));
+
+    try {
+      final existing = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', user.id)
+          .maybeSingle();
+
+      if (existing != null) {
+        return Right((user: UserModel.fromJson(existing), isNewUser: false));
+      }
+
+      final inserted = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .insert({
+            'full_name':
+                user.userMetadata?['full_name'] ??
+                user.userMetadata?['name'] ??
+                '',
+            'email': user.email,
+            'auth_id': user.id,
+          })
+          .select()
+          .single();
+
+      return Right((user: UserModel.fromJson(inserted), isNewUser: true));
+    } on PostgrestException catch (e) {
+      AppLogger.e('DB error: ${e.message}');
+      return Left(Failure('Failed to load or create profile.'));
+    } catch (e) {
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong loading your profile.'));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> signIn(
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      final user = response.user;
+      if (user == null) {
+        return Left(Failure('Sign in failed.'));
+      }
+
+      final profileResponse = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', user.id)
+          .single();
+
+      return Right(UserModel.fromJson(profileResponse));
+    } on AuthException catch (e) {
+      AppLogger.e('Auth error: ${e.message}');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Unexpected error: $e');
+      return Left(Failure('Something went wrong. Please try again.'));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> fetchUserProfile(String authId) async {
+    try {
+      final profileResponse = await supabase
+          .from(SupabaseKeys.tableUsers)
+          .select()
+          .eq('auth_id', authId)
+          .single();
+
+      return Right(UserModel.fromJson(profileResponse));
+    } catch (e) {
+      AppLogger.e('Error fetching profile: $e');
+      return Left(Failure('Failed to load profile.'));
+    }
+  }
+
+  Future<Either<Failure, List<CategoryModel>>> fetchAllCategories({
+    required int currentUserId,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableCategories)
+          .select()
+          .or('is_system.eq.true,user_id.eq.$currentUserId')
+          .eq('is_active', true);
+
+      final categories = response
+          .map((json) => CategoryModel.fromJson(json))
+          .toList();
+      return Right(categories);
+    } catch (e) {
+      return Left(Failure('Error fetching categories: $e'));
+    }
+  }
+
+  Future<Either<Failure, List<TransactionModel>>> fetchAllTransactions(
+    int userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .select()
+          .eq('user_id', userId)
+          .eq('is_deleted', false);
+      final transactions = response
+          .map((json) => TransactionModel.fromJson(json))
+          .toList();
+      AppLogger.d('Fetched transactions: ${transactions.length}');
+      return Right(transactions);
+    } catch (e) {
+      AppLogger.e('Error fetching transactions: $e');
+      return Left(Failure('Error fetching transactions: $e'));
+    }
+  }
+
+  Future<Either<Failure, TransactionModel>> addTransactions(
+    TransactionPayload payload,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .insert(payload.toJson())
+          .select()
+          .single();
+      AppLogger.d('Inserted transactions: $response');
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error inserting transactions: $e');
+      return Left(Failure('Error inserting transactions: $e'));
+    }
+  }
+
+  Future<Either<Failure, TransactionModel>> editTransaction(
+    TransactionPayload payload,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .update(payload.toJson())
+          .select()
+          .single();
+      AppLogger.d('Edited transactions: $response');
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error editing transactions: $e');
+      return Left(Failure('Error editing transactions: $e'));
+    }
+  }
+
+  Future<Either<Failure, List<AccountModel>>> fetchAllAccounts(
+    int userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableAccounts)
+          .select()
+          .eq('user_id', userId);
+      final accounts = response
+          .map((json) => AccountModel.fromJson(json))
+          .toList();
+      return Right(accounts);
+    } catch (e) {
+      return Left(Failure('Error fetching accounts: $e'));
+    }
+  }
+
+  Future<Either<Failure, AccountModel>> createAccount({
+    required int userId,
+    required String name,
+    required AccountType type,
+    required double balance,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableAccounts)
+          .insert({
+            'user_id': userId,
+            'name': name,
+            'type': type.name,
+            'balance': balance,
+            'opening_balance': balance,
+          })
+          .select()
+          .single();
+
+      return Right(AccountModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating account: $e');
+      return Left(Failure('Failed to create account.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> createMonthlyBudget({
+    required int userId,
+    required double amount,
+    required DateTime month,
+  }) async {
+    try {
+      final dateString =
+          "${month.year}-${month.month.toString().padLeft(2, '0')}-01";
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .insert({'user_id': userId, 'amount': amount, 'month': dateString})
+          .select()
+          .single();
+      final payload = {
+        'user_id': userId,
+        'amount': amount,
+        'month': dateString,
+      };
+      debugPrint(
+        'PAYLOAD TYPES: ${payload.map((k, v) => MapEntry(k, v.runtimeType))}',
+      );
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating monthly budget: $e');
+      return Left(Failure('Failed to create monthly budget.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> fetchMonthlyBudget({
+    required int userId,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final dateString =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-01";
+
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .select()
+          .eq('user_id', userId)
+          .eq('month', dateString)
+          .maybeSingle();
+
+      if (response == null) {
+        return Left(Failure('No budget set for this month.'));
+      }
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error fetching monthly budget: $e');
+      return Left(Failure('Failed to fetch monthly budget.'));
+    }
+  }
+
+  Future<Either<Failure, UserMonthlyBudget>> updateMonthlyBudget({
+    required int userId,
+    required double amount,
+    required DateTime month,
+  }) async {
+    try {
+      final dateString =
+          "${month.year}-${month.month.toString().padLeft(2, '0')}-01";
+      final response = await supabase
+          .from(SupabaseKeys.tableMonthlyBudgets)
+          .update({'amount': amount})
+          .eq('user_id', userId)
+          .eq('month', dateString)
+          .select()
+          .single();
+
+      return Right(UserMonthlyBudget.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error updating monthly budget: $e');
+      return Left(Failure('Error updating monthly budget: $e'));
+    }
+  }
+
+  Future<Either<Failure, CategoryModel>> createCategory({
+    required int userId,
+    required String name,
+    required CategoryType type,
+    required String icon,
+    required String color,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableCategories)
+          .insert({
+            'user_id': userId,
+            'name': name,
+            'type': type.name,
+            'icon': icon,
+            'color': color,
+          })
+          .select()
+          .single();
+
+      return Right(CategoryModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error creating category: $e');
+      return Left(Failure('Failed to create category.'));
+    }
+  }
+
+  Future<Either<Failure, TransactionModel>> updateTransaction({
+    required int transactionId,
+    required TransactionPayload updates,
+  }) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .update({
+            'account_id': updates.accountId,
+            'category_id': updates.categoryId,
+            'circle_id': updates.circleId,
+            'type': updates.type,
+            'amount': updates.amount,
+            'note': updates.note,
+          })
+          .eq('id', transactionId)
+          .select()
+          .single();
+
+      return Right(TransactionModel.fromJson(response));
+    } catch (e) {
+      AppLogger.e('Error updating transaction: $e');
+      return Left(Failure('Failed to update transaction.'));
+    }
+  }
+
+  Future<Either<Failure, void>> deleteTransaction({
+    required int transactionId,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcDeleteTransaction,
+        params: {'p_transaction_id': transactionId},
+      );
+
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error deleting transaction: $e');
+      return Left(Failure('Failed to delete transaction.'));
+    }
+  }
+
+  Future<Either<Failure, ReportModel>> fetchUserReports({
+    required int userId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String groupBy,
+    required bool fillGaps,
+    required int topCategories,
+    required bool includeZeroAcc,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetReports,
+        params: {
+          "p_user_id": userId,
+          "p_start_date": startDate.toIso8601String(),
+          "p_end_date": endDate.toIso8601String(),
+          "p_group_by": groupBy,
+          "p_fill_gaps": fillGaps,
+          "p_top_categories": topCategories,
+          "p_include_zero_accounts": includeZeroAcc,
+        },
+      );
+      final report = ReportModel.fromJson(response);
+      return Right(report);
+    } catch (e) {
+      AppLogger.e('Error fetching user reports: $e');
+      return Left(Failure('Failed to fetch user reports.'));
+    }
+  }
+
+  Future<Either<Failure, DateTime?>> getEarliestTransactionDate(
+    int userId,
+  ) async {
+    try {
+      final response = await supabase
+          .from(SupabaseKeys.tableTransactions)
+          .select('txn_date')
+          .eq('user_id', userId)
+          .eq('is_deleted', false)
+          .order('txn_date', ascending: true)
+          .limit(1)
+          .maybeSingle();
+      if (response == null || response['txn_date'] == null) {
+        return const Right(null);
+      }
+      return Right(DateTime.parse(response['txn_date'] as String));
+    } catch (e) {
+      AppLogger.e('Error getting earliest transaction date: $e');
+      return Left(Failure('Failed to get earliest transaction date.'));
+    }
+  }
+
+  Future<Either<Failure, SpendingBreakdown>> getSpendingBreakdown({
+    required int userId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required int topCategories,
+    required bool groupByOthers,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetReportSpendingBreakdown,
+        params: {
+          "p_user_id": userId,
+          "p_start_date": startDate.toIso8601String(),
+          "p_end_date": endDate.toIso8601String(),
+          "p_top_categories": topCategories,
+          "p_group_others": groupByOthers,
+        },
+      );
+      final report = SpendingBreakdown.fromJson(response);
+      return Right(report);
+    } catch (e) {
+      AppLogger.e('Error fetching spending breakdown: $e');
+      return Left(Failure('Failed to fetch spending breakdown.'));
+    }
+  }
+
+  /// Fetches minimal circle info for the invite dialog:
+  /// circle name + owner's full name.
+  Future<Either<Failure, Map<String, String>>> getCircleInviteInfo(
+    int circleId,
+  ) async {
+    try {
+      // Use the dedicated RPC to bypass RLS for non-members
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleInviteInfo,
+        params: {'p_circle_id': circleId},
+      );
+
+      if (response == null) {
+        AppLogger.e(
+          'getCircleInviteInfo: RPC returned null for circle $circleId',
+        );
+        return Left(Failure('Circle not found or invite invalid.'));
+      }
+
+      final circleName =
+          (response['circleName'] as String?) ?? 'Unknown Circle';
+      final ownerName = (response['ownerName'] as String?) ?? 'Unknown';
+
+      return Right({'circleName': circleName, 'ownerName': ownerName});
+    } catch (e) {
+      AppLogger.e('Error fetching circle invite info: $e');
+      return Left(Failure('Failed to fetch circle info.'));
+    }
+  }
+
+  Future<Either<Failure, int>> createCircle({
+    required String name,
+    required bool includeSettlementsInPersonalLedger,
+    required int userId,
+    int? settlementAccountId,
+    String? description,
+    CircleType type = CircleType.ongoing,
+    double? budget,
+    bool splitEnabled = false,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCreateCircle,
+        params: {
+          'p_name': name,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
+          'p_description': description,
+          'p_type': type == CircleType.one_time ? 'one_time' : 'ongoing',
+          'p_budget': budget,
+          'p_split_enabled': splitEnabled,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error creating circle: $e');
+      return Left(Failure('Failed to create circle.'));
+    }
+  }
+
+  Future<Either<Failure, int>> addCircleMember({
+    required int circleId,
+    required int targetUserId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
+    CircleMemberRole role = CircleMemberRole.member,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcAddCircleMember,
+        params: {
+          'p_circle_id': circleId,
+          'p_target_user_id': targetUserId,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
+          'p_role': role.name,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error adding circle member: $e');
+      return Left(Failure('Failed to add member to circle.'));
+    }
+  }
+
+  Future<Either<Failure, int>> joinCircle({
+    required int circleId,
+    required bool includeSettlementsInPersonalLedger,
+    int? settlementAccountId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcJoinCircle,
+        params: {
+          'p_circle_id': circleId,
+          'p_include_settlements_in_personal_ledger':
+              includeSettlementsInPersonalLedger,
+          'p_settlement_account_id': settlementAccountId,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error adding circle member: $e');
+      return Left(Failure('Failed to add member to circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> changeMemberRole({
+    required int circleId,
+    required int targetUserId,
+    required CircleMemberRole newRole,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcChangeMemberRole,
+        params: {
+          'p_circle_id': circleId,
+          'p_target_user_id': targetUserId,
+          'p_new_role': newRole.name,
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error changing circle member role: $e');
+      return Left(Failure('Failed to change member role.'));
+    }
+  }
+
+  Future<Either<Failure, int>> transferCircleOwnership({
+    required int circleId,
+    required int newOwnerUserId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcTransferCircleOwnership,
+        params: {'p_circle_id': circleId, 'p_new_owner_id': newOwnerUserId},
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error transferring circle ownership: $e');
+      return Left(Failure('Failed to transfer circle ownership.'));
+    }
+  }
+
+  Future<Either<Failure, void>> removeCircleMember({
+    required int circleId,
+    required int targetUserId,
+  }) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcRemoveCircleMember,
+        params: {'p_circle_id': circleId, 'p_target_user_id': targetUserId},
+      );
+      return const Right(null);
+    } on PostgrestException catch (e) {
+      AppLogger.e('Error removing circle member: $e');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Error removing circle member: $e');
+      return Left(Failure('Failed to remove member from circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> leaveCircle({required int circleId}) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcLeaveCircle,
+        params: {'p_circle_id': circleId},
+      );
+      return const Right(null);
+    } on PostgrestException catch (e) {
+      AppLogger.e('Error leaving circle: $e');
+      return Left(Failure(e.message));
+    } catch (e) {
+      AppLogger.e('Error leaving circle: $e');
+      return Left(Failure('Failed to leave circle.'));
+    }
+  }
+
+  Future<Either<Failure, void>> deleteCircle({required int circleId}) async {
+    try {
+      await supabase.rpc(
+        SupabaseKeys.rpcDeleteCircle,
+        params: {'p_circle_id': circleId},
+      );
+      return const Right(null);
+    } catch (e) {
+      AppLogger.e('Error deleting circle: $e');
+      return Left(Failure('Failed to delete circle.'));
+    }
+  }
+
+  Future<Either<Failure, List<TransactionModel>>> getCircleTransactions({
+    required int circleId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleTransactions,
+        params: {'p_circle_id': circleId},
+      );
+
+      final List<dynamic> data = response;
+      final transactions = data
+          .map(
+            (json) => TransactionModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+      AppLogger.d('Fetched transactions: ${transactions.length}');
+      return Right(transactions);
+    } catch (e) {
+      AppLogger.e('Error fetching circle transactions: $e');
+      return Left(Failure('Failed to fetch circle transactions.'));
+    }
+  }
+
+  Future<Either<Failure, CircleTransactionSplitModel>>
+  getCircleTransactionsDetails({required int transactionId}) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCircleDetails,
+        params: {'p_transaction_id': transactionId},
+      );
+
+      final circleTransactionSplitModel = CircleTransactionSplitModel.fromJson(
+        response,
+      );
+      AppLogger.d(
+        'Fetched circle transactions details: ${circleTransactionSplitModel.transaction.id}',
+      );
+      return Right(circleTransactionSplitModel);
+    } catch (e) {
+      AppLogger.e('Error fetching detailed circle transactions: $e');
+      return Left(Failure('Failed to fetch detailed circle transactions.'));
+    }
+  }
+
+  // --- Balances & Settlement RPC Methods ---
+
+  Future<Either<Failure, double>> getPairwiseBalance({
+    required int circleId,
+    required int userA,
+    required int userB,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetPairwiseBalance,
+        params: {'p_circle_id': circleId, 'p_user_a': userA, 'p_user_b': userB},
+      );
+      return Right((response as num).toDouble());
+    } catch (e) {
+      AppLogger.e('Error getting pairwise balance: $e');
+      return Left(Failure('Failed to get pairwise balance.'));
+    }
+  }
+
+  Future<Either<Failure, List<Map<String, dynamic>>>> getUserBalances({
+    required int circleId,
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetUserBalances,
+        params: {'p_circle_id': circleId, 'p_user_id': userId},
+      );
+      final list = (response as List).cast<Map<String, dynamic>>();
+      return Right(list);
+    } catch (e) {
+      AppLogger.e('Error getting user balances: $e');
+      return Left(Failure('Failed to get user balances.'));
+    }
+  }
+
+  Future<Either<Failure, int>> recordSettlement({
+    required int circleId,
+    required int paidByUserId,
+    required int paidToUserId,
+    required double amount,
+    String? note,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcRecordSettlement,
+        params: {
+          'p_circle_id': circleId,
+          'p_paid_by_user_id': paidByUserId,
+          'p_paid_to_user_id': paidToUserId,
+          'p_amount': amount,
+          'p_note': note,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error recording settlement: $e');
+      return Left(Failure('Failed to record settlement.'));
+    }
+  }
+
+  Future<Either<Failure, CircleScreenModel>> getCirclesScreenData({
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(SupabaseKeys.rpcGetCirclesScreenData);
+      final model = CircleScreenModel.fromJson(response);
+      return Right(model);
+    } catch (e) {
+      AppLogger.e('Error fetching circles screen data: $e');
+      return Left(Failure('Failed to fetch circles screen data.'));
+    }
+  }
+
+  Future<Either<Failure, CircleDetailScreenModel>> getCircleDetailsScreenData({
+    required int circleId,
+    required int userId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcGetCircleDetailsScreenData,
+        params: {'p_circle_id': circleId},
+      );
+      final model = CircleDetailScreenModel.fromJson(response);
+      return Right(model);
+    } catch (e) {
+      AppLogger.e('Error fetching circles details screen data: $e');
+      return Left(Failure('Failed to fetch circles details screen data.'));
+    }
+  }
+
+  Future<Either<Failure, int>> createCircleTransaction({
+    required CircleTransactionPayload payload,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCreateCircleTransaction,
+        params: {
+          'p_circle_id': payload.circleId,
+          'p_account_id': payload.accountId,
+          'p_amount': payload.amount,
+          'p_splits': payload.splits,
+          'p_type': payload.type,
+          'p_note': payload.note,
+          'p_txn_date': payload.txnDate,
+          'p_category_id': payload.categoryId,
+        },
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error creating circle transaction: $e');
+      return Left(Failure('Failed to create circle transaction.'));
+    }
+  }
+
+  Future<Either<Failure, int>> sendPaymentReminder({
+    required int circleId,
+    required int targetUserId,
+  }) async {
+    try {
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcSendPaymentReminder,
+        params: {'p_circle_id': circleId, 'p_target_user_id': targetUserId},
+      );
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error sending payment reminder: $e');
+      return Left(Failure('Failed to send reminder.'));
+    }
+  }
+
+  Future<void> updateOrInsertFcmToken(String fcmToken) async {
+    try {
+      final userId = supabase.auth.currentSession?.user.id;
+
+      if (userId != null) {
+        final response = await supabase
+            .from(SupabaseKeys.tableUsers)
+            .update({"fcm_token": fcmToken})
+            .eq("auth_id", userId)
+            .select();
+        AppLogger.i('FCM token upsert response: $response');
+      } else {
+        AppLogger.e('No authenticated user found.');
+      }
+    } catch (e) {
+      AppLogger.e('Exception in updateOrInsertFcmToken: $e');
+    }
+  }
+}

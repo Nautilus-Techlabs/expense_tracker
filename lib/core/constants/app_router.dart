@@ -1,30 +1,65 @@
+import 'package:expense_tracker/features/auth/views/signin_screen.dart';
+import 'package:expense_tracker/features/auth/views/signup_screen.dart';
+import 'package:expense_tracker/features/auth/views/welcome_screen.dart';
+import 'package:expense_tracker/features/circle/views/join_circle_screen.dart';
+import 'package:expense_tracker/features/personal_expenses/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../domain/entities/transaction.dart';
-import '../../presentation/screens/bank_detail_transactions_screen.dart';
-import '../../presentation/screens/detailed_transaction.dart';
-import '../../presentation/screens/main_screen.dart';
-import '../../presentation/screens/onboarding_screen.dart';
-import '../../presentation/screens/splash_screen.dart';
-import '../../presentation/screens/feedback_screen.dart';
+import '../../features/circle/views/circle_all_transactions_screen.dart';
+import '../../features/circle/views/circle_details_screen.dart';
+import '../../features/circle/views/circle_settings_screen.dart';
+import '../../features/personal_expenses/models/transaction_model.dart';
+import '../../features/personal_expenses/views/accounts_settings_screen.dart';
+import '../../features/personal_expenses/views/add_account_screen.dart';
+import '../../features/personal_expenses/views/add_budget_screen.dart';
+import '../../features/personal_expenses/views/categories_settings_screen.dart';
+import '../../features/personal_expenses/views/category_breakdown_screen.dart';
+import '../../features/personal_expenses/views/detailed_transaction.dart';
+import '../../features/personal_expenses/views/faq_screen.dart';
+import '../../features/personal_expenses/views/feedback_screen.dart';
+import '../../features/personal_expenses/views/main_screen.dart';
+import '../../features/personal_expenses/views/settings_screen.dart';
+import '../../features/circle/views/add_circle_expense_screen.dart';
+import 'args.dart';
 
 class AppRouter {
   static const String splash = '/';
-  static const String onboarding = '/onboarding';
+  static const String welcome = '/welcome';
+  static const String signIn = '/signin';
+  static const String signup = '/signup';
+  static const String verifyOtp = '/verify-otp';
   static const String transactions = '/transactions';
   static const String transactionDetail = '/transaction-detail';
   static const String bankTransactions = '/bank-transactions';
   static const String feedback = '/feedback';
+  static const String circleDetails = '/circle-details';
+  static const String profile = '/profile';
+  static const String accountsSettings = '/accounts';
+  static const String categoriesSettings = '/categories';
+  static const String addAccount = '/add-account';
+  static const String addBudget = '/add-budget';
+  static const String categoryBreakdown = '/category-breakdown';
+  static const String faq = '/faq';
+  static const String circleAllTransactions = '/circle-all-transactions';
+  static const String circleSettings = '/circle-settings';
+  static const String joinCircle = '/join-circle';
+
+  static const String addCircleExpense = '/add-circle-expense';
+
+  static final rootNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: splash,
     routes: [
       GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
       GoRoute(
-        path: onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        path: welcome,
+        builder: (context, state) => const WelcomeScreen(),
       ),
+      GoRoute(path: signIn, builder: (context, state) => const SignInScreen()),
+      GoRoute(path: signup, builder: (context, state) => const SignUpScreen()),
       GoRoute(
         path: transactions,
         builder: (context, state) => const MainScreen(),
@@ -33,38 +68,89 @@ class AppRouter {
         path: transactionDetail,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is Transaction) {
+          if (extra is TransactionModel) {
             return DetailedTransactionScreen(transaction: extra);
           }
           if (extra is Map) {
             return DetailedTransactionScreen(
-              transaction: extra['transaction'] as Transaction,
+              transaction: extra['transaction'] as TransactionModel,
               heroTag: extra['heroTag'] as String?,
             );
           }
-          // Fallback if extra is null or invalid
-          return Scaffold(
+          return const Scaffold(
             body: Center(child: Text('Invalid transaction data')),
           );
         },
       ),
       GoRoute(
-        path: bankTransactions,
+        path: feedback,
+        builder: (context, state) => const FeedbackScreen(),
+      ),
+      GoRoute(
+        path: circleDetails,
         builder: (context, state) {
-          final extra = state.extra;
-          if (extra is Map<String, String>) {
-            return BankDetailTransactionsScreen(
-              bankName: extra['bankName']!,
-              accountNumber: extra['accountNumber']!,
-            );
-          }
-          final bankName = extra as String;
-          return BankDetailTransactionsScreen(bankName: bankName);
+          final extra = state.extra as CircleDetailsArgs;
+          return CircleDetailsScreen(args: extra);
         },
       ),
       GoRoute(
-        path: feedback,
-        builder: (context, state) => const FeedbackScreen(),
+        path: profile,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: accountsSettings,
+        builder: (context, state) => const AccountsSettingsScreen(),
+      ),
+      GoRoute(
+        path: categoriesSettings,
+        builder: (context, state) => const CategoriesSettingsScreen(),
+      ),
+      GoRoute(
+        path: addAccount,
+        builder: (context, state) => const AddAccountScreen(),
+      ),
+      GoRoute(
+        path: addBudget,
+        builder: (context, state) => const AddBudgetScreen(),
+      ),
+      GoRoute(
+        path: categoryBreakdown,
+        builder: (context, state) {
+          final args = state.extra as Map<String, DateTime>;
+          return CategoryBreakdownScreen(
+            startDate: args['startDate']!,
+            endDate: args['endDate']!,
+          );
+        },
+      ),
+      GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
+      GoRoute(
+        path: circleAllTransactions,
+        builder: (context, state) {
+          final circleId = state.extra as int;
+          return CircleAllTransactionsScreen(circleId: circleId);
+        },
+      ),
+      GoRoute(
+        path: circleSettings,
+        builder: (context, state) {
+          final extra = state.extra as CircleSettingsArgs;
+          return CircleSettingsScreen(args: extra);
+        },
+      ),
+      GoRoute(
+        path: joinCircle,
+        builder: (context, state) {
+          final circleId = state.extra as int;
+          return JoinCircleScreen(circleId: circleId);
+        },
+      ),
+      GoRoute(
+        path: addCircleExpense,
+        builder: (context, state) {
+          final args = state.extra as AddCircleExpenseArgs;
+          return AddCircleExpenseScreen(args: args);
+        },
       ),
     ],
   );

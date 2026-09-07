@@ -12,7 +12,6 @@
 .swiftpm/
 migrate_working_dir/
 
-
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -37,7 +36,6 @@ migrate_working_dir/
 *.iws
 
 # Sensitive/Debug Data
-*.txt
 *.log
 test/failures.txt
 test/out.txt
@@ -52,3 +50,7 @@ app.*.symbols
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# FVM Version Cache
+.fvm/
+/lib/core/utils/secrets.dart

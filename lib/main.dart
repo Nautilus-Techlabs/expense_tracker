@@ -1,20 +1,50 @@
+import 'dart:ui';
+
+import 'package:expense_tracker/core/utils/secrets.dart';
+import 'package:expense_tracker/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_router.dart';
+import 'core/services/deep_link_service.dart';
 import 'core/theme/app_theme.dart';
-import 'domain/parsers/flutter_parser_initializer.dart';
+import 'core/theme/theme_notifier.dart';
+import 'core/widgets/connectivity_wrapper.dart';
+import 'core/widgets/global_snackbar_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // ✅ CRITICAL: Initialize the Bank Parser Engine
-  // Without this, the app doesn't know how to read your bank SMS.
-  await FlutterParserInitializer.initialize();
+  if (kDebugMode) {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+  } else {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  }
 
-  // Set preferred orientations
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  await Supabase.initialize(
+    url: AppSecrets.apiUrl,
+    publishableKey: AppSecrets.publishableKey,
+  );
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -23,11 +53,13 @@ void main() async {
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }
 
-class ExpenseTrackerApp extends StatelessWidget {
+class ExpenseTrackerApp extends ConsumerWidget {
   const ExpenseTrackerApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
     return ScreenUtilInit(
       designSize: const Size(390, 844),
       minTextAdapt: true,
@@ -35,8 +67,14 @@ class ExpenseTrackerApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp.router(
           routerConfig: AppRouter.router,
-          title: 'Expense Tracker',
+          title: 'Expense Lite',
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            ref.watch(deepLinkProvider);
+            return GlobalSnackbarListener(
+              child: ConnectivityWrapper(child: child!),
+            );
+          },
 
           // Light Theme
           theme: AppTheme.light,
@@ -45,7 +83,7 @@ class ExpenseTrackerApp extends StatelessWidget {
           darkTheme: AppTheme.dark,
 
           // System Theme Mode
-          themeMode: ThemeMode.system,
+          themeMode: themeMode,
         );
       },
     );
