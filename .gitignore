@@ -54,3 +54,9 @@ app.*.symbols
 # FVM Version Cache
 .fvm/
 /lib/core/utils/secrets.dart
+
+# Local-only working files (Claude Code, docs, plans)
+.claude/
+.docs/
+.plans/
+CLAUDE.md
