@@ -7,6 +7,7 @@ class SupabaseKeys {
   static const String tableCategories = 'categories';
   static const String tableUsers = 'users';
   static const String tableMonthlyBudgets = 'user_monthly_budget';
+  static const String config = 'config';
 
   // RPC functions
   static const String rpcDeleteTransaction = 'delete_transaction';
