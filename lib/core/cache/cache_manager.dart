@@ -50,12 +50,12 @@ class CacheManager {
   }
 
   Future<void> saveProcessedInvite(int circleId) async {
-    final invites = await getProcessedInvites();
-    if (!invites.contains(circleId)) {
-      invites.add(circleId);
+    final currentInvites = await getProcessedInvites();
+    if (!currentInvites.contains(circleId)) {
+      currentInvites.add(circleId);
       await _storage.write(
         key: _processedInvitesKey,
-        value: jsonEncode(invites),
+        value: jsonEncode(currentInvites),
       );
     }
   }

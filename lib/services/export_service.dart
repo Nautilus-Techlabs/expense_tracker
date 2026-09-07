@@ -67,7 +67,7 @@ class ExportService {
           .fold(0.0, (sum, t) => sum + t.amount);
 
       final totalOut = accountTxns
-          .where((t) => t.type == 'expense')
+          .where((t) => t.type == 'expense' || t.type == 'withdrawal')
           .fold(0.0, (sum, t) => sum + t.amount);
 
       final net = totalIn - totalOut;

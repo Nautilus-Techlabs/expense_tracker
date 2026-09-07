@@ -51,7 +51,8 @@ final dashboardStatsProvider = Provider<DashboardStats>((ref) {
       )
       .fold<double>(0, (sum, t) => sum + t.amount);
 
-  final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+  final todayMidnight = DateTime(now.year, now.month, now.day);
+  final startOfWeek = todayMidnight.subtract(Duration(days: todayMidnight.weekday - 1));
   final weeklySpending = transactions
       .where(
         (t) =>

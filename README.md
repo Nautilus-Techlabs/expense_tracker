@@ -40,7 +40,7 @@ The sign-up screen asks for three things:
 
 - **Name** — just needs to be filled in.
 - **Email** — checked for a valid email format (e.g. `you@example.com`).
-- **Password** — must be **exactly 6 characters**, no more and no fewer. You can tap the eye icon to reveal or hide what you've typed.
+- **Password** — must be **at least 6 characters**. You can tap the eye icon to reveal or hide what you've typed.
 
 Tapping **Create Account** creates your account right away — there is currently no separate email verification or one-time-code step, so you're not asked to confirm your email address before continuing. Once your account is created, you're taken directly into the app to set up your first money account.
 

@@ -216,11 +216,20 @@ class _AddCircleExpenseScreenState
             content: Text(
               'Fixed amounts must add up to ₹$totalAmount (Currently ₹${totalFixed.toStringAsFixed(1)})',
             ),
-            backgroundColor: AppColors.expense,
           ),
         );
         return;
       }
+    }
+
+    if (formState.selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a category'),
+          backgroundColor: AppColors.expense,
+        ),
+      );
+      return;
     }
 
     formNotifier.setSubmitting(true);

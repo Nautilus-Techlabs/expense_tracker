@@ -51,7 +51,13 @@ class BudgetNotifier extends Notifier<BudgetState> {
     // Normalize the month to the first of the month
     final normalizedMonth = DateTime(month.year, month.month, 1);
 
-    final existingBudget = state.budget;
+    UserMonthlyBudget? existingBudget = state.budget;
+    if (existingBudget == null) {
+      final fetched = await ref
+          .read(supabaseHelperProvider)
+          .fetchMonthlyBudget(userId: user.id);
+      fetched.fold((_) => null, (budget) => existingBudget = budget);
+    }
 
     late final Future<dynamic> resultFuture;
     if (existingBudget != null) {

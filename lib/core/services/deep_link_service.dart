@@ -61,7 +61,9 @@ class DeepLinkNotifier extends Notifier<DeepLinkState> {
     }
 
     // Handle: https://nt-epense-tracker-web.netlify.app/invite?circleId=42
-    if (uri.scheme == 'https' && uri.path.startsWith('/invite')) {
+    if (uri.scheme == 'https' &&
+        uri.host == 'nt-epense-tracker-web.netlify.app' &&
+        uri.path == '/invite') {
       final idStr = uri.queryParameters['circleId'];
       circleId = int.tryParse(idStr ?? '');
     }

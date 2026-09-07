@@ -19,7 +19,6 @@ import 'package:expense_tracker/features/personal_expenses/models/category_model
 import 'package:expense_tracker/features/personal_expenses/models/reports_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_model.dart';
 import 'package:expense_tracker/features/personal_expenses/models/transaction_payload.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -307,15 +306,6 @@ class SupabaseHelper {
           .insert({'user_id': userId, 'amount': amount, 'month': dateString})
           .select()
           .single();
-      final payload = {
-        'user_id': userId,
-        'amount': amount,
-        'month': dateString,
-      };
-      debugPrint(
-        'PAYLOAD TYPES: ${payload.map((k, v) => MapEntry(k, v.runtimeType))}',
-      );
-
       return Right(UserMonthlyBudget.fromJson(response));
     } catch (e) {
       AppLogger.e('Error creating monthly budget: $e');
