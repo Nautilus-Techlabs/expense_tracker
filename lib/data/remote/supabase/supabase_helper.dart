@@ -955,4 +955,55 @@ class SupabaseHelper {
       return AppVersionStatus.upToDate; // Changed to fail open for better UX
     }
   }
+
+  Future<Either<Failure, bool>> checkFeedbackEligibility() async {
+    try {
+      AppLogger.i('Calling checkFeedbackEligibility RPC...');
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcCheckFeedbackEligibility,
+      );
+      AppLogger.i('checkFeedbackEligibility response: $response');
+      return Right(response as bool);
+    } catch (e) {
+      AppLogger.e('Error checking feedback eligibility: $e');
+      return Left(Failure('Failed to check feedback eligibility.'));
+    }
+  }
+
+  Future<Either<Failure, bool>> consumeFeedbackPrompt() async {
+    try {
+      AppLogger.i('Calling consumeFeedbackPrompt RPC...');
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcConsumeFeedbackPrompt,
+      );
+      AppLogger.i('consumeFeedbackPrompt response: $response');
+      return Right(response as bool);
+    } catch (e) {
+      AppLogger.e('Error consuming feedback prompt: $e');
+      return Left(Failure('Failed to consume feedback prompt.'));
+    }
+  }
+
+  Future<Either<Failure, int>> sendFeedback({
+    required String feedbackText,
+    String? category,
+    String? appVersion,
+  }) async {
+    try {
+      AppLogger.i('Sending feedback: category=$category, appVersion=$appVersion');
+      final response = await supabase.rpc(
+        SupabaseKeys.rpcSubmitFeedback,
+        params: {
+          'p_feedback_text': feedbackText,
+          'p_category': category,
+          'p_app_version': appVersion,
+        },
+      );
+      AppLogger.i('sendFeedback response ID: $response');
+      return Right(response as int);
+    } catch (e) {
+      AppLogger.e('Error sending feedback: $e');
+      return Left(Failure('Failed to send feedback.'));
+    }
+  }
 }

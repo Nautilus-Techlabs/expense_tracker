@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/theme/theme_notifier.dart';
+import 'package:expense_tracker/core/utils/app_logger.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
@@ -330,6 +332,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               icon: Icons.star_border_rounded,
               title: 'Rate Expense Lite',
               isDark: isDark,
+              onTap: () async {
+                const url =
+                    "https://play.google.com/store/apps/details?id=com.nt.expensetracker";
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  AppLogger.e('Unable to open Play Store.');
+                }
+              },
+            ),
+            _buildListItem(
+              context: context,
+              icon: Icons.feedback_outlined,
+              title: 'Send Feedback',
+              isDark: isDark,
+              onTap: () => context.push(AppRouter.feedback),
             ),
 
             // _buildListItem(

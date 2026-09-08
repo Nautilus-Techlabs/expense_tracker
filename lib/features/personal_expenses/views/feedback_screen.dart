@@ -1,31 +1,44 @@
+import 'package:expense_tracker/core/utils/app_logger.dart';
+import 'package:expense_tracker/core/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/app_colors_extension.dart';
 import '../../../core/widgets/primary_button.dart';
-import 'package:expense_tracker/core/utils/ui_helpers.dart';
-import '../../../../core/theme/app_colors_extension.dart';
+import '../viewmodels/feedback_notifier.dart';
 
-class FeedbackScreen extends StatefulWidget {
+class FeedbackScreen extends ConsumerStatefulWidget {
   const FeedbackScreen({super.key});
 
   @override
-  State<FeedbackScreen> createState() => _FeedbackScreenState();
+  ConsumerState<FeedbackScreen> createState() => _FeedbackScreenState();
 }
 
-class _FeedbackScreenState extends State<FeedbackScreen> {
+class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   final TextEditingController _feedbackController = TextEditingController();
-  String _selectedType = 'Suggestion';
+  
+  // Category UI Labels vs Backend Argument Keys
+  final List<Map<String, String>> _categories = const [
+    {'label': 'General Feedback', 'key': 'general'},
+    {'label': 'Feature Request', 'key': 'feature_request'},
+    {'label': 'Bug / Problem', 'key': 'bug'},
+    {'label': 'UI / Design', 'key': 'ui_ux'},
+    {'label': 'Performance', 'key': 'performance'},
+    {'label': 'Other', 'key': 'other'},
+  ];
+
+  late String _selectedCategoryKey;
   bool _isSending = false;
 
-  final List<String> _feedbackTypes = [
-    'Bug Report',
-    'Suggestion',
-    'Feature Request',
-    'Other',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategoryKey = _categories.first['key']!;
+  }
 
   @override
   void dispose() {
@@ -44,48 +57,55 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     setState(() => _isSending = true);
 
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: 'hi@nautilustechlabs.com',
-      query: _encodeQuery({
-        'subject': 'Expense Lite App – $_selectedType',
-        'body': feedbackText,
-      }),
-    );
-
     try {
-      if (await canLaunchUrl(emailUri)) {
-        await launchUrl(emailUri);
-        if (mounted) context.pop();
-      } else {
-        if (mounted) {
+      String? appVersion;
+      try {
+        final packageInfo = await PackageInfo.fromPlatform();
+        appVersion = packageInfo.version;
+      } catch (e) {
+        AppLogger.e('Failed to get package info: $e');
+      }
+
+      final result = await ref.read(feedbackProvider.notifier).sendFeedback(
+        feedbackText: feedbackText,
+        category: _selectedCategoryKey,
+        appVersion: appVersion,
+      );
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Could not open email client. Please email us at hi@nautilustechlabs.com',
-              ),
+            SnackBar(
+              content: Text(failure.message),
+              backgroundColor: AppColors.expense,
             ),
           );
-        }
-      }
+        },
+        (feedbackId) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Thank you! Your feedback has been submitted.'),
+              backgroundColor: AppColors.income,
+            ),
+          );
+          context.pop();
+        },
+      );
     } catch (e) {
+      AppLogger.e('Error submitting feedback: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.expense,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
-  }
-
-  String _encodeQuery(Map<String, String> params) {
-    return params.entries
-        .map(
-          (e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
-        )
-        .join('&');
   }
 
   @override
@@ -117,7 +137,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            UIHelpers.verticalSpace(32),
+            UIHelpers.verticalSpace(24),
 
             // ── Icon ──
             Center(
@@ -159,11 +179,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            UIHelpers.verticalSpace(36),
+            UIHelpers.verticalSpace(32),
 
-            // ── Type Selector ──
+            // ── Category Selector ──
             Text(
-              'Type',
+              'Category',
               style: context.appTexts.bodySmall.copyWith(
                 color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,
@@ -174,10 +194,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Wrap(
               spacing: 8.w,
               runSpacing: 8.h,
-              children: _feedbackTypes.map((type) {
-                final isSelected = _selectedType == type;
+              children: _categories.map((item) {
+                final isSelected = _selectedCategoryKey == item['key'];
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedType = type),
+                  onTap: () => setState(() => _selectedCategoryKey = item['key']!),
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.w,
@@ -195,7 +215,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       ),
                     ),
                     child: Text(
-                      type,
+                      item['label']!,
                       style: context.appTexts.bodySmall.copyWith(
                         color: isSelected
                             ? Colors.white
@@ -211,9 +231,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             ),
             UIHelpers.verticalSpace(24),
 
-            // ── Message ──
+            // ── Feedback Message ──
             Text(
-              'Message',
+              'Feedback',
               style: context.appTexts.bodySmall.copyWith(
                 color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,
@@ -229,12 +249,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               ),
               child: TextField(
                 controller: _feedbackController,
-                maxLines: 8,
+                maxLines: 6,
                 style: context.appTexts.bodyMedium.copyWith(
                   color: context.colors.textPrimary,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Type your message here...',
+                  hintText: 'Type your feedback here...',
                   hintStyle: context.appTexts.bodyMedium.copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -243,24 +263,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
               ),
             ),
-            UIHelpers.verticalSpace(36),
+            UIHelpers.verticalSpace(32),
 
             // ── Submit Button ──
             PrimaryButton(
-              text: 'Send Feedback',
+              text: 'Submit Feedback',
               isLoading: _isSending,
               onPressed: _sendFeedback,
-            ),
-            UIHelpers.verticalSpace(16),
-
-            // ── Email fallback ──
-            Center(
-              child: Text(
-                'Or email us at hi@nautilustechlabs.com',
-                style: context.appTexts.bodySmall.copyWith(
-                  color: context.colors.textSecondary,
-                ),
-              ),
             ),
             UIHelpers.verticalSpace(40),
           ],

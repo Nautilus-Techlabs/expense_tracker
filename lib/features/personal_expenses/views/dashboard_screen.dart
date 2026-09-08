@@ -16,6 +16,7 @@ import '../../../data/repositories/supabase_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/budget_notifier.dart';
+import '../viewmodels/feedback_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
 import '../widgets/transaction_card.dart';
 
@@ -45,8 +46,99 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final pendingInvite = ref.read(deepLinkProvider).pendingCircleInvite;
       if (pendingInvite != null) {
         _checkPendingInvite(pendingInvite);
+      } else {
+        _checkFeedbackEligibility();
       }
     });
+  }
+
+  Future<void> _checkFeedbackEligibility() async {
+    try {
+      final notifier = ref.read(feedbackProvider.notifier);
+      final result = await notifier.checkEligibility();
+      result.fold(
+        (failure) => AppLogger.e('Feedback eligibility check failed: ${failure.message}'),
+        (isEligible) {
+          if (isEligible && mounted) {
+            _showFeedbackDialog();
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.e('Error checking feedback eligibility: $e');
+    }
+  }
+
+  void _showFeedbackDialog() {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.colors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.rate_review_rounded,
+              color: AppColors.primary,
+              size: 28.sp,
+            ),
+            UIHelpers.horizontalSpace(12),
+            Expanded(
+              child: Text(
+                'We Value Your Feedback!',
+                style: ctx.appTexts.headingSmall.copyWith(
+                  color: ctx.colors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Would you like to share your thoughts, report a bug, or suggest features to help us improve Expense Lite?',
+          style: ctx.appTexts.bodyMedium.copyWith(
+            color: ctx.colors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(feedbackProvider.notifier).consumePrompt();
+            },
+            child: Text(
+              'Later',
+              style: ctx.appTexts.bodyMedium.copyWith(
+                color: ctx.colors.textSecondary,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(feedbackProvider.notifier).consumePrompt();
+              if (mounted) {
+                context.push(AppRouter.feedback);
+              }
+            },
+            child: Text(
+              'Submit Feedback',
+              style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _checkPendingInvite(int? circleId) {

@@ -38,6 +38,12 @@ class SupabaseKeys {
   static const String rpcRecordSettlement = 'record_settlement';
   static const String rpcSendPaymentReminder = 'send_payment_reminder';
 
+  // Feedback RPC functions
+  static const String rpcCheckFeedbackEligibility =
+      'check_feedback_eligibility';
+  static const String rpcConsumeFeedbackPrompt = 'consume_feedback_prompt';
+  static const String rpcSubmitFeedback = 'submit_feedback';
+
   // Common Columns
   static const String colId = 'id';
   static const String colCreatedAt = 'created_at';
