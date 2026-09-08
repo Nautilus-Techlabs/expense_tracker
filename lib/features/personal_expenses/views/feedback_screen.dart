@@ -20,25 +20,7 @@ class FeedbackScreen extends ConsumerStatefulWidget {
 
 class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   final TextEditingController _feedbackController = TextEditingController();
-  
-  // Category UI Labels vs Backend Argument Keys
-  final List<Map<String, String>> _categories = const [
-    {'label': 'General Feedback', 'key': 'general'},
-    {'label': 'Feature Request', 'key': 'feature_request'},
-    {'label': 'Bug / Problem', 'key': 'bug'},
-    {'label': 'UI / Design', 'key': 'ui_ux'},
-    {'label': 'Performance', 'key': 'performance'},
-    {'label': 'Other', 'key': 'other'},
-  ];
-
-  late String _selectedCategoryKey;
   bool _isSending = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedCategoryKey = _categories.first['key']!;
-  }
 
   @override
   void dispose() {
@@ -66,11 +48,9 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
         AppLogger.e('Failed to get package info: $e');
       }
 
-      final result = await ref.read(feedbackProvider.notifier).sendFeedback(
-        feedbackText: feedbackText,
-        category: _selectedCategoryKey,
-        appVersion: appVersion,
-      );
+      final result = await ref
+          .read(feedbackProvider.notifier)
+          .sendFeedback(feedbackText: feedbackText, appVersion: appVersion);
 
       if (!mounted) return;
 
@@ -115,7 +95,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_rounded,
@@ -139,108 +118,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           children: [
             UIHelpers.verticalSpace(24),
 
-            // ── Icon ──
-            Center(
-              child: Container(
-                width: 72.w,
-                height: 72.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(20),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.feedback_outlined,
-                  size: 34.sp,
-                  color: context.colors.primary,
-                ),
-              ),
-            ),
-            UIHelpers.verticalSpace(20),
-
-            // ── Title & Subtitle ──
-            Center(
-              child: Text(
-                'How can we improve?',
-                style: context.appTexts.displayMedium.copyWith(
-                  color: context.colors.primary,
-                  fontSize: 24.sp,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            UIHelpers.verticalSpace(8),
-            Center(
-              child: Text(
-                'Share your thoughts, report a bug or suggest a new feature.',
-                style: context.appTexts.bodyMedium.copyWith(
-                  color: context.colors.textSecondary,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            UIHelpers.verticalSpace(32),
-
-            // ── Category Selector ──
-            Text(
-              'Category',
-              style: context.appTexts.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              ),
-            ),
-            UIHelpers.verticalSpace(10),
-            Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
-              children: _categories.map((item) {
-                final isSelected = _selectedCategoryKey == item['key'];
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedCategoryKey = item['key']!),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 10.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(24.r),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : (context.colors.border),
-                      ),
-                    ),
-                    child: Text(
-                      item['label']!,
-                      style: context.appTexts.bodySmall.copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : (context.colors.textPrimary),
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            UIHelpers.verticalSpace(24),
-
-            // ── Feedback Message ──
-            Text(
-              'Feedback',
-              style: context.appTexts.bodySmall.copyWith(
-                color: context.colors.textSecondary,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              ),
-            ),
-            UIHelpers.verticalSpace(10),
+            // ── Feedback Message Textfield ──
             Container(
               decoration: BoxDecoration(
                 color: context.colors.card,

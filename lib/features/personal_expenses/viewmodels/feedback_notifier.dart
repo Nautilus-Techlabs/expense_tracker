@@ -19,14 +19,12 @@ class FeedbackNotifier extends Notifier<AsyncValue<void>> {
 
   Future<Either<Failure, int>> sendFeedback({
     required String feedbackText,
-    String? category,
     String? appVersion,
   }) async {
     state = const AsyncValue.loading();
     final helper = ref.read(supabaseHelperProvider);
     final result = await helper.sendFeedback(
       feedbackText: feedbackText,
-      category: category,
       appVersion: appVersion,
     );
 

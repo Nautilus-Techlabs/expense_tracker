@@ -986,18 +986,13 @@ class SupabaseHelper {
 
   Future<Either<Failure, int>> sendFeedback({
     required String feedbackText,
-    String? category,
     String? appVersion,
   }) async {
     try {
-      AppLogger.i('Sending feedback: category=$category, appVersion=$appVersion');
+      AppLogger.i('Sending feedback: appVersion=$appVersion');
       final response = await supabase.rpc(
         SupabaseKeys.rpcSubmitFeedback,
-        params: {
-          'p_feedback_text': feedbackText,
-          'p_category': category,
-          'p_app_version': appVersion,
-        },
+        params: {'p_feedback_text': feedbackText, 'p_app_version': appVersion},
       );
       AppLogger.i('sendFeedback response ID: $response');
       return Right(response as int);
