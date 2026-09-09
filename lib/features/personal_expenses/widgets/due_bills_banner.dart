@@ -8,9 +8,9 @@ import '../../../../core/utils/ui_helpers.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../models/recurring_bill_model.dart';
 import '../models/transaction_payload.dart';
+import '../viewmodels/account_notifier.dart';
 import '../viewmodels/recurring_bill_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
-
 import 'edit_recurring_bill_sheet.dart';
 
 class DueBillsBanner extends ConsumerWidget {
@@ -32,6 +32,27 @@ class DueBillsBanner extends ConsumerWidget {
   ) async {
     final user = ref.read(authProvider).user;
     if (user == null) return;
+
+    // Validate the stored account still exists in Supabase
+    final account = ref.read(accountProvider.notifier).getAccountById(bill.accountId);
+    if (account == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Account not found. Please edit this bill and re-select an account.',
+            ),
+            backgroundColor: AppColors.expense,
+            action: SnackBarAction(
+              label: 'Edit',
+              textColor: Colors.white,
+              onPressed: () => _openEditSheet(context, bill),
+            ),
+          ),
+        );
+      }
+      return;
+    }
 
     final payload = TransactionPayload(
       userId: user.id,
@@ -58,7 +79,9 @@ class DueBillsBanner extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Logged payment of ${bill.amount.toStringAsFixed(2)} for ${bill.title}'),
+            content: Text(
+              'Logged payment of ${bill.amount.toStringAsFixed(2)} for ${bill.title}',
+            ),
             backgroundColor: AppColors.income,
           ),
         );
@@ -68,8 +91,9 @@ class DueBillsBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final billsNotifier = ref.watch(recurringBillNotifierProvider.notifier);
-    final dueBills = billsNotifier.getDueBills();
+    final now = DateTime.now();
+    final bills = ref.watch(recurringBillNotifierProvider);
+    final dueBills = bills.where((bill) => bill.isDueForMonth(now)).toList();
 
     if (dueBills.isEmpty) {
       return const SizedBox.shrink();
@@ -81,9 +105,7 @@ class DueBillsBanner extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

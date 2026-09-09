@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../models/recurring_bill_model.dart';
+import '../viewmodels/account_notifier.dart';
 import '../viewmodels/recurring_bill_notifier.dart';
 
 class EditRecurringBillBottomSheet extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _EditRecurringBillBottomSheetState
   late final TextEditingController _titleController;
   late final TextEditingController _amountController;
   late int _dayOfMonth;
+  late int _selectedAccountId;
   bool _isSaving = false;
 
   @override
@@ -36,6 +38,7 @@ class _EditRecurringBillBottomSheetState
     _amountController =
         TextEditingController(text: widget.bill.amount.toStringAsFixed(2));
     _dayOfMonth = widget.bill.dayOfMonth;
+    _selectedAccountId = widget.bill.accountId;
   }
 
   @override
@@ -62,6 +65,7 @@ class _EditRecurringBillBottomSheetState
       title: title,
       amount: amount,
       dayOfMonth: _dayOfMonth,
+      accountId: _selectedAccountId,
     );
 
     await ref
@@ -241,6 +245,64 @@ class _EditRecurringBillBottomSheetState
                 ),
               ),
             ),
+            UIHelpers.verticalSpace(16),
+
+            // Account Selector
+            Builder(builder: (context) {
+              final accounts = ref.watch(accountProvider).accounts
+                  .where((a) => !a.isDeleted)
+                  .toList();
+              // If saved accountId is invalid, reset to first available
+              if (accounts.isNotEmpty &&
+                  !accounts.any((a) => a.id == _selectedAccountId)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) setState(() => _selectedAccountId = accounts.first.id);
+                });
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Account',
+                    style: context.appTexts.bodySmall.copyWith(
+                      color: context.colors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (accounts.isEmpty)
+                    Text(
+                      'No accounts',
+                      style: context.appTexts.bodySmall.copyWith(
+                        color: AppColors.expense,
+                      ),
+                    )
+                  else
+                    DropdownButton<int>(
+                      value: accounts.any((a) => a.id == _selectedAccountId)
+                          ? _selectedAccountId
+                          : accounts.first.id,
+                      dropdownColor: context.colors.card,
+                      underline: const SizedBox.shrink(),
+                      items: accounts
+                          .map(
+                            (acc) => DropdownMenuItem<int>(
+                              value: acc.id,
+                              child: Text(
+                                acc.name,
+                                style: context.appTexts.bodyMedium.copyWith(
+                                  color: context.colors.textPrimary,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedAccountId = val);
+                      },
+                    ),
+                ],
+              );
+            }),
             UIHelpers.verticalSpace(16),
 
             // Day of Month Selector

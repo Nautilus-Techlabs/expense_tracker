@@ -10,10 +10,16 @@ import '../models/recurring_bill_model.dart';
 import '../viewmodels/recurring_bill_notifier.dart';
 import '../widgets/edit_recurring_bill_sheet.dart';
 
-class RecurringBillsScreen extends ConsumerWidget {
+class RecurringBillsScreen extends ConsumerStatefulWidget {
   const RecurringBillsScreen({super.key});
 
-  void _openEditSheet(BuildContext context, RecurringBillModel bill) {
+  @override
+  ConsumerState<RecurringBillsScreen> createState() =>
+      _RecurringBillsScreenState();
+}
+
+class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
+  void _openEditSheet(RecurringBillModel bill) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -22,8 +28,62 @@ class RecurringBillsScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _confirmDelete(RecurringBillModel bill) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.colors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          'Delete Recurring Bill',
+          style: ctx.appTexts.headingSmall.copyWith(
+            color: ctx.colors.textPrimary,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${bill.title}"? You will no longer receive monthly reminders for it.',
+          style: ctx.appTexts.bodyMedium.copyWith(
+            color: ctx.colors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: ctx.colors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.expense),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true && mounted) {
+      await ref
+          .read(recurringBillNotifierProvider.notifier)
+          .deleteBill(bill.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Recurring bill deleted.'),
+            backgroundColor: AppColors.expense,
+          ),
+        );
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final bills = ref.watch(recurringBillNotifierProvider);
 
     return Scaffold(
@@ -53,21 +113,30 @@ class RecurringBillsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.update_rounded,
-                    size: 64.sp,
-                    color: context.colors.textSecondary.withValues(alpha: 0.4),
+                  Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.07),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.update_rounded,
+                      size: 52.sp,
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                    ),
                   ),
-                  UIHelpers.verticalSpace(16),
+                  UIHelpers.verticalSpace(20),
                   Text(
-                    'No recurring bills added yet.',
+                    'No recurring bills yet',
                     style: context.appTexts.bodyLarge.copyWith(
-                      color: context.colors.textSecondary,
+                      color: context.colors.textPrimary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   UIHelpers.verticalSpace(8),
                   Text(
-                    'Toggle "Repeat Monthly" when adding a new transaction.',
+                    'Toggle "Repeat Monthly" when adding\na new transaction.',
+                    textAlign: TextAlign.center,
                     style: context.appTexts.bodySmall.copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -78,104 +147,211 @@ class RecurringBillsScreen extends ConsumerWidget {
           : ListView.separated(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               itemCount: bills.length,
-              separatorBuilder: (ctx, i) => UIHelpers.verticalSpace(12),
+              separatorBuilder: (context, index) => UIHelpers.verticalSpace(14),
               itemBuilder: (context, index) {
                 final bill = bills[index];
-                final isDue = bill.isDueForMonth(DateTime.now());
+                return _RecurringBillTile(
+                  bill: bill,
+                  onEdit: () => _openEditSheet(bill),
+                  onDelete: () => _confirmDelete(bill),
+                );
+              },
+            ),
+    );
+  }
+}
 
-                return Container(
-                  padding: EdgeInsets.all(16.w),
+// ─────────────────────────────────────────────────────────────
+// Extracted tile widget
+// ─────────────────────────────────────────────────────────────
+
+class _RecurringBillTile extends StatelessWidget {
+  final RecurringBillModel bill;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _RecurringBillTile({
+    required this.bill,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDue = bill.isDueForMonth(DateTime.now());
+    final Color accentColor = isDue ? AppColors.warning : AppColors.primary;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: context.colors.card,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: isDue
+              ? AppColors.warning.withValues(alpha: 0.5)
+              : context.colors.border,
+          width: isDue ? 1.5 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // ── Main content row ──────────────────────────────
+          Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Gradient icon container
+                Container(
+                  width: 48.w,
+                  height: 48.w,
                   decoration: BoxDecoration(
-                    color: context.colors.card,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: isDue
-                          ? AppColors.primary
-                          : context.colors.border,
+                    gradient: LinearGradient(
+                      colors: [
+                        accentColor.withValues(alpha: 0.18),
+                        accentColor.withValues(alpha: 0.06),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
-                  child: Row(
+                  child: Icon(
+                    Icons.autorenew_rounded,
+                    color: accentColor,
+                    size: 24.sp,
+                  ),
+                ),
+
+                UIHelpers.horizontalSpace(14),
+
+                // Title + schedule row
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(10.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.update_rounded,
-                          color: AppColors.primary,
-                          size: 22.sp,
-                        ),
-                      ),
-                      UIHelpers.horizontalSpace(14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
                               bill.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: context.appTexts.bodyLarge.copyWith(
                                 color: context.colors.textPrimary,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
-                            ),
-                            UIHelpers.verticalSpace(4),
-                            Text(
-                              'Repeats on day ${bill.dayOfMonth} of every month',
-                              style: context.appTexts.bodySmall.copyWith(
-                                color: context.colors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            bill.amount.toStringAsFixed(2),
-                            style: context.appTexts.bodyLarge.copyWith(
-                              color: AppColors.expense,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          if (isDue)
+                          if (isDue) ...[
+                            UIHelpers.horizontalSpace(8),
                             Container(
-                              margin: EdgeInsets.only(top: 4.h),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 8.w,
-                                vertical: 2.h,
+                                vertical: 3.h,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.expense.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8.r),
+                                color:
+                                    AppColors.warning.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20.r),
                               ),
                               child: Text(
                                 'Due Now',
                                 style: context.appTexts.bodySmall.copyWith(
-                                  color: AppColors.expense,
-                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.warning,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 10.sp,
                                 ),
                               ),
                             ),
+                          ],
                         ],
                       ),
-                      UIHelpers.horizontalSpace(8),
-                      IconButton(
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: context.colors.textSecondary,
-                          size: 20.sp,
-                        ),
-                        onPressed: () => _openEditSheet(context, bill),
+                      UIHelpers.verticalSpace(4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 11.sp,
+                            color: context.colors.textSecondary,
+                          ),
+                          UIHelpers.horizontalSpace(4),
+                          Text(
+                            'Every month on day ${bill.dayOfMonth}',
+                            style: context.appTexts.bodySmall.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+
+                UIHelpers.horizontalSpace(12),
+
+                // Amount
+                Text(
+                  bill.amount.toStringAsFixed(2),
+                  style: context.appTexts.bodyLarge.copyWith(
+                    color: AppColors.expense,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 17.sp,
+                  ),
+                ),
+              ],
             ),
+          ),
+
+          // ── Divider ──────────────────────────────────────
+          Divider(height: 1, thickness: 1, color: context.colors.border),
+
+          // ── Action row ───────────────────────────────────
+          Row(
+            children: [
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: onEdit,
+                  icon: Icon(Icons.edit_outlined,
+                      size: 16.sp, color: AppColors.primary),
+                  label: Text(
+                    'Edit',
+                    style: context.appTexts.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 20.h,
+                color: context.colors.border,
+              ),
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete_outline_rounded,
+                      size: 16.sp, color: AppColors.expense),
+                  label: Text(
+                    'Delete',
+                    style: context.appTexts.bodySmall.copyWith(
+                      color: AppColors.expense,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
