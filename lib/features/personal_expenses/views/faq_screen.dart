@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/utils/ui_helpers.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 
 class FaqScreen extends ConsumerWidget {
   const FaqScreen({super.key});
@@ -72,26 +72,7 @@ class FaqScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: context.colors.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Help & FAQ',
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 22.sp,
-          ),
-        ),
-        centerTitle: false,
-      ),
+      appBar: const AppTopBar(title: 'Help & FAQ'),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [

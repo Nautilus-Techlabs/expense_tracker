@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors_extension.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../viewmodels/category_notifier.dart';
-import '../../../../core/theme/app_colors_extension.dart';
-import '../widgets/category_list_item.dart';
 import '../widgets/add_category_bottom_sheet.dart';
+import '../widgets/category_list_item.dart';
 
 class CategoriesSettingsScreen extends ConsumerWidget {
   const CategoriesSettingsScreen({super.key});
@@ -19,26 +19,7 @@ class CategoriesSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: context.colors.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Categories',
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 22.sp,
-          ),
-        ),
-        centerTitle: false,
-      ),
+      appBar: AppTopBar(title: 'Categories'),
       body: categoryState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : categoryState.categories.isEmpty

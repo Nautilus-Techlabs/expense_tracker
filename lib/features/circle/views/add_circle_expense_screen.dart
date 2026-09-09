@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/constants/args.dart';
 import 'package:expense_tracker/core/theme/app_colors_extension.dart';
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/core/widgets/app_top_bar.dart';
 import 'package:expense_tracker/data/repositories/supabase_provider.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/circle/models/circle_details_screen_model.dart';
@@ -347,24 +348,8 @@ class _AddCircleExpenseScreenState
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: context.colors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Add Circle Expense',
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 20.sp,
-          ),
-        ),
-        centerTitle: true,
+      appBar: const AppTopBar(
+        title: 'Add Circle Expense',
       ),
       body: SafeArea(
         child: Padding(

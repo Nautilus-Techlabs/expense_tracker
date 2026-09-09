@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/utils/ui_helpers.dart';
+import 'package:expense_tracker/core/widgets/app_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,27 +48,7 @@ class _DetailedTransactionScreenState
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            size: 20.sp,
-            color: context.colors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Transaction detail',
-          style: context.appTexts.heading.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
+      appBar: AppTopBar(title: 'Transaction detail'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 20.w),

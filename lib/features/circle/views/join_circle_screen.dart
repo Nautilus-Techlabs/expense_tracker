@@ -1,8 +1,9 @@
 import 'package:expense_tracker/core/cache/cache_manager.dart';
 import 'package:expense_tracker/core/services/deep_link_service.dart';
-import 'package:expense_tracker/data/repositories/supabase_provider.dart';
+import 'package:expense_tracker/core/widgets/app_top_bar.dart';
 import 'package:expense_tracker/features/auth/viewmodels/auth_notifier.dart';
 import 'package:expense_tracker/features/circle/viewmodels/circle_notifier.dart';
+import 'package:expense_tracker/features/circle/viewmodels/join_circle_notifier.dart';
 import 'package:expense_tracker/features/personal_expenses/viewmodels/account_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +14,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_router.dart';
 import '../../../../core/constants/args.dart';
 import '../../../../core/theme/app_colors_extension.dart';
-import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/ui_helpers.dart';
-
-enum _JoinCircleStatus { loadingInfo, ready, joining, failedToLoad }
 
 class JoinCircleScreen extends ConsumerStatefulWidget {
   final int circleId;
@@ -28,10 +26,7 @@ class JoinCircleScreen extends ConsumerStatefulWidget {
 }
 
 class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
-  _JoinCircleStatus _status = _JoinCircleStatus.loadingInfo;
-  String _circleName = 'a circle';
-  String _ownerName = 'someone';
-
+  // Local form state — kept as setState (ephemeral, scoped to this screen)
   bool _includeSettlements = false;
   int? _selectedAccountId;
 
@@ -53,29 +48,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
     // Clear the pending invite immediately so it doesn't re-trigger.
     ref.read(deepLinkProvider.notifier).clearPendingInvite();
 
-    try {
-      final result = await ref
-          .read(supabaseHelperProvider)
-          .getCircleInviteInfo(widget.circleId);
-      if (!mounted) return;
-      result.fold(
-        (failure) {
-          AppLogger.e('Failed to fetch circle info: ${failure.message}');
-          setState(() => _status = _JoinCircleStatus.failedToLoad);
-        },
-        (info) {
-          setState(() {
-            _circleName = info['circleName'] ?? 'a circle';
-            _ownerName = info['ownerName'] ?? 'someone';
-            _status = _JoinCircleStatus.ready;
-          });
-        },
-      );
-    } catch (e) {
-      AppLogger.e('Exception fetching circle info: $e');
-      if (!mounted) return;
-      setState(() => _status = _JoinCircleStatus.failedToLoad);
-    }
+    await ref.read(joinCircleProvider.notifier).loadCircleInfo(widget.circleId);
   }
 
   Future<void> _join() async {
@@ -90,7 +63,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
       return;
     }
 
-    setState(() => _status = _JoinCircleStatus.joining);
+    ref.read(joinCircleProvider.notifier).setJoining();
 
     await ref
         .read(circleProvider.notifier)
@@ -105,7 +78,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
     final circleState = ref.read(circleProvider);
 
     if (circleState.error != null) {
-      setState(() => _status = _JoinCircleStatus.ready);
+      ref.read(joinCircleProvider.notifier).setReady();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(circleState.error!),
@@ -116,7 +89,8 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
       return;
     }
 
-    final circleName = _circleName;
+    final joinState = ref.read(joinCircleProvider);
+    final circleName = joinState.circleName;
     final circleId = widget.circleId;
 
     ref.read(cacheManagerProvider).saveProcessedInvite(widget.circleId);
@@ -142,32 +116,26 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final joinState = ref.watch(joinCircleProvider);
+
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: Text(
-          'Join Circle',
-          style: context.appTexts.heading.copyWith(fontSize: 20.sp),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-          onPressed: _decline,
-        ),
+      appBar: AppTopBar(
+        title: 'Join Circle',
+        onBack: _decline,
       ),
-      body: _status == _JoinCircleStatus.loadingInfo
+      body: joinState.isLoadingInfo
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             )
-          : _status == _JoinCircleStatus.failedToLoad
+          : joinState.hasFailed
           ? _buildErrorState(context)
           : SingleChildScrollView(
               padding: EdgeInsets.all(24.w),
-              child: _buildContent(context),
+              child: _buildContent(context, joinState),
             ),
     );
   }
-
-  // Replaced header with AppBar
 
   Widget _buildErrorState(BuildContext context) {
     return Padding(
@@ -184,10 +152,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
           UIHelpers.verticalSpace(16),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            onPressed: () {
-              setState(() => _status = _JoinCircleStatus.loadingInfo);
-              _init();
-            },
+            onPressed: _init,
             child: const Text('Retry'),
           ),
         ],
@@ -195,9 +160,9 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, JoinCircleState joinState) {
     final accounts = ref.watch(accountProvider).accounts;
-    final joining = _status == _JoinCircleStatus.joining;
+    final joining = joinState.isJoining;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +196,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
                   UIHelpers.horizontalSpace(8),
                   Expanded(
                     child: Text(
-                      _circleName,
+                      joinState.circleName,
                       style: context.appTexts.heading.copyWith(
                         fontSize: 17.sp,
                         color: context.colors.textPrimary,
@@ -256,7 +221,7 @@ class _JoinCircleScreenState extends ConsumerState<JoinCircleScreen> {
                     ),
                   ),
                   Text(
-                    _ownerName,
+                    joinState.ownerName,
                     style: context.appTexts.bodySmall.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,

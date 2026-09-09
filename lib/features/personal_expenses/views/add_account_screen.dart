@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
+import '../../../core/widgets/app_top_bar.dart';
 import '../../../services/connectivity_provider.dart';
 import '../models/account_model.dart';
 import '../viewmodels/account_notifier.dart';
@@ -89,17 +90,9 @@ class _AddAccountScreenState extends ConsumerState<AddAccountScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        title: Text(
-          'Add Account',
-          style: context.appTexts.heading.copyWith(fontSize: 20.sp),
-        ),
-        leading: context.canPop()
-            ? IconButton(
-                icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-                onPressed: () => context.pop(),
-              )
-            : null,
+      appBar: AppTopBar(
+        title: 'Add Account',
+        showBack: context.canPop(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.w),

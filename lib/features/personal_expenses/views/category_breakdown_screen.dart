@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors_extension.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../viewmodels/report_notifier.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class CategoryBreakdownScreen extends ConsumerStatefulWidget {
   final DateTime startDate;
@@ -51,13 +51,7 @@ class _CategoryBreakdownScreenState
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: Text('Spending Breakdown', style: context.appTexts.heading),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-          onPressed: () => context.pop(),
-        ),
-      ),
+      appBar: AppTopBar(title: 'Spending Breakdown'),
       body: RefreshIndicator(
         onRefresh: () async => _fetchData(),
         child: reportState.isLoading && breakdown == null

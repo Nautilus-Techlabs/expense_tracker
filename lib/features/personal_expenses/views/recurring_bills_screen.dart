@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/utils/ui_helpers.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../models/recurring_bill_model.dart';
 import '../viewmodels/recurring_bill_notifier.dart';
 import '../widgets/edit_recurring_bill_sheet.dart';
@@ -88,26 +88,7 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            size: 20.sp,
-            color: context.colors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Recurring Bills',
-          style: context.appTexts.heading.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 18.sp,
-          ),
-        ),
-      ),
+      appBar: AppTopBar(title: 'Recurring Bills'),
       body: bills.isEmpty
           ? Center(
               child: Column(
@@ -257,8 +238,9 @@ class _RecurringBillTile extends StatelessWidget {
                                 vertical: 3.h,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    AppColors.warning.withValues(alpha: 0.12),
+                                color: AppColors.warning.withValues(
+                                  alpha: 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(20.r),
                               ),
                               child: Text(
@@ -318,8 +300,11 @@ class _RecurringBillTile extends StatelessWidget {
               Expanded(
                 child: TextButton.icon(
                   onPressed: onEdit,
-                  icon: Icon(Icons.edit_outlined,
-                      size: 16.sp, color: AppColors.primary),
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 16.sp,
+                    color: AppColors.primary,
+                  ),
                   label: Text(
                     'Edit',
                     style: context.appTexts.bodySmall.copyWith(
@@ -329,16 +314,15 @@ class _RecurringBillTile extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                width: 1,
-                height: 20.h,
-                color: context.colors.border,
-              ),
+              Container(width: 1, height: 20.h, color: context.colors.border),
               Expanded(
                 child: TextButton.icon(
                   onPressed: onDelete,
-                  icon: Icon(Icons.delete_outline_rounded,
-                      size: 16.sp, color: AppColors.expense),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 16.sp,
+                    color: AppColors.expense,
+                  ),
                   label: Text(
                     'Delete',
                     style: context.appTexts.bodySmall.copyWith(

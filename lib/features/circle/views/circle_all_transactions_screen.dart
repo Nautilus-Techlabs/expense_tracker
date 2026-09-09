@@ -1,16 +1,17 @@
 import 'package:expense_tracker/core/constants/app_constants.dart';
+import 'package:expense_tracker/core/constants/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors_extension.dart';
-import '../../../core/constants/app_router.dart';
-import '../../personal_expenses/models/transaction_model.dart';
-import '../viewmodels/circle_details_notifier.dart';
-import '../viewmodels/circle_all_transactions_notifier.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../../../core/constants/args.dart';
+import '../../personal_expenses/models/transaction_model.dart';
+import '../viewmodels/circle_all_transactions_notifier.dart';
+import '../viewmodels/circle_details_notifier.dart';
 import '../widgets/circle_transaction_tile.dart';
 
 class CircleAllTransactionsScreen extends ConsumerStatefulWidget {
@@ -69,26 +70,7 @@ class _CircleAllTransactionsScreenState
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: context.colors.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'All Transactions',
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 22.sp,
-          ),
-        ),
-      ),
+      appBar: AppTopBar(title: 'All Transactions'),
       body:
           transactionsState.isLoading && transactionsState.transactions.isEmpty
           ? const Center(child: CircularProgressIndicator())

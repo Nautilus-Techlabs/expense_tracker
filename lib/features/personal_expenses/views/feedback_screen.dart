@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/widgets/app_top_bar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -92,25 +94,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            size: 20.sp,
-            color: context.colors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Feedback',
-          style: context.appTexts.heading.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 18.sp,
-          ),
-        ),
-      ),
+      appBar: AppTopBar(title: 'Feedback'),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(

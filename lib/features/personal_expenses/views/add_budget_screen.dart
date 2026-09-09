@@ -6,10 +6,11 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
+import '../../../core/theme/app_colors_extension.dart';
 import '../../../core/utils/ui_helpers.dart';
+import '../../../core/widgets/app_top_bar.dart';
 import '../../../services/connectivity_provider.dart';
 import '../viewmodels/budget_notifier.dart';
-import '../../../../core/theme/app_colors_extension.dart';
 
 class AddBudgetScreen extends ConsumerStatefulWidget {
   const AddBudgetScreen({super.key});
@@ -84,17 +85,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        title: Text(
-          'Set Monthly Budget',
-          style: context.appTexts.heading.copyWith(fontSize: 20.sp),
-        ),
-        leading: context.canPop()
-            ? IconButton(
-                icon: Icon(Icons.arrow_back_ios_rounded, size: 20.sp),
-                onPressed: () => context.pop(),
-              )
-            : null,
+      appBar: AppTopBar(
+        title: 'Set Monthly Budget',
+        showBack: context.canPop(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.w),

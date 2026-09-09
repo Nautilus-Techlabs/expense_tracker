@@ -24,8 +24,6 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
-  DateTime? _earliestTxnDate;
-  bool _loadingEarliestDate = true;
 
   @override
   void initState() {
@@ -45,26 +43,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       result.fold(
         (failure) {
           if (mounted) {
-            setState(() {
-              _earliestTxnDate = null;
-              _loadingEarliestDate = false;
-            });
+            ref.read(reportFilterProvider.notifier).setEarliestDate(null);
           }
         },
         (date) {
           if (mounted) {
-            setState(() {
-              _earliestTxnDate = date;
-              _loadingEarliestDate = false;
-            });
+            ref.read(reportFilterProvider.notifier).setEarliestDate(date);
           }
         },
       );
     } else {
       if (mounted) {
-        setState(() {
-          _loadingEarliestDate = false;
-        });
+        ref.read(reportFilterProvider.notifier).setEarliestDate(null);
       }
     }
   }
@@ -87,17 +77,19 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       1,
     );
 
-    if (_earliestTxnDate != null) {
+    final earliestTxnDate = filterState.earliestTxnDate;
+    final loadingEarliestDate = filterState.isLoadingEarliestDate;
+
+    if (earliestTxnDate != null) {
       final earliestMonthStart = DateTime(
-        _earliestTxnDate!.year,
-        _earliestTxnDate!.month,
+        earliestTxnDate.year,
+        earliestTxnDate.month,
         1,
       );
       if (previousMonthStart.isBefore(earliestMonthStart)) {
         return;
       }
-    } else if (!_loadingEarliestDate) {
-      // If load finished and user has no transactions, don't allow navigating back
+    } else if (!loadingEarliestDate) {
       return;
     }
 
@@ -123,15 +115,17 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final reportState = ref.watch(reportProvider);
     final report = reportState.report;
     final filterState = ref.watch(reportFilterProvider);
+    final earliestTxnDate = filterState.earliestTxnDate;
+    final loadingEarliestDate = filterState.isLoadingEarliestDate;
 
     final reportMatchesFilter = report != null &&
         DateTime.parse(report.startDate).month == filterState.startDate.month &&
         DateTime.parse(report.startDate).year == filterState.startDate.year;
 
     bool canGoPrevious = true;
-    if (_loadingEarliestDate) {
+    if (loadingEarliestDate) {
       canGoPrevious = false;
-    } else if (_earliestTxnDate == null) {
+    } else if (earliestTxnDate == null) {
       canGoPrevious = false;
     } else {
       final previousMonthStart = DateTime(
@@ -140,8 +134,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         1,
       );
       final earliestMonthStart = DateTime(
-        _earliestTxnDate!.year,
-        _earliestTxnDate!.month,
+        earliestTxnDate.year,
+        earliestTxnDate.month,
         1,
       );
       if (previousMonthStart.isBefore(earliestMonthStart)) {

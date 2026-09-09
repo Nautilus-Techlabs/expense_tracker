@@ -12,6 +12,7 @@ import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/constants/args.dart';
+import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
 import '../viewmodels/circle_details_notifier.dart';
@@ -54,24 +55,8 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: context.colors.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          widget.args.circleName,
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 22.sp,
-          ),
-        ),
+      appBar: AppTopBar(
+        title: widget.args.circleName,
         actions: [
           IconButton(
             icon: Icon(
@@ -95,8 +80,6 @@ class _CircleDetailsScreenState extends ConsumerState<CircleDetailsScreen> {
             },
           ),
         ],
-
-        centerTitle: false,
       ),
       body: detailsState.isLoading
           ? const Center(child: CircularProgressIndicator())

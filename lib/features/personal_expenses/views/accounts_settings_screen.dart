@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_top_bar.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_router.dart';
 import '../../../core/utils/ui_helpers.dart';
@@ -19,26 +21,7 @@ class AccountsSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: context.colors.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Accounts',
-          style: context.appTexts.displayMedium.copyWith(
-            color: context.colors.textPrimary,
-            fontSize: 22.sp,
-          ),
-        ),
-        centerTitle: false,
-      ),
+      appBar: AppTopBar(title: 'Accounts'),
       body: accountState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : accountState.accounts.isEmpty

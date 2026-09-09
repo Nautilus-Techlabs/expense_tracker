@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors_extension.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/app_top_bar.dart';
 
 class CircleSettingsScreen extends ConsumerStatefulWidget {
   final CircleSettingsArgs args;
@@ -170,25 +171,8 @@ class _CircleSettingsScreenState extends ConsumerState<CircleSettingsScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            size: 20.sp,
-            color: context.colors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Settings',
-          style: context.appTexts.heading.copyWith(
-            color: context.colors.primary,
-            fontSize: 24.sp,
-          ),
-        ),
+      appBar: const AppTopBar(
+        title: 'Settings',
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

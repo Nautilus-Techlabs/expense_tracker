@@ -3,8 +3,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReportFilterState {
   final DateTime startDate;
   final DateTime endDate;
+  final DateTime? earliestTxnDate;
+  final bool isLoadingEarliestDate;
 
-  const ReportFilterState({required this.startDate, required this.endDate});
+  const ReportFilterState({
+    required this.startDate,
+    required this.endDate,
+    this.earliestTxnDate,
+    this.isLoadingEarliestDate = true,
+  });
+
+  ReportFilterState copyWith({
+    DateTime? startDate,
+    DateTime? endDate,
+    DateTime? earliestTxnDate,
+    bool clearEarliestDate = false,
+    bool? isLoadingEarliestDate,
+  }) {
+    return ReportFilterState(
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      earliestTxnDate:
+          clearEarliestDate ? null : (earliestTxnDate ?? this.earliestTxnDate),
+      isLoadingEarliestDate:
+          isLoadingEarliestDate ?? this.isLoadingEarliestDate,
+    );
+  }
 }
 
 final reportFilterProvider =
@@ -22,9 +46,17 @@ class ReportFilterNotifier extends Notifier<ReportFilterState> {
     );
   }
 
+  void setEarliestDate(DateTime? date) {
+    state = state.copyWith(
+      earliestTxnDate: date,
+      clearEarliestDate: date == null,
+      isLoadingEarliestDate: false,
+    );
+  }
+
   void previousMonth() {
     final currentStart = state.startDate;
-    state = ReportFilterState(
+    state = state.copyWith(
       startDate: DateTime(currentStart.year, currentStart.month - 1, 1),
       endDate: DateTime(currentStart.year, currentStart.month, 0),
     );
@@ -32,7 +64,7 @@ class ReportFilterNotifier extends Notifier<ReportFilterState> {
 
   void nextMonth() {
     final currentStart = state.startDate;
-    state = ReportFilterState(
+    state = state.copyWith(
       startDate: DateTime(currentStart.year, currentStart.month + 1, 1),
       endDate: DateTime(currentStart.year, currentStart.month + 2, 0),
     );
