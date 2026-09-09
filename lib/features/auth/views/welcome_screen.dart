@@ -37,16 +37,28 @@ class WelcomeScreen extends StatelessWidget {
                     width: 80.w,
                     height: 80.w,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: isDark ? AppColors.cardDark : AppColors.cardLight,
                       borderRadius: BorderRadius.circular(24.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withAlpha(40),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'F',
-                      style: context.appTexts.displayLarge.copyWith(
-                        color: Colors.white,
-                        fontSize: 40.sp,
-                        fontWeight: FontWeight.w700,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24.r),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.account_balance_wallet_rounded,
+                            size: 40.sp,
+                            color: AppColors.primary,
+                          );
+                        },
                       ),
                     ),
                   ),
