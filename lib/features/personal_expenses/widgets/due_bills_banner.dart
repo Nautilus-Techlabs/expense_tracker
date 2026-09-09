@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
@@ -59,7 +58,7 @@ class DueBillsBanner extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Logged payment of \$${bill.amount.toStringAsFixed(2)} for ${bill.title}'),
+            content: Text('Logged payment of ${bill.amount.toStringAsFixed(2)} for ${bill.title}'),
             backgroundColor: AppColors.income,
           ),
         );
@@ -108,7 +107,6 @@ class DueBillsBanner extends ConsumerWidget {
           ),
           UIHelpers.verticalSpace(12),
           ...dueBills.map((bill) {
-            final currencyFormat = NumberFormat.currency(symbol: '\$');
             return Padding(
               padding: EdgeInsets.only(bottom: 8.h),
               child: Row(
@@ -134,7 +132,7 @@ class DueBillsBanner extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    currencyFormat.format(bill.amount),
+                    bill.amount.toStringAsFixed(2),
                     style: context.appTexts.bodyLarge.copyWith(
                       color: AppColors.expense,
                       fontWeight: FontWeight.w700,

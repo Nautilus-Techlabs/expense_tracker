@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors_extension.dart';
@@ -82,7 +81,6 @@ class RecurringBillsScreen extends ConsumerWidget {
               separatorBuilder: (ctx, i) => UIHelpers.verticalSpace(12),
               itemBuilder: (context, index) {
                 final bill = bills[index];
-                final currencyFormat = NumberFormat.currency(symbol: '\$');
                 final isDue = bill.isDueForMonth(DateTime.now());
 
                 return Container(
@@ -136,7 +134,7 @@ class RecurringBillsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            currencyFormat.format(bill.amount),
+                            bill.amount.toStringAsFixed(2),
                             style: context.appTexts.bodyLarge.copyWith(
                               color: AppColors.expense,
                               fontWeight: FontWeight.w700,

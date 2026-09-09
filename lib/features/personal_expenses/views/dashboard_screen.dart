@@ -58,7 +58,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final notifier = ref.read(feedbackProvider.notifier);
       final result = await notifier.checkEligibility();
       result.fold(
-        (failure) => AppLogger.e('Feedback eligibility check failed: ${failure.message}'),
+        (failure) => AppLogger.e(
+          'Feedback eligibility check failed: ${failure.message}',
+        ),
         (isEligible) {
           if (isEligible && mounted) {
             _showFeedbackDialog();

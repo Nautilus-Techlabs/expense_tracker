@@ -60,3 +60,4 @@ app.*.symbols
 .docs/
 .plans/
 CLAUDE.md
+android/app/local.properties

@@ -238,7 +238,6 @@ class _EditRecurringBillBottomSheetState
                 ),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
-                  prefixText: '\$ ',
                 ),
               ),
             ),
