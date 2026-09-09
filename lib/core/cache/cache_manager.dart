@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../features/auth/model/user_model.dart';
+import '../../../features/personal_expenses/models/recurring_bill_model.dart';
 
 final cacheManagerProvider = Provider<CacheManager>((ref) {
   return CacheManager();
@@ -15,6 +16,7 @@ class CacheManager {
   static const String _userKey = 'user_data';
   static const String _themeKey = 'theme_mode';
   static const String _processedInvitesKey = 'processed_invites';
+  static const String _recurringBillsKey = 'recurring_bills';
 
   Future<void> saveUser(UserModel user) async {
     final userJson = jsonEncode(user.toJson());
@@ -75,5 +77,25 @@ class CacheManager {
 
   Future<void> setAppVersion(String appVersion) async {
     await _storage.write(key: 'appVersion', value: appVersion);
+  }
+
+  Future<void> saveRecurringBills(List<RecurringBillModel> bills) async {
+    final jsonList = bills.map((b) => b.toJson()).toList();
+    await _storage.write(key: _recurringBillsKey, value: jsonEncode(jsonList));
+  }
+
+  Future<List<RecurringBillModel>> getRecurringBills() async {
+    final jsonStr = await _storage.read(key: _recurringBillsKey);
+    if (jsonStr != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        return decoded
+            .map((e) => RecurringBillModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
   }
 }

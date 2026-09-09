@@ -288,6 +288,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               isDark: isDark,
               onTap: () => context.push(AppRouter.categoriesSettings),
             ),
+            _buildListItem(
+              context: context,
+              icon: Icons.update_rounded,
+              title: 'Recurring Bills',
+              isDark: isDark,
+              onTap: () => context.push(AppRouter.recurringBills),
+            ),
 
             // UIHelpers.verticalSpace(16),
             // _buildSectionHeader(context, 'CIRCLES', isDark),

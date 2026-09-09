@@ -9,9 +9,11 @@ import '../../../../core/theme/app_colors_extension.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../services/connectivity_provider.dart';
 import '../../auth/viewmodels/auth_notifier.dart';
+import '../models/recurring_bill_model.dart';
 import '../models/transaction_payload.dart';
 import '../viewmodels/account_notifier.dart';
 import '../viewmodels/category_notifier.dart';
+import '../viewmodels/recurring_bill_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
@@ -32,6 +34,7 @@ class _AddTransactionBottomSheetState
   bool _accountError = false; // shows inline error when no account selected
   bool _amountError = false; // shows inline error when no amount entered
   bool _categoryError = false; // shows inline error when no category selected
+  bool _isRecurringBill = false; // toggle for monthly recurring bill
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -117,7 +120,26 @@ class _AddTransactionBottomSheetState
         .addTransaction(payload);
 
     if (success && mounted) {
-      Navigator.pop(context);
+      if (_isRecurringBill) {
+        final monthKey =
+            '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}';
+        final bill = RecurringBillModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: _noteController.text.trim().isNotEmpty
+              ? _noteController.text.trim()
+              : 'Recurring Bill',
+          amount: amount,
+          categoryId: _selectedCategoryId!,
+          accountId: _selectedAccountId!,
+          dayOfMonth: _selectedDate.day,
+          lastLoggedMonth: monthKey,
+          createdAt: DateTime.now(),
+        );
+        await ref.read(recurringBillNotifierProvider.notifier).addBill(bill);
+      }
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } else if (!success && mounted) {
       final error = ref.read(transactionProvider).errorMessage;
       _showError(error ?? 'Failed to save transaction. Try again.');
@@ -384,6 +406,50 @@ class _AddTransactionBottomSheetState
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
+                    ),
+                  ),
+
+                  // ── Repeat Monthly (Recurring Bill) Toggle ──
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.update_rounded,
+                              size: 24.sp,
+                              color: context.colors.textSecondary,
+                            ),
+                            UIHelpers.horizontalSpace(16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Repeat Monthly',
+                                  style: context.appTexts.bodyLarge.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  'Remind on day ${_selectedDate.day} of every month',
+                                  style: context.appTexts.bodySmall.copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: _isRecurringBill,
+                          onChanged: (val) =>
+                              setState(() => _isRecurringBill = val),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                      ],
                     ),
                   ),
 

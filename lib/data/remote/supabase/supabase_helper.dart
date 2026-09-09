@@ -989,7 +989,6 @@ class SupabaseHelper {
     String? appVersion,
   }) async {
     try {
-      AppLogger.i('Sending feedback: appVersion=$appVersion');
       final response = await supabase.rpc(
         SupabaseKeys.rpcSubmitFeedback,
         params: {'p_feedback_text': feedbackText, 'p_app_version': appVersion},

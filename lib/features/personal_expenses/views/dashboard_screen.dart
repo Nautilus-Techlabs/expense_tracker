@@ -18,6 +18,7 @@ import '../viewmodels/account_notifier.dart';
 import '../viewmodels/budget_notifier.dart';
 import '../viewmodels/feedback_notifier.dart';
 import '../viewmodels/transaction_notifier.dart';
+import '../widgets/due_bills_banner.dart';
 import '../widgets/transaction_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -251,6 +252,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 UIHelpers.verticalSpace(32),
+
+                // 1.5 Due Bills Banner (If any bill is due)
+                const DueBillsBanner(),
 
                 // 2. Total Balance Card
                 _buildTotalBalanceCard(

@@ -19,6 +19,7 @@ import '../../features/personal_expenses/views/detailed_transaction.dart';
 import '../../features/personal_expenses/views/faq_screen.dart';
 import '../../features/personal_expenses/views/feedback_screen.dart';
 import '../../features/personal_expenses/views/main_screen.dart';
+import '../../features/personal_expenses/views/recurring_bills_screen.dart';
 import '../../features/personal_expenses/views/settings_screen.dart';
 import '../../features/circle/views/add_circle_expense_screen.dart';
 import 'args.dart';
@@ -41,6 +42,7 @@ class AppRouter {
   static const String addBudget = '/add-budget';
   static const String categoryBreakdown = '/category-breakdown';
   static const String faq = '/faq';
+  static const String recurringBills = '/recurring-bills';
   static const String circleAllTransactions = '/circle-all-transactions';
   static const String circleSettings = '/circle-settings';
   static const String joinCircle = '/join-circle';
@@ -85,6 +87,10 @@ class AppRouter {
       GoRoute(
         path: feedback,
         builder: (context, state) => const FeedbackScreen(),
+      ),
+      GoRoute(
+        path: recurringBills,
+        builder: (context, state) => const RecurringBillsScreen(),
       ),
       GoRoute(
         path: circleDetails,
