@@ -1,0 +1,124 @@
+{
+  "feature": "manage-transactions",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "185f3160548d4256"
+  },
+  "problem": [
+    "Scrolling for that one bill?"
+  ],
+  "turn": "Find it in seconds",
+  "headline": "Find any transaction in seconds",
+  "music": {
+    "mood": "warm",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Open Transactions",
+      "do": [
+        {
+          "tapOn": "Transactions"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "Nov 2026",
+            "timeout": 10000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 1
+    },
+    {
+      "label": "Tap the filter",
+      "do": [
+        {
+          "tapOn": {
+            "point": "79%,10%"
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Filters"
+    },
+    {
+      "label": "Pick Groceries",
+      "do": [
+        {
+          "tapOn": "Groceries"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        },
+        {
+          "tapOn": "Apply"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 1.2
+    },
+    {
+      "label": "Open one",
+      "do": [
+        {
+          "tapOn": "(?s)Weekly groceries\\nExpense.*"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 1,
+      "expect": "Transaction detail"
+    },
+    {
+      "label": "Edit or delete it ✓",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.87,
+        "scale": 1.3,
+        "rect": [
+          40,
+          1950,
+          1040,
+          2130
+        ]
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    }
+  ]
+}

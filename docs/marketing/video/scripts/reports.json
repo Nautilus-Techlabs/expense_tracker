@@ -1,0 +1,107 @@
+{
+  "feature": "reports",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "0e78a9ef04763c15"
+  },
+  "result": "See exactly where your money goes",
+  "headline": "See exactly where your money goes",
+  "music": {
+    "mood": "confident",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "tapOn": "Reports"
+    },
+    {
+      "extendedWaitUntil": {
+        "visible": "MONTHLY TREND",
+        "timeout": 10000
+      }
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 3000
+      }
+    }
+  ],
+  "beats": [
+    {
+      "label": "This month, in and out",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.19,
+        "scale": 1.15,
+        "rect": [
+          40,
+          340,
+          1040,
+          530
+        ]
+      }
+    },
+    {
+      "label": "Spending by category",
+      "do": [
+        {
+          "swipe": {
+            "start": "50%,75%",
+            "end": "50%,30%",
+            "duration": 800
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2500
+          }
+        }
+      ],
+      "hold": 2.2
+    },
+    {
+      "label": "Every category, ranked",
+      "do": [
+        {
+          "scrollUntilVisible": {
+            "element": {
+              "text": "View all categories"
+            },
+            "centerElement": true
+          }
+        },
+        {
+          "tapOn": "View all categories"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "Spending Breakdown",
+            "timeout": 10000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2500
+          }
+        }
+      ],
+      "hold": 2.2
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    }
+  ]
+}

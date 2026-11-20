@@ -1,0 +1,188 @@
+{
+  "feature": "monthly-budget",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "b95e97c682c550f2"
+  },
+  "hook": "Overspending every month?",
+  "headline": "Stay under budget, every month",
+  "music": {
+    "mood": "warm",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Open your profile",
+      "do": [
+        {
+          "tapOn": "TU"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "(?s)Monthly budget.*",
+      "zoom": {
+        "x": 0.5,
+        "y": 0.72,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Tap Monthly budget",
+      "do": [
+        {
+          "tapOn": "(?s)Monthly budget.*"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Monthly Budget",
+      "zoom": {
+        "x": 0.5,
+        "y": 0.72,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Set your limit",
+      "do": [
+        {
+          "tapOn": "42000"
+        },
+        {
+          "eraseText": 10
+        },
+        {
+          "typeText": "35000"
+        }
+      ],
+      "hold": 0.8,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Save it",
+      "do": [
+        {
+          "tapOn": "Update"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "(?s)Monthly budget\\n₹35000",
+      "zoom": {
+        "x": 0.5,
+        "y": 0.72,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Track what's left ✓",
+      "do": [
+        {
+          "pressKey": "Back"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        },
+        {
+          "runFlow": {
+            "when": {
+              "notVisible": "November budget"
+            },
+            "commands": [
+              {
+                "tapOn": {
+                  "text": "Home",
+                  "index": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "(?s)₹.* / ₹35000",
+            "timeout": 10000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 2.2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.47,
+        "scale": 1.4,
+        "rect": [
+          40,
+          980,
+          1040,
+          1220
+        ]
+      },
+      "expect": "November budget"
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "tapOn": "TU"
+    },
+    {
+      "tapOn": "(?s)Monthly budget.*"
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 2000
+      }
+    },
+    {
+      "tapOn": "(35000|42000)"
+    },
+    {
+      "eraseText": 10
+    },
+    {
+      "inputText": "42000"
+    },
+    {
+      "tapOn": "Update"
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 3000
+      }
+    },
+    {
+      "use": "freshHome"
+    }
+  ]
+}
