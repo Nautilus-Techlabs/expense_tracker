@@ -1,0 +1,86 @@
+{
+  "feature": "dashboard-overview",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "ee72df71fa1a7ddf"
+  },
+  "number": {
+    "value": "1 screen",
+    "caption": "for your whole money picture"
+  },
+  "headline": "Your whole money picture on one screen",
+  "music": {
+    "mood": "calm",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Your total balance",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.29,
+        "scale": 1.15,
+        "rect": [
+          40,
+          390,
+          1040,
+          930
+        ]
+      }
+    },
+    {
+      "label": "Budget left this month",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.47,
+        "scale": 1.15,
+        "rect": [
+          40,
+          980,
+          1040,
+          1220
+        ]
+      }
+    },
+    {
+      "label": "Latest spending, at a glance",
+      "do": [
+        {
+          "swipe": {
+            "start": "50%,75%",
+            "end": "50%,45%",
+            "duration": 700
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 2.2
+    }
+  ],
+  "teardown": []
+}

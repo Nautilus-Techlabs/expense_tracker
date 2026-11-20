@@ -1,0 +1,165 @@
+{
+  "feature": "split-circle-expenses",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "a95f4e1220dec9fa"
+  },
+  "problem": [
+    "Who paid for dinner?",
+    "Who owes how much?"
+  ],
+  "turn": "Let the app do the maths",
+  "headline": "Split bills fairly, with no maths",
+  "music": {
+    "mood": "upbeat",
+    "track": null
+  },
+  "payoff": "Everyone's share, worked out. No awkward maths.",
+  "setup": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "use": "openFlatmates"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Tap Add expense",
+      "do": [
+        {
+          "tapOn": "+ Add expense"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Add Circle Expense"
+    },
+    {
+      "label": "Type the amount",
+      "do": [
+        {
+          "tapOn": "0.00"
+        },
+        {
+          "typeText": "600"
+        }
+      ],
+      "hold": 0.6,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.21,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "What was it for?",
+      "do": [
+        {
+          "tapOn": "e.g. Dinner at Fisherman's Wharf"
+        },
+        {
+          "typeText": "Pizza night"
+        },
+        {
+          "hideKeyboard": null
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "label": "Pick your account",
+      "do": [
+        {
+          "tapOn": {
+            "text": "Account",
+            "index": 1
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        },
+        {
+          "tapOn": "HDFC"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "label": "Split with everyone",
+      "do": [
+        {
+          "swipe": {
+            "start": "50%,75%",
+            "end": "50%,35%",
+            "duration": 700
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 1,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.62,
+        "scale": 1.3
+      }
+    },
+    {
+      "label": "Add it",
+      "do": [
+        {
+          "tapOn": "Add Expense"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "SUMMARY",
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 0.4,
+      "minLength": 0.9
+    },
+    {
+      "label": "Everyone's share, done ✓",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2.2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.55,
+        "scale": 1.3
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    }
+  ]
+}

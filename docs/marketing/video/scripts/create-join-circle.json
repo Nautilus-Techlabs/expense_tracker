@@ -1,0 +1,268 @@
+{
+  "feature": "create-join-circle",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "d6c9c5f3ad873f18"
+  },
+  "number": {
+    "value": "1 link",
+    "caption": "brings your whole group in"
+  },
+  "headline": "Bring your group together with one link",
+  "music": {
+    "mood": "playful",
+    "track": null
+  },
+  "payoff": "One circle for the trip. Everyone's in.",
+  "setup": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "tapOn": "Circles"
+    },
+    {
+      "extendedWaitUntil": {
+        "visible": "Create a new circle",
+        "timeout": 15000
+      }
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 2000
+      }
+    }
+  ],
+  "beats": [
+    {
+      "chapter": "Start a circle",
+      "label": "Tap Create",
+      "do": [
+        {
+          "tapOn": "Create a new circle"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Circle Name"
+    },
+    {
+      "chapter": "Start a circle",
+      "label": "Make it one-time",
+      "do": [
+        {
+          "tapOn": "One-Time"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "chapter": "Start a circle",
+      "label": "Name it",
+      "do": [
+        {
+          "tapOn": "e.g. Goa Trip 2026"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        },
+        {
+          "typeText": "Goa Trip"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        },
+        {
+          "swipe": {
+            "start": "50%,21%",
+            "end": "50%,34%",
+            "duration": 400
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 1.4,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.17,
+        "scale": 1.4
+      }
+    },
+    {
+      "chapter": "Start a circle",
+      "label": "Pick your account",
+      "do": [
+        {
+          "hideKeyboard": null
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        },
+        {
+          "tapOn": "Select account"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        },
+        {
+          "tapOn": "HDFC"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        }
+      ],
+      "hold": 0.8
+    },
+    {
+      "chapter": "Start a circle",
+      "label": "Create it",
+      "do": [
+        {
+          "tapOn": {
+            "text": "Create Circle",
+            "index": 1
+          }
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "(?s).*Goa Trip.*",
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 1.2
+    },
+    {
+      "chapter": "Invite friends",
+      "label": "Open your circle",
+      "do": [
+        {
+          "tapOn": "(?s).*Goa Trip.*"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "SUMMARY",
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 1
+    },
+    {
+      "chapter": "Invite friends",
+      "label": "Share one invite link ✓",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "zoom": {
+        "x": 0.6,
+        "y": 0.36,
+        "scale": 1.3,
+        "spot": "Add member"
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "tapOn": "Circles"
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 2000
+      }
+    },
+    {
+      "runFlow": {
+        "when": {
+          "visible": "(?s).*Goa Trip.*"
+        },
+        "commands": [
+          {
+            "tapOn": "(?s).*Goa Trip.*"
+          },
+          {
+            "extendedWaitUntil": {
+              "visible": "SUMMARY",
+              "timeout": 15000
+            }
+          },
+          {
+            "tapOn": {
+              "point": "93%,6%"
+            }
+          },
+          {
+            "scrollUntilVisible": {
+              "element": {
+                "text": "Delete Circle"
+              }
+            }
+          },
+          {
+            "tapOn": "Delete Circle"
+          },
+          {
+            "waitForAnimationToEnd": {
+              "timeout": 1500
+            }
+          },
+          {
+            "tapOn": {
+              "text": "Delete",
+              "index": 0
+            }
+          },
+          {
+            "waitForAnimationToEnd": {
+              "timeout": 3000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "use": "freshHome"
+    }
+  ]
+}

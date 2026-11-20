@@ -1,0 +1,111 @@
+{
+  "feature": "settle-up",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "3862f69482bd5457"
+  },
+  "result": "John paid back ₹500. Recorded.",
+  "headline": "Clear group debts in one tap",
+  "body": "fullscreen",
+  "music": {
+    "mood": "confident",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "use": "openFlatmates"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Tap Settle up",
+      "do": [
+        {
+          "tapOn": "Settle up"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.8,
+      "expect": "Select a member to settle your balances with"
+    },
+    {
+      "label": "Pick who paid you",
+      "do": [
+        {
+          "tapOn": "(?s).*John Doe\\nOwes.*"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "How much did they pay you?"
+    },
+    {
+      "label": "Enter what they paid",
+      "do": [
+        {
+          "tapOn": "(?s)\\d+"
+        },
+        {
+          "eraseText": 10
+        },
+        {
+          "typeText": "500"
+        }
+      ],
+      "hold": 0.8
+    },
+    {
+      "label": "Confirm it",
+      "do": [
+        {
+          "tapOn": "Confirm"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "SUMMARY",
+            "timeout": 15000
+          }
+        }
+      ],
+      "hold": 0.3,
+      "speed": 2,
+      "minLength": 0.8
+    },
+    {
+      "label": "Balances updated ✓",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 2.2,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.55,
+        "scale": 1.2,
+        "spot": [
+          "John Doe",
+          "Owes ₹\\d+ to you"
+        ]
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    }
+  ]
+}

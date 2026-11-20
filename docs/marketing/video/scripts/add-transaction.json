@@ -1,0 +1,224 @@
+{
+  "feature": "add-transaction",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "ef002d6680be0e6b"
+  },
+  "hook": "Where did that ₹450 go?",
+  "headline": "Every expense tracked in a few taps",
+  "music": {
+    "mood": "upbeat",
+    "track": null
+  },
+  "setup": [
+    {
+      "use": "freshHome"
+    }
+  ],
+  "beats": [
+    {
+      "label": "Tap +",
+      "do": [
+        {
+          "tapOn": {
+            "point": "50%,86%"
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Add transaction"
+    },
+    {
+      "label": "Type the amount",
+      "do": [
+        {
+          "tapOn": {
+            "text": "0",
+            "index": 0
+          }
+        },
+        {
+          "typeText": "450"
+        },
+        {
+          "hideKeyboard": null
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 0.8,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.34,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Pick a category",
+      "do": [
+        {
+          "tapOn": "Food & Dining"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        }
+      ],
+      "hold": 0.8
+    },
+    {
+      "label": "Choose the account",
+      "do": [
+        {
+          "swipe": {
+            "start": "50%,72%",
+            "end": "50%,40%",
+            "duration": 500
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        },
+        {
+          "tapOn": "Cash Wallet"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1000
+          }
+        }
+      ],
+      "hold": 0.8,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.62,
+        "scale": 1.4
+      }
+    },
+    {
+      "label": "Add a note",
+      "do": [
+        {
+          "tapOn": "Add a note (optional)"
+        },
+        {
+          "typeText": "Lunch with friends"
+        },
+        {
+          "hideKeyboard": null
+        }
+      ],
+      "hold": 0.8
+    },
+    {
+      "label": "Save it",
+      "do": [
+        {
+          "tapOn": "Save transaction"
+        },
+        {
+          "extendedWaitUntil": {
+            "notVisible": "Save transaction",
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 3000
+          }
+        }
+      ],
+      "hold": 0.3,
+      "minLength": 0.9
+    },
+    {
+      "label": "Balance updated ✓",
+      "do": [
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 1500
+          }
+        }
+      ],
+      "hold": 2,
+      "expect": "(?s)Lunch with friends.*₹450.*",
+      "zoom": {
+        "x": 0.5,
+        "y": 0.66,
+        "scale": 1.35,
+        "spot": "(?s)Lunch with friends.*"
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "repeat": {
+        "times": 2,
+        "commands": [
+          {
+            "runFlow": {
+              "when": {
+                "visible": "(?s)Lunch with friends\\nExpense\\n₹450.*"
+              },
+              "commands": [
+                {
+                  "tapOn": "(?s)Lunch with friends\\nExpense\\n₹450.*"
+                },
+                {
+                  "tapOn": "Delete"
+                },
+                {
+                  "waitForAnimationToEnd": {
+                    "timeout": 1500
+                  }
+                },
+                {
+                  "tapOn": {
+                    "text": "Delete",
+                    "index": 0
+                  }
+                },
+                {
+                  "waitForAnimationToEnd": {
+                    "timeout": 3000
+                  }
+                },
+                {
+                  "launchApp": {
+                    "appId": "com.nt.expensetracker",
+                    "stopApp": true
+                  }
+                },
+                {
+                  "extendedWaitUntil": {
+                    "visible": "Total balance",
+                    "timeout": 15000
+                  }
+                },
+                {
+                  "waitForAnimationToEnd": {
+                    "timeout": 3000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

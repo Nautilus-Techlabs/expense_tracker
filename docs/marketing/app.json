@@ -1,0 +1,77 @@
+{
+  "name": "Expense Lite",
+  "tagline": "Track spending, budgets and group bills.",
+  "packageId": "com.nt.expensetracker",
+  "icon": "assets/images/logo.png",
+  "font": "Manrope",
+  "statusBarIcons": "dark",
+  "colors": {
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "ink": "#121212",
+    "accent": "#00B894",
+    "accentSoft": "#E6FFF8",
+    "textSecondary": "#5F6A73"
+  },
+  "stores": {
+    "playStore": null,
+    "appStore": null
+  },
+  "env": {
+    "EMAIL": "EXPENSE_LITE_EMAIL",
+    "PASSWORD": "EXPENSE_LITE_PASSWORD"
+  },
+  "setup": [
+    {
+      "launchApp": {
+        "appId": "com.nt.expensetracker",
+        "stopApp": true
+      }
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 5000
+      }
+    }
+  ],
+  "fixtures": {
+    "freshHome": [
+      {
+        "launchApp": {
+          "appId": "com.nt.expensetracker",
+          "stopApp": true
+        }
+      },
+      {
+        "extendedWaitUntil": {
+          "visible": "Total balance",
+          "timeout": 15000
+        }
+      },
+      {
+        "waitForAnimationToEnd": {
+          "timeout": 3000
+        }
+      }
+    ],
+    "openFlatmates": [
+      {
+        "tapOn": "Circles"
+      },
+      {
+        "tapOn": "(?s)ONGOING.*Flatmates.*"
+      },
+      {
+        "extendedWaitUntil": {
+          "visible": "SUMMARY",
+          "timeout": 15000
+        }
+      },
+      {
+        "waitForAnimationToEnd": {
+          "timeout": 3000
+        }
+      }
+    ]
+  }
+}

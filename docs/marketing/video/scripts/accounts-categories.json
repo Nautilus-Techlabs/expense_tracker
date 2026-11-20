@@ -1,0 +1,199 @@
+{
+  "feature": "accounts-categories",
+  "basedOn": {
+    "updated": "2026-11-05",
+    "hash": "13f754f5395b5c66"
+  },
+  "hook": "Money in five places?",
+  "headline": "Organise money your way",
+  "music": {
+    "mood": "warm",
+    "track": null
+  },
+  "payoff": "Your accounts, your categories. Your way.",
+  "setup": [
+    {
+      "use": "freshHome"
+    },
+    {
+      "tapOn": "TU"
+    },
+    {
+      "waitForAnimationToEnd": {
+        "timeout": 2000
+      }
+    }
+  ],
+  "beats": [
+    {
+      "chapter": "Your accounts",
+      "label": "Open Accounts",
+      "do": [
+        {
+          "tapOn": "Accounts"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.8,
+      "expect": "Add Account"
+    },
+    {
+      "chapter": "Your accounts",
+      "label": "Add an account",
+      "do": [
+        {
+          "tapOn": "Add Account"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        },
+        {
+          "tapOn": "e.g. HDFC Salary, Wallet"
+        },
+        {
+          "typeText": "Axis Savings"
+        },
+        {
+          "hideKeyboard": null
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "chapter": "Your accounts",
+      "label": "Set its balance",
+      "do": [
+        {
+          "tapOn": "0.00"
+        },
+        {
+          "typeText": "25000"
+        },
+        {
+          "hideKeyboard": null
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "chapter": "Your accounts",
+      "label": "Account added ✓",
+      "do": [
+        {
+          "tapOn": "CREATE ACCOUNT"
+        },
+        {
+          "extendedWaitUntil": {
+            "visible": "(?s)Axis Savings.*",
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 1.4,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1.3,
+        "spot": "(?s)Axis Savings.*"
+      }
+    },
+    {
+      "chapter": "Your categories",
+      "label": "Open Categories",
+      "do": [
+        {
+          "pressKey": "Back"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        },
+        {
+          "tapOn": "Categories"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 0.6,
+      "expect": "Add Category"
+    },
+    {
+      "chapter": "Your categories",
+      "label": "Make your own",
+      "do": [
+        {
+          "tapOn": "Add Category"
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        },
+        {
+          "tapOn": "e.g. Groceries"
+        },
+        {
+          "typeText": "Gym"
+        },
+        {
+          "hideKeyboard": null
+        }
+      ],
+      "hold": 0.6
+    },
+    {
+      "chapter": "Your categories",
+      "label": "Category added ✓",
+      "do": [
+        {
+          "tapOn": "Save Category"
+        },
+        {
+          "scrollUntilVisible": {
+            "element": {
+              "text": "(?s)Gym.*"
+            },
+            "timeout": 15000
+          }
+        },
+        {
+          "waitForAnimationToEnd": {
+            "timeout": 2000
+          }
+        }
+      ],
+      "hold": 1.6,
+      "zoom": {
+        "x": 0.5,
+        "y": 0.94,
+        "scale": 1.4,
+        "rect": [
+          66,
+          2100,
+          1014,
+          2300
+        ]
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "use": "freshHome"
+    }
+  ]
+}
